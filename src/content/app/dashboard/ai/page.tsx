@@ -65,7 +65,7 @@ export default function AIPage() {
     setMessages(next)
     setLoading(true)
 
-    // Build Gemini history (exclude the initial greeting)
+    // Build Gemini history (exclude the initial greeting and the current message)
     const history = next.slice(1, -1).map((m) => ({
       role: m.role === 'user' ? 'user' : 'model' as const,
       parts: [{ text: m.content }],
@@ -75,7 +75,7 @@ export default function AIPage() {
       const res = await fetch('/api/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: msg }),
+        body: JSON.stringify({ message: msg, history }),
       })
       const data = await res.json()
       if (!res.ok || data.error) throw new Error(data.error || 'API error')

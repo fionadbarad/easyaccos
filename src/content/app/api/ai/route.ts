@@ -11,7 +11,7 @@ type AIRequest = {
 }
 
 export async function POST(request: NextRequest) {
-  if (!process.env.GOOGLE_API_KEY) {
+  if (!process.env.GEMINI_API_KEY) {
     return NextResponse.json({ error: 'AI service not configured' }, { status: 503 })
   }
 
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Query or message is required' }, { status: 400 })
     }
 
-    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
     const model = genAI.getGenerativeModel({
       model: 'gemini-1.5-flash',
       systemInstruction:

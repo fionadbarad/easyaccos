@@ -1,34 +1,15 @@
-@import "tailwindcss";
-
-@theme inline {
-  /* Celestial Inkwell palette */
-  --color-midnight:    #0B0F1A;
-  --color-midnightDeep:#050816;
-  --color-plum:        #111827;
-  --color-plumLight:   #1f2937;
-  --color-gold:        #C2A368;
-  --color-goldMuted:   rgba(194,163,104,0.55);
-  --color-blue:        #3B82F6;
-  --color-white:       #E5E7EB;
-  --color-textMuted:   rgba(229,231,235,0.65);
-
-  /* Design system scale */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.25rem;
-  --radius: 10px;
-}
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
 :root {
-  --bg:          var(--color-midnight);
-  --bg-deep:     var(--color-midnightDeep);
-  --card:        var(--color-plum);
-  --gold:        var(--color-gold);
-  --blue:        var(--color-blue);
-  --text:        var(--color-white);
-  --text-muted:  var(--color-textMuted);
+  --bg:          #0B0F1A;
+  --bg-deep:     #050816;
+  --card:        #111827;
+  --gold:        #C2A368;
+  --blue:        #3B82F6;
+  --text:        #E5E7EB;
+  --text-muted:  rgba(229,231,235,0.65);
   --border:      rgba(194,163,104,0.2);
 }
 

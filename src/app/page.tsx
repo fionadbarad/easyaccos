@@ -1,261 +1,213 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import {
-  Bot, BarChart2, LayoutDashboard, ArrowRightLeft,
-  GraduationCap, Receipt, ArrowRight, ChevronDown
-} from 'lucide-react'
+import { motion } from 'framer-motion'
+import { ArrowRight, Database, BarChart2, Bot, Star } from 'lucide-react'
+import Kittax from '@/components/Kittax'
 
-const FEATURES = [
-  { icon: <Bot size={28} />, title: 'AI Tax Assistant', desc: 'Ask anything about UK tax. Powered by Gemini AI, trained on HMRC rules.' },
-  { icon: <BarChart2 size={28} />, title: 'Live Tax Estimator', desc: 'Real-time Income Tax, NI Class 2 & 4, and Student Loan calculations for 2026/27.' },
-  { icon: <LayoutDashboard size={28} />, title: 'Smart Dashboard', desc: 'Visual P&L reports. Income trajectories. HMRC-ready data.' },
-  { icon: <ArrowRightLeft size={28} />, title: 'Live Currency Converter', desc: 'Real exchange rates updated every 60 seconds. 170+ currencies.' },
-  { icon: <GraduationCap size={28} />, title: 'Learn Module', desc: "Swipeable financial literacy cards. The Duolingo of UK tax." },
-  { icon: <Receipt size={28} />, title: 'Expense Tracker', desc: "Log expenses mapped to HMRC's 'Wholly and Exclusively' rule." },
-]
-
-const STATS = [
-  { num: '39%', label: 'of UK adults have a side hustle' },
-  { num: '9%', label: 'of young people pass money literacy tests' },
-  { num: '65%', label: "of side earners don't know they need to register for tax" },
-]
+// ─── Celestial palette ───────────────────────────────────────────────────────
+const C = {
+  bg:       '#1A2342',
+  deep:     '#0F1628',
+  card:     '#4A4066',
+  gold:     '#C2A368',
+  text:     '#E4D3B4',
+  muted:    'rgba(228,211,180,0.55)',
+  border:   'rgba(194,163,104,0.2)',
+}
 
 const STEPS = [
-  { n: '01', title: 'Sign up free', desc: 'Create your account and enter your income profile in minutes.' },
-  { n: '02', title: 'Track & Estimate', desc: 'Log expenses and get your live HMRC-accurate tax estimate.' },
-  { n: '03', title: 'Learn & Grow', desc: 'Master UK tax with AI-powered literacy cards at your own pace.' },
+  {
+    icon: <Database size={28} />,
+    step: '01',
+    title: 'Connect Your Data',
+    desc: 'Enter your income, expenses, and employment details in minutes. No accountant needed.',
+  },
+  {
+    icon: <BarChart2 size={28} />,
+    step: '02',
+    title: 'Track HMRC & Tax',
+    desc: 'Get HMRC-accurate estimates for Income Tax, NI Class 2 & 4, and Student Loan for 2026/27.',
+  },
+  {
+    icon: <Bot size={28} />,
+    step: '03',
+    title: 'Optimise with AI',
+    desc: 'Ask our Gemini-powered AI anything about UK tax. Get personalised insights instantly.',
+  },
 ]
 
-function FloatingParticles() {
-  const [particles] = useState(() =>
-    Array.from({ length: 24 }, (_, i) => ({
-      id: i,
-      w: 1 + (i % 3),
-      left: `${(i * 4.2) % 100}%`,
-      top: `${(i * 7.3) % 100}%`,
-      isGold: i % 3 === 0,
-      dur: 4 + (i % 6),
-      delay: (i % 4),
-    }))
-  )
+const FEATURES = [
+  'Live Tax Estimator · 2026/27',
+  'AI Assistant (Gemini)',
+  'Expense Tracker',
+  'P&L Reports',
+  'Currency Converter · 170+ pairs',
+  'Financial Literacy Cards',
+]
+
+function StarField() {
+  const stars = Array.from({ length: 40 }, (_, i) => ({
+    id: i,
+    size: 1 + (i % 2),
+    left: `${(i * 2.5) % 100}%`,
+    top:  `${(i * 2.7) % 100}%`,
+    delay: (i % 5) * 0.4,
+    dur:   3 + (i % 4),
+  }))
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {particles.map((p) => (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
+      {stars.map((s) => (
         <motion.div
-          key={p.id}
+          key={s.id}
           className="absolute rounded-full"
-          style={{
-            width: p.w,
-            height: p.w,
-            left: p.left,
-            top: p.top,
-            background: p.isGold ? '#D4AF37' : '#C0C0C0',
-            opacity: 0.2,
-          }}
-          animate={{ y: [0, -40, 0], opacity: [0.1, 0.4, 0.1] }}
-          transition={{ duration: p.dur, repeat: Infinity, delay: p.delay, ease: 'easeInOut' }}
+          style={{ width: s.size, height: s.size, left: s.left, top: s.top, background: C.gold, opacity: 0.15 }}
+          animate={{ opacity: [0.08, 0.35, 0.08] }}
+          transition={{ duration: s.dur, repeat: Infinity, delay: s.delay, ease: 'easeInOut' }}
         />
       ))}
-      <svg className="absolute inset-0 w-full h-full">
-        <defs>
-          <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
-            <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(192,192,192,0.05)" strokeWidth="1" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#grid)" />
-      </svg>
     </div>
   )
 }
 
-export default function HomePage() {
-  const [scrolled, setScrolled] = useState(false)
-  useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 20)
-    window.addEventListener('scroll', h)
-    return () => window.removeEventListener('scroll', h)
-  }, [])
-
+export default function LandingPage() {
   return (
-    <div style={{ background: '#292E1E', minHeight: '100vh' }}>
-      {/* NAVBAR */}
-      <nav
-        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
-        style={{
-          background: scrolled ? 'rgba(41,46,30,0.96)' : 'rgba(41,46,30,0.7)',
-          backdropFilter: 'blur(12px)',
-          borderBottom: scrolled ? '1px solid rgba(192,192,192,0.1)' : '1px solid transparent',
-        }}
-      >
+    <div style={{ background: C.bg, minHeight: '100vh', color: C.text }}>
+
+      {/* ── NAV ── */}
+      <nav style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
+        background: 'rgba(15,22,40,0.85)', backdropFilter: 'blur(14px)',
+        borderBottom: `1px solid ${C.border}`,
+      }}>
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <span style={{ fontFamily: 'var(--font-playfair)', color: '#C0C0C0', fontSize: '1.4rem', fontWeight: 700 }}>
+          <span style={{ fontFamily: 'var(--font-playfair)', color: C.gold, fontSize: '1.35rem', fontWeight: 700 }}>
             EasyAcco
           </span>
-          <div className="hidden md:flex items-center gap-8">
-            {['Features', 'How It Works', 'Learn'].map((item) => (
-              <a key={item} href={`#${item.toLowerCase().replace(' ', '-')}`}
-                style={{ color: '#8A9070', fontSize: '0.875rem', textDecoration: 'none', transition: 'color 0.2s' }}
-                onMouseEnter={(e) => ((e.target as HTMLElement).style.color = '#C0C0C0')}
-                onMouseLeave={(e) => ((e.target as HTMLElement).style.color = '#8A9070')}
-              >{item}</a>
-            ))}
+          <div className="flex items-center gap-4">
+            <Link href="/auth/login"
+              style={{ color: C.muted, fontSize: '0.875rem', textDecoration: 'none', padding: '6px 12px' }}>
+              Sign In
+            </Link>
+            <Link href="/auth/signup"
+              style={{ background: C.gold, color: C.deep, padding: '8px 20px', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none', borderRadius: '3px' }}>
+              Get Started Free
+            </Link>
           </div>
-          <Link href="/dashboard"
-            style={{ background: '#D4AF37', color: '#1E2218', padding: '8px 20px', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none', borderRadius: '2px' }}>
-            Open Dashboard
-          </Link>
         </div>
       </nav>
 
-      {/* HERO */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-16">
-        <FloatingParticles />
-        <div className="relative z-10 max-w-4xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-            <div style={{ display: 'inline-block', padding: '6px 16px', borderRadius: '999px', border: '1px solid rgba(212,175,55,0.3)', color: '#D4AF37', background: 'rgba(212,175,55,0.08)', fontSize: '0.7rem', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '2rem' }}>
-              UK Tax Platform · Free Forever
+      {/* ── HERO ── */}
+      <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '6rem 1.5rem 4rem' }}>
+        <StarField />
+        {/* Radial glow */}
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 70% 60% at 50% 40%, rgba(74,64,102,0.35) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: '760px', margin: '0 auto' }}>
+          <motion.div initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9 }} suppressHydrationWarning>
+
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 14px', border: `1px solid ${C.border}`, borderRadius: '999px', color: C.gold, fontSize: '0.7rem', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '2rem', background: 'rgba(194,163,104,0.08)' }}>
+              <Star size={10} fill={C.gold} /> UK Tax Platform · Free Forever
             </div>
-            <h1 style={{ fontFamily: 'var(--font-playfair)', color: '#C0C0C0', fontSize: 'clamp(2.5rem,7vw,5rem)', fontWeight: 700, lineHeight: 1.1, marginBottom: '1.5rem' }}>
-              Your Financial<br />
-              <em style={{ color: '#D4AF37' }}>Sanctuary</em>
+
+            <h1 style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(2.8rem,8vw,5.5rem)', fontWeight: 700, lineHeight: 1.08, marginBottom: '1.5rem', color: C.text }}>
+              Welcome to<br />
+              <em style={{ color: C.gold, fontStyle: 'italic' }}>EasyAcco</em>
             </h1>
-            <p style={{ color: '#8A9070', fontSize: '1.1rem', maxWidth: '36rem', margin: '0 auto 2.5rem', lineHeight: 1.7 }}>
-              The UK&apos;s first Dark Luxury tax platform for freelancers and Gen Z — AI-powered, HMRC-accurate, and free forever.
+
+            <p style={{ color: C.muted, fontSize: '1.1rem', lineHeight: 1.75, maxWidth: '38rem', margin: '0 auto 2.5rem' }}>
+              Your celestial financial sanctuary. HMRC-accurate tax estimates, AI-powered guidance, and expense tracking — all free, forever.
             </p>
+
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link href="/auth/signup" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '14px 32px', background: '#D4AF37', color: '#1E2218', fontSize: '0.95rem', fontWeight: 600, textDecoration: 'none', borderRadius: '2px' }}>
-                Get Started Free <ArrowRight size={18} />
+              <Link href="/auth/login" className="ui-btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                Login to Dashboard <ArrowRight size={18} />
               </Link>
-              <a href="#how-it-works" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '14px 32px', border: '1px solid rgba(192,192,192,0.3)', color: '#C0C0C0', fontSize: '0.95rem', fontWeight: 600, textDecoration: 'none', borderRadius: '2px', background: 'transparent' }}>
-                See How It Works
-              </a>
+              <Link href="/auth/signup" className="ui-btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                Create Free Account
+              </Link>
             </div>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
-            style={{ marginTop: '5rem', display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1.5rem', maxWidth: '32rem', margin: '5rem auto 0' }}>
-            {[{ label: 'Free Forever', sub: 'No hidden fees' }, { label: 'UK Tax Ready', sub: '2026/27 figures' }, { label: 'AI-Powered', sub: 'Gemini AI' }].map((s) => (
-              <div key={s.label} style={{ textAlign: 'center' }}>
-                <div style={{ color: '#D4AF37', fontWeight: 600, fontSize: '0.875rem' }}>{s.label}</div>
-                <div style={{ color: '#8A9070', fontSize: '0.75rem', marginTop: '4px' }}>{s.sub}</div>
-              </div>
-            ))}
-          </motion.div>
-          <motion.div style={{ marginTop: '4rem' }} animate={{ y: [0, 8, 0] }} transition={{ duration: 2, repeat: Infinity }}>
-            <ChevronDown size={24} style={{ color: '#8A9070', margin: '0 auto', display: 'block' }} />
+
+            <Kittax message="I’m Kittax. Ask me anything about UK tax and I’ll keep it calm, confident, and coercively accurate." />
+
+            {/* Feature pills */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }} suppressHydrationWarning
+              style={{ marginTop: '2rem', display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
+              {FEATURES.map((f) => (
+                <span key={f} style={{ padding: '4px 12px', background: 'rgba(74,64,102,0.5)', border: `1px solid ${C.border}`, borderRadius: '999px', fontSize: '0.75rem', color: C.muted }}>
+                  {f}
+                </span>
+              ))}
+            </motion.div>
           </motion.div>
         </div>
       </section>
 
-      {/* FEATURES */}
-      <section id="features" style={{ padding: '6rem 1.5rem', background: '#1E2218' }}>
-        <div className="max-w-6xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <h2 style={{ fontFamily: 'var(--font-playfair)', color: '#C0C0C0', fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 700, marginBottom: '1rem' }}>
-              Everything You Need
-            </h2>
-            <p style={{ color: '#8A9070' }}>Six powerful tools in one dark luxury platform</p>
-          </motion.div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: '1.5rem' }}>
-            {FEATURES.map((f, i) => (
-              <motion.div key={f.title}
-                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }} whileHover={{ y: -4 }}
-                style={{ padding: '2rem', background: '#292E1E', border: '1px solid rgba(192,192,192,0.12)', borderRadius: '2px', boxShadow: '0 4px 24px rgba(0,0,0,0.3)' }}>
-                <div style={{ color: '#D4AF37', marginBottom: '1rem' }}>{f.icon}</div>
-                <h3 style={{ fontFamily: 'var(--font-playfair)', color: '#C0C0C0', fontSize: '1.2rem', fontWeight: 700, marginBottom: '0.5rem' }}>{f.title}</h3>
-                <p style={{ color: '#8A9070', fontSize: '0.875rem', lineHeight: 1.6 }}>{f.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* EDITORIAL STATS */}
-      <section style={{ padding: '6rem 1.5rem', background: '#292E1E' }}>
+      {/* ── HOW IT WORKS ── */}
+      <section style={{ padding: '6rem 1.5rem', background: C.deep }}>
         <div className="max-w-5xl mx-auto">
-          <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-            style={{ textAlign: 'center', color: '#8A9070', fontSize: '0.7rem', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '4rem' }}>
-            The Reality
-          </motion.p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '3rem' }}>
-            {STATS.map((s, i) => (
-              <motion.div key={s.num} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.2 }} style={{ textAlign: 'center' }}>
-                <div style={{ fontFamily: 'var(--font-playfair)', color: '#D4AF37', fontSize: 'clamp(4rem,8vw,6rem)', fontWeight: 700, lineHeight: 1 }}>{s.num}</div>
-                <p style={{ color: '#8A9070', marginTop: '1rem', lineHeight: 1.5 }}>{s.label}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* HOW IT WORKS */}
-      <section id="how-it-works" style={{ padding: '6rem 1.5rem', background: '#1E2218' }}>
-        <div className="max-w-4xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <h2 style={{ fontFamily: 'var(--font-playfair)', color: '#C0C0C0', fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 700 }}>
-              How It Works
+            <p style={{ color: C.gold, fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>The Process</p>
+            <h2 style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(1.8rem,4vw,3rem)', fontWeight: 700, color: C.text }}>
+              Three Steps to Clarity
             </h2>
           </motion.div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            {STEPS.map((step, i) => (
-              <motion.div key={step.n}
-                initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-                transition={{ delay: i * 0.15 }}
-                style={{ display: 'flex', alignItems: 'flex-start', gap: '2rem', padding: '2rem', background: '#292E1E', border: '1px solid rgba(192,192,192,0.1)', borderRadius: '2px' }}>
-                <div style={{ flexShrink: 0, width: '3.5rem', height: '3.5rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(212,175,55,0.15)', border: '2px solid #D4AF37', color: '#D4AF37', fontFamily: 'var(--font-playfair)', fontWeight: 700 }}>
-                  {step.n}
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: '1.5rem' }}>
+            {STEPS.map((s, i) => (
+              <motion.div key={s.step}
+                initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ delay: i * 0.15 }}
+                style={{
+                  position: 'relative', padding: '2.25rem 2rem',
+                  background: C.card,
+                  border: `1px solid ${C.border}`,
+                  borderRadius: '6px',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
+                }}>
+                {/* Step number watermark */}
+                <div style={{ position: 'absolute', top: '1.25rem', right: '1.5rem', fontFamily: 'var(--font-playfair)', fontSize: '3rem', fontWeight: 700, color: 'rgba(194,163,104,0.1)', lineHeight: 1 }}>
+                  {s.step}
                 </div>
-                <div>
-                  <h3 style={{ fontFamily: 'var(--font-playfair)', color: '#C0C0C0', fontSize: '1.2rem', fontWeight: 700, marginBottom: '0.5rem' }}>{step.title}</h3>
-                  <p style={{ color: '#8A9070', fontSize: '0.875rem', lineHeight: 1.6 }}>{step.desc}</p>
-                </div>
+                <div style={{ color: C.gold, marginBottom: '1.25rem' }}>{s.icon}</div>
+                <h3 style={{ fontFamily: 'var(--font-playfair)', color: C.text, fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.75rem' }}>
+                  {s.title}
+                </h3>
+                <p style={{ color: C.muted, fontSize: '0.875rem', lineHeight: 1.7 }}>{s.desc}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA BANNER */}
-      <section style={{ padding: '6rem 1.5rem', textAlign: 'center', background: 'linear-gradient(135deg,#292E1E 0%,#1E2218 50%,#292E1E 100%)', borderTop: '1px solid rgba(212,175,55,0.2)', borderBottom: '1px solid rgba(212,175,55,0.2)' }}>
+      {/* ── CTA BRIDGE ── */}
+      <section style={{ padding: '6rem 1.5rem', background: C.bg, textAlign: 'center', borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="max-w-2xl mx-auto">
-          <h2 style={{ fontFamily: 'var(--font-playfair)', color: '#C0C0C0', fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 700, marginBottom: '1.5rem' }}>
-            Ready to own your finances?
+          <h2 style={{ fontFamily: 'var(--font-playfair)', color: C.text, fontSize: 'clamp(1.8rem,4vw,2.8rem)', fontWeight: 700, marginBottom: '1rem' }}>
+            Your sanctuary awaits.
           </h2>
-          <p style={{ color: '#8A9070', fontSize: '1.1rem', marginBottom: '2.5rem' }}>
-            Join thousands of UK freelancers and students who have claimed their financial sanctuary.
+          <p style={{ color: C.muted, marginBottom: '2.5rem', fontSize: '1.05rem' }}>
+            Join UK freelancers and students who have taken control of their tax and finances.
           </p>
-          <Link href="/auth/signup" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '16px 40px', background: '#D4AF37', color: '#1E2218', fontWeight: 600, textDecoration: 'none', borderRadius: '2px' }}>
-            Get Started Free <ArrowRight size={18} />
+          <Link href="/auth/login"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '16px 44px', background: C.gold, color: C.deep, fontWeight: 700, fontSize: '1rem', textDecoration: 'none', borderRadius: '3px' }}>
+            Login to Dashboard <ArrowRight size={20} />
           </Link>
         </motion.div>
       </section>
 
-      {/* FOOTER */}
-      <footer style={{ padding: '4rem 1.5rem', background: '#1E2218', borderTop: '1px solid rgba(192,192,192,0.08)' }}>
-        <div className="max-w-6xl mx-auto">
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: '2rem' }}>
-            <div>
-              <div style={{ fontFamily: 'var(--font-playfair)', color: '#C0C0C0', fontSize: '1.4rem', fontWeight: 700, marginBottom: '0.5rem' }}>EasyAcco</div>
-              <p style={{ color: '#8A9070', fontSize: '0.875rem' }}>The Digital Sanctuary for UK Freelancers</p>
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem' }}>
-              {['Features', 'Dashboard', 'Learn', 'Privacy', 'Terms'].map((l) => (
-                <a key={l} href="#" style={{ color: '#8A9070', fontSize: '0.875rem', textDecoration: 'none' }}
-                  onMouseEnter={(e) => ((e.target as HTMLElement).style.color = '#C0C0C0')}
-                  onMouseLeave={(e) => ((e.target as HTMLElement).style.color = '#8A9070')}>
-                  {l}
-                </a>
-              ))}
-            </div>
-          </div>
-          <div style={{ marginTop: '2.5rem', paddingTop: '2rem', borderTop: '1px solid rgba(192,192,192,0.08)', color: '#8A9070', fontSize: '0.8rem' }}>
-            © 2026 EasyAcco. Free for UK Freelancers &amp; Students. Not financial advice.
+      {/* ── FOOTER ── */}
+      <footer style={{ padding: '2.5rem 1.5rem', borderTop: `1px solid ${C.border}` }}>
+        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4">
+          <span style={{ fontFamily: 'var(--font-playfair)', color: C.gold, fontSize: '1.1rem', fontWeight: 700 }}>EasyAcco</span>
+          <p style={{ color: C.muted, fontSize: '0.8rem' }}>
+            © 2026 EasyAcco · Free for UK Freelancers & Students · Not financial advice.
+          </p>
+          <div className="footer-links">
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
+            <a href="/contact">Contact</a>
           </div>
         </div>
       </footer>

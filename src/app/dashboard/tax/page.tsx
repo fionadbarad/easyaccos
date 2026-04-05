@@ -218,6 +218,7 @@ export default function TaxPage() {
   const [form, setForm]               = useState<TaxInput>(INITIAL)
   const [showBreakdown, setBreakdown] = useState(false)
   const [showHmrc, setShowHmrc]       = useState(false)
+  const [showAdvanced, setAdvanced]   = useState(false)
 
   const errors: ValidationErrors = useMemo(() => validateTaxInput(form), [form])
   const hasErrors = Object.keys(errors).length > 0
@@ -423,31 +424,65 @@ export default function TaxPage() {
               )
             )}
 
-            {/* Marriage Allowance */}
-            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer' }}>
-              <input type="checkbox" checked={form.marriageAllowance}
-                onChange={(e) => set('marriageAllowance', e.target.checked)}
-                style={{ width: '15px', height: '15px', accentColor: C.gold, marginTop: '2px', flexShrink: 0 }} />
-              <span style={{ color: C.muted, fontSize: '0.82rem', lineHeight: 1.5 }}>
-                Marriage / Civil Partnership Allowance<br />
-                <span style={{ color: 'rgba(229,231,235,0.35)', fontSize: '0.7rem' }}>
-                  Transfers {'\u00a3'}1,260 of PA to your spouse — saves them up to {'\u00a3'}252/yr
-                </span>
-              </span>
-            </label>
+            {/* ── Advanced Allowances (collapsed by default) ── */}
+            <div>
+              <button
+                type="button"
+                onClick={() => setAdvanced((v) => !v)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  background: 'none', border: `1px solid ${C.border}`,
+                  borderRadius: '6px', padding: '7px 12px',
+                  color: (form.marriageAllowance || form.blindPersonsAllowance) ? C.gold : C.muted,
+                  cursor: 'pointer', fontSize: '0.78rem', width: '100%',
+                }}>
+                {showAdvanced ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                Additional Allowances
+                {(form.marriageAllowance || form.blindPersonsAllowance) && (
+                  <span style={{
+                    marginLeft: 'auto', background: 'rgba(255,215,0,0.18)',
+                    color: C.gold, fontSize: '0.66rem', padding: '1px 7px',
+                    borderRadius: '999px', fontWeight: 700,
+                  }}>Active</span>
+                )}
+              </button>
 
-            {/* Blind Person's Allowance */}
-            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer' }}>
-              <input type="checkbox" checked={form.blindPersonsAllowance}
-                onChange={(e) => set('blindPersonsAllowance', e.target.checked)}
-                style={{ width: '15px', height: '15px', accentColor: C.gold, marginTop: '2px', flexShrink: 0 }} />
-              <span style={{ color: C.muted, fontSize: '0.82rem', lineHeight: 1.5 }}>
-                Blind Person&apos;s Allowance — +{'\u00a3'}3,250 tax-free<br />
-                <span style={{ color: 'rgba(229,231,235,0.35)', fontSize: '0.7rem' }}>
-                  2026/27 indexed rate &middot; registered blind or severely sight-impaired
-                </span>
-              </span>
-            </label>
+              {showAdvanced && (
+                <div style={{
+                  marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.9rem',
+                  padding: '1rem', background: C.deep,
+                  border: `1px solid rgba(255,215,0,0.08)`, borderRadius: '8px',
+                }}>
+                  {/* Marriage Allowance */}
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={form.marriageAllowance}
+                      onChange={(e) => set('marriageAllowance', e.target.checked)}
+                      style={{ width: '15px', height: '15px', accentColor: C.gold, marginTop: '2px', flexShrink: 0 }} />
+                    <span style={{ color: C.muted, fontSize: '0.82rem', lineHeight: 1.5 }}>
+                      Marriage / Civil Partnership Allowance<br />
+                      <span style={{ color: 'rgba(229,231,235,0.35)', fontSize: '0.7rem' }}>
+                        Transfers {'\u00a3'}1,260 of PA to your spouse — saves them up to {'\u00a3'}252/yr.
+                        Only applicable if you earn below the Personal Allowance.
+                      </span>
+                    </span>
+                  </label>
+
+                  {/* Blind Person's Allowance */}
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={form.blindPersonsAllowance}
+                      onChange={(e) => set('blindPersonsAllowance', e.target.checked)}
+                      style={{ width: '15px', height: '15px', accentColor: C.gold, marginTop: '2px', flexShrink: 0 }} />
+                    <span style={{ color: C.muted, fontSize: '0.82rem', lineHeight: 1.5 }}>
+                      Blind Person&apos;s Allowance — adds {'\u00a3'}3,250 to your tax-free amount<br />
+                      <span style={{ color: 'rgba(229,231,235,0.35)', fontSize: '0.7rem' }}>
+                        Only for those registered blind or severely sight-impaired with a local authority.
+                        Raises effective PA to {'\u00a3'}15,820.
+                      </span>
+                    </span>
+                  </label>
+                </div>
+              )}
+            </div>
 
           </div>
         </div>

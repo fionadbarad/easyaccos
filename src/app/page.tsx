@@ -88,9 +88,9 @@ export default function LandingPage() {
               style={{ color: C.muted, fontSize: '0.875rem', textDecoration: 'none', padding: '6px 12px' }}>
               Sign In
             </Link>
-            <Link href="/auth/signup"
+            <Link href="/dashboard"
               style={{ background: C.gold, color: C.deep, padding: '8px 20px', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none', borderRadius: '3px' }}>
-              Get Started Free
+              Open Dashboard
             </Link>
           </div>
         </div>
@@ -119,11 +119,11 @@ export default function LandingPage() {
             </p>
 
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link href="/auth/login" className="ui-btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                Login to Dashboard <ArrowRight size={18} />
+              <Link href="/dashboard" className="ui-btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                Open Dashboard <ArrowRight size={18} />
               </Link>
-              <Link href="/auth/signup" className="ui-btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                Create Free Account
+              <Link href="/auth/login" className="ui-btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                Sign In to Save Data
               </Link>
             </div>
 
@@ -191,9 +191,9 @@ export default function LandingPage() {
           <p style={{ color: C.muted, marginBottom: '2.5rem', fontSize: '1.05rem' }}>
             Join UK freelancers and students who have taken control of their tax and finances.
           </p>
-          <Link href="/auth/login"
+          <Link href="/dashboard"
             style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '16px 44px', background: C.gold, color: C.deep, fontWeight: 700, fontSize: '1rem', textDecoration: 'none', borderRadius: '3px' }}>
-            Login to Dashboard <ArrowRight size={20} />
+            Open Dashboard Free <ArrowRight size={20} />
           </Link>
         </motion.div>
       </section>

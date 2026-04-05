@@ -57,7 +57,7 @@ export interface TaxResult {
   niClass1:            number
   niClass4:            number
   niClass2:            number
-  niClass2Mandatory:   boolean  // true = auto-applied; false = voluntary
+  niClass2Deemed:      boolean  // true = profit >= SPT, treated as paid (£0 charge); false = voluntary payment
   // Other
   dividendTax:             number
   studentLoanRepayment:    number
@@ -102,7 +102,8 @@ const NI_CLASS1_UPPER = 0.02   // Employee: 2% above UEL
 const NI_CLASS4_MAIN  = 0.06   // SE: 6%
 const NI_CLASS4_UPPER = 0.02   // SE: 2% above UEL
 const NI_CLASS2_WEEKLY        = 3.65
-const NI_CLASS2_SMALL_PROFITS = 6_845  // Small Profits Threshold
+// 2026/27 Small Profits Threshold (up from £6,845 in 2025/26)
+const NI_CLASS2_SMALL_PROFITS = 7_105
 
 // Dividends 2026/27 — CORRECTED (not 10.75/35.75%)
 const DIVIDEND_ALLOWANCE   = 500
@@ -367,10 +368,13 @@ export function calculateTax(input: TaxInput): TaxResult {
   const niClass4 = employmentType === 'self-employed'
     ? calcClass4NI(adjustedProfit) : 0
 
-  // Class 2 for SE: MANDATORY if profit >= SPT; VOLUNTARY if below SPT
-  const niClass2Mandatory = employmentType === 'self-employed' && adjustedProfit >= NI_CLASS2_SMALL_PROFITS
-  const niClass2Voluntary = employmentType === 'self-employed' && !niClass2Mandatory && voluntaryClass2NI
-  const niClass2          = (niClass2Mandatory || niClass2Voluntary) ? NI_CLASS2_WEEKLY * 52 : 0
+  // Class 2 for SE 2026/27 rules:
+  // - Profit >= SPT (£7,105): DEEMED PAID — NI record protected, NO actual charge
+  // - Profit <  SPT (£7,105): can pay VOLUNTARILY (£3.65/wk) to protect State Pension
+  const niClass2Deemed    = employmentType === 'self-employed' && adjustedProfit >= NI_CLASS2_SMALL_PROFITS
+  const niClass2Voluntary = employmentType === 'self-employed' && !niClass2Deemed && voluntaryClass2NI
+  // Only the voluntary payment is an actual cost; deemed contributions are £0
+  const niClass2          = niClass2Voluntary ? NI_CLASS2_WEEKLY * 52 : 0
 
   // Step 7: Dividend tax
   const dividendTax = dividendIncome > 0
@@ -422,7 +426,7 @@ export function calculateTax(input: TaxInput): TaxResult {
     niClass1,
     niClass4,
     niClass2,
-    niClass2Mandatory,
+    niClass2Deemed,
     dividendTax,
     studentLoanRepayment,
     totalDeductions,

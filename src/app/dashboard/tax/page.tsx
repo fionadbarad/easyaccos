@@ -336,6 +336,35 @@ export default function TaxPage() {
         </div>
       </div>
 
+      {/* ── 2026/27 HMRC KEY FIGURES PANEL ── */}
+      <div style={{
+        marginTop: '1.5rem', background: C.card2, border: `1px solid ${C.border}`,
+        borderRadius: '10px', padding: '1.5rem',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.1rem' }}>
+          <Info size={16} style={{ color: C.gold }} />
+          <h3 style={{ color: C.gold, fontFamily: 'var(--font-playfair)', fontSize: '0.95rem', fontWeight: 700, margin: 0 }}>
+            2026/27 HMRC Key Figures &amp; Thresholds
+          </h3>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: '0.65rem' }}>
+          {HMRC_2627.map((item) => (
+            <div key={item.label} style={{
+              background: 'rgba(255,215,0,0.04)', border: `1px solid rgba(255,215,0,0.1)`,
+              borderRadius: '6px', padding: '0.7rem 0.9rem',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                <div style={{ color: C.muted, fontSize: '0.73rem', lineHeight: 1.4 }}>{item.label}</div>
+                <div style={{ color: C.gold, fontSize: '0.82rem', fontWeight: 700, flexShrink: 0 }}>{item.value}</div>
+              </div>
+              {item.note && (
+                <div style={{ color: 'rgba(229,231,235,0.3)', fontSize: '0.68rem', marginTop: '3px' }}>{item.note}</div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* ── EXPENSE SUGGESTION PANEL ── */}
       {form.employmentType !== 'employed' && (
         <div style={{
@@ -377,6 +406,28 @@ const SELF_EMPLOYED_EXPENSES = [
   { label: 'Training & CPD',       desc: 'Courses, books, conferences to maintain existing skills' },
   { label: 'Marketing',            desc: 'Website, ads, business cards — fully allowable' },
   { label: 'Bank Charges',         desc: 'Business account fees and transaction costs' },
+]
+
+const HMRC_2627 = [
+  { label: 'Personal Allowance',           value: '12,570',       note: 'Tapered above 100k; nil above 125,140' },
+  { label: 'Basic Rate (rUK)',              value: '20%',          note: 'On income 12,571 - 50,270' },
+  { label: 'Higher Rate (rUK)',             value: '40%',          note: 'On income 50,271 - 125,140' },
+  { label: 'Additional Rate (rUK)',         value: '45%',          note: 'On income above 125,140' },
+  { label: 'Employer NI',                  value: '15%',          note: 'From April 2025; secondary threshold 5,000' },
+  { label: 'NI Class 1 (Employee)',         value: '8% / 2%',     note: 'Up to / above 50,270 upper earnings limit' },
+  { label: 'NI Class 4 (Self-Employed)',    value: '6% / 2%',     note: 'Up to / above 50,270' },
+  { label: 'New State Pension',             value: '241.30/wk',   note: '12,547.60/yr; requires 35 qualifying years' },
+  { label: 'Basic State Pension',           value: '184.90/wk',   note: 'Pre-2016 retirees; 30 qualifying years' },
+  { label: 'Pension Annual Allowance',      value: '60,000',      note: 'Max tax-relieved pension contributions' },
+  { label: 'Money Purchase Annual Allowance', value: '10,000',    note: 'MPAA: triggered by flexible drawdown' },
+  { label: 'Pension Lump Sum Allowance',    value: '268,275',     note: 'Lifetime limit on tax-free cash' },
+  { label: 'CGT Annual Exemption',          value: '3,000',       note: 'Applies to gains on assets sold in the year' },
+  { label: 'CGT BADR Rate',                 value: '18%',         note: 'Business Asset Disposal Relief (was 10%)' },
+  { label: 'Dividend Allowance',            value: '500',         note: 'Tax-free dividend income' },
+  { label: 'Child Benefit Taper Starts',    value: '60,000',      note: 'High Income Child Benefit Charge threshold' },
+  { label: 'Child Benefit Full Repayment',  value: '80,000',      note: '100% clawed back above this income' },
+  { label: 'MTD IT Threshold',              value: '50,000',      note: 'Making Tax Digital for SE/property income' },
+  { label: 'ISA Annual Allowance',          value: '20,000',      note: 'Per tax year; gains and income tax-free' },
 ]
 
 const DIRECTOR_EXPENSES = [

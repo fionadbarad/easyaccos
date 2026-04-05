@@ -10,15 +10,28 @@ const SYSTEM =
   'Keep answers concise, practical and HMRC-accurate. ' +
   'Recommend professional advice for complex situations.'
 
+const OFFLINE_REPLIES: Record<string, string> = {
+  expense: 'Common allowable expenses: Use of Home (6/wk flat rate), mileage (45p/mile), equipment, training, professional subs, pension contributions. Enter your expenses in the Tax Estimator to see your exact saving.',
+  pension: 'SIPP pension contributions reduce your taxable profit pound-for-pound. If your income is 100k-125k you are in the 60% trap -- a SIPP contribution below 100k saves you 60p per pound contributed.',
+  dividend: 'Directors: the first 500 in dividends is tax-free (2026/27). Above that, basic rate is 10.75% and higher rate 35.75%. Optimal strategy is a salary at the NI threshold (12,570) plus dividends.',
+  mileage: 'You can claim 45p per business mile for the first 10,000 miles, then 25p/mile. Keep a mileage log with dates, destinations and business purpose.',
+}
+
+function offlineReply(query: string): string {
+  const q = query.toLowerCase()
+  if (q.includes('pension') || q.includes('sipp')) return OFFLINE_REPLIES.pension
+  if (q.includes('dividend')) return OFFLINE_REPLIES.dividend
+  if (q.includes('mileage') || q.includes('miles') || q.includes('car')) return OFFLINE_REPLIES.mileage
+  if (q.includes('expense') || q.includes('claim') || q.includes('deduct')) return OFFLINE_REPLIES.expense
+  return 'I am currently offline but the Tax Estimator is fully working. Enter your income and expenses there to get your exact 2026/27 breakdown. Common tip: pension contributions and allowable expenses reduce your taxable profit directly.'
+}
+
 export async function POST(request: NextRequest) {
   const apiKey =
     process.env.GEMINI_API_KEY ||
     process.env.GOOGLE_API_KEY ||
     process.env.GOOGLE_GENERATIVE_AI_API_KEY ||
     process.env.NEXT_PUBLIC_GEMINI_API_KEY
-  if (!apiKey) {
-    return NextResponse.json({ error: 'AI service not configured' }, { status: 503 })
-  }
 
   let body: { message?: string }
   try {
@@ -30,6 +43,11 @@ export async function POST(request: NextRequest) {
   const query = (body.message ?? '').trim()
   if (!query) {
     return NextResponse.json({ error: 'message is required' }, { status: 400 })
+  }
+
+  // Graceful offline fallback -- no error shown to user
+  if (!apiKey) {
+    return NextResponse.json({ answer: offlineReply(query), offline: true })
   }
 
   try {
@@ -46,6 +64,7 @@ export async function POST(request: NextRequest) {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unexpected server error'
     console.error('Kittax AI error:', message)
-    return NextResponse.json({ error: message }, { status: 500 })
+    // Still graceful -- return offline answer rather than an error
+    return NextResponse.json({ answer: offlineReply(query), offline: true })
   }
 }

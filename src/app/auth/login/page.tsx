@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase-browser'
-import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react'
 
 const C = { bg: '#1A2342', deep: '#0F1628', card: '#4A4066', gold: '#C2A368', text: '#E4D3B4', muted: 'rgba(228,211,180,0.55)', border: 'rgba(194,163,104,0.2)' }
 
@@ -49,6 +49,23 @@ export default function LoginPage() {
             Welcome Back
           </h1>
           <p style={{ color: C.muted, fontSize: '0.875rem' }}>Sign in to your sanctuary</p>
+        </div>
+
+        {/* Guest bypass — prominent, not hidden */}
+        <div style={{
+          background: 'rgba(194,163,104,0.07)', border: `1px solid ${C.border}`,
+          borderRadius: '8px', padding: '1rem 1.25rem', marginBottom: '1.5rem', textAlign: 'center',
+        }}>
+          <p style={{ color: C.muted, fontSize: '0.78rem', margin: '0 0 8px' }}>
+            No account needed. All features work as a guest.
+          </p>
+          <Link href="/dashboard"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
+              color: C.gold, fontWeight: 700, fontSize: '0.85rem', textDecoration: 'none',
+            }}>
+            Open Dashboard Free <ArrowRight size={14} />
+          </Link>
         </div>
 
         <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: '8px', padding: '2rem', boxShadow: '0 12px 48px rgba(0,0,0,0.5)' }}>

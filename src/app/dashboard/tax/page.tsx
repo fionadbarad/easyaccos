@@ -385,17 +385,26 @@ export default function TaxPage() {
 
             {/* NI Class 2 */}
             {showClass2 && (
-              result.niClass2Mandatory ? (
+              result.niClass2Deemed ? (
                 <div style={{
-                  background: 'rgba(74,222,128,0.07)', border: `1px solid rgba(74,222,128,0.25)`,
+                  background: 'rgba(74,222,128,0.06)', border: `1px solid rgba(74,222,128,0.22)`,
                   borderRadius: '6px', padding: '0.7rem 0.9rem',
                   display: 'flex', gap: '8px', alignItems: 'flex-start',
                 }}>
                   <CheckCircle size={14} style={{ color: C.green, marginTop: '2px', flexShrink: 0 }} />
                   <span style={{ color: C.muted, fontSize: '0.8rem', lineHeight: 1.5 }}>
-                    <strong style={{ color: C.text }}>NI Class 2 — auto-applied ({'\u00a3'}3.65/wk)</strong><br />
+                    <strong style={{ color: C.text }}>NI Class 2 — treated as paid</strong>
+                    {' '}
+                    <span style={{
+                      background: 'rgba(74,222,128,0.15)', color: C.green,
+                      fontSize: '0.68rem', padding: '1px 6px', borderRadius: '999px', fontWeight: 600,
+                    }}>
+                      No charge
+                    </span>
+                    <br />
                     <span style={{ fontSize: '0.7rem', color: 'rgba(229,231,235,0.35)' }}>
-                      Profit exceeds {'\u00a3'}6,845 Small Profits Threshold — Class 2 NI is mandatory
+                      Profit exceeds {'\u00a3'}7,105 SPT (2026/27). HMRC treats Class 2 as paid —
+                      your State Pension record is protected with no weekly deduction.
                     </span>
                   </span>
                 </div>
@@ -407,7 +416,7 @@ export default function TaxPage() {
                   <span style={{ color: C.muted, fontSize: '0.82rem', lineHeight: 1.5 }}>
                     Voluntary Class 2 NI — {'\u00a3'}3.65/week ({'\u00a3'}189.80/yr)<br />
                     <span style={{ color: 'rgba(229,231,235,0.35)', fontSize: '0.7rem' }}>
-                      Profit is below {'\u00a3'}6,845 SPT — pay voluntarily to protect State Pension entitlement
+                      Profit below {'\u00a3'}7,105 SPT — pay voluntarily to protect State Pension entitlement
                     </span>
                   </span>
                 </label>
@@ -520,9 +529,16 @@ export default function TaxPage() {
                 <StatRow label="NI Class 4 (SE)" value={gbp(fmt(result.niClass4))}
                   formula={'6% on profit £12,570–£50,270; 2% above'} />
               )}
-              {result.niClass2 > 0 && (
+              {result.niClass2Deemed && (
                 <StatRow
-                  label={`NI Class 2 (${result.niClass2Mandatory ? 'Mandatory' : 'Voluntary'})`}
+                  label="NI Class 2 (deemed paid)"
+                  value="£0"
+                  sub={'Profit >= £7,105 SPT — treated as paid by HMRC, no actual charge'}
+                />
+              )}
+              {result.niClass2 > 0 && !result.niClass2Deemed && (
+                <StatRow
+                  label="NI Class 2 (voluntary)"
                   value={gbp(fmt(result.niClass2))}
                   sub={'£3.65/wk × 52 = £189.80/yr — protects State Pension entitlement'}
                 />
@@ -745,7 +761,7 @@ const HMRC_2627 = [
   { label: 'Employer NI',                   value: '15%',            note: 'From April 2025; secondary threshold £5,000'        },
   { label: 'NI Class 1 (Employee)',          value: '8% / 2%',       note: 'Up to / above £50,270 upper earnings limit'         },
   { label: 'NI Class 4 (SE)',               value: '6% / 2%',        note: 'Up to / above £50,270'                              },
-  { label: 'NI Class 2 (SE, mandatory)',     value: '£3.65/wk',      note: 'Auto-applied if profit ≥ £6,845 SPT'                },
+  { label: 'NI Class 2 (SE)',                value: '£3.65/wk',      note: 'Deemed paid (no charge) if profit >= £7,105 SPT; voluntary if below' },
   { label: 'New State Pension',             value: '£241.30/wk',     note: '£12,547.60/yr · requires 35 qualifying NI years'    },
   { label: 'Basic State Pension',           value: '£184.90/wk',     note: 'Pre-2016 retirees · 30 qualifying years'            },
   { label: 'Pension Annual Allowance',      value: '£60,000',        note: 'Max tax-relieved contributions per year'            },

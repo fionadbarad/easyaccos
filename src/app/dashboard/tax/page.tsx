@@ -30,7 +30,6 @@ const C = {
 }
 
 const fmt  = (n: number) => 'GBP' + Math.round(Math.abs(n)).toLocaleString('en-GB')
-const fmtF = (n: number) => (n < 0 ? '-' : '') + fmt(n)
 const pct  = (n: number) => n.toFixed(1) + '%'
 
 // Replace 'GBP' prefix with the pound sign for display
@@ -219,6 +218,7 @@ export default function TaxPage() {
   const [showBreakdown, setBreakdown] = useState(false)
   const [showHmrc, setShowHmrc]       = useState(false)
   const [showAdvanced, setAdvanced]   = useState(false)
+  const [showMonthly, setMonthly]     = useState(false)
 
   const errors: ValidationErrors = useMemo(() => validateTaxInput(form), [form])
   const hasErrors = Object.keys(errors).length > 0
@@ -234,6 +234,9 @@ export default function TaxPage() {
   const showClass1   = form.employmentType === 'employed'  || form.employmentType === 'director'
   const showClass4   = form.employmentType === 'self-employed'
   const showClass2   = form.employmentType === 'self-employed'
+
+  /** Return annual or monthly display value — divides by 12 when monthly mode is on */
+  const mv = (annual: number) => gbp(fmt(showMonthly ? annual / 12 : annual))
 
   const inputS = (field: keyof ValidationErrors) =>
     errors[field] ? errInput : baseInput
@@ -489,23 +492,48 @@ export default function TaxPage() {
 
         {/* RESULTS CARD */}
         <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: '10px', padding: '1.75rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '0.75rem', flexWrap: 'wrap' }}>
             <h2 style={{ color: C.gold, fontFamily: 'var(--font-playfair)', fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>
               Tax Breakdown
             </h2>
-            <button
-              onClick={() => !hasErrors && printReport(form, result)}
-              disabled={hasErrors}
-              title="Download / Print PDF"
-              style={{
-                display: 'flex', alignItems: 'center', gap: '5px',
-                background: hasErrors ? 'rgba(255,215,0,0.12)' : 'rgba(255,215,0,0.15)',
-                border: `1px solid ${C.border}`, borderRadius: '6px',
-                padding: '6px 11px', cursor: hasErrors ? 'not-allowed' : 'pointer',
-                color: hasErrors ? C.muted : C.gold, fontSize: '0.75rem', fontWeight: 600,
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {/* Annual / Monthly toggle */}
+              <div style={{
+                display: 'inline-flex', background: C.deep,
+                border: `1px solid ${C.border}`, borderRadius: '6px', padding: '2px', gap: '2px',
               }}>
-              <Download size={13} /> PDF
-            </button>
+                {(['Annual', 'Monthly'] as const).map((mode) => {
+                  const active = mode === 'Monthly' ? showMonthly : !showMonthly
+                  return (
+                    <button
+                      key={mode}
+                      onClick={() => setMonthly(mode === 'Monthly')}
+                      style={{
+                        padding: '4px 10px', borderRadius: '4px', border: 'none',
+                        cursor: 'pointer', fontSize: '0.72rem', fontWeight: 700,
+                        background: active ? C.gold : 'transparent',
+                        color:      active ? '#0B0E1A' : C.muted,
+                        transition: 'all 0.15s ease',
+                      }}>
+                      {mode}
+                    </button>
+                  )
+                })}
+              </div>
+              <button
+                onClick={() => !hasErrors && printReport(form, result)}
+                disabled={hasErrors}
+                title="Download / Print PDF"
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '5px',
+                  background: hasErrors ? 'rgba(255,215,0,0.12)' : 'rgba(255,215,0,0.15)',
+                  border: `1px solid ${C.border}`, borderRadius: '6px',
+                  padding: '6px 11px', cursor: hasErrors ? 'not-allowed' : 'pointer',
+                  color: hasErrors ? C.muted : C.gold, fontSize: '0.75rem', fontWeight: 600,
+                }}>
+                <Download size={13} /> PDF
+              </button>
+            </div>
           </div>
 
           {hasErrors ? (
@@ -533,36 +561,46 @@ export default function TaxPage() {
                 </div>
               </div>
 
+              {/* Annual / Monthly label */}
+              {showMonthly && (
+                <div style={{ marginBottom: '0.6rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{
+                    background: 'rgba(255,215,0,0.12)', color: C.gold,
+                    fontSize: '0.68rem', padding: '2px 8px', borderRadius: '999px', fontWeight: 700,
+                  }}>Monthly figures — annual ÷ 12</span>
+                </div>
+              )}
+
               {/* Main rows */}
-              <StatRow label="Gross Revenue"      value={gbp(fmt(result.grossRevenue))} />
+              <StatRow label={showMonthly ? 'Monthly Gross Revenue' : 'Gross Revenue'} value={mv(result.grossRevenue)} />
               {result.allowableExpenses > 0 && (
-                <StatRow label="Allowable Expenses" value={`- ${gbp(fmt(result.allowableExpenses))}`} />
+                <StatRow label="Allowable Expenses" value={`- ${mv(result.allowableExpenses)}`} />
               )}
               {result.pensionContribution > 0 && (
-                <StatRow label="Pension Contribution" value={`- ${gbp(fmt(result.pensionContribution))}`}
+                <StatRow label="Pension Contribution" value={`- ${mv(result.pensionContribution)}`}
                   sub={'Full tax relief at your marginal rate'} />
               )}
-              <StatRow label="Adjusted Profit"   value={gbp(fmt(result.adjustedProfit))} />
-              <StatRow label="Personal Allowance" value={gbp(fmt(result.personalAllowance))}
+              <StatRow label={showMonthly ? 'Monthly Adjusted Profit' : 'Adjusted Profit'} value={mv(result.adjustedProfit)} />
+              <StatRow label="Personal Allowance" value={mv(result.personalAllowance)}
                 sub={result.taperWarning ? '⚠ Tapered — income above £100,000' : undefined} />
-              <StatRow label="Taxable Income"     value={gbp(fmt(result.taxableIncome))} />
+              <StatRow label="Taxable Income"     value={mv(result.taxableIncome)} />
 
               {result.taxBands.map((b) => (
                 <StatRow key={b.label}
                   label={`${b.label} (${b.rate}%)`}
-                  value={gbp(fmt(b.tax))}
-                  formula={`${gbp(fmt(b.amount))} × ${b.rate}%`}
+                  value={mv(b.tax)}
+                  formula={showMonthly ? undefined : `${gbp(fmt(b.amount))} × ${b.rate}%`}
                 />
               ))}
-              <StatRow label="Income Tax Total"   value={gbp(fmt(result.incomeTax))} />
+              <StatRow label="Income Tax Total"   value={mv(result.incomeTax)} />
 
               {showClass1 && result.niClass1 > 0 && (
-                <StatRow label="NI Class 1 (Employee)" value={gbp(fmt(result.niClass1))}
-                  formula={'8% on earnings £12,570–£50,270; 2% above'} />
+                <StatRow label="NI Class 1 (Employee)" value={mv(result.niClass1)}
+                  formula={showMonthly ? undefined : '8% on earnings £12,570–£50,270; 2% above'} />
               )}
               {showClass4 && result.niClass4 > 0 && (
-                <StatRow label="NI Class 4 (SE)" value={gbp(fmt(result.niClass4))}
-                  formula={'6% on profit £12,570–£50,270; 2% above'} />
+                <StatRow label="NI Class 4 (SE)" value={mv(result.niClass4)}
+                  formula={showMonthly ? undefined : '6% on profit £12,570–£50,270; 2% above'} />
               )}
               {result.niClass2Deemed && (
                 <StatRow
@@ -574,22 +612,26 @@ export default function TaxPage() {
               {result.niClass2 > 0 && !result.niClass2Deemed && (
                 <StatRow
                   label="NI Class 2 (voluntary)"
-                  value={gbp(fmt(result.niClass2))}
+                  value={mv(result.niClass2)}
                   sub={'£3.65/wk × 52 = £189.80/yr — protects State Pension entitlement'}
                 />
               )}
               {result.dividendTax > 0 && (
-                <StatRow label="Dividend Tax" value={gbp(fmt(result.dividendTax))}
+                <StatRow label="Dividend Tax" value={mv(result.dividendTax)}
                   sub={'8.75% basic / 33.75% higher / 39.35% additional · first £500 tax-free'} />
               )}
               {result.studentLoanRepayment > 0 && (
-                <StatRow label="Student Loan" value={gbp(fmt(result.studentLoanRepayment))} />
+                <StatRow
+                  label="Student Loan"
+                  value={mv(result.studentLoanRepayment)}
+                  sub={`Calculated on gross profit (${gbp(fmt(result.studentLoanBase))}) — before pension deductions`}
+                />
               )}
 
               <div style={{ height: '1px', background: C.gold, opacity: 0.18, margin: '10px 0' }} />
-              <StatRow label="Total Deductions"  value={gbp(fmt(result.totalDeductions))} />
+              <StatRow label="Total Deductions"  value={mv(result.totalDeductions)} />
               <StatRow label="Effective Rate"    value={pct(result.effectiveTaxRate)} />
-              <StatRow label="Net Take-Home"     value={gbp(fmt(result.netTakeHome))} highlight />
+              <StatRow label={showMonthly ? 'Monthly Take-Home' : 'Net Take-Home'} value={mv(result.netTakeHome)} highlight />
 
               {/* Breakdown toggle */}
               <button

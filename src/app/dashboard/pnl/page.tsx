@@ -5,8 +5,9 @@ import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Legend,
 } from 'recharts'
+import { Sheet, Copy, CheckCheck } from 'lucide-react'
 
-const C = { bg: '#1A2342', deep: '#0F1628', card: '#4A4066', gold: '#C2A368', text: '#E4D3B4', muted: 'rgba(228,211,180,0.55)', border: 'rgba(194,163,104,0.2)' }
+const C = { bg: '#0B0E1A', deep: '#050A14', card: '#111827', gold: '#FFD700', text: '#E5E7EB', muted: 'rgba(229,231,235,0.55)', border: 'rgba(255,215,0,0.12)' }
 
 interface Transaction { id: string; date: string; description: string; type: 'income' | 'expense'; amount: number }
 const STORAGE_KEY = 'easyacco_transactions'
@@ -50,7 +51,8 @@ function StatCard({ label, value, sub }: { label: string; value: string; sub?: s
 const tooltipStyle = { background: '#0F1628', border: `1px solid rgba(194,163,104,0.3)`, borderRadius: '6px', color: C.text, fontSize: '0.8rem' }
 
 export default function PnLPage() {
-  const [txs, setTxs] = useState<Transaction[]>([])
+  const [txs, setTxs]       = useState<Transaction[]>([])
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     try {
@@ -59,18 +61,67 @@ export default function PnLPage() {
     } catch { setTxs(SEED) }
   }, [])
 
-  const monthly = buildMonthlyData(txs)
+  const monthly       = buildMonthlyData(txs)
   const totalIncome   = txs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
   const totalExpenses = txs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
   const netProfit     = totalIncome - totalExpenses
   const margin        = totalIncome > 0 ? (netProfit / totalIncome * 100) : 0
 
+  function syncToSheets() {
+    const payload = {
+      generated: new Date().toISOString(),
+      fiscalYear: '2026/27',
+      summary: {
+        totalIncome: Math.round(totalIncome),
+        totalExpenses: Math.round(totalExpenses),
+        netProfit: Math.round(netProfit),
+        profitMarginPct: parseFloat(margin.toFixed(2)),
+      },
+      monthlyBreakdown: monthly,
+      transactions: txs,
+    }
+    navigator.clipboard.writeText(JSON.stringify(payload, null, 2))
+      .then(() => { setCopied(true); setTimeout(() => setCopied(false), 2500) })
+      .catch(() => alert('Could not copy to clipboard — please check browser permissions.'))
+  }
+
   return (
     <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)', maxWidth: '920px' }}>
-      <h1 style={{ fontFamily: 'var(--font-playfair)', color: C.text, fontSize: 'clamp(1.5rem,3vw,2rem)', fontWeight: 700, marginBottom: '0.3rem' }}>
-        Profit &amp; Loss Report
-      </h1>
-      <p style={{ color: C.muted, fontSize: '0.875rem', marginBottom: '2rem' }}>Based on your transaction history · All figures in GBP</p>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '0.3rem' }}>
+        <h1 style={{ fontFamily: 'var(--font-playfair)', color: C.text, fontSize: 'clamp(1.5rem,3vw,2rem)', fontWeight: 700, margin: 0 }}>
+          Profit &amp; Loss Report
+        </h1>
+        <button onClick={syncToSheets}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            background: copied ? 'rgba(74,222,128,0.12)' : 'rgba(255,215,0,0.09)',
+            border: `1px solid ${copied ? 'rgba(74,222,128,0.4)' : 'rgba(255,215,0,0.3)'}`,
+            borderRadius: '7px', padding: '9px 16px', cursor: 'pointer',
+            color: copied ? '#4ADE80' : C.gold, fontSize: '0.82rem', fontWeight: 600,
+            transition: 'all 0.2s',
+          }}>
+          {copied ? <CheckCheck size={15} /> : <Sheet size={15} />}
+          {copied ? 'Copied to clipboard!' : 'Sync to Sheets'}
+        </button>
+      </div>
+      <p style={{ color: C.muted, fontSize: '0.875rem', marginBottom: '1rem' }}>Based on your transaction history · All figures in GBP</p>
+
+      {/* MTD Alert */}
+      {totalIncome >= 50000 && (
+        <div style={{
+          background: 'rgba(255,215,0,0.07)', border: '1px solid rgba(255,215,0,0.35)',
+          borderRadius: '8px', padding: '0.85rem 1.1rem', marginBottom: '1.5rem',
+          display: 'flex', gap: '0.7rem', alignItems: 'flex-start',
+        }}>
+          <span style={{ fontSize: '1rem', flexShrink: 0 }}>⚡</span>
+          <div>
+            <span style={{ color: C.gold, fontWeight: 700, fontSize: '0.85rem' }}>Making Tax Digital (MTD) — Action Required</span>
+            <p style={{ color: C.text, fontSize: '0.8rem', margin: '3px 0 0', lineHeight: 1.55 }}>
+              Your turnover exceeds <strong style={{ color: C.gold }}>£50,000</strong>. You must register for MTD for Income Tax by <strong style={{ color: C.gold }}>6 April 2026</strong> and submit quarterly updates to HMRC via approved software.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* KPI row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: '1rem', marginBottom: '2rem' }}>

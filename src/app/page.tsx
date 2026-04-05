@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight, Database, BarChart2, Bot, Star } from 'lucide-react'
-import Kittax from '@/components/Kittax'
 
 // ─── Celestial palette ───────────────────────────────────────────────────────
 const C = {
@@ -128,7 +127,9 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            <Kittax message="I’m Kittax. Ask me anything about UK tax and I’ll keep it calm, confident, and coercively accurate." />
+            <div style={{ padding: '0.85rem 1.1rem', background: 'rgba(194,163,104,0.08)', border: '1px solid rgba(194,163,104,0.25)', borderRadius: '10px', color: C.muted, fontSize: '0.85rem' }}>
+              🐱 Kittax — your AI tax advisor — is waiting in the dashboard. Ask about UK tax, expenses, and more.
+            </div>
 
             {/* Feature pills */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }} suppressHydrationWarning

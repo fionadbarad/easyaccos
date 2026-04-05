@@ -4,15 +4,14 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight, Database, BarChart2, Bot, Star } from 'lucide-react'
 
-// ─── Celestial palette ───────────────────────────────────────────────────────
 const C = {
-  bg:       '#1A2342',
-  deep:     '#0F1628',
-  card:     '#4A4066',
-  gold:     '#C2A368',
-  text:     '#E4D3B4',
-  muted:    'rgba(228,211,180,0.55)',
-  border:   'rgba(194,163,104,0.2)',
+  bg:     '#1A2342',
+  deep:   '#0F1628',
+  card:   '#4A4066',
+  gold:   '#C2A368',
+  text:   '#E4D3B4',
+  muted:  'rgba(228,211,180,0.55)',
+  border: 'rgba(194,163,104,0.2)',
 }
 
 const STEPS = [
@@ -37,11 +36,11 @@ const STEPS = [
 ]
 
 const FEATURES = [
-  'Live Tax Estimator · 2026/27',
-  'AI Assistant (Gemini)',
+  'Live Tax Estimator 2026/27',
+  'AI Tax Assistant',
   'Expense Tracker',
   'P&L Reports',
-  'Currency Converter · 170+ pairs',
+  'Currency Converter 170+ pairs',
   'Financial Literacy Cards',
 ]
 
@@ -83,30 +82,28 @@ export default function LandingPage() {
           <span style={{ fontFamily: 'var(--font-playfair)', color: C.gold, fontSize: '1.35rem', fontWeight: 700 }}>
             EasyAcco
           </span>
-          <div className="flex items-center gap-4">
-            <Link href="/auth/login"
-              style={{ color: C.muted, fontSize: '0.875rem', textDecoration: 'none', padding: '6px 12px' }}>
-              Sign In
-            </Link>
-            <Link href="/dashboard"
-              style={{ background: C.gold, color: C.deep, padding: '8px 20px', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none', borderRadius: '3px' }}>
-              Open Dashboard
-            </Link>
-          </div>
+          {/* Nav: only one button — open dashboard. No login/signup clutter. */}
+          <Link href="/dashboard"
+            style={{
+              background: C.gold, color: C.deep, padding: '9px 22px',
+              fontSize: '0.875rem', fontWeight: 700, textDecoration: 'none', borderRadius: '4px',
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
+            }}>
+            Open Dashboard <ArrowRight size={15} />
+          </Link>
         </div>
       </nav>
 
       {/* ── HERO ── */}
       <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '6rem 1.5rem 4rem' }}>
         <StarField />
-        {/* Radial glow */}
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 70% 60% at 50% 40%, rgba(74,64,102,0.35) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
         <div style={{ position: 'relative', zIndex: 1, maxWidth: '760px', margin: '0 auto' }}>
           <motion.div initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9 }} suppressHydrationWarning>
 
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 14px', border: `1px solid ${C.border}`, borderRadius: '999px', color: C.gold, fontSize: '0.7rem', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '2rem', background: 'rgba(194,163,104,0.08)' }}>
-              <Star size={10} fill={C.gold} /> UK Tax Platform · Free Forever
+              <Star size={10} fill={C.gold} /> UK Tax Platform · Free · No Account Needed
             </div>
 
             <h1 style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(2.8rem,8vw,5.5rem)', fontWeight: 700, lineHeight: 1.08, marginBottom: '1.5rem', color: C.text }}>
@@ -115,23 +112,34 @@ export default function LandingPage() {
             </h1>
 
             <p style={{ color: C.muted, fontSize: '1.1rem', lineHeight: 1.75, maxWidth: '38rem', margin: '0 auto 2.5rem' }}>
-              Your celestial financial sanctuary. HMRC-accurate tax estimates, AI-powered guidance, and expense tracking — all free, forever.
+              HMRC-accurate tax estimates, AI guidance, and expense tracking for UK freelancers and employees. Free forever. No sign-up required.
             </p>
 
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link href="/dashboard" className="ui-btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                Open Dashboard <ArrowRight size={18} />
+            {/* Single clear CTA — no login wall */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+              <Link href="/dashboard"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '10px',
+                  padding: '16px 48px', background: C.gold, color: C.deep,
+                  fontWeight: 700, fontSize: '1.05rem', textDecoration: 'none', borderRadius: '4px',
+                  boxShadow: '0 4px 24px rgba(194,163,104,0.35)',
+                }}>
+                Open Dashboard Free <ArrowRight size={20} />
               </Link>
-              <Link href="/auth/login" className="ui-btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                Sign In to Save Data
+              <span style={{ color: C.muted, fontSize: '0.78rem' }}>
+                No account. No password. Jump straight in.
+              </span>
+              {/* Optional save account — barely visible, not a CTA */}
+              <Link href="/auth/login"
+                style={{ color: 'rgba(194,163,104,0.45)', fontSize: '0.72rem', textDecoration: 'none', marginTop: '4px' }}>
+                Have an account? Sign in to save your data
               </Link>
             </div>
 
-            <div style={{ padding: '0.85rem 1.1rem', background: 'rgba(194,163,104,0.08)', border: '1px solid rgba(194,163,104,0.25)', borderRadius: '10px', color: C.muted, fontSize: '0.85rem' }}>
-              🐱 Kittax — your AI tax advisor — is waiting in the dashboard. Ask about UK tax, expenses, and more.
+            <div style={{ marginTop: '2rem', padding: '0.85rem 1.1rem', background: 'rgba(194,163,104,0.08)', border: '1px solid rgba(194,163,104,0.25)', borderRadius: '10px', color: C.muted, fontSize: '0.85rem' }}>
+              Kittax — your AI tax advisor — is waiting in the dashboard. Ask about UK tax, expenses, and more.
             </div>
 
-            {/* Feature pills */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }} suppressHydrationWarning
               style={{ marginTop: '2rem', display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
               {FEATURES.map((f) => (
@@ -162,12 +170,9 @@ export default function LandingPage() {
                 viewport={{ once: true }} transition={{ delay: i * 0.15 }}
                 style={{
                   position: 'relative', padding: '2.25rem 2rem',
-                  background: C.card,
-                  border: `1px solid ${C.border}`,
-                  borderRadius: '6px',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
+                  background: C.card, border: `1px solid ${C.border}`,
+                  borderRadius: '6px', boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
                 }}>
-                {/* Step number watermark */}
                 <div style={{ position: 'absolute', top: '1.25rem', right: '1.5rem', fontFamily: 'var(--font-playfair)', fontSize: '3rem', fontWeight: 700, color: 'rgba(194,163,104,0.1)', lineHeight: 1 }}>
                   {s.step}
                 </div>
@@ -182,7 +187,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── CTA BRIDGE ── */}
+      {/* ── CTA ── */}
       <section style={{ padding: '6rem 1.5rem', background: C.bg, textAlign: 'center', borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="max-w-2xl mx-auto">
           <h2 style={{ fontFamily: 'var(--font-playfair)', color: C.text, fontSize: 'clamp(1.8rem,4vw,2.8rem)', fontWeight: 700, marginBottom: '1rem' }}>
@@ -192,7 +197,7 @@ export default function LandingPage() {
             Join UK freelancers and students who have taken control of their tax and finances.
           </p>
           <Link href="/dashboard"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '16px 44px', background: C.gold, color: C.deep, fontWeight: 700, fontSize: '1rem', textDecoration: 'none', borderRadius: '3px' }}>
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '16px 44px', background: C.gold, color: C.deep, fontWeight: 700, fontSize: '1rem', textDecoration: 'none', borderRadius: '4px' }}>
             Open Dashboard Free <ArrowRight size={20} />
           </Link>
         </motion.div>
@@ -203,12 +208,10 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4">
           <span style={{ fontFamily: 'var(--font-playfair)', color: C.gold, fontSize: '1.1rem', fontWeight: 700 }}>EasyAcco</span>
           <p style={{ color: C.muted, fontSize: '0.8rem' }}>
-            © 2026 EasyAcco · Free for UK Freelancers & Students · Not financial advice.
+            2026 EasyAcco · Free for UK Freelancers &amp; Students · Not financial advice.
           </p>
           <div className="footer-links">
-            <a href="/privacy">Privacy</a>
-            <a href="/terms">Terms</a>
-            <a href="/contact">Contact</a>
+            <a href="/security" style={{ color: C.muted, fontSize: '0.8rem', textDecoration: 'none' }}>Security</a>
           </div>
         </div>
       </footer>

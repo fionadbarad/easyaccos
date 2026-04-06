@@ -17,6 +17,7 @@
     "@supabase/ssr": "^0.10.0",
     "@supabase/supabase-js": "^2.101.1",
     "@tailwindcss/postcss": "^4.2.2",
+    "@vercel/analytics": "^2.0.1",
     "framer-motion": "^12.38.0",
     "jspdf": "^4.2.1",
     "lucide-react": "^1.7.0",

@@ -1,6 +1,9 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// Ghost-Auth: dashboard is fully accessible without login.
+// Auth is only required for "Save" or "Export PDF" actions (handled client-side).
+// This middleware only refreshes session cookies — it never redirects to login.
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
@@ -23,15 +26,8 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
-
-  const isProtected = request.nextUrl.pathname.startsWith('/dashboard')
-
-  if (isProtected && !user) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/auth/login'
-    return NextResponse.redirect(url)
-  }
+  // Refresh session if present (no redirect on failure)
+  await supabase.auth.getUser()
 
   return supabaseResponse
 }

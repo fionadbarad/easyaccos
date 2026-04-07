@@ -11,7 +11,7 @@ import {
   GraduationCap, Bot, BarChart2, Settings, TrendingUp,
   LogOut, LogIn, Menu, X, Shield, BookOpen, FileText,
 } from 'lucide-react'
-import Kittax from '@/components/Kittax'
+// Kittax mascot is rendered only on the AI page
 
 // ─── Palette ─────────────────────────────────────────────────────────────────
 const C = {
@@ -235,8 +235,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {children}
       </main>
 
-      {/* ── KITTAX FLOATING MASCOT ── */}
-      <Kittax />
+      {/* Kittax cat lives only on the AI page — see /dashboard/ai/page.tsx */}
     </div>
   )
 }

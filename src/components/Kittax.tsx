@@ -13,36 +13,35 @@ const C = {
   border: 'rgba(255,215,0,0.18)',
 }
 
-// ─── Scenario-aware tips with cat personality ────────────────────────────────
+// ─── Professional tax tips ──────────────────────────────────────────────────
 const PROACTIVE_TIPS = [
-  { text: 'Meow! Ready to audit your 2026/27 finances? Pick your scenario above.', mood: '😺' },
-  { text: 'Your first £500 in dividends is tax-free. Structure pay as salary + dividends for maximum savings.', mood: '😸' },
-  { text: 'Mileage allowance: 45p per mile for the first 10,000 business miles. Keep a log!', mood: '🐱' },
-  { text: 'Use of Home flat rate: £6/week = £312/year — no receipts needed. Free money!', mood: '😻' },
-  { text: 'Between £100k–£125k? You are in the 60% trap — pension contributions are the escape route.', mood: '🙀' },
-  { text: 'SIPP pension contributions reduce your taxable income pound-for-pound. Purr-fect for higher earners.', mood: '😸' },
-  { text: 'Self Assessment deadline: 31 January 2028. Do not leave it to the last minute!', mood: '😾' },
-  { text: 'Training & CPD courses to maintain existing skills are 100% allowable expenses.', mood: '😺' },
-  { text: 'Equipment for your business (laptops, phones) — claim 100% via Annual Investment Allowance.', mood: '🐱' },
-  { text: 'NI Class 4: 6% on profits £12,570–£50,270, then 2% above. I never forget the numbers.', mood: '😸' },
-  { text: 'ISA allowance: £20,000 per year. All returns completely tax-free. Even I am jealous.', mood: '😻' },
-  { text: 'MTD for Income Tax starts April 2026 for income above £50k. Get your digital records ready!', mood: '🐱' },
+  'Your first £500 in dividends is tax-free. Structure pay as salary + dividends for maximum savings.',
+  'Mileage allowance: 45p per mile for the first 10,000 business miles. Keep a log.',
+  'Use of Home flat rate: £6/week = £312/year — no receipts needed.',
+  'Between £100k–£125k? You are in the 60% trap — pension contributions are the escape route.',
+  'SIPP pension contributions reduce your taxable income pound-for-pound. Ideal for higher earners.',
+  'Self Assessment deadline: 31 January 2028. Do not leave it to the last minute.',
+  'Training & CPD courses to maintain existing skills are 100% allowable expenses.',
+  'Equipment for your business (laptops, phones) — claim 100% via Annual Investment Allowance.',
+  'NI Class 4: 6% on profits £12,570–£50,270, then 2% above.',
+  'ISA allowance: £20,000 per year. All returns completely tax-free.',
+  'MTD for Income Tax starts April 2026 for income above £50k. Get your digital records ready.',
 ]
 
 // ─── Scenario greetings by employment type ──────────────────────────────────
 export const SCENARIO_MESSAGES: Record<string, string> = {
   employed:
-    '😺 As a PAYE employee, your employer handles your tax — but you may be owed a refund if you stopped work mid-year!',
+    'As a PAYE employee, your employer handles your tax — but you may be owed a refund if you stopped work mid-year.',
   'self-employed':
-    '🐱 Self-employed? NI Class 4 is 6% on your profit. Keep every allowable expense receipt — I will make sure nothing is missed!',
+    'Self-employed? NI Class 4 is 6% on your profit. Keep every allowable expense receipt.',
   high_earner:
-    '🙀 You are in the 60% trap! Every £2 you earn over £100k loses £1 of your Personal Allowance. A pension contribution is your best friend right now.',
+    'You are in the 60% trap. Every £2 you earn over £100k loses £1 of your Personal Allowance. A pension contribution is your best option.',
   welfare:
-    '😺 Universal Credit is 100% tax-free — it will not touch your £12,570 allowance. JSA and Carer\'s Allowance are taxable though.',
+    'Universal Credit is 100% tax-free — it will not touch your £12,570 allowance. JSA and Carer\'s Allowance are taxable.',
   redundancy:
-    '😸 I have applied your £30k redundancy exemption. You are keeping every penny you are entitled to. Check if you are owed a PAYE refund!',
+    'Your £30k redundancy exemption has been applied. Check if you are owed a PAYE refund.',
   director:
-    '😻 Smart move! Taking dividends means you avoid NI on your top earnings. £12,570 salary + dividends = the optimal structure.',
+    'Taking dividends avoids NI on your top earnings. £12,570 salary + dividends = the optimal structure.',
 }
 
 type Expr = 'idle' | 'happy' | 'thinking'
@@ -173,7 +172,7 @@ export default function Kittax() {
   const [speaking, setSpeaking] = useState(false)
 
   const tip = PROACTIVE_TIPS[tipIndex]
-  const expr: Expr = tipIndex % 3 === 1 ? 'happy' : tipIndex % 3 === 2 ? 'thinking' : 'idle'
+  const expr: Expr = tipIndex % 3 === 0 ? 'idle' : tipIndex % 3 === 1 ? 'happy' : 'thinking'
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -187,9 +186,9 @@ export default function Kittax() {
   useEffect(() => {
     if (voiceOn && open) {
       setSpeaking(true)
-      speak(tip.text, () => setSpeaking(false))
+      speak(tip, () => setSpeaking(false))
     }
-  }, [tipIndex, voiceOn, open, tip.text])
+  }, [tipIndex, voiceOn, open, tip])
 
   async function ask() {
     const q = input.trim()
@@ -252,7 +251,7 @@ export default function Kittax() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <MiniCat />
                 <div>
-                  <div style={{ color: C.gold, fontWeight: 700, fontSize: '0.86rem' }}>Kittax 🐱</div>
+                  <div style={{ color: C.gold, fontWeight: 700, fontSize: '0.86rem' }}>Kittax AI</div>
                   <div style={{ color: C.muted, fontSize: '0.65rem' }}>UK Tax Advisor 2026/27 — Always Free</div>
                 </div>
               </div>
@@ -271,7 +270,7 @@ export default function Kittax() {
             {/* Rotating tax tip with cat mood */}
             <div style={{ padding: '0.75rem 1rem', borderBottom: `1px solid rgba(255,215,0,0.06)`, background: 'rgba(255,215,0,0.03)' }}>
               <div style={{ color: C.muted, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                {tip.mood} Tax Tip
+                Tax Tip
                 {speaking && <span style={{ color: C.gold, fontSize: '0.62rem', animation: 'pulse 1s infinite' }}>● speaking</span>}
               </div>
               <motion.p
@@ -281,7 +280,7 @@ export default function Kittax() {
                 transition={{ duration: 0.3 }}
                 style={{ color: C.text, fontSize: '0.8rem', lineHeight: 1.55, margin: 0 }}
               >
-                {tip.text}
+                {tip}
               </motion.p>
             </div>
 
@@ -289,7 +288,7 @@ export default function Kittax() {
             <div style={{ flex: 1, overflowY: 'auto', padding: '0.6rem 0.75rem', minHeight: '120px', maxHeight: '260px' }}>
               {messages.length === 0 && (
                 <div style={{ textAlign: 'center', padding: '1.2rem 0.5rem' }}>
-                  <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🐱</div>
+                  <div style={{ fontSize: '1.2rem', marginBottom: '0.5rem', color: C.gold, fontWeight: 700 }}>Kittax AI</div>
                   <p style={{ color: C.muted, fontSize: '0.78rem', lineHeight: 1.5, margin: 0 }}>
                     Ask me anything about UK tax!<br />
                     Or just type your income for an instant breakdown.
@@ -356,7 +355,7 @@ export default function Kittax() {
             </div>
 
             <div style={{ padding: '0 0.7rem 0.5rem', textAlign: 'center' }}>
-              <span style={{ color: C.muted, fontSize: '0.58rem' }}>Powered by Kittax Brain 🐱 | 2026/27 HMRC Compliant | No External AI</span>
+              <span style={{ color: C.muted, fontSize: '0.58rem' }}>Kittax AI | 2026/27 HMRC Compliant | Secured via Supabase RLS &amp; AES-256</span>
             </div>
           </motion.div>
         )}

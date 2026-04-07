@@ -45,7 +45,7 @@ function ChatBubble({ msg }: { msg: Message }) {
 
 export default function AIPage() {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'Hello! I\'m your EasyAcco AI Tax Assistant. Ask me anything about UK self-employment tax, HMRC deadlines, allowable expenses, and more.' },
+    { role: 'assistant', content: 'Hello! I\'m Kittax 🐱 — your EasyAcco tax advisor. Ask me anything about UK tax, HMRC deadlines, expenses, dividends, and more. Or just type your income for an instant breakdown!' },
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -64,17 +64,11 @@ export default function AIPage() {
     setMessages(next)
     setLoading(true)
 
-    // Build Gemini history
-    const history = next.slice(1, -1).map((m) => ({
-      role: m.role === 'user' ? 'user' : 'model' as const,
-      parts: [{ text: m.content }],
-    }))
-
     try {
       const res = await fetch('/api/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: msg, history }),
+        body: JSON.stringify({ message: msg }),
       })
       const data = await res.json()
       if (!res.ok || data.error) throw new Error(data.error || 'API error')
@@ -92,7 +86,7 @@ export default function AIPage() {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() }
   }
 
-  function reset() { setMessages([{ role: 'assistant', content: 'Hello! Ask me anything about UK tax and self-employment.' }]); setError('') }
+  function reset() { setMessages([{ role: 'assistant', content: 'Hello! I\'m Kittax 🐱 — ask me anything about UK tax!' }]); setError('') }
 
   return (
     <div style={{ padding: 'clamp(1rem,3vw,2rem)', maxWidth: '760px', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)' }}

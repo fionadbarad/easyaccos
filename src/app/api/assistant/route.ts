@@ -1,18 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { calculateFullTax, kittaxAnswer } from '@/lib/kittax-brain'
 
-// ─── Resolve Gemini API key from any common env var name ────────────────────
-function getApiKey(): string | null {
-  return (
-    process.env.GEMINI_API_KEY ||
-    process.env.GOOGLE_API_KEY ||
-    process.env.GOOGLE_GENERATIVE_AI_API_KEY ||
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
-    null
-  )
-}
-
-// ─── 2026/27 UK Tax Engine ───────────────────────────────────────────────────
+// ─── 2026/27 UK Tax Engine (kept for direct calculate action) ───────────────
 interface TaxResult {
   income: number
   tax: number
@@ -22,110 +11,31 @@ interface TaxResult {
   personalAllowance: number
 }
 
-function calculateTax(income: number, region: string = 'rUK'): TaxResult {
-  const PA = income > 125140 ? 0 : income > 100000
-    ? Math.max(0, 12570 - Math.floor((income - 100000) / 2))
-    : 12570
-
-  const taxable = Math.max(0, income - PA)
-  let tax = 0
-
-  if (region === 'scotland') {
-    // Scotland 6-band
-    const bands = [
-      { from: 0,      to: 2097,   rate: 0.19 },  // above PA
-      { from: 2097,   to: 13086,  rate: 0.20 },
-      { from: 13086,  to: 31252,  rate: 0.21 },
-      { from: 31252,  to: 62430,  rate: 0.42 },
-      { from: 62430,  to: 112570, rate: 0.45 },
-      { from: 112570, to: Infinity, rate: 0.48 },
-    ]
-    let remaining = taxable
-    for (const b of bands) {
-      const width = b.to - b.from
-      const chunk = Math.min(remaining, width)
-      if (chunk <= 0) break
-      tax += chunk * b.rate
-      remaining -= chunk
-    }
-  } else {
-    // rUK 3-band
-    if (taxable <= 37700)       tax = taxable * 0.20
-    else if (taxable <= 112570) tax = 37700 * 0.20 + (taxable - 37700) * 0.40
-    else                        tax = 37700 * 0.20 + 74870 * 0.40 + (taxable - 112570) * 0.45
-  }
-
-  // Class 4 NI (self-employed default)
-  let ni = 0
-  if (income > 12570) {
-    const niMain  = Math.min(income, 50270) - 12570
-    const niUpper = Math.max(0, income - 50270)
-    ni = niMain * 0.06 + niUpper * 0.02
-  }
-
-  const net = Math.round(income - tax - ni)
+function toTaxResult(income: number, region = 'rUK'): TaxResult {
+  const b = calculateFullTax(income, region)
   return {
-    income,
-    tax:  Math.round(tax),
-    ni:   Math.round(ni),
-    net,
-    effectiveRate: income > 0 ? (((tax + ni) / income) * 100).toFixed(1) + '%' : '0%',
-    personalAllowance: PA,
+    income: b.income,
+    tax: b.incomeTax,
+    ni: b.ni,
+    net: b.net,
+    effectiveRate: b.effectiveRate,
+    personalAllowance: b.personalAllowance,
   }
 }
 
-// ─── In-memory report store (per-instance, resets on cold start) ─────────────
+// ─── In-memory report store (per-instance, resets on cold start) ────────────
 const reports: Record<string, TaxResult & { id: string; savedAt: string }> = {}
 
-// ─── AI: parse natural language into tax params ──────────────────────────────
-async function interpretInput(apiKey: string, message: string) {
-  const genAI = new GoogleGenerativeAI(apiKey)
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
-  const prompt = `Extract UK tax query details from this message and return ONLY valid JSON.
-Message: "${message}"
-Return exactly: {"income": <number>, "region": "rUK" or "scotland"}
-If income not found, use 0. No markdown, no explanation.`
-  const result = await model.generateContent(prompt)
-  const text = result.response.text().trim().replace(/```json|```/g, '').trim()
-  try {
-    return JSON.parse(text) as { income: number; region: string }
-  } catch {
-    return { income: 0, region: 'rUK' }
-  }
-}
-
-// ─── AI: explain tax result in plain English ─────────────────────────────────
-async function explainResult(apiKey: string, data: TaxResult): Promise<string> {
-  const genAI = new GoogleGenerativeAI(apiKey)
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
-    systemInstruction:
-      'You are a friendly UK tax advisor. Give clear, concise explanations. ' +
-      'Always suggest at least one legal way to reduce the tax bill (pension, expenses, etc).',
-  })
-  const prompt = `Explain this UK 2026/27 tax result in 3 short sections:
-- Summary (1 sentence)
-- Breakdown (bullet points)
-- Top tip to reduce tax
-
-Data: Income £${data.income.toLocaleString('en-GB')}, Tax £${data.tax.toLocaleString('en-GB')}, NI £${data.ni.toLocaleString('en-GB')}, Net £${data.net.toLocaleString('en-GB')}, Effective rate ${data.effectiveRate}`
-  const result = await model.generateContent(prompt)
-  return result.response.text()
-}
-
-// ─── PDF generator (server-side, returns base64 data URI) ────────────────────
+// ─── PDF generator (server-side, returns base64 data URI) ───────────────────
 async function generatePDF(data: TaxResult & { id?: string; savedAt?: string }): Promise<string> {
-  // Dynamic import keeps jsPDF out of the main bundle
   const { jsPDF } = await import('jspdf')
   const doc = new jsPDF()
   const gold = [194, 163, 104] as const
   const dark = [11, 14, 26]   as const
 
-  // Background
   doc.setFillColor(...dark)
   doc.rect(0, 0, 210, 297, 'F')
 
-  // Header bar
   doc.setFillColor(...gold)
   doc.rect(0, 0, 210, 28, 'F')
   doc.setTextColor(11, 14, 26)
@@ -139,21 +49,20 @@ async function generatePDF(data: TaxResult & { id?: string; savedAt?: string }):
   const now = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
   doc.text(`Generated: ${now}`, 210 - 14, 21, { align: 'right' })
 
-  // Section: Summary
   doc.setTextColor(194, 163, 104)
   doc.setFontSize(13)
   doc.setFont('helvetica', 'bold')
   doc.text('Tax Summary', 14, 44)
 
   const rows: [string, string][] = [
-    ['Gross Income',       `£${data.income.toLocaleString('en-GB')}`],
-    ['Personal Allowance', `£${data.personalAllowance.toLocaleString('en-GB')}`],
-    ['Taxable Income',     `£${(data.income - data.personalAllowance).toLocaleString('en-GB')}`],
-    ['Income Tax',         `£${data.tax.toLocaleString('en-GB')}`],
-    ['National Insurance', `£${data.ni.toLocaleString('en-GB')}`],
-    ['Total Deductions',   `£${(data.tax + data.ni).toLocaleString('en-GB')}`],
+    ['Gross Income',       `\u00a3${data.income.toLocaleString('en-GB')}`],
+    ['Personal Allowance', `\u00a3${data.personalAllowance.toLocaleString('en-GB')}`],
+    ['Taxable Income',     `\u00a3${(data.income - data.personalAllowance).toLocaleString('en-GB')}`],
+    ['Income Tax',         `\u00a3${data.tax.toLocaleString('en-GB')}`],
+    ['National Insurance', `\u00a3${data.ni.toLocaleString('en-GB')}`],
+    ['Total Deductions',   `\u00a3${(data.tax + data.ni).toLocaleString('en-GB')}`],
     ['Effective Rate',     data.effectiveRate],
-    ['Net Take-Home',      `£${data.net.toLocaleString('en-GB')}`],
+    ['Net Take-Home',      `\u00a3${data.net.toLocaleString('en-GB')}`],
   ]
 
   let y = 52
@@ -169,7 +78,6 @@ async function generatePDF(data: TaxResult & { id?: string; savedAt?: string }):
     y += 12
   })
 
-  // Footer
   doc.setTextColor(80, 90, 110)
   doc.setFontSize(8)
   doc.setFont('helvetica', 'normal')
@@ -178,10 +86,27 @@ async function generatePDF(data: TaxResult & { id?: string; savedAt?: string }):
   return doc.output('datauristring')
 }
 
-// ─── Route handler ────────────────────────────────────────────────────────────
-export async function POST(request: NextRequest) {
-  const apiKey = getApiKey()
+// ─── Parse income from natural language ─────────────────────────────────────
+function parseIncome(message: string): { income: number; region: string } {
+  const text = String(message || '')
+  let income = 0
+  let region = 'rUK'
 
+  const kMatch = text.match(/(\d+(?:\.\d+)?)\s*k\b/i)
+  if (kMatch) income = parseFloat(kMatch[1]) * 1000
+
+  if (!income) {
+    const numMatch = text.match(/£?\s*(\d{1,3}(?:,\d{3})*(?:\.\d+)?)/)
+    if (numMatch) income = parseFloat(numMatch[1].replace(/,/g, ''))
+  }
+
+  if (/\bscot(?:land|tish)\b/i.test(text)) region = 'scotland'
+
+  return { income, region }
+}
+
+// ─── Route handler ──────────────────────────────────────────────────────────
+export async function POST(request: NextRequest) {
   let body: { action?: string; message?: unknown }
   try {
     body = await request.json()
@@ -191,7 +116,7 @@ export async function POST(request: NextRequest) {
 
   const { action, message } = body
 
-  // ── PDF: does NOT need AI key ──────────────────────────────────────────────
+  // ── PDF ────────────────────────────────────────────────────────────────────
   if (action === 'pdf') {
     try {
       const data = message as TaxResult
@@ -203,7 +128,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // ── SAVE: does NOT need AI key ─────────────────────────────────────────────
+  // ── SAVE ───────────────────────────────────────────────────────────────────
   if (action === 'save') {
     const data = message as TaxResult
     const id = `rpt_${Date.now()}`
@@ -211,47 +136,29 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, report: reports[id] })
   }
 
-  // ── ASK: needs AI key ──────────────────────────────────────────────────────
+  // ── ASK (uses Kittax brain — no external API) ─────────────────────────────
   if (action === 'ask') {
-    if (!apiKey) {
-      // Degrade gracefully — run tax calc without AI explanation
-      const fallback = calculateTax(0, 'rUK')
-      return NextResponse.json({
-        success: true,
-        data: fallback,
-        explanation: 'AI advisor is offline. Tax calculation is still accurate — enter your income above to see your breakdown.',
-        aiOffline: true,
-      })
-    }
-
-    try {
-      const parsed = await interpretInput(apiKey, message as string)
-      const data   = calculateTax(parsed.income || 0, parsed.region || 'rUK')
-      const explanation = await explainResult(apiKey, data)
-      return NextResponse.json({ success: true, data, explanation })
-    } catch (err) {
-      const e = err instanceof Error ? err.message : 'AI error'
-      console.error('Assistant AI error:', e)
-      return NextResponse.json({ success: false, error: e }, { status: 500 })
-    }
+    const text = String(message || '')
+    const parsed = parseIncome(text)
+    const data = toTaxResult(parsed.income || 0, parsed.region)
+    const explanation = kittaxAnswer(text)
+    return NextResponse.json({ success: true, data, explanation })
   }
 
-  // ── Direct tax calc (no AI) ────────────────────────────────────────────────
+  // ── CALCULATE ──────────────────────────────────────────────────────────────
   if (action === 'calculate') {
     const { income = 0, region = 'rUK' } = message as { income?: number; region?: string }
-    return NextResponse.json({ success: true, data: calculateTax(income, region) })
+    return NextResponse.json({ success: true, data: toTaxResult(income, region) })
   }
 
   return NextResponse.json({ success: false, error: 'Unknown action' }, { status: 400 })
 }
 
-// ── Health / key-check endpoint ───────────────────────────────────────────────
+// ── Health endpoint ─────────────────────────────────────────────────────────
 export async function GET() {
-  const key = getApiKey()
   return NextResponse.json({
     status: 'ok',
-    aiConfigured: !!key,
-    keyFound: key ? key.substring(0, 8) + '...' : null,
-    checkedVars: ['GEMINI_API_KEY', 'GOOGLE_API_KEY', 'GOOGLE_GENERATIVE_AI_API_KEY'],
+    engine: 'Kittax Brain (self-built, free)',
+    aiConfigured: true,
   })
 }

@@ -35,7 +35,7 @@ const NAV = [
   { href: '/dashboard/pnl',          label: 'Financial Reports', icon: FileText,      group: 'reports' },
   { href: '/dashboard/currency',     label: 'Currency',        icon: TrendingUp,      group: 'tools' },
   { href: '/dashboard/learn',        label: 'Learn',           icon: GraduationCap,   group: 'tools' },
-  { href: '/dashboard/ai',           label: 'AI Assistant',    icon: Bot,             group: 'tools' },
+  { href: '/dashboard/ai',           label: 'Kittax AI',       icon: Bot,             group: 'tools' },
   { href: '/dashboard/settings',     label: 'Settings',        icon: Settings,        group: 'tools' },
   { href: '/security',               label: 'Security',        icon: Shield,          group: 'tools' },
 ]

@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Send, Bot, User, Loader2, RefreshCw } from 'lucide-react'
+import Kittax from '@/components/Kittax'
 
-const C = { bg: '#1A2342', deep: '#0F1628', card: '#4A4066', gold: '#C2A368', text: '#E4D3B4', muted: 'rgba(228,211,180,0.55)', border: 'rgba(194,163,104,0.2)' }
+const C = { bg: '#0B0E1A', deep: '#050A14', card: '#111827', gold: '#FFD700', soft: '#C2A368', text: '#E5E7EB', muted: 'rgba(229,231,235,0.55)', border: 'rgba(255,215,0,0.15)' }
 
 type Role = 'user' | 'assistant'
 interface Message { role: Role; content: string }
@@ -45,7 +46,7 @@ function ChatBubble({ msg }: { msg: Message }) {
 
 export default function AIPage() {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'Hello! I\'m Kittax 🐱 — your EasyAcco tax advisor. Ask me anything about UK tax, HMRC deadlines, expenses, dividends, and more. Or just type your income for an instant breakdown!' },
+    { role: 'assistant', content: 'Welcome. I am Kittax AI — your EasyAcco tax advisor for 2026/27. Ask me anything about UK tax, HMRC deadlines, expenses, dividends, and more. Or type your income for an instant breakdown.' },
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -86,7 +87,7 @@ export default function AIPage() {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() }
   }
 
-  function reset() { setMessages([{ role: 'assistant', content: 'Hello! I\'m Kittax 🐱 — ask me anything about UK tax!' }]); setError('') }
+  function reset() { setMessages([{ role: 'assistant', content: 'Welcome. I am Kittax AI — ask me anything about UK tax for 2026/27.' }]); setError('') }
 
   return (
     <div style={{ padding: 'clamp(1rem,3vw,2rem)', maxWidth: '760px', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)' }}
@@ -154,6 +155,9 @@ export default function AIPage() {
           <Send size={18} style={{ color: loading || !input.trim() ? C.muted : '#0F1628' }} />
         </button>
       </div>
+
+      {/* Kittax floating mascot — lives only on this page */}
+      <Kittax />
     </div>
   )
 }

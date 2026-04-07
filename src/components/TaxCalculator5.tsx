@@ -363,8 +363,8 @@ export default function TaxCalculator5() {
               <Field label="Pension Contribution (£)"><NumInput value={s5.pension} onChange={(v) => setS5((p) => ({ ...p, pension: v }))} max={60_000} /></Field>
               <div style={{ padding: '0.75rem', background: 'rgba(255,215,0,0.05)', border: `1px solid rgba(255,215,0,0.15)`, borderRadius: '6px', fontSize: '0.78rem', color: C.muted }}>
                 <div style={{ color: C.soft, fontWeight: 600, marginBottom: '4px' }}>2026/27 Dividend Rates</div>
-                <div>Basic (up to £50,270): 8.75%</div>
-                <div>Higher (£50,271–£125,140): 33.75%</div>
+                <div>Basic (up to £50,270): 10.75%</div>
+                <div>Higher (£50,271–£125,140): 35.75%</div>
                 <div>Additional (above £125,140): 39.35%</div>
                 <div style={{ color: C.green, marginTop: '4px' }}>First £500 = tax-free allowance</div>
               </div>

@@ -123,7 +123,7 @@
     "id": "dividend-allowance",
     "title": "Dividend Allowance",
     "summary": "If you own shares in a company (including your own limited company), you can receive up to £500 in dividends tax-free each year. Above that, dividend tax rates apply.",
-    "deepDive": "The Dividend Allowance for 2026/27 is £500 — reduced from £2,000 in 2022 and £1,000 in 2023/24. Dividends above this allowance are taxed at: 8.75% (Basic Rate taxpayers), 33.75% (Higher Rate), or 39.35% (Additional Rate). Dividends are paid from a company's after-corporation-tax profits, so they're not subject to NI — making them tax-efficient for limited company directors. However, you must still declare dividend income on your Self-Assessment return.",
+    "deepDive": "The Dividend Allowance for 2026/27 is £500 — reduced from £2,000 in 2022 and £1,000 in 2023/24. Dividends above this allowance are taxed at: 10.75% (Basic Rate taxpayers), 35.75% (Higher Rate), or 39.35% (Additional Rate). Dividends are paid from a company's after-corporation-tax profits, so they're not subject to NI — making them tax-efficient for limited company directors. However, you must still declare dividend income on your Self-Assessment return.",
     "category": "Dividends",
     "icon": "DollarSign"
   },

@@ -36,8 +36,8 @@ Income Tax Bands (rUK 2026/27):
 
 Dividend Tax Rates (2026/27):
 - First £500: tax-free allowance
-- 8.75% in basic rate band
-- 33.75% in higher rate band
+- 10.75% in basic rate band
+- 35.75% in higher rate band
 - 39.35% in additional rate band
 
 National Insurance (Self-Employed):
@@ -91,7 +91,7 @@ const OFFLINE: Record<string, string> = {
     'a contribution back to £100,000 restores your full Personal Allowance and saves significantly.',
   dividend:
     'Directors: the first £500 in dividends is tax-free (2026/27). ' +
-    'Above that: 8.75% in the basic rate band, 33.75% in the higher rate band. ' +
+    'Above that: 10.75% in the basic rate band, 35.75% in the higher rate band. ' +
     'Optimal structure is a salary at the NI threshold (£12,570) plus dividends.',
   mileage:
     'You can claim 45p per business mile for the first 10,000 miles, then 25p/mile. ' +

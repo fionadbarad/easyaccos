@@ -1,30 +1,39 @@
-import type { Metadata } from 'next'
-import { Playfair_Display, Inter } from 'next/font/google'
-import './globals.css'
+import type { Metadata } from "next";
+import { Playfair_Display, Inter } from "next/font/google";
+import "./globals.css";
+import '@/styles/EasyAccoTheme.css';
+import { SpeedInsights } from '@vercel/speed-insights/next';
+import { Analytics } from '@vercel/analytics/next';
 
 const playfair = Playfair_Display({
-  subsets: ['latin'],
-  variable: '--font-playfair',
-  display: 'swap',
-})
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  display: "swap",
+});
 
 const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-})
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: 'EasyAcco — UK Tax Sanctuary',
-  description: 'The UK\'s Celestial tax platform for freelancers and Gen Z. Free forever.',
-}
+  title: "EasyAcco — UK Tax Sanctuary for Freelancers & Gen Z",
+  description: "The UK's first Dark Luxury tax platform for freelancers and Gen Z. Free tax estimator, AI assistant, expense tracker, and more.",
+};
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
-      <body className={inter.className}>
+    <html lang="en" className={`${playfair.variable} ${inter.variable}`} suppressHydrationWarning>
+      <body className="antialiased" style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }} suppressHydrationWarning>
         {children}
+        <SpeedInsights />
+        <Analytics />
       </body>
     </html>
-  )
+  );
 }

@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Send, Bot, User, Loader2, RefreshCw } from 'lucide-react'
-import Kittax from '@/components/Kittax'
 
 const C = { bg: '#1A2342', deep: '#0F1628', card: '#4A4066', gold: '#C2A368', text: '#E4D3B4', muted: 'rgba(228,211,180,0.55)', border: 'rgba(194,163,104,0.2)' }
 
@@ -46,7 +45,7 @@ function ChatBubble({ msg }: { msg: Message }) {
 
 export default function AIPage() {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'Hello! I\'m your EasyAcco AI Tax Assistant, powered by Gemini. Ask me anything about UK self-employment tax, HMRC deadlines, allowable expenses, and more.' },
+    { role: 'assistant', content: 'Hello! I\'m your EasyAcco AI Tax Assistant. Ask me anything about UK self-employment tax, HMRC deadlines, allowable expenses, and more.' },
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -65,7 +64,7 @@ export default function AIPage() {
     setMessages(next)
     setLoading(true)
 
-    // Build Gemini history (exclude the initial greeting and the current message)
+    // Build Gemini history
     const history = next.slice(1, -1).map((m) => ({
       role: m.role === 'user' ? 'user' : 'model' as const,
       parts: [{ text: m.content }],
@@ -100,7 +99,9 @@ export default function AIPage() {
       className="md:h-screen">
 
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-        <Kittax message="You’re overpaying on your next quarter payment. Let’s find the allowable costs and maximise your take-home." />
+        <p style={{ flex: 1, color: C.muted, fontSize: '0.82rem', margin: 0 }}>
+          Kittax is active in the bottom-right corner for tax tips.
+        </p>
         <button onClick={reset}
           style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(194,163,104,0.1)', border: `1px solid ${C.border}`, borderRadius: '5px', color: C.muted, fontSize: '0.78rem', padding: '7px 13px', cursor: 'pointer' }}>
           <RefreshCw size={13} /> New chat

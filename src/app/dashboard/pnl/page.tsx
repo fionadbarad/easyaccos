@@ -143,24 +143,6 @@ export default function PnLPage() {
       .catch(() => alert('Could not copy — check browser permissions.'))
   }
 
-  function syncToSheets() {
-    const payload = {
-      generated: new Date().toISOString(),
-      fiscalYear: '2026/27',
-      summary: {
-        totalIncome: Math.round(totalIncome),
-        totalExpenses: Math.round(totalExpenses),
-        netProfit: Math.round(netProfit),
-        profitMarginPct: parseFloat(margin.toFixed(2)),
-      },
-      monthlyBreakdown: monthly,
-      transactions: txs,
-    }
-    navigator.clipboard.writeText(JSON.stringify(payload, null, 2))
-      .then(() => { setCopied(true); setTimeout(() => setCopied(false), 2500) })
-      .catch(() => alert('Could not copy to clipboard — please check browser permissions.'))
-  }
-
   return (
     <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)', maxWidth: '960px' }}>
       {/* Header */}

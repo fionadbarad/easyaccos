@@ -125,32 +125,35 @@ function fmtGBP(n: number): string {
 }
 
 function taxBreakdownResponse(b: TaxBreakdown): string {
-  const lines = [
-    `On income of ${fmtGBP(b.income)}:`,
+  // [Professional Insight]
+  let insight = `On income of ${fmtGBP(b.income)}, your tax band is: ${b.band}.`
+
+  // [Mathematical Breakdown]
+  const breakdown = [
     '',
-    `Personal Allowance: ${fmtGBP(b.personalAllowance)}`,
-    `Taxable income: ${fmtGBP(b.taxableIncome)}`,
-    `Tax band: ${b.band}`,
-    `Income Tax: ${fmtGBP(b.incomeTax)}`,
-    `National Insurance: ${fmtGBP(b.ni)}`,
-    `Total deductions: ${fmtGBP(b.totalDeductions)}`,
-    `Net take-home: ${fmtGBP(b.net)}`,
-    `Effective rate: ${b.effectiveRate}`,
+    `• Personal Allowance: ${fmtGBP(b.personalAllowance)}`,
+    `• Taxable income: ${fmtGBP(b.taxableIncome)}`,
+    `• Income Tax: ${fmtGBP(b.incomeTax)}`,
+    `• National Insurance: ${fmtGBP(b.ni)}`,
+    `• Total deductions: ${fmtGBP(b.totalDeductions)}`,
+    `• Net take-home: ${fmtGBP(b.net)}`,
+    `• Effective rate: ${b.effectiveRate}`,
   ]
 
-  // Add contextual tips
+  // [Pro-Tip]
+  let proTip = ''
   if (b.income > PA_TAPER_START && b.income < PA_TAPER_END) {
-    lines.push('')
-    lines.push(`You are in the 60% trap. A SIPP pension contribution of ${fmtGBP(b.income - PA_TAPER_START)} would restore your full Personal Allowance and save you significantly.`)
+    proTip = `\n\nPro-Tip: You are in the 60% trap. A SIPP contribution of ${fmtGBP(b.income - PA_TAPER_START)} restores your full Personal Allowance.`
   } else if (b.income > 80_000) {
-    lines.push('')
-    lines.push('Consider a SIPP pension contribution to reduce your taxable income and pay less tax.')
+    proTip = '\n\nPro-Tip: Consider a SIPP pension contribution to reduce your taxable income.'
   } else if (b.income > PA_FULL && b.income < 30_000) {
-    lines.push('')
-    lines.push('Make sure you are claiming all allowable expenses — even small deductions like Use of Home (£6/week) add up.')
+    proTip = '\n\nPro-Tip: Claim Use of Home (£6/week = £312/year) — no receipts needed.'
   }
 
-  return lines.join('\n')
+  // [Security Assurance + Badge]
+  const footer = '\n\nSecured via Supabase RLS & AES-256 Encryption.\n🌱 Carbon-Light AI | HMRC 2026/27 Compliant'
+
+  return insight + breakdown.join('\n') + proTip + footer
 }
 
 // ─── Topic matching & response engine ───────────────────────────────────────
@@ -254,7 +257,7 @@ const TOPICS: TopicMatch[] = [
   // Student loan
   {
     pattern: /\b(?:student\s*loan|plan\s*[1-5]|postgrad\s*loan|SLC)\b/i,
-    response: `Student Loan repayment thresholds (2026/27):\n\n- Plan 1: 9% on income above £24,990\n- Plan 2: 9% on income above £27,295\n- Plan 4 (Scotland): 9% on income above £27,660\n- Plan 5: 9% on income above £25,000\n- Postgrad Loan: 6% on income above £21,000\n\nRepayments are collected through PAYE or Self Assessment. They are not tax-deductible.`,
+    response: `Student Loan repayment thresholds (2026/27):\n\n• Plan 1: 9% on income above £26,065\n• Plan 2: 9% on income above £29,385\n• Plan 4 (Scotland only): 9% on income above £32,745\n• Plan 5: 9% on income above £25,000\n• Postgrad Loan: 6% on income above £21,000\n\nScotland: Only Plan 4 or Postgraduate.\nEngland/Wales/NI: Plan 1, 2, 5, or Postgraduate.\nDual-plan (e.g. Plan 2 + Postgrad): combined 15% marginal rate.\n\nRepayments are collected through PAYE or Self Assessment. They are not tax-deductible.\n\nSecured via Supabase RLS & AES-256 Encryption.\n🌱 Carbon-Light AI | HMRC 2026/27 Compliant`,
   },
 
   // Redundancy
@@ -275,10 +278,34 @@ const TOPICS: TopicMatch[] = [
     response: `Working from home expense claim (2026/27):\n\nSimplified method (no receipts needed):\n- 25–50 hours/month: £10/month\n- 51–100 hours/month: £18/month\n- 101+ hours/month: £26/month\n\nOr use the flat rate: £6/week (£312/year).\n\nAlternatively, calculate your actual costs (rent, bills, broadband) and claim the business proportion — but you will need records and receipts.`,
   },
 
+  // Married Couple's Allowance
+  {
+    pattern: /\b(?:married\s*couple|MCA|born\s*before\s*1935|spouse\s*allowance)\b/i,
+    response: `Married Couple's Allowance (MCA) — 2026/27:\n\nAvailable if either spouse was born before 6 April 1935.\n\n• Maximum: £11,700\n• Minimum: £4,530\n• Income limit: £39,200\n\nThe allowance reduces your tax bill (not your taxable income). It is given as a 10% tax credit. If the claimant's income exceeds £39,200, the MCA is reduced by £1 for every £2 of excess income — but never below the £4,530 minimum.\n\nSecured via Supabase RLS & AES-256 Encryption.\n🌱 Carbon-Light AI | HMRC 2026/27 Compliant`,
+  },
+
+  // High Income Child Benefit Charge
+  {
+    pattern: /\b(?:child\s*benefit|HICBC|high\s*income.*child)\b/i,
+    response: `High Income Child Benefit Charge (HICBC) — 2026/27:\n\n• Threshold: £60,000 (no charge below this)\n• Taper: 1% of benefit per £200 of income above £60,000\n• Full clawback at: £80,000\n\nIf the higher-earning partner earns over £60,000, you must repay some Child Benefit via Self Assessment. At £80,000+ the entire benefit is clawed back.\n\nPro-Tip: Pension contributions reduce your adjusted net income — this can bring you below the £60,000 threshold and keep your full Child Benefit.\n\nSecured via Supabase RLS & AES-256 Encryption.\n🌱 Carbon-Light AI | HMRC 2026/27 Compliant`,
+  },
+
+  // Marriage Allowance
+  {
+    pattern: /\b(?:marriage\s*allowance|transfer.*allowance|1[\s,]*260)\b/i,
+    response: `Marriage Allowance — 2026/27:\n\nOne partner can transfer £1,260 of their Personal Allowance to the other. This saves the recipient up to £252 in tax.\n\nConditions:\n• The transferor must earn below £12,570 (not using their full PA)\n• The recipient must be a basic rate taxpayer\n\nYou can backdate a claim for up to 4 years.\n\nSecured via Supabase RLS & AES-256 Encryption.\n🌱 Carbon-Light AI | HMRC 2026/27 Compliant`,
+  },
+
+  // Trading loss / negative income
+  {
+    pattern: /\b(?:trading\s*loss|loss\s*relief|negative\s*income|carry\s*(?:forward|back)|offset\s*(?:loss|profit))\b/i,
+    response: `Trading Loss Relief — 2026/27:\n\nIf your business makes a loss (expenses exceed income), you have several options:\n\n• Carry forward: offset the loss against future profits of the same trade\n• Carry back: claim against profits from the previous year for a tax refund\n• Sideways relief: set against other income in the same year (subject to limits)\n• Capital gains offset: use trading losses against capital gains\n\nAll tax and NI = £0 when income is zero or negative. Your unused Personal Allowance cannot be carried forward.\n\nPro-Tip: If you had zero income, check eligibility for Universal Credit — it is 100% tax-free.\n\nSecured via Supabase RLS & AES-256 Encryption.\n🌱 Carbon-Light AI | HMRC 2026/27 Compliant`,
+  },
+
   // Greetings
   {
     pattern: /^(?:hi|hello|hey|hiya|morning|evening|afternoon|yo|sup)\b/i,
-    response: `Hey... welcome to EasyAcco. I am Kittax, your UK tax advisor for 2026/27. Ask me anything — income tax, expenses, NI, dividends, deadlines, you name it. Or just tell me your income and I will calculate your tax instantly.`,
+    response: `Welcome to EasyAcco. I am Kittax AI, your UK tax advisor for 2026/27.\n\nAsk me about:\n• Income tax and NI calculations\n• Dividends, expenses, and pension relief\n• Student loans and Child Benefit\n• Self Assessment deadlines\n\nOr type your income for an instant breakdown.\n\nSecured via Supabase RLS & AES-256 Encryption.\n🌱 Carbon-Light AI | HMRC 2026/27 Compliant`,
   },
 
   // Thanks
@@ -290,7 +317,7 @@ const TOPICS: TopicMatch[] = [
   // Who are you
   {
     pattern: /\b(?:who\s*are\s*you|what\s*are\s*you|your\s*name|kittax)\b/i,
-    response: `I am Kittax — EasyAcco's built-in UK tax advisor. I know 2026/27 HMRC rules inside out: income tax bands, National Insurance, dividends, expenses, deadlines, and more.\n\nJust ask me a question or tell me your income and I will do the maths for you. No external AI needed — I run entirely on EasyAcco's own tax engine.`,
+    response: `I am Kittax AI — EasyAcco's built-in UK tax advisor.\n\nI know 2026/27 HMRC rules inside out:\n• Income tax bands (UK and Scotland)\n• National Insurance, dividends, pensions\n• Student loans, Child Benefit (HICBC)\n• Expenses, deadlines, and loss relief\n\nType your income for an instant breakdown. Your data is protected by MFA and encrypted JWT tokens.\n\nSecured via Supabase RLS & AES-256 Encryption.\n🌱 Carbon-Light AI | HMRC 2026/27 Compliant`,
   },
 ]
 
@@ -323,5 +350,5 @@ export function kittaxAnswer(query: string): string {
   }
 
   // Fallback
-  return `I can help with UK tax calculations, Personal Allowance, NI, dividends, expenses, deadlines, and more.\n\nTry asking:\n- "How much tax on £45,000?"\n- "What expenses can I claim?"\n- "Tell me about dividends"\n- "When is the Self Assessment deadline?"\n\nOr just type your income and I will calculate your 2026/27 tax instantly.`
+  return `I can help with UK tax for 2026/27.\n\nTry asking:\n• "How much tax on £45,000?"\n• "What expenses can I claim?"\n• "Tell me about dividends"\n• "Child Benefit charge"\n• "Student loan repayment"\n\nOr type your income for an instant breakdown.\n\nSecured via Supabase RLS & AES-256 Encryption.\n🌱 Carbon-Light AI | HMRC 2026/27 Compliant`
 }

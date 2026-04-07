@@ -6,7 +6,10 @@ import { Volume2, VolumeX, ChevronDown, ChevronUp, AlertTriangle, Info } from 'l
 import {
   TB, fmtGBP, round2,
   calcScenario1, calcScenario2, calcScenario3, calcScenario4, calcScenario5,
+  calcStudentLoanFull, calcHICBC, calcScotlandIncomeTax, calcPA,
+  PLANS_BY_REGION, PLAN_LABELS,
   type ScenarioResult, type S1Input, type S2Input, type S3Input, type S4Input, type S5Input,
+  type StudentLoanPlanFull, type TaxRegion,
 } from '@/lib/TaxBible2026'
 
 // ─── Palette ─────────────────────────────────────────────────────────────────
@@ -100,7 +103,7 @@ function ResultPanel({ result, speaking, onSpeak }: { result: ScenarioResult; sp
         borderRadius: '10px', padding: '1rem 1.2rem', marginBottom: '1.25rem',
         display: 'flex', gap: '0.75rem', alignItems: 'flex-start',
       }}>
-        <span style={{ fontSize: '1.4rem', flexShrink: 0 }}>🐱</span>
+        <span style={{ fontSize: '0.75rem', color: C.gold, fontWeight: 700, flexShrink: 0 }}>Kittax</span>
         <p style={{ color: C.text, fontSize: '0.85rem', lineHeight: 1.6, margin: 0 }}>{result.catMessage}</p>
         <button onClick={onSpeak}
           style={{ flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', color: speaking ? C.gold : C.muted, padding: '2px' }}
@@ -171,7 +174,7 @@ function ResultPanel({ result, speaking, onSpeak }: { result: ScenarioResult; sp
       </div>
 
       <p style={{ color: C.muted, fontSize: '0.68rem', textAlign: 'center', marginTop: '1rem' }}>
-        2026/27 HMRC Compliant | Encrypted via Supabase
+        2026/27 HMRC Compliant | Secured via Supabase RLS &amp; AES-256 Encryption
       </p>
     </motion.div>
   )
@@ -212,6 +215,20 @@ export default function TaxCalculator5() {
   const [speaking, setSpeaking] = useState(false)
   const [sliderIncome, setSliderIncome] = useState(45_000)
 
+  // ─ Country toggle
+  const [region, setRegion] = useState<TaxRegion>('uk')
+
+  // ─ Extra tax options
+  const [studentLoan, setStudentLoan] = useState<StudentLoanPlanFull>('none')
+  const [hasPostgrad, setHasPostgrad] = useState(false)
+  const [childBenefit, setChildBenefit] = useState(0) // annual £
+
+  // Reset student loan when region changes (country-restricted)
+  const availablePlans = PLANS_BY_REGION[region]
+  if (studentLoan !== 'none' && studentLoan !== 'postgrad' && !availablePlans.includes(studentLoan)) {
+    setStudentLoan('none')
+  }
+
   // ─ Scenario 1 Employed
   const [s1e, setS1e] = useState<S1Input>({ grossIncome: 45_000, expenses: 0, employmentType: 'employed', pension: 0 })
   // ─ Scenario 1 Self-Employed
@@ -235,17 +252,68 @@ export default function TaxCalculator5() {
     else if (scenario === 's5') setS5((p) => ({ ...p, dividends: v }))
   }
 
-  // Compute result
+  // Compute result (with extra tax overlay)
   const result: ScenarioResult | null = (() => {
     try {
-      if (scenario === 's1emp') return calcScenario1(s1e)
-      if (scenario === 's1se')  return calcScenario1(s1s)
-      if (scenario === 's2')    return calcScenario2(s2)
-      if (scenario === 's3')    return calcScenario3(s3)
-      if (scenario === 's4')    return calcScenario4(s4)
-      if (scenario === 's5')    return calcScenario5(s5)
+      let base: ScenarioResult | null = null
+      if (scenario === 's1emp') base = calcScenario1(s1e)
+      if (scenario === 's1se')  base = calcScenario1(s1s)
+      if (scenario === 's2')    base = calcScenario2(s2)
+      if (scenario === 's3')    base = calcScenario3(s3)
+      if (scenario === 's4')    base = calcScenario4(s4)
+      if (scenario === 's5')    base = calcScenario5(s5)
+      if (!base) return null
+
+      // Scotland tax override
+      if (region === 'scotland') {
+        const pa = calcPA(base.grossIncome)
+        const taxable = Math.max(0, base.grossIncome - pa)
+        const scotTax = calcScotlandIncomeTax(taxable)
+        const diff = round2(scotTax - base.incomeTax)
+        base = {
+          ...base,
+          incomeTax: scotTax,
+          totalDeductions: round2(base.totalDeductions + diff),
+          netTakeHome: round2(base.netTakeHome - diff),
+          effectiveRate: base.grossIncome > 0 ? round2(((base.totalDeductions + diff) / base.grossIncome) * 100) : 0,
+        }
+      }
+
+      // Student loan overlay
+      const sl = calcStudentLoanFull(base.grossIncome, studentLoan, hasPostgrad)
+      if (sl.total > 0) {
+        base = {
+          ...base,
+          totalDeductions: round2(base.totalDeductions + sl.total),
+          netTakeHome: round2(base.netTakeHome - sl.total),
+          effectiveRate: base.grossIncome > 0 ? round2(((base.totalDeductions + sl.total) / base.grossIncome) * 100) : 0,
+          lines: [
+            ...base.lines,
+            ...(sl.planRepayment > 0 ? [{ label: `Student Loan (${PLAN_LABELS[studentLoan]?.split('(')[0]?.trim()})`, value: sl.planRepayment, negative: true, indent: true }] : []),
+            ...(sl.postgradRepayment > 0 ? [{ label: 'Postgrad Loan (6%)', value: sl.postgradRepayment, negative: true, indent: true }] : []),
+            ...(sl.dualRate ? [{ label: 'Dual-plan marginal rate: 15%', value: 0, indent: true }] : []),
+          ],
+        }
+      }
+
+      // HICBC overlay
+      if (childBenefit > 0) {
+        const hicbc = calcHICBC(base.grossIncome, childBenefit)
+        if (hicbc > 0) {
+          base = {
+            ...base,
+            totalDeductions: round2(base.totalDeductions + hicbc),
+            netTakeHome: round2(base.netTakeHome - hicbc),
+            lines: [
+              ...base.lines,
+              { label: 'Child Benefit Charge (HICBC)', value: hicbc, negative: true, indent: true },
+            ],
+          }
+        }
+      }
+
+      return base
     } catch { return null }
-    return null
   })()
 
   function handleSpeak() {
@@ -282,6 +350,63 @@ export default function TaxCalculator5() {
             <div style={{ fontSize: '0.65rem', opacity: 0.7, marginTop: '1px' }}>{s.desc}</div>
           </button>
         ))}
+      </div>
+
+      {/* Country Toggle */}
+      <div style={{ ...card, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1.2rem' }}>
+        <span style={{ color: C.muted, fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Tax Region</span>
+        <div style={{ display: 'flex', gap: '4px' }}>
+          {(['uk', 'scotland'] as TaxRegion[]).map((r) => (
+            <button key={r} onClick={() => setRegion(r)}
+              style={{
+                padding: '6px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600,
+                background: region === r ? 'rgba(255,215,0,0.12)' : 'transparent',
+                border: `1px solid ${region === r ? C.gold : C.border}`,
+                color: region === r ? C.gold : C.muted,
+                transition: 'all 0.15s',
+              }}>
+              {r === 'uk' ? 'Rest of UK' : 'Scotland'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Extra Tax Options */}
+      <div style={{ ...card, marginBottom: '1rem' }}>
+        <div style={{ color: C.soft, fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>
+          Extra Deductions
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '1rem' }}>
+          <Field label="Student Loan Plan">
+            <select value={studentLoan} onChange={(e) => setStudentLoan(e.target.value as StudentLoanPlanFull)}
+              style={{ ...inp, cursor: 'pointer', appearance: 'auto' }}>
+              {availablePlans.map((p) => (
+                <option key={p} value={p} style={{ background: C.deep, color: C.text }}>
+                  {PLAN_LABELS[p]}
+                </option>
+              ))}
+            </select>
+          </Field>
+          {studentLoan !== 'none' && studentLoan !== 'postgrad' && (
+            <Field label="Also have Postgrad Loan?">
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '10px 0' }}>
+                <input type="checkbox" checked={hasPostgrad} onChange={(e) => setHasPostgrad(e.target.checked)}
+                  style={{ accentColor: C.gold, width: '18px', height: '18px' }} />
+                <span style={{ color: C.text, fontSize: '0.85rem' }}>
+                  Yes — Postgrad (£21k @ 6%) {hasPostgrad && <span style={{ color: C.gold }}> Combined 15% marginal rate</span>}
+                </span>
+              </label>
+            </Field>
+          )}
+          <Field label="Annual Child Benefit (£)">
+            <NumInput value={childBenefit} onChange={(v) => setChildBenefit(v)} max={5_000} />
+            {childBenefit > 0 && (
+              <p style={{ color: C.muted, fontSize: '0.71rem', marginTop: '4px' }}>
+                HICBC applies if income exceeds £60,000. Full clawback at £80,000.
+              </p>
+            )}
+          </Field>
+        </div>
       </div>
 
       {/* What-If slider */}

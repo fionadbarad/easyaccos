@@ -5,13 +5,13 @@ import { motion } from 'framer-motion'
 import { ArrowRight, Database, BarChart2, Bot, Star } from 'lucide-react'
 
 const C = {
-  bg:     '#1A2342',
-  deep:   '#0F1628',
-  card:   '#4A4066',
-  gold:   '#C2A368',
+  bg:     '#020617',
+  deep:   '#0A0F1E',
+  card:   '#0F172A',
+  gold:   '#EAB308',
   text:   '#E4D3B4',
   muted:  'rgba(228,211,180,0.55)',
-  border: 'rgba(194,163,104,0.2)',
+  border: 'rgba(234,179,8,0.2)',
 }
 
 const STEPS = [
@@ -102,7 +102,7 @@ export default function LandingPageClient() {
         <div style={{ position: 'relative', zIndex: 1, maxWidth: '760px', margin: '0 auto' }}>
           <motion.div initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9 }} suppressHydrationWarning>
 
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 14px', border: `1px solid ${C.border}`, borderRadius: '999px', color: C.gold, fontSize: '0.7rem', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '2rem', background: 'rgba(194,163,104,0.08)' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 14px', border: `1px solid ${C.border}`, borderRadius: '999px', color: C.gold, fontSize: '0.7rem', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '2rem', background: 'rgba(234,179,8,0.08)' }}>
               <Star size={10} fill={C.gold} /> UK Tax Platform · Free · No Account Needed
             </div>
 
@@ -122,7 +122,7 @@ export default function LandingPageClient() {
                   display: 'inline-flex', alignItems: 'center', gap: '10px',
                   padding: '16px 48px', background: C.gold, color: C.deep,
                   fontWeight: 700, fontSize: '1.05rem', textDecoration: 'none', borderRadius: '4px',
-                  boxShadow: '0 4px 24px rgba(194,163,104,0.35)',
+                  boxShadow: '0 4px 24px rgba(234,179,8,0.35)',
                 }}>
                 Open Dashboard Free <ArrowRight size={20} />
               </Link>
@@ -131,12 +131,12 @@ export default function LandingPageClient() {
               </span>
               {/* Optional save account — barely visible, not a CTA */}
               <Link href="/auth/login"
-                style={{ color: 'rgba(194,163,104,0.45)', fontSize: '0.72rem', textDecoration: 'none', marginTop: '4px' }}>
+                style={{ color: 'rgba(234,179,8,0.45)', fontSize: '0.72rem', textDecoration: 'none', marginTop: '4px' }}>
                 Have an account? Sign in to save your data
               </Link>
             </div>
 
-            <div style={{ marginTop: '2rem', padding: '0.85rem 1.1rem', background: 'rgba(194,163,104,0.08)', border: '1px solid rgba(194,163,104,0.25)', borderRadius: '10px', color: C.muted, fontSize: '0.85rem' }}>
+            <div style={{ marginTop: '2rem', padding: '0.85rem 1.1rem', background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.25)', borderRadius: '10px', color: C.muted, fontSize: '0.85rem' }}>
               Kittax — your AI tax advisor — is waiting in the dashboard. Ask about UK tax, expenses, and more.
             </div>
 
@@ -173,7 +173,7 @@ export default function LandingPageClient() {
                   background: C.card, border: `1px solid ${C.border}`,
                   borderRadius: '6px', boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
                 }}>
-                <div style={{ position: 'absolute', top: '1.25rem', right: '1.5rem', fontFamily: 'var(--font-playfair)', fontSize: '3rem', fontWeight: 700, color: 'rgba(194,163,104,0.1)', lineHeight: 1 }}>
+                <div style={{ position: 'absolute', top: '1.25rem', right: '1.5rem', fontFamily: 'var(--font-playfair)', fontSize: '3rem', fontWeight: 700, color: 'rgba(234,179,8,0.1)', lineHeight: 1 }}>
                   {s.step}
                 </div>
                 <div style={{ color: C.gold, marginBottom: '1.25rem' }}>{s.icon}</div>

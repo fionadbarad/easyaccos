@@ -10,9 +10,9 @@ import { calcScenario1 } from '@/lib/TaxBible2026'
 
 const C = {
   bg: '#0B0E1A', deep: '#050A14', card: '#111827',
-  gold: '#FFD700', soft: '#C2A368', text: '#E5E7EB',
+  gold: '#FFD700', soft: '#EAB308', text: '#E5E7EB',
   muted: 'rgba(229,231,235,0.55)', border: 'rgba(255,215,0,0.12)',
-  red: '#FF6B6B', green: '#4ADE80',
+  red: '#FF6B6B', green: '#EAB308',
 }
 
 interface Transaction { id: string; date: string; description: string; type: 'income' | 'expense'; amount: number }

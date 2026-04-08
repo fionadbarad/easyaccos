@@ -1,6 +1,6 @@
 ﻿import Link from 'next/link'
 
-const C = { bg: '#0B0F1A', card: '#111827', gold: '#C2A368', text: '#E5E7EB', muted: 'rgba(229,231,235,0.65)' }
+const C = { bg: '#0B0F1A', card: '#111827', gold: '#EAB308', text: '#E5E7EB', muted: 'rgba(229,231,235,0.65)' }
 
 const mock = {
   income: 42000,

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 
-const C = { bg: '#1A2342', deep: '#0F1628', card: '#4A4066', gold: '#C2A368', text: '#E4D3B4', muted: 'rgba(228,211,180,0.55)', border: 'rgba(194,163,104,0.2)' }
+const C = { bg: '#020617', deep: '#0A0F1E', card: '#0F172A', gold: '#EAB308', text: '#E5E7EB', muted: 'rgba(229,231,235,0.55)', border: 'rgba(234,179,8,0.15)' }
 
 const CATEGORIES = ['Office & Equipment', 'Travel & Transport', 'Software & Subscriptions', 'Marketing & Advertising', 'Professional Services', 'Training & Education', 'Utilities', 'Meals (business)', 'Other']
 

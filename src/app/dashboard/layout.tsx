@@ -19,7 +19,7 @@ const C = {
   deep:   '#050A14',
   card:   '#111827',
   gold:   '#FFD700',
-  goldSoft: '#C2A368',
+  goldSoft: '#EAB308',
   text:   '#E5E7EB',
   muted:  'rgba(229,231,235,0.5)',
   border: 'rgba(255,215,0,0.12)',

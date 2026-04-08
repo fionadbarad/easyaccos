@@ -1,5 +1,16 @@
+import type { Metadata } from 'next'
 import { Shield, Zap, Lock, Eye, Server, Globe } from 'lucide-react'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'Security',
+  description: 'How EasyAcco keeps your data safe — end-to-end encryption, Supabase row-level security, HTTPS, and privacy-first architecture.',
+  openGraph: {
+    title: 'Security | EasyAcco',
+    description: 'How EasyAcco keeps your data safe with encryption, row-level security, and privacy-first design.',
+    url: 'https://www.easyacco.uk/security',
+  },
+}
 
 const C = {
   bg:    '#0B0E1A',
@@ -94,6 +105,8 @@ export default function SecurityPage() {
           <span style={{ color: C.gold }}>security@easyacco.com</span>
           {' '}— or{' '}
           <Link href="/dashboard" style={{ color: C.gold }}>return to the dashboard</Link>.
+          {' '}Read our full{' '}
+          <Link href="/privacy" style={{ color: C.gold }}>Privacy Policy</Link>.
         </p>
       </div>
     </div>

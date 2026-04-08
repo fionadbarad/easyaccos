@@ -83,7 +83,7 @@ export default function DashboardUI({ displayName }: DashboardUIProps) {
           {displayName}
         </h1>
         <p style={{ color: C.muted, fontSize: '0.875rem', marginTop: '0.4rem' }}>
-          Your celestial financial sanctuary is ready.
+          Your 2026/27 tax dashboard is ready.
         </p>
       </div>
 

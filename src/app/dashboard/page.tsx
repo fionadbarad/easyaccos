@@ -1,5 +1,16 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase-server'
 import DashboardUI from './DashboardUI'
+
+export const metadata: Metadata = {
+  title: 'Dashboard',
+  description: 'Your EasyAcco dashboard — tax calculator, expense tracker, P&L reports, and AI tax assistant. Free for UK freelancers and employees.',
+  openGraph: {
+    title: 'Dashboard | EasyAcco',
+    description: 'Your free UK tax and finance dashboard. HMRC-accurate estimates, expense tracking, and AI guidance.',
+    url: 'https://www.easyacco.uk/dashboard',
+  },
+}
 
 // Ghost-Auth: dashboard is open to everyone. No redirect, no login wall.
 // If a user is signed in we show their name; otherwise they are a guest.

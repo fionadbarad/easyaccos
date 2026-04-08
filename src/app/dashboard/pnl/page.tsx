@@ -98,9 +98,10 @@ const tooltipStyle = { background: '#0F1628', border: `1px solid rgba(194,163,10
 type View = 'overview' | 'income-statement'
 
 export default function PnLPage() {
-  const [txs, setTxs]       = useState<Transaction[]>([])
-  const [copied, setCopied] = useState(false)
-  const [view, setView]     = useState<View>('overview')
+  const [txs, setTxs]               = useState<Transaction[]>([])
+  const [copied, setCopied]         = useState(false)
+  const [view, setView]             = useState<View>('overview')
+  const [cosOverride, setCosOverride] = useState<string>('')   // manual Cost of Sales input
 
   useEffect(() => {
     try {
@@ -110,8 +111,9 @@ export default function PnLPage() {
   }, [])
 
   const monthly       = buildMonthly(txs)
-  const totalRevenue  = txs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
-  const costOfSales   = txs.filter((t) => t.type === 'expense' && (t.description.toLowerCase().includes('material') || t.description.toLowerCase().includes('subcontract'))).reduce((s, t) => s + t.amount, 0)
+  const totalRevenue     = txs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
+  const cosAutoCalc      = txs.filter((t) => t.type === 'expense' && (t.description.toLowerCase().includes('material') || t.description.toLowerCase().includes('subcontract'))).reduce((s, t) => s + t.amount, 0)
+  const costOfSales      = cosOverride !== '' ? Math.max(0, Number(cosOverride) || 0) : cosAutoCalc
   const grossProfit   = totalRevenue - costOfSales
   const opEx          = txs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0) - costOfSales
   const ebitda        = grossProfit - opEx
@@ -269,7 +271,37 @@ export default function PnLPage() {
 
           {/* COST OF SALES */}
           <ISLine label="COST OF SALES" bold />
-          <ISLine label="Direct Materials / Subcontractors" value={costOfSales} indent={1} negative />
+          {/* Editable CoS line */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0 7px 20px' }}>
+            <span style={{ color: C.muted, fontSize: '0.82rem' }}>Direct Materials / Subcontractors</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ color: C.muted, fontSize: '0.82rem' }}>£</span>
+              <input
+                type="number"
+                min={0}
+                step={50}
+                value={cosOverride !== '' ? cosOverride : cosAutoCalc}
+                onChange={(e) => setCosOverride(e.target.value)}
+                onFocus={(e) => { if (cosOverride === '') setCosOverride(String(cosAutoCalc)) }}
+                placeholder={String(cosAutoCalc)}
+                style={{
+                  width: '110px', textAlign: 'right',
+                  background: 'rgba(255,215,0,0.06)', border: '1px solid rgba(255,215,0,0.25)',
+                  borderRadius: '4px', padding: '4px 8px', color: C.text,
+                  fontSize: '0.87rem', fontFamily: 'monospace', outline: 'none',
+                  minHeight: '32px',
+                }}
+              />
+            </div>
+          </div>
+          {cosOverride !== '' && Number(cosOverride) !== cosAutoCalc && (
+            <div style={{ paddingLeft: '20px', paddingBottom: '4px' }}>
+              <span style={{ color: 'rgba(251,146,60,0.8)', fontSize: '0.68rem' }}>
+                ✎ Manual override — auto: {fmtDp(cosAutoCalc)}{' '}
+                <button onClick={() => setCosOverride('')} style={{ background: 'none', border: 'none', color: 'rgba(251,146,60,0.8)', cursor: 'pointer', fontSize: '0.68rem', textDecoration: 'underline', padding: 0 }}>reset</button>
+              </span>
+            </div>
+          )}
           <ISLine label="Total Cost of Sales"        value={costOfSales}   bold negative />
           <ISLine separator />
 

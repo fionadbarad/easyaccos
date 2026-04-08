@@ -223,6 +223,13 @@ export default function TaxCalculator5() {
   const [hasPostgrad, setHasPostgrad] = useState(false)
   const [childBenefit, setChildBenefit] = useState(0) // annual £
 
+  // ─ Allowances & Deductions
+  const [marriageAllowance, setMarriageAllowance] = useState(false)       // saves £252
+  const [blindPersons,      setBlindPersons]      = useState(false)       // adds £3,070 to PA
+  const [tradingAllowance,  setTradingAllowance]  = useState(false)       // first £1,000 SE income tax-free
+  const [rentARoom,         setRentARoom]         = useState(false)       // first £7,500 rental income tax-free
+  const [rentalIncome,      setRentalIncome]      = useState(0)           // annual rental £
+
   // Reset student loan when region changes (country-restricted)
   const availablePlans = PLANS_BY_REGION[region]
   if (studentLoan !== 'none' && studentLoan !== 'postgrad' && !availablePlans.includes(studentLoan)) {
@@ -312,6 +319,67 @@ export default function TaxCalculator5() {
         }
       }
 
+      if (!base) return null
+
+      // ── Allowance overlays ──────────────────────────────────────────────────
+
+      // Determine marginal rate from gross income
+      const grossInc = base.grossIncome
+      const marginalRate = grossInc > 125_140 ? 0.45 : grossInc > 50_270 ? 0.40 : 0.20
+
+      // Marriage Allowance — partner receives £1,260 PA transfer → saves £252 (10% of £1,260 = basic rate relief)
+      if (marriageAllowance) {
+        const saving = 252
+        base = {
+          ...base,
+          totalDeductions: round2(base.totalDeductions - saving),
+          netTakeHome: round2(base.netTakeHome + saving),
+          effectiveRate: grossInc > 0 ? round2(((base.totalDeductions - saving) / grossInc) * 100) : 0,
+          lines: [...base.lines, { label: 'Marriage Allowance saving', value: saving, negative: false, indent: true, bold: false }],
+        }
+      }
+
+      // Blind Person's Allowance — adds £3,070 to Personal Allowance
+      if (blindPersons) {
+        const saving = round2(Math.min(3_070, Math.max(0, grossInc - TB.PA_BASE)) * marginalRate)
+        if (saving > 0) {
+          base = {
+            ...base,
+            totalDeductions: round2(base.totalDeductions - saving),
+            netTakeHome: round2(base.netTakeHome + saving),
+            effectiveRate: grossInc > 0 ? round2(((base.totalDeductions - saving) / grossInc) * 100) : 0,
+            lines: [...base.lines, { label: 'Blind Person\'s Allowance (+£3,070 PA)', value: saving, negative: false, indent: true, bold: false }],
+          }
+        }
+      }
+
+      // Trading Allowance — first £1,000 SE income tax-free (SE / Director scenarios)
+      if (tradingAllowance && (scenario === 's1se' || scenario === 's5')) {
+        const saving = round2(1_000 * marginalRate)
+        base = {
+          ...base,
+          totalDeductions: round2(base.totalDeductions - saving),
+          netTakeHome: round2(base.netTakeHome + saving),
+          effectiveRate: grossInc > 0 ? round2(((base.totalDeductions - saving) / grossInc) * 100) : 0,
+          lines: [...base.lines, { label: 'Trading Allowance (first £1,000 tax-free)', value: saving, negative: false, indent: true, bold: false }],
+        }
+      }
+
+      // Rent-a-Room Relief — first £7,500 rental income tax-free
+      if (rentARoom && rentalIncome > 0) {
+        const exemptRental = Math.min(rentalIncome, 7_500)
+        const saving = round2(exemptRental * marginalRate)
+        if (saving > 0) {
+          base = {
+            ...base,
+            totalDeductions: round2(base.totalDeductions - saving),
+            netTakeHome: round2(base.netTakeHome + saving),
+            effectiveRate: grossInc > 0 ? round2(((base.totalDeductions - saving) / grossInc) * 100) : 0,
+            lines: [...base.lines, { label: `Rent-a-Room Relief (first £${exemptRental.toLocaleString()} tax-free)`, value: saving, negative: false, indent: true, bold: false }],
+          }
+        }
+      }
+
       return base
     } catch { return null }
   })()
@@ -374,7 +442,7 @@ export default function TaxCalculator5() {
       {/* Extra Tax Options */}
       <div style={{ ...card, marginBottom: '1rem' }}>
         <div style={{ color: C.soft, fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>
-          Extra Deductions
+          Extra Deductions &amp; Allowances
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '1rem' }}>
           <Field label="Student Loan Plan">
@@ -407,6 +475,75 @@ export default function TaxCalculator5() {
             )}
           </Field>
         </div>
+
+        {/* Allowances toggle row */}
+        <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: `1px solid rgba(255,215,0,0.08)` }}>
+          <div style={{ color: C.soft, fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>
+            Additional Allowances
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: '0.75rem' }}>
+
+            {/* Marriage Allowance */}
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer', padding: '0.75rem', background: 'rgba(255,215,0,0.03)', border: `1px solid ${marriageAllowance ? 'rgba(255,215,0,0.3)' : C.border}`, borderRadius: '6px' }}>
+              <input type="checkbox" checked={marriageAllowance} onChange={(e) => setMarriageAllowance(e.target.checked)}
+                style={{ accentColor: C.gold, width: '16px', height: '16px', flexShrink: 0, marginTop: '2px' }} />
+              <div>
+                <div style={{ color: C.text, fontSize: '0.82rem', fontWeight: 600 }}>Marriage Allowance</div>
+                <div style={{ color: C.muted, fontSize: '0.72rem', marginTop: '2px', lineHeight: 1.4 }}>
+                  Transfer unused Personal Allowance to spouse/civil partner. Saves up to £252/year. Transferor must earn below £12,570.
+                </div>
+              </div>
+            </label>
+
+            {/* Blind Person's Allowance */}
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer', padding: '0.75rem', background: 'rgba(255,215,0,0.03)', border: `1px solid ${blindPersons ? 'rgba(255,215,0,0.3)' : C.border}`, borderRadius: '6px' }}>
+              <input type="checkbox" checked={blindPersons} onChange={(e) => setBlindPersons(e.target.checked)}
+                style={{ accentColor: C.gold, width: '16px', height: '16px', flexShrink: 0, marginTop: '2px' }} />
+              <div>
+                <div style={{ color: C.text, fontSize: '0.82rem', fontWeight: 600 }}>Blind Person&apos;s Allowance</div>
+                <div style={{ color: C.muted, fontSize: '0.72rem', marginTop: '2px', lineHeight: 1.4 }}>
+                  Registered blind or severely sight-impaired. Adds £3,070 to Personal Allowance (2026/27). Must be registered with your local authority.
+                </div>
+              </div>
+            </label>
+
+            {/* Trading Allowance — only relevant for SE/Director */}
+            {(scenario === 's1se' || scenario === 's5') && (
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer', padding: '0.75rem', background: 'rgba(255,215,0,0.03)', border: `1px solid ${tradingAllowance ? 'rgba(255,215,0,0.3)' : C.border}`, borderRadius: '6px' }}>
+                <input type="checkbox" checked={tradingAllowance} onChange={(e) => setTradingAllowance(e.target.checked)}
+                  style={{ accentColor: C.gold, width: '16px', height: '16px', flexShrink: 0, marginTop: '2px' }} />
+                <div>
+                  <div style={{ color: C.text, fontSize: '0.82rem', fontWeight: 600 }}>Trading Allowance</div>
+                  <div style={{ color: C.muted, fontSize: '0.72rem', marginTop: '2px', lineHeight: 1.4 }}>
+                    First £1,000 of self-employment income is tax-free. Useful for casual or hobby income.
+                  </div>
+                </div>
+              </label>
+            )}
+
+            {/* Rent-a-Room Relief */}
+            <div style={{ padding: '0.75rem', background: 'rgba(255,215,0,0.03)', border: `1px solid ${rentARoom ? 'rgba(255,215,0,0.3)' : C.border}`, borderRadius: '6px' }}>
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer', marginBottom: rentARoom ? '0.6rem' : 0 }}>
+                <input type="checkbox" checked={rentARoom} onChange={(e) => setRentARoom(e.target.checked)}
+                  style={{ accentColor: C.gold, width: '16px', height: '16px', flexShrink: 0, marginTop: '2px' }} />
+                <div>
+                  <div style={{ color: C.text, fontSize: '0.82rem', fontWeight: 600 }}>Rent-a-Room Relief</div>
+                  <div style={{ color: C.muted, fontSize: '0.72rem', marginTop: '2px', lineHeight: 1.4 }}>
+                    Renting a furnished room in your main home? First £7,500 of rental income is tax-free.
+                  </div>
+                </div>
+              </label>
+              {rentARoom && (
+                <div>
+                  <label style={{ ...label }}>Annual Rental Income (£)</label>
+                  <NumInput value={rentalIncome} onChange={(v) => setRentalIncome(v)} max={50_000} />
+                </div>
+              )}
+            </div>
+
+          </div>
+        </div>
+
       </div>
 
       {/* What-If slider */}

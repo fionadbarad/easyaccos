@@ -232,6 +232,33 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <main
         className="md:ml-[240px] mt-14 md:mt-0"
         style={{ flex: 1, minHeight: '100vh', background: C.bg, overflow: 'auto' }}>
+
+        {/* Guest mode warning banner */}
+        {!user && (
+          <div style={{
+            background: 'rgba(251,146,60,0.1)', borderBottom: '1px solid rgba(251,146,60,0.35)',
+            padding: '0.6rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            gap: '0.75rem', flexWrap: 'wrap',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ color: '#FB923C', fontSize: '0.85rem' }}>⚠</span>
+              <span style={{ color: '#FB923C', fontSize: '0.8rem', fontWeight: 600 }}>Guest Mode</span>
+              <span style={{ color: 'rgba(251,146,60,0.75)', fontSize: '0.78rem' }}>
+                — your data is not saved. Sign in to keep your records.
+              </span>
+            </div>
+            <Link href="/auth/login"
+              style={{
+                color: '#FB923C', fontSize: '0.75rem', fontWeight: 700,
+                textDecoration: 'none', padding: '4px 12px',
+                border: '1px solid rgba(251,146,60,0.4)', borderRadius: '4px',
+                background: 'rgba(251,146,60,0.08)', flexShrink: 0,
+              }}>
+              Sign in to save →
+            </Link>
+          </div>
+        )}
+
         {children}
       </main>
 

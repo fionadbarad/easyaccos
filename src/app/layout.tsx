@@ -4,6 +4,7 @@ import "./globals.css";
 import '@/styles/EasyAccoTheme.css';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/next';
+import CookieConsent from '@/components/CookieConsent';
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -31,6 +32,7 @@ export default function RootLayout({
     <html lang="en" className={`${playfair.variable} ${inter.variable}`} suppressHydrationWarning>
       <body className="antialiased" style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }} suppressHydrationWarning>
         {children}
+        <CookieConsent />
         <SpeedInsights />
         <Analytics />
       </body>

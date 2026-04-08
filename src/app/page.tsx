@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowRight, Database, BarChart2, Bot, Star } from 'lucide-react'
+import { ArrowRight, Database, BarChart2, FileText, Shield, Zap, Globe, BookOpen } from 'lucide-react'
 
 const C = {
   bg:     '#1A2342',
@@ -18,30 +18,37 @@ const STEPS = [
   {
     icon: <Database size={28} />,
     step: '01',
-    title: 'Connect Your Data',
-    desc: 'Enter your income, expenses, and employment details in minutes. No accountant needed.',
+    title: 'Enter Your Details',
+    desc: 'Add your income, expenses, and employment details in minutes. No accountant needed.',
   },
   {
     icon: <BarChart2 size={28} />,
     step: '02',
-    title: 'Track HMRC & Tax',
-    desc: 'Get HMRC-accurate estimates for Income Tax, NI Class 2 & 4, and Student Loan for 2026/27.',
+    title: 'Get HMRC-Accurate Results',
+    desc: 'Instantly see your Income Tax, NI Class 2 & 4, and Student Loan for 2026/27.',
   },
   {
-    icon: <Bot size={28} />,
+    icon: <FileText size={28} />,
     step: '03',
-    title: 'Optimise with AI',
-    desc: 'Ask our Gemini-powered AI anything about UK tax. Get personalised insights instantly.',
+    title: 'Export & Report',
+    desc: 'Generate P&L reports, invoices, and export your financial data — all free, always.',
   },
 ]
 
 const FEATURES = [
-  'Live Tax Estimator 2026/27',
-  'AI Tax Assistant',
-  'Expense Tracker',
-  'P&L Reports',
-  'Currency Converter 170+ pairs',
-  'Financial Literacy Cards',
+  '✦ Live Tax Estimator 2026/27',
+  '✦ Expense & Receipt Tracker',
+  '✦ P&L Financial Reports',
+  '✦ Currency Converter 170+ pairs',
+  '✦ Financial Literacy Cards',
+  '✦ Invoice Generator',
+]
+
+const TRUST = [
+  { icon: <Shield size={15} />, label: 'No data sold — ever' },
+  { icon: <BookOpen size={15} />, label: 'HMRC 2026/27 rates' },
+  { icon: <Globe size={15} />, label: 'Works without an account' },
+  { icon: <Zap size={15} />, label: 'Updates automatically' },
 ]
 
 function StarField() {
@@ -82,7 +89,6 @@ export default function LandingPage() {
           <span style={{ fontFamily: 'var(--font-playfair)', color: C.gold, fontSize: '1.35rem', fontWeight: 700 }}>
             EasyAcco
           </span>
-          {/* Nav: only one button — open dashboard. No login/signup clutter. */}
           <Link href="/dashboard"
             style={{
               background: C.gold, color: C.deep, padding: '9px 22px',
@@ -103,19 +109,18 @@ export default function LandingPage() {
           <motion.div initial={{ opacity: 0, y: 32 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9 }} suppressHydrationWarning>
 
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 14px', border: `1px solid ${C.border}`, borderRadius: '999px', color: C.gold, fontSize: '0.7rem', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '2rem', background: 'rgba(194,163,104,0.08)' }}>
-              <Star size={10} fill={C.gold} /> UK Tax Platform · Free · No Account Needed
+              UK TAX PLATFORM · FREE · NO ACCOUNT NEEDED
             </div>
 
             <h1 style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(2.8rem,8vw,5.5rem)', fontWeight: 700, lineHeight: 1.08, marginBottom: '1.5rem', color: C.text }}>
-              Welcome to<br />
-              <em style={{ color: C.gold, fontStyle: 'italic' }}>EasyAcco</em>
+              Your finances.<br />
+              <em style={{ color: C.gold, fontStyle: 'italic' }}>Clear. Simple. Yours.</em>
             </h1>
 
             <p style={{ color: C.muted, fontSize: '1.1rem', lineHeight: 1.75, maxWidth: '38rem', margin: '0 auto 2.5rem' }}>
-              HMRC-accurate tax estimates, AI guidance, and expense tracking for UK freelancers and employees. Free forever. No sign-up required.
+              HMRC-accurate tax estimates, expense tracking, and financial reports — built for UK freelancers and employees. Free, always. No sign-up required.
             </p>
 
-            {/* Single clear CTA — no login wall */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
               <Link href="/dashboard"
                 style={{
@@ -129,19 +134,30 @@ export default function LandingPage() {
               <span style={{ color: C.muted, fontSize: '0.78rem' }}>
                 No account. No password. Jump straight in.
               </span>
-              {/* Optional save account — barely visible, not a CTA */}
               <Link href="/auth/login"
                 style={{ color: 'rgba(194,163,104,0.45)', fontSize: '0.72rem', textDecoration: 'none', marginTop: '4px' }}>
                 Have an account? Sign in to save your data
               </Link>
             </div>
 
-            <div style={{ marginTop: '2rem', padding: '0.85rem 1.1rem', background: 'rgba(194,163,104,0.08)', border: '1px solid rgba(194,163,104,0.25)', borderRadius: '10px', color: C.muted, fontSize: '0.85rem' }}>
-              Kittax — your AI tax advisor — is waiting in the dashboard. Ask about UK tax, expenses, and more.
-            </div>
+            {/* Trust signals */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} suppressHydrationWarning
+              style={{ marginTop: '2.5rem', display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
+              {TRUST.map((t) => (
+                <span key={t.label} style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '7px',
+                  padding: '7px 15px', background: 'rgba(194,163,104,0.07)',
+                  border: `1px solid ${C.border}`, borderRadius: '999px',
+                  fontSize: '0.78rem', color: C.muted,
+                }}>
+                  <span style={{ color: C.gold }}>{t.icon}</span>
+                  {t.label}
+                </span>
+              ))}
+            </motion.div>
 
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }} suppressHydrationWarning
-              style={{ marginTop: '2rem', display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
+              style={{ marginTop: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
               {FEATURES.map((f) => (
                 <span key={f} style={{ padding: '4px 12px', background: 'rgba(74,64,102,0.5)', border: `1px solid ${C.border}`, borderRadius: '999px', fontSize: '0.75rem', color: C.muted }}>
                   {f}
@@ -191,10 +207,10 @@ export default function LandingPage() {
       <section style={{ padding: '6rem 1.5rem', background: C.bg, textAlign: 'center', borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="max-w-2xl mx-auto">
           <h2 style={{ fontFamily: 'var(--font-playfair)', color: C.text, fontSize: 'clamp(1.8rem,4vw,2.8rem)', fontWeight: 700, marginBottom: '1rem' }}>
-            Your sanctuary awaits.
+            Your finances, under control.
           </h2>
           <p style={{ color: C.muted, marginBottom: '2.5rem', fontSize: '1.05rem' }}>
-            Join UK freelancers and students who have taken control of their tax and finances.
+            Join UK freelancers and employees who have taken control of their tax and finances.
           </p>
           <Link href="/dashboard"
             style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '16px 44px', background: C.gold, color: C.deep, fontWeight: 700, fontSize: '1rem', textDecoration: 'none', borderRadius: '4px' }}>
@@ -208,10 +224,11 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4">
           <span style={{ fontFamily: 'var(--font-playfair)', color: C.gold, fontSize: '1.1rem', fontWeight: 700 }}>EasyAcco</span>
           <p style={{ color: C.muted, fontSize: '0.8rem' }}>
-            2026 EasyAcco · Free for UK Freelancers &amp; Students · Not financial advice.
+            © 2026 EasyAcco · Free for UK Freelancers &amp; Employees · Not financial advice.
           </p>
-          <div className="footer-links">
+          <div style={{ display: 'flex', gap: '1.25rem' }}>
             <a href="/security" style={{ color: C.muted, fontSize: '0.8rem', textDecoration: 'none' }}>Security</a>
+            <a href="/privacy" style={{ color: C.muted, fontSize: '0.8rem', textDecoration: 'none' }}>Privacy</a>
           </div>
         </div>
       </footer>

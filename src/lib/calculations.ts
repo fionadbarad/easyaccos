@@ -12,7 +12,7 @@ export function getTaxableIncome(income: number, expenses: number) {
   const totalExpenses = Math.max(0, expenses)
   const taxableBeforeAllowance = Math.max(0, grossIncome - totalExpenses)
 
-  // UK personal allowance (2024/25) basic fixed value
+  // UK personal allowance 2026/27
   const PERSONAL_ALLOWANCE = 12570
 
   const taxableIncome = Math.max(0, taxableBeforeAllowance - PERSONAL_ALLOWANCE)
@@ -26,9 +26,9 @@ export function getTaxableIncome(income: number, expenses: number) {
 }
 
 export function estimateTax(taxableIncome: number) {
-  const lowerBand = Math.min(taxableIncome, 50270)
-  const higherBand = Math.max(0, Math.min(taxableIncome - 50270, 100000 - 50270))
-  const additionalBand = Math.max(0, taxableIncome - 100000)
+  const lowerBand = Math.min(taxableIncome, 37_700)
+  const higherBand = Math.max(0, Math.min(taxableIncome - 37_700, 112_570 - 37_700))
+  const additionalBand = Math.max(0, taxableIncome - 112_570)
 
   const basicTax = lowerBand * 0.20
   const higherTax = higherBand * 0.40

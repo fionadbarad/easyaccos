@@ -254,7 +254,7 @@ const TOPICS: TopicMatch[] = [
   // Student loan
   {
     pattern: /\b(?:student\s*loan|plan\s*[1-5]|postgrad\s*loan|SLC)\b/i,
-    response: `Student Loan repayment thresholds (2026/27):\n\n- Plan 1: 9% on income above £24,990\n- Plan 2: 9% on income above £27,295\n- Plan 4 (Scotland): 9% on income above £27,660\n- Plan 5: 9% on income above £25,000\n- Postgrad Loan: 6% on income above £21,000\n\nRepayments are collected through PAYE or Self Assessment. They are not tax-deductible.`,
+    response: `Student Loan repayment thresholds (2026/27):\n\n- Plan 1: 9% on income above £24,990\n- Plan 2: 9% on income above £27,295\n- Plan 4 (Scotland): 9% on income above £32,745\n- Plan 5: 9% on income above £25,000\n- Postgrad Loan: 6% on income above £21,000\n\nRepayments are collected through PAYE or Self Assessment. They are not tax-deductible.`,
   },
 
   // Redundancy

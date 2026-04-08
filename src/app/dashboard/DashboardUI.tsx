@@ -19,9 +19,9 @@ type DashboardUIProps = {
 }
 
 const C = {
-  bg: '#1A2342',
-  card: '#4A4066',
-  gold: '#C2A368',
+  bg: '#020617',
+  card: '#0F172A',
+  gold: '#EAB308',
   text: '#E4D3B4',
   muted: 'rgba(228,211,180,0.55)',
 }

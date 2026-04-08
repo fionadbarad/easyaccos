@@ -43,9 +43,9 @@ export const TB = {
   EMPLOYER_NI_THRESH:  5_000,     // Secondary Threshold dropped to £5,000
 
   // Student Loans 2026/27
-  SL_PLAN1_THRESH:     26_900,
+  SL_PLAN1_THRESH:     24_990,
   SL_PLAN1_RATE:       0.09,
-  SL_PLAN2_THRESH:     29_385,
+  SL_PLAN2_THRESH:     27_295,
   SL_PLAN2_RATE:       0.09,
   SL_PLAN5_THRESH:     25_000,    // New for 2026/27
   SL_PLAN5_RATE:       0.09,

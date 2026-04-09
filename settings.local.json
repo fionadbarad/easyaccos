@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm show:*)",
+      "Bash(npm run:*)",
+      "Bash(gh repo:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(git push:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(grep -E \"\\\\.\\(tsx?|css|env\\)$\")",
+      "Bash(node -e \"const d=require\\(''''fs''''\\).readFileSync\\(''''/dev/stdin'''',''''utf8''''\\); const p=JSON.parse\\(d\\); console.log\\(JSON.stringify\\({main:p.main,exports:p.exports?.[''''.'''']}\\)\\);''''\")",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); pkgs = d.get\\(''''packages'''', {}\\); tw = [k for k in pkgs if ''''tailwindcss'''' in k and ''''@tailwindcss'''' in k]; print\\(''''\\\\n''''.join\\(tw[:10]\\)\\)\")",
+      "Bash(grep -o \"\"@tailwindcss[^\"\"]*\"\" 'C:/Users/barad/OneDrive/Desktop/New folder/project/easyacco/package-lock.json')",
+      "Bash(npm install:*)",
+      "Bash(powershell -Command \"Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue\")",
+      "Bash(NEXT_TELEMETRY_DISABLED=1 npm run build)",
+      "mcp__7db5de92-7fa8-424d-8ec1-e8084d605636__deploy_to_vercel",
+      "Bash(find '/c/Users/barad/OneDrive/Desktop/New folder/project/easyacco' -maxdepth 3 -type d ! -path */node_modules ! -path */.next* ! -path */.claude/*)"
+    ]
+  }
+}

@@ -5,13 +5,13 @@ import { motion } from 'framer-motion'
 import { ArrowRight, Database, BarChart2, FileText, Shield, Zap, Globe, BookOpen } from 'lucide-react'
 
 const C = {
-  bg:     '#1A2342',
-  deep:   '#0F1628',
-  card:   '#4A4066',
-  gold:   '#C2A368',
-  text:   '#E4D3B4',
-  muted:  'rgba(228,211,180,0.55)',
-  border: 'rgba(194,163,104,0.2)',
+  bg:     '#020617',
+  deep:   '#050816',
+  card:   '#111827',
+  gold:   '#EAB308',
+  text:   '#E5E7EB',
+  muted:  'rgba(229,231,235,0.55)',
+  border: 'rgba(234,179,8,0.2)',
 }
 
 const STEPS = [

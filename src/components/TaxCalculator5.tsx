@@ -339,16 +339,16 @@ export default function TaxCalculator5() {
         }
       }
 
-      // Blind Person's Allowance — adds £3,070 to Personal Allowance
+      // Blind Person's Allowance — adds £3,250 to Personal Allowance (2026/27)
       if (blindPersons) {
-        const saving = round2(Math.min(3_070, Math.max(0, grossInc - TB.PA_BASE)) * marginalRate)
+        const saving = round2(Math.min(TB.BLIND_ALLOWANCE, Math.max(0, grossInc - TB.PA_BASE)) * marginalRate)
         if (saving > 0) {
           base = {
             ...base,
             totalDeductions: round2(base.totalDeductions - saving),
             netTakeHome: round2(base.netTakeHome + saving),
             effectiveRate: grossInc > 0 ? round2(((base.totalDeductions - saving) / grossInc) * 100) : 0,
-            lines: [...base.lines, { label: 'Blind Person\'s Allowance (+£3,070 PA)', value: saving, negative: false, indent: true, bold: false }],
+            lines: [...base.lines, { label: `Blind Person's Allowance (+£${TB.BLIND_ALLOWANCE.toLocaleString()} PA)`, value: saving, negative: false, indent: true, bold: false }],
           }
         }
       }
@@ -502,7 +502,7 @@ export default function TaxCalculator5() {
               <div>
                 <div style={{ color: C.text, fontSize: '0.82rem', fontWeight: 600 }}>Blind Person&apos;s Allowance</div>
                 <div style={{ color: C.muted, fontSize: '0.72rem', marginTop: '2px', lineHeight: 1.4 }}>
-                  Registered blind or severely sight-impaired. Adds £3,070 to Personal Allowance (2026/27). Must be registered with your local authority.
+                  Registered blind or severely sight-impaired. Adds £3,250 to Personal Allowance (2026/27). Must be registered with your local authority.
                 </div>
               </div>
             </label>

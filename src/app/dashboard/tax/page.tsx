@@ -208,13 +208,11 @@ export default function TaxPage() {
         </div>
       </div>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 900px) {
-          .tax-page-grid {
-            grid-template-columns: 1fr !important;
-          }
+          .tax-page-grid { grid-template-columns: 1fr !important; }
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }

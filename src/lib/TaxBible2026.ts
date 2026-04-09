@@ -43,7 +43,7 @@ export const TB = {
   EMPLOYER_NI_THRESH:  5_000,     // Secondary Threshold dropped to £5,000
 
   // Student Loans 2026/27
-  SL_PLAN1_THRESH:     26_065,
+  SL_PLAN1_THRESH:     26_900,
   SL_PLAN1_RATE:       0.09,
   SL_PLAN2_THRESH:     29_385,
   SL_PLAN2_RATE:       0.09,
@@ -62,7 +62,7 @@ export const TB = {
   HICBC_FULL:          80_000,
 
   // Student Loan — Plan 4 (Scotland only)
-  SL_PLAN4_THRESH:     32_745,
+  SL_PLAN4_THRESH:     33_795,
   SL_PLAN4_RATE:       0.09,
 
   // National Living Wage (effective 1 April 2026)
@@ -449,9 +449,9 @@ export const PLANS_BY_REGION: Record<TaxRegion, StudentLoanPlanFull[]> = {
 }
 
 export const PLAN_LABELS: Record<StudentLoanPlanFull, string> = {
-  plan1:    'Plan 1 (£26,065 @ 9%)',
+  plan1:    'Plan 1 (£26,900 @ 9%)',
   plan2:    'Plan 2 (£29,385 @ 9%)',
-  plan4:    'Plan 4 — Scotland (£32,745 @ 9%)',
+  plan4:    'Plan 4 — Scotland (£33,795 @ 9%)',
   plan5:    'Plan 5 (£25,000 @ 9%)',
   postgrad: 'Postgraduate (£21,000 @ 6%)',
   none:     'None',

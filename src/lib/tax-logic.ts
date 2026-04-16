@@ -136,11 +136,11 @@ const NI_CLASS2_SPT = 7_105  // 2026/27 Small Profits Threshold (up from £6,845
 
 // Dividends
 const DIV_ALLOWANCE  = 500
-const DIV_BASIC      = 0.1075   // 10.75%
-const DIV_HIGHER     = 0.3575   // 35.75%
+const DIV_BASIC      = 0.1075   // 10.75% (2026/27 hike — was 8.75%)
+const DIV_HIGHER     = 0.3575   // 35.75% (2026/27 hike — was 33.75%)
 const DIV_ADDL       = 0.3935   // 39.35%
 
-// Student Loan 2026/27 — aligned with TaxBible2026.ts (HMRC April 2026 uplift)
+// Student Loan 2026/27
 const STUDENT_LOAN: Record<StudentLoanPlan, { threshold: number; rate: number; label: string }> = {
   none:         { threshold: 0,      rate: 0,    label: 'None'                                       },
   plan1:        { threshold: 26_900, rate: 0.09, label: 'Plan 1 \u2014 \u00a326,900 (pre-2012 England/Wales)' },

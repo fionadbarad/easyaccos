@@ -3,47 +3,45 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase-browser'
 import type { User } from '@supabase/supabase-js'
 import {
-  LayoutDashboard, Calculator, Receipt, ArrowLeftRight,
-  GraduationCap, Bot, BarChart2, Settings, TrendingUp,
+  LayoutDashboard, Calculator, Receipt,
+  GraduationCap, Bot, Settings, TrendingUp,
   LogOut, LogIn, Menu, X, Shield, BookOpen, FileText,
+  MessageCircle,
 } from 'lucide-react'
-// Kittax mascot is rendered only on the AI page
 
-// ─── Palette ─────────────────────────────────────────────────────────────────
 const C = {
-  bg:     '#0B0E1A',
-  deep:   '#050A14',
-  card:   '#111827',
-  gold:   '#FFD700',
-  goldSoft: '#C2A368',
-  text:   '#E5E7EB',
-  muted:  'rgba(229,231,235,0.5)',
-  border: 'rgba(255,215,0,0.12)',
+  bg:      '#181818',
+  surface: '#1C1D20',
+  gray:    '#222326',
+  white:   '#F4F5F8',
+  muted:   'rgba(244,245,248,0.42)',
+  border:  'rgba(244,245,248,0.07)',
+  active:  'rgba(244,245,248,0.06)',
 }
 
-const SIDEBAR_W = 240
+const SIDEBAR_W = 232
 
 const NAV = [
-  { href: '/dashboard',              label: 'Dashboard',       icon: LayoutDashboard, group: 'main' },
-  { href: '/dashboard/tax',          label: 'Tax Calculator',  icon: Calculator,      group: 'main' },
-  { href: '/dashboard/expenses',     label: 'Expenses',        icon: Receipt,         group: 'main' },
-  { href: '/dashboard/transactions', label: 'Daily Ledger',    icon: BookOpen,        group: 'reports' },
-  { href: '/dashboard/pnl',          label: 'Financial Reports', icon: FileText,      group: 'reports' },
-  { href: '/dashboard/currency',     label: 'Currency',        icon: TrendingUp,      group: 'tools' },
-  { href: '/dashboard/learn',        label: 'Learn',           icon: GraduationCap,   group: 'tools' },
-  { href: '/dashboard/ai',           label: 'Kittax AI',       icon: Bot,             group: 'tools' },
-  { href: '/dashboard/settings',     label: 'Settings',        icon: Settings,        group: 'tools' },
-  { href: '/security',               label: 'Security',        icon: Shield,          group: 'tools' },
+  { href: '/dashboard',              label: 'Overview',      icon: LayoutDashboard, group: 'core' },
+  { href: '/dashboard/tax',          label: 'Tax Engine',    icon: Calculator,      group: 'core' },
+  { href: '/dashboard/expenses',     label: 'Expenses',      icon: Receipt,         group: 'core' },
+  { href: '/dashboard/transactions', label: 'Ledger',        icon: BookOpen,        group: 'reports' },
+  { href: '/dashboard/pnl',          label: 'Reports',       icon: FileText,        group: 'reports' },
+  { href: '/dashboard/currency',     label: 'Currency',      icon: TrendingUp,      group: 'tools' },
+  { href: '/dashboard/learn',        label: 'Learn',         icon: GraduationCap,   group: 'tools' },
+  { href: '/dashboard/ai',           label: 'Tax Advisory',  icon: Bot,             group: 'tools' },
+  { href: '/dashboard/settings',     label: 'Settings',      icon: Settings,        group: 'tools' },
+  { href: '/security',               label: 'Security',      icon: Shield,          group: 'compliance' },
 ]
 
 const GROUP_LABELS: Record<string, string> = {
-  main:    'CORE',
-  reports: 'REPORTS',
-  tools:   'TOOLS',
+  core:       'CORE',
+  reports:    'REPORTS',
+  tools:      'TOOLS',
+  compliance: 'COMPLIANCE',
 }
 
 function NavItem({ href, label, Icon, active, onClick }: {
@@ -52,15 +50,28 @@ function NavItem({ href, label, Icon, active, onClick }: {
   return (
     <Link href={href} onClick={onClick}
       style={{
-        display: 'flex', alignItems: 'center', gap: '10px',
-        padding: '9px 14px', borderRadius: '6px', textDecoration: 'none',
-        fontSize: '0.85rem', fontWeight: active ? 600 : 400,
-        color:      active ? C.gold : C.muted,
-        background: active ? 'rgba(255,215,0,0.09)' : 'transparent',
-        borderLeft: `2px solid ${active ? C.gold : 'transparent'}`,
-        transition: 'all 0.15s',
+        display: 'flex', alignItems: 'center', gap: '9px',
+        padding: '8px 12px', borderRadius: '4px', textDecoration: 'none',
+        fontSize: '0.82rem', fontWeight: active ? 500 : 400,
+        letterSpacing: '-0.005em',
+        color:      active ? C.white : C.muted,
+        background: active ? C.active : 'transparent',
+        borderLeft: `2px solid ${active ? C.white : 'transparent'}`,
+        transition: 'all 0.1s ease',
+      }}
+      onMouseEnter={(e) => {
+        if (!active) {
+          (e.currentTarget as HTMLElement).style.color = C.white
+          ;(e.currentTarget as HTMLElement).style.background = 'rgba(244,245,248,0.03)'
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!active) {
+          (e.currentTarget as HTMLElement).style.color = C.muted
+          ;(e.currentTarget as HTMLElement).style.background = 'transparent'
+        }
       }}>
-      <Icon size={16} />
+      <Icon size={14} strokeWidth={active ? 2 : 1.5} />
       {label}
     </Link>
   )
@@ -71,20 +82,21 @@ function Sidebar({ user, pathname, onSignOut, onNavClick }: {
 }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      {/* Logo */}
-      <div style={{ padding: '1.5rem 1.25rem 1rem', borderBottom: `1px solid ${C.border}` }}>
-        <Link href="/" style={{ textDecoration: 'none' }}>
-          <span style={{ fontFamily: 'var(--font-playfair)', color: C.gold, fontSize: '1.4rem', fontWeight: 700, letterSpacing: '-0.01em' }}>
-            E<span style={{ color: C.text, fontSize: '1.1rem', fontWeight: 400 }}>asy</span>Acco
-          </span>
+
+      {/* Wordmark */}
+      <div style={{ padding: '1.25rem 1rem 1rem', borderBottom: `1px solid ${C.border}` }}>
+        <Link href="/" onClick={onNavClick} style={{ textDecoration: 'none' }}>
+          <div style={{ color: C.white, fontSize: '0.95rem', fontWeight: 600, letterSpacing: '-0.03em' }}>
+            System Auditor
+          </div>
         </Link>
-        <div style={{ color: C.muted, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '2px' }}>
-          2026/27 Fiscal Engine
+        <div style={{ color: C.muted, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '3px', fontFamily: 'var(--font-geist-mono), monospace' }}>
+          2026/27 · UK Fiscal Engine
         </div>
       </div>
 
       {/* Nav */}
-      <nav style={{ flex: 1, padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '1px', overflowY: 'auto' }}>
+      <nav style={{ flex: 1, padding: '0.5rem', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
         {Object.entries(
           NAV.reduce((acc, item) => {
             if (!acc[item.group]) acc[item.group] = []
@@ -92,8 +104,8 @@ function Sidebar({ user, pathname, onSignOut, onNavClick }: {
             return acc
           }, {} as Record<string, typeof NAV>)
         ).map(([group, items]) => (
-          <div key={group}>
-            <div style={{ padding: '8px 14px 4px', color: 'rgba(194,163,104,0.5)', fontSize: '0.6rem', letterSpacing: '0.12em', fontWeight: 700, textTransform: 'uppercase' }}>
+          <div key={group} style={{ marginBottom: '0.25rem' }}>
+            <div style={{ padding: '10px 12px 4px', color: 'rgba(244,245,248,0.22)', fontSize: '0.58rem', letterSpacing: '0.1em', fontWeight: 600, textTransform: 'uppercase', fontFamily: 'var(--font-geist-mono), monospace' }}>
               {GROUP_LABELS[group] ?? group}
             </div>
             {items.map(({ href, label, icon: Icon }) => (
@@ -107,39 +119,71 @@ function Sidebar({ user, pathname, onSignOut, onNavClick }: {
         ))}
       </nav>
 
+      {/* Ask a question */}
+      <div style={{ padding: '0.6rem 0.75rem', borderTop: `1px solid ${C.border}` }}>
+        <Link href="/dashboard/ai" onClick={onNavClick}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            textDecoration: 'none',
+            background: 'rgba(244,245,248,0.03)',
+            border: `1px solid ${C.border}`,
+            borderRadius: '4px', padding: '7px 10px',
+            transition: 'all 0.1s',
+          }}
+          onMouseEnter={(e) => {
+            const el = e.currentTarget as HTMLElement
+            el.style.borderColor = 'rgba(244,245,248,0.18)'
+            el.style.background = 'rgba(244,245,248,0.05)'
+          }}
+          onMouseLeave={(e) => {
+            const el = e.currentTarget as HTMLElement
+            el.style.borderColor = C.border
+            el.style.background = 'rgba(244,245,248,0.03)'
+          }}>
+          <MessageCircle size={12} style={{ color: C.muted, flexShrink: 0 }} />
+          <div>
+            <div style={{ color: C.white, fontSize: '0.72rem', fontWeight: 500, letterSpacing: '-0.01em' }}>Ask a question</div>
+            <div style={{ color: C.muted, fontSize: '0.6rem', marginTop: '1px' }}>Tax advisory · 2026/27</div>
+          </div>
+        </Link>
+      </div>
+
       {/* User footer */}
-      <div style={{ padding: '1rem 1.25rem', borderTop: `1px solid ${C.border}` }}>
+      <div style={{ padding: '0.75rem 1rem', borderTop: `1px solid ${C.border}` }}>
         {user ? (
           <>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '9px', marginBottom: '8px' }}>
               <div style={{
-                width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
-                background: 'rgba(255,215,0,0.12)', border: `1px solid rgba(255,215,0,0.3)`,
+                width: '28px', height: '28px', borderRadius: '4px', flexShrink: 0,
+                background: C.gray, border: `1px solid ${C.border}`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: C.gold, fontSize: '0.75rem', fontWeight: 700,
+                color: C.white, fontSize: '0.7rem', fontWeight: 600,
+                fontFamily: 'var(--font-geist-mono), monospace',
               }}>
                 {user.email?.[0]?.toUpperCase() ?? '?'}
               </div>
               <div style={{ overflow: 'hidden', flex: 1 }}>
-                <div style={{ color: C.text, fontSize: '0.78rem', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <div style={{ color: C.white, fontSize: '0.75rem', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {user.email}
                 </div>
-                <div style={{ color: C.gold, fontSize: '0.65rem' }}>Signed in</div>
+                <div style={{ color: C.muted, fontSize: '0.6rem', fontFamily: 'var(--font-geist-mono), monospace' }}>authenticated</div>
               </div>
             </div>
             <button onClick={onSignOut}
-              style={{ display: 'flex', alignItems: 'center', gap: '7px', color: C.muted, background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.78rem', padding: '4px 0' }}>
-              <LogOut size={13} /> Sign Out
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', color: C.muted, background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.75rem', padding: '3px 0', transition: 'color 0.1s' }}
+              onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.color = C.white}
+              onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.color = C.muted}>
+              <LogOut size={12} /> Sign out
             </button>
           </>
         ) : (
           <div>
-            <div style={{ color: C.muted, fontSize: '0.75rem', marginBottom: '8px' }}>
-              <span style={{ color: C.gold }}>●</span> Guest Mode — all features active
+            <div style={{ color: C.muted, fontSize: '0.7rem', marginBottom: '7px', fontFamily: 'var(--font-geist-mono), monospace' }}>
+              guest · all features active
             </div>
-            <Link href="/auth/login"
-              style={{ display: 'flex', alignItems: 'center', gap: '7px', color: C.goldSoft, textDecoration: 'none', fontSize: '0.8rem', fontWeight: 600 }}>
-              <LogIn size={13} /> Sign in to Save &amp; Export
+            <Link href="/auth/login" onClick={onNavClick}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', color: C.white, textDecoration: 'none', fontSize: '0.78rem', fontWeight: 500 }}>
+              <LogIn size={12} /> Sign in to sync
             </Link>
           </div>
         )}
@@ -155,8 +199,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const supabaseRef = useRef(createClient())
   const supabase    = supabaseRef.current
 
-  const [user, setUser]           = useState<User | null>(null)
+  const [user, setUser]             = useState<User | null>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
+
+  // Close on every route change — catches back button, programmatic nav, everything
+  useEffect(() => { setMobileOpen(false) }, [pathname])
 
   useEffect(() => {
     let mounted = true
@@ -174,6 +221,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     router.push('/')
   }
 
+  const close = () => setMobileOpen(false)
   const sidebarProps = { user, pathname, onSignOut: handleSignOut }
 
   return (
@@ -184,7 +232,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         className="hidden md:flex"
         style={{
           width: `${SIDEBAR_W}px`, flexShrink: 0, flexDirection: 'column',
-          background: C.deep, borderRight: `1px solid ${C.border}`,
+          background: C.bg, borderRight: `1px solid ${C.border}`,
           position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 30,
         }}>
         <Sidebar {...sidebarProps} />
@@ -194,75 +242,53 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div
         className="md:hidden"
         style={{
-          position: 'fixed', top: 0, left: 0, right: 0, height: '56px', zIndex: 40,
-          background: C.deep, borderBottom: `1px solid ${C.border}`,
+          position: 'fixed', top: 0, left: 0, right: 0, height: '52px', zIndex: 40,
+          background: C.bg, borderBottom: `1px solid ${C.border}`,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1rem',
         }}>
         <Link href="/" style={{ textDecoration: 'none' }}>
-          <span style={{ fontFamily: 'var(--font-playfair)', color: C.gold, fontSize: '1.2rem', fontWeight: 700 }}>EasyAcco</span>
+          <span style={{ color: C.white, fontSize: '0.9rem', fontWeight: 600, letterSpacing: '-0.03em' }}>System Auditor</span>
         </Link>
-        <button onClick={() => setMobileOpen(!mobileOpen)}
-          style={{ background: 'none', border: 'none', color: C.text, cursor: 'pointer', display: 'flex', padding: '4px' }}>
-          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+        <button onClick={() => setMobileOpen(o => !o)}
+          style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', display: 'flex', padding: '4px' }}>
+          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
 
-      {/* ── MOBILE DRAWER ── */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <>
-            <motion.div key="backdrop" className="md:hidden"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setMobileOpen(false)}
-              style={{ position: 'fixed', inset: 0, zIndex: 45, background: 'rgba(0,0,0,0.65)' }} />
-            <motion.aside key="drawer" className="md:hidden"
-              initial={{ x: -SIDEBAR_W }} animate={{ x: 0 }} exit={{ x: -SIDEBAR_W }}
-              transition={{ type: 'spring', damping: 28, stiffness: 260 }}
-              style={{
-                position: 'fixed', top: 0, left: 0, bottom: 0, width: `${SIDEBAR_W}px`, zIndex: 50,
-                background: C.deep, borderRight: `1px solid ${C.border}`,
-              }}>
-              <Sidebar {...sidebarProps} onNavClick={() => setMobileOpen(false)} />
-            </motion.aside>
-          </>
-        )}
-      </AnimatePresence>
+      {/* ── MOBILE BACKDROP — always in DOM, opacity-only transition ── */}
+      <div
+        className="md:hidden"
+        onClick={close}
+        style={{
+          position: 'fixed', inset: 0, zIndex: 45,
+          background: 'rgba(0,0,0,0.7)',
+          opacity: mobileOpen ? 1 : 0,
+          pointerEvents: mobileOpen ? 'auto' : 'none',
+          transition: 'opacity 0.2s ease',
+        }}
+      />
+
+      {/* ── MOBILE DRAWER — always in DOM, slide-in via transform ── */}
+      <aside
+        className="md:hidden"
+        style={{
+          position: 'fixed', top: 0, left: 0, bottom: 0,
+          width: `${SIDEBAR_W}px`, zIndex: 50,
+          background: C.bg, borderRight: `1px solid ${C.border}`,
+          transform: mobileOpen ? 'translateX(0)' : `translateX(-${SIDEBAR_W}px)`,
+          transition: 'transform 0.25s cubic-bezier(0.4,0,0.2,1)',
+          overflowY: 'auto',
+        }}>
+        <Sidebar {...sidebarProps} onNavClick={close} />
+      </aside>
 
       {/* ── MAIN CONTENT ── */}
       <main
-        className="md:ml-[240px] mt-14 md:mt-0"
+        className="md:ml-[232px] mt-[52px] md:mt-0"
         style={{ flex: 1, minHeight: '100vh', background: C.bg, overflow: 'auto' }}>
-
-        {/* Guest mode warning banner */}
-        {!user && (
-          <div style={{
-            background: 'rgba(251,146,60,0.1)', borderBottom: '1px solid rgba(251,146,60,0.35)',
-            padding: '0.6rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            gap: '0.75rem', flexWrap: 'wrap',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ color: '#FB923C', fontSize: '0.85rem' }}>⚠</span>
-              <span style={{ color: '#FB923C', fontSize: '0.8rem', fontWeight: 600 }}>Guest Mode</span>
-              <span style={{ color: 'rgba(251,146,60,0.75)', fontSize: '0.78rem' }}>
-                — your data is not saved. Sign in to keep your records.
-              </span>
-            </div>
-            <Link href="/auth/login"
-              style={{
-                color: '#FB923C', fontSize: '0.75rem', fontWeight: 700,
-                textDecoration: 'none', padding: '4px 12px',
-                border: '1px solid rgba(251,146,60,0.4)', borderRadius: '4px',
-                background: 'rgba(251,146,60,0.08)', flexShrink: 0,
-              }}>
-              Sign in to save →
-            </Link>
-          </div>
-        )}
-
         {children}
       </main>
 
-      {/* Kittax cat lives only on the AI page — see /dashboard/ai/page.tsx */}
     </div>
   )
 }

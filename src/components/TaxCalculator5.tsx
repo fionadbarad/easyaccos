@@ -15,10 +15,10 @@ import {
 
 // ─── Palette ─────────────────────────────────────────────────────────────────
 const C = {
-  bg:     '#0B0E1A', deep:  '#050A14', card:  '#0F1420',
-  gold:   '#FFD700', soft:  '#C2A368', text:  '#E5E7EB',
-  muted:  'rgba(229,231,235,0.55)', border: 'rgba(255,215,0,0.18)',
-  red:    '#FF6B6B', green: '#4ADE80', blue:  '#60A5FA',
+  bg:     '#181818', deep:  '#222326', card:  '#1C1D20',
+  white:  '#F4F5F8', text:  '#F4F5F8',
+  muted:  'rgba(244,245,248,0.42)', border: 'rgba(244,245,248,0.07)',
+  red:    '#F87171', green: '#4ADE80', blue:  '#60A5FA',
 }
 
 // ─── Debounce hook ───────────────────────────────────────────────────────────
@@ -51,16 +51,16 @@ const cardStyle: React.CSSProperties = {
 }
 const selectStyle: React.CSSProperties = {
   ...inp, appearance: 'none' as const, cursor: 'pointer',
-  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' stroke='%23C2A368' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")`,
+  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' stroke='%23F4F5F8' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")`,
   backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center',
   paddingRight: '32px',
 }
 const toggleStyle = (active: boolean): React.CSSProperties => ({
   padding: '6px 14px', borderRadius: '6px', cursor: 'pointer',
   fontSize: '0.78rem', fontWeight: 600, minHeight: '36px',
-  background: active ? 'rgba(255,215,0,0.12)' : 'transparent',
-  border: `1px solid ${active ? C.gold : C.border}`,
-  color: active ? C.gold : C.muted,
+  background: active ? 'rgba(244,245,248,0.1)' : 'transparent',
+  border: `1px solid ${active ? C.white : C.border}`,
+  color: active ? C.white : C.muted,
   transition: 'all 0.15s',
 })
 
@@ -99,7 +99,7 @@ function Toggle({ label, active, onChange }: { label: string; active: boolean; o
         background: active ? C.green : 'transparent',
         border: `1.5px solid ${active ? C.green : C.muted}`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: '10px', color: '#0B0E1A',
+        fontSize: '10px', color: '#181818',
       }}>{active ? '✓' : ''}</span>
       {label}
     </button>
@@ -124,15 +124,15 @@ function WhatIfSlider({ income, onChange }: { income: number; onChange: (v: numb
   return (
     <div style={{ ...cardStyle, marginBottom: '1.5rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-        <span style={{ color: C.soft, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+        <span style={{ color: C.muted, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
           What-If Income Slider
         </span>
-        <span style={{ color: C.gold, fontWeight: 700, fontSize: '1.1rem' }}>{fmt(local)}</span>
+        <span style={{ color: C.white, fontWeight: 700, fontSize: '1.1rem' }}>{fmt(local)}</span>
       </div>
       <input
         type="range" min={0} max={250_000} step={500} value={local}
         onChange={(e) => setLocal(Number(e.target.value))}
-        style={{ width: '100%', accentColor: C.gold, cursor: 'pointer', height: '6px' }}
+        style={{ width: '100%', accentColor: C.white, cursor: 'pointer', height: '6px' }}
       />
       <div style={{ display: 'flex', justifyContent: 'space-between', color: C.muted, fontSize: '0.7rem', marginTop: '4px' }}>
         <span>£0</span><span>£50k</span><span>£100k</span><span>£150k</span><span>£200k+</span>
@@ -188,7 +188,7 @@ function FullResultPanel({ result, showMonthly, setShowMonthly }: {
       {/* Summary cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: '0.75rem', marginBottom: '1.25rem' }}>
         {[
-          { label: 'Net Take-Home', value: fmt(showMonthly ? m.netTakeHome : result.netTakeHome), color: C.gold },
+          { label: 'Net Take-Home', value: fmt(showMonthly ? m.netTakeHome : result.netTakeHome), color: C.white },
           { label: 'Total Deductions', value: fmt(showMonthly ? m.totalDeductions : result.totalDeductions), color: C.red },
           { label: 'Effective Rate', value: pct(result.effectiveTaxRate), color: C.blue },
           { label: 'Income Tax', value: fmt(showMonthly ? m.incomeTax : result.incomeTax), color: C.text },
@@ -204,7 +204,7 @@ function FullResultPanel({ result, showMonthly, setShowMonthly }: {
       <div style={cardStyle}>
         <button onClick={() => setExpanded((v) => !v)}
           style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: expanded ? '1rem' : 0 }}>
-          <span style={{ color: C.soft, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Full Breakdown {showMonthly ? '(Monthly)' : '(Annual)'}</span>
+          <span style={{ color: C.muted, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Full Breakdown {showMonthly ? '(Monthly)' : '(Annual)'}</span>
           {expanded ? <ChevronUp size={16} style={{ color: C.muted }} /> : <ChevronDown size={16} style={{ color: C.muted }} />}
         </button>
         <AnimatePresence>
@@ -237,13 +237,13 @@ function FullResultPanel({ result, showMonthly, setShowMonthly }: {
                   <div key={i} style={{
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                     padding: '7px 0', paddingLeft: line.indent ? '16px' : 0,
-                    borderBottom: `1px solid rgba(255,215,0,0.06)`,
+                    borderBottom: `1px solid rgba(244,245,248,0.06)`,
                   }}>
                     <span style={{ color: line.bold ? C.text : C.muted, fontSize: line.bold ? '0.87rem' : '0.82rem', fontWeight: line.bold ? 700 : 400 }}>
                       {line.label}
                     </span>
                     <span style={{
-                      color: line.bold && !line.negative ? C.gold : line.negative ? C.red : C.text,
+                      color: line.bold && !line.negative ? C.white : line.negative ? C.red : C.text,
                       fontWeight: line.bold ? 700 : 500, fontSize: line.bold ? '1rem' : '0.85rem',
                     }}>
                       {line.negative && line.value > 0 ? '-' : ''}{fmt(round2(line.value))}
@@ -318,7 +318,7 @@ function LegacyResultPanel({ result }: { result: ScenarioResult }) {
 
       {/* Insight message */}
       <div style={{
-        background: 'rgba(255,215,0,0.06)', border: `1px solid rgba(255,215,0,0.2)`,
+        background: 'rgba(244,245,248,0.04)', border: `1px solid rgba(244,245,248,0.1)`,
         borderRadius: '10px', padding: '1rem 1.2rem', marginBottom: '1.25rem',
       }}>
         <p style={{ color: C.text, fontSize: '0.85rem', lineHeight: 1.6, margin: 0 }}>{result.catMessage}</p>
@@ -326,7 +326,7 @@ function LegacyResultPanel({ result }: { result: ScenarioResult }) {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: '0.75rem', marginBottom: '1.25rem' }}>
         {[
-          { label: 'Net Take-Home', value: fmt(result.netTakeHome), color: C.gold },
+          { label: 'Net Take-Home', value: fmt(result.netTakeHome), color: C.white },
           { label: 'Total Tax', value: fmt(result.totalDeductions), color: C.red },
           { label: 'Effective Rate', value: pct(result.effectiveRate), color: C.blue },
           { label: 'Monthly Take-Home', value: fmt(round2(result.netTakeHome / 12)), color: C.green },
@@ -341,7 +341,7 @@ function LegacyResultPanel({ result }: { result: ScenarioResult }) {
       <div style={cardStyle}>
         <button onClick={() => setExpanded((v) => !v)}
           style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: expanded ? '1rem' : 0 }}>
-          <span style={{ color: C.soft, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Full Breakdown</span>
+          <span style={{ color: C.muted, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Full Breakdown</span>
           {expanded ? <ChevronUp size={16} style={{ color: C.muted }} /> : <ChevronDown size={16} style={{ color: C.muted }} />}
         </button>
         <AnimatePresence>
@@ -351,13 +351,13 @@ function LegacyResultPanel({ result }: { result: ScenarioResult }) {
                 <div key={i} style={{
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                   padding: '7px 0', paddingLeft: line.indent ? '16px' : 0,
-                  borderBottom: `1px solid rgba(255,215,0,0.06)`,
+                  borderBottom: `1px solid rgba(244,245,248,0.06)`,
                 }}>
                   <span style={{ color: line.bold ? C.text : C.muted, fontSize: line.bold ? '0.87rem' : '0.82rem', fontWeight: line.bold ? 700 : 400 }}>
                     {line.label}
                   </span>
                   <span style={{
-                    color: line.bold ? C.gold : line.negative ? C.red : C.text,
+                    color: line.bold ? C.white : line.negative ? C.red : C.text,
                     fontWeight: line.bold ? 700 : 500, fontSize: line.bold ? '1rem' : '0.85rem',
                   }}>
                     {line.negative ? '-' : ''}{fmt(line.value)}
@@ -471,7 +471,7 @@ export default function TaxCalculator5() {
       {/* Country toggle — MUST be first */}
       <div style={{ ...cardStyle, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
-          <span style={{ color: C.soft, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Tax Jurisdiction</span>
+          <span style={{ color: C.muted, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Tax Jurisdiction</span>
           <div style={{ color: C.muted, fontSize: '0.7rem', marginTop: '2px' }}>
             {taxRegion === 'scotland' ? 'Scottish rates: 19%–48% (6 bands)' : 'Rest of UK rates: 20% / 40% / 45%'}
           </div>
@@ -488,9 +488,9 @@ export default function TaxCalculator5() {
           <button key={s.key} onClick={() => setScenario(s.key)}
             style={{
               padding: '0.75rem 0.5rem', borderRadius: '8px', cursor: 'pointer',
-              background: scenario === s.key ? 'rgba(255,215,0,0.1)' : 'transparent',
-              border: `1px solid ${scenario === s.key ? C.gold : C.border}`,
-              color: scenario === s.key ? C.gold : C.muted,
+              background: scenario === s.key ? 'rgba(244,245,248,0.08)' : 'transparent',
+              border: `1px solid ${scenario === s.key ? C.white : C.border}`,
+              color: scenario === s.key ? C.white : C.muted,
               textAlign: 'center', transition: 'all 0.15s', minHeight: '44px',
             }}>
             <div style={{ fontSize: '1.2rem', marginBottom: '2px' }}>{s.icon}</div>
@@ -512,7 +512,7 @@ export default function TaxCalculator5() {
           transition={{ duration: 0.2 }}
           style={{ ...cardStyle, marginBottom: '1.5rem' }}>
 
-          <h3 style={{ fontFamily: 'var(--font-playfair)', color: C.text, fontSize: '1.1rem', fontWeight: 700, marginBottom: '1.25rem' }}>
+          <h3 style={{ color: C.text, fontSize: '1.1rem', fontWeight: 700, marginBottom: '1.25rem' }}>
             {SCENARIOS.find((s) => s.key === scenario)?.icon}{' '}
             {SCENARIOS.find((s) => s.key === scenario)?.label} Details
           </h3>
@@ -584,8 +584,8 @@ export default function TaxCalculator5() {
               <Field label="Months Worked This Year">
                 <input type="range" min={1} max={12} step={1} value={s4.monthsWorked}
                   onChange={(e) => setS4((p) => ({ ...p, monthsWorked: Number(e.target.value) }))}
-                  style={{ width: '100%', accentColor: C.gold, minHeight: '44px' }} />
-                <div style={{ color: C.gold, fontSize: '0.85rem', textAlign: 'center' }}>{s4.monthsWorked} months</div>
+                  style={{ width: '100%', accentColor: C.white, minHeight: '44px' }} />
+                <div style={{ color: C.white, fontSize: '0.85rem', textAlign: 'center' }}>{s4.monthsWorked} months</div>
               </Field>
               <Field label="Total Redundancy Payment (£)"
                 hint={<p style={{ color: C.green, fontSize: '0.71rem' }}>✓ First £30,000 is tax-free</p>}>
@@ -602,7 +602,7 @@ export default function TaxCalculator5() {
       {/* Additional Tax Options (full engine scenarios only) */}
       {isFullEngine && (
         <div style={{ ...cardStyle, marginBottom: '1.5rem' }}>
-          <h3 style={{ fontFamily: 'var(--font-playfair)', color: C.text, fontSize: '1rem', fontWeight: 700, marginBottom: '1rem' }}>
+          <h3 style={{ color: C.text, fontSize: '1rem', fontWeight: 700, marginBottom: '1rem' }}>
             Additional Options
           </h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '1rem' }}>

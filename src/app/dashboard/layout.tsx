@@ -215,9 +215,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const [user, setUser]             = useState<User | null>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [desktopOpen, setDesktopOpen] = useState(true)
-  // Tracks whether viewport is desktop — initialises true (safe for SSR + most users)
-  const [isDesktop, setIsDesktop]   = useState(true)
+  const [desktopOpen, setDesktopOpen] = useState(false)
 
   // Close on every route change — catches back button, programmatic nav, everything
   useEffect(() => { setMobileOpen(false) }, [pathname])
@@ -239,59 +237,56 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   const close = () => setMobileOpen(false)
+  const closeDesktop = () => setDesktopOpen(false)
   const sidebarProps = { user, pathname, onSignOut: handleSignOut }
-
-  // Track viewport width for margin calculation
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 768px)')
-    setIsDesktop(mq.matches)
-    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches)
-    mq.addEventListener('change', handler)
-    return () => mq.removeEventListener('change', handler)
-  }, [])
-
-  // Persist desktop sidebar preference
-  useEffect(() => {
-    const saved = localStorage.getItem('sidebarOpen')
-    if (saved !== null) setDesktopOpen(saved === 'true')
-  }, [])
-  useEffect(() => {
-    localStorage.setItem('sidebarOpen', String(desktopOpen))
-  }, [desktopOpen])
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: C.bg }}>
 
-      {/* ── DESKTOP SIDEBAR ── */}
-      <aside
-        className="hidden md:flex"
-        style={{
-          width: `${SIDEBAR_W}px`, flexShrink: 0, flexDirection: 'column',
-          background: C.bg, borderRight: `1px solid ${C.border}`,
-          position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 30,
-          transform: desktopOpen ? 'translateX(0)' : `translateX(-${SIDEBAR_W}px)`,
-          transition: 'transform 0.25s cubic-bezier(0.4,0,0.2,1)',
-          pointerEvents: desktopOpen ? 'auto' : 'none',
-        }}>
-        <Sidebar {...sidebarProps} onNavClick={() => {}} onClose={() => setDesktopOpen(false)} />
-      </aside>
-
-      {/* ── DESKTOP SIDEBAR REOPEN BUTTON ── */}
+      {/* ── DESKTOP MENU BUTTON (always visible) ── */}
       <button
         className="hidden md:flex"
         onClick={() => setDesktopOpen(true)}
         title="Open sidebar"
         style={{
-          position: 'fixed', top: '1rem', left: desktopOpen ? '-48px' : '0.75rem',
-          zIndex: 31, background: C.surface, border: `1px solid ${C.border}`,
+          position: 'fixed', top: '1rem', left: '0.75rem',
+          zIndex: 51, background: C.surface, border: `1px solid ${C.border}`,
           borderRadius: '4px', color: C.muted, cursor: 'pointer',
           padding: '6px 8px', alignItems: 'center', justifyContent: 'center',
-          transition: 'left 0.25s cubic-bezier(0.4,0,0.2,1), color 0.1s',
+          opacity: desktopOpen ? 0 : 1,
+          pointerEvents: desktopOpen ? 'none' : 'auto',
+          transition: 'opacity 0.2s ease, color 0.1s',
         }}
         onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = C.white}
         onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = C.muted}>
         <Menu size={14} />
       </button>
+
+      {/* ── DESKTOP BACKDROP ── */}
+      <div
+        className="hidden md:block"
+        onClick={closeDesktop}
+        style={{
+          position: 'fixed', inset: 0, zIndex: 45,
+          background: 'rgba(0,0,0,0.55)',
+          opacity: desktopOpen ? 1 : 0,
+          pointerEvents: desktopOpen ? 'auto' : 'none',
+          transition: 'opacity 0.2s ease',
+        }}
+      />
+
+      {/* ── DESKTOP SIDEBAR (overlay) ── */}
+      <aside
+        className="hidden md:flex"
+        style={{
+          width: `${SIDEBAR_W}px`, flexShrink: 0, flexDirection: 'column',
+          background: C.bg, borderRight: `1px solid ${C.border}`,
+          position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 50,
+          transform: desktopOpen ? 'translateX(0)' : `translateX(-${SIDEBAR_W}px)`,
+          transition: 'transform 0.25s cubic-bezier(0.4,0,0.2,1)',
+        }}>
+        <Sidebar {...sidebarProps} onNavClick={closeDesktop} onClose={closeDesktop} />
+      </aside>
 
       {/* ── MOBILE TOP BAR ── */}
       <div
@@ -340,11 +335,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* ── MAIN CONTENT ── */}
       <main
         className="mt-[52px] md:mt-0"
-        style={{
-          flex: 1, minHeight: '100vh', background: C.bg, overflow: 'auto',
-          marginLeft: isDesktop ? (desktopOpen ? `${SIDEBAR_W}px` : 0) : 0,
-          transition: 'margin-left 0.25s cubic-bezier(0.4,0,0.2,1)',
-        }}>
+        style={{ flex: 1, minHeight: '100vh', background: C.bg, overflow: 'auto' }}>
         {children}
       </main>
 

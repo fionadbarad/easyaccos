@@ -45,7 +45,7 @@ export const TB = {
   // Student Loans 2026/27
   SL_PLAN1_THRESH:     26_900,
   SL_PLAN1_RATE:       0.09,
-  SL_PLAN2_THRESH:     29_385,
+  SL_PLAN2_THRESH:     29_385,    // Updated 2026/27
   SL_PLAN2_RATE:       0.09,
   SL_PLAN5_THRESH:     25_000,    // New for 2026/27
   SL_PLAN5_RATE:       0.09,
@@ -54,6 +54,14 @@ export const TB = {
 
   // National Living Wage (effective 1 April 2026)
   NLW_RATE:            12.71,
+
+  // Scotland Income Tax — band ceilings (absolute gross income)
+  SCO_STARTER_END:      16_537,   // 19%
+  SCO_BASIC_END:        29_526,   // 20%
+  SCO_INTERMEDIATE_END: 43_662,   // 21%
+  SCO_HIGHER_END:       75_000,   // 42%
+  SCO_ADVANCED_END:     125_140,  // 45%
+                                  // above: 48%
 
   // Job Loss — Scenario 4
   REDUNDANCY_EXEMPTION: 30_000,
@@ -92,6 +100,35 @@ export function calcIncomeTax(taxableIncome: number): number {
   }
   if (rem > 0) tax += rem * TB.ADDITIONAL_RATE
   return round2(tax)
+}
+
+// Scotland Income Tax on gross income with PA
+export function calcScotlandTax(grossIncome: number, pa: number): number {
+  const taxable = Math.max(0, grossIncome - pa)
+  if (taxable <= 0) return 0
+
+  const LIMITS = [
+    { rate: 0.19, ceiling: TB.SCO_STARTER_END },
+    { rate: 0.20, ceiling: TB.SCO_BASIC_END },
+    { rate: 0.21, ceiling: TB.SCO_INTERMEDIATE_END },
+    { rate: 0.42, ceiling: TB.SCO_HIGHER_END },
+    { rate: 0.45, ceiling: TB.SCO_ADVANCED_END },
+    { rate: 0.48, ceiling: Infinity },
+  ]
+
+  let totalTax = 0
+  let prev: number = TB.PA_BASE
+
+  for (const { rate, ceiling } of LIMITS) {
+    const lower  = Math.max(0, taxable - Math.max(0, prev    - pa))
+    const upper  = Math.max(0, taxable - Math.max(0, ceiling - pa))
+    const amount = lower - upper
+    if (amount > 0) totalTax += amount * rate
+    prev = ceiling
+    if (prev >= grossIncome) break
+  }
+
+  return round2(totalTax)
 }
 
 // NI Class 1 (Employed / Director on salary)
@@ -180,7 +217,7 @@ export function calcScenario1(inp: S1Input): ScenarioResult {
     taxableIncome: taxable, incomeTax: itax, nationalInsurance: ni,
     dividendTax: 0, totalDeductions: total, netTakeHome: takeHome,
     effectiveRate: effRate, taxProvision: total, sixtyTrap: false,
-    catMessage: `Meow! Your effective rate is ${effRate}%. ${ni > 0 ? `You're paying ${fmtGBP(ni)} in ${niLabel}.` : ''}`,
+    catMessage: `Your effective rate is ${effRate}%. ${ni > 0 ? `You're paying ${fmtGBP(ni)} in ${niLabel}.` : ''}`,
     lines: [
       { label: 'Gross Income',        value: inp.grossIncome },
       { label: 'Allowable Expenses',  value: inp.expenses,   negative: true, indent: true },
@@ -342,8 +379,8 @@ export function calcScenario5(inp: S5Input): ScenarioResult {
   const pensionCap  = Math.min(inp.pension, salary, 60_000)
   const adjustedSal = Math.max(0, salary - pensionCap)
 
-  // NI only on salary (NOT dividends)
-  const ni          = calcClass1NI(salary)
+  // NI only on salary (NOT dividends) — after pension (salary sacrifice reduces NI-able pay)
+  const ni          = calcClass1NI(adjustedSal)
 
   // PA taper uses salary + dividends
   const pa          = calcPA(adjustedSal + divs)
@@ -408,8 +445,8 @@ export function calcEmployerNI(salary: number): number {
 
 // ─── Cat Messages by scenario type ────────────────────────────────────────────
 export const CAT_GREETINGS: Record<string, string> = {
-  employed:     'Meow! Ready to audit your 2026/27 finances?',
-  'self-employed': 'Meow! Let\'s make sure HMRC doesn\'t take a penny more than they should!',
+  employed:     'Ready to audit your 2026/27 finances?',
+  'self-employed': 'Let\'s make sure HMRC doesn\'t take a penny more than they should!',
   welfare:      'Universal Credit is tax-free! It won\'t touch your £12,570 allowance.',
   redundancy:   'I\'ve applied your £30k redundancy exemption. You\'re keeping every penny you\'re entitled to.',
   director:     'Brilliant move! By taking dividends, you\'re avoiding the 8% NI on your top earnings.',

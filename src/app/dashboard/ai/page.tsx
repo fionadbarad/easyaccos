@@ -1,82 +1,158 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Send, Bot, User, Loader2, RefreshCw } from 'lucide-react'
+import { Send, RefreshCw, ChevronRight } from 'lucide-react'
 
-const C = { bg: '#1A2342', deep: '#0F1628', card: '#4A4066', gold: '#C2A368', text: '#E4D3B4', muted: 'rgba(228,211,180,0.55)', border: 'rgba(194,163,104,0.2)' }
+const C = {
+  bg:      '#181818',
+  surface: '#1C1D20',
+  gray:    '#222326',
+  white:   '#F4F5F8',
+  muted:   'rgba(244,245,248,0.42)',
+  border:  'rgba(244,245,248,0.07)',
+  accent:  'rgba(244,245,248,0.12)',
+}
 
 type Role = 'user' | 'assistant'
-interface Message { role: Role; content: string }
+interface Message { role: Role; content: string; ts: number }
 
-const STARTERS = [
-  'How much tax will I pay on £40,000 self-employed income?',
-  'What expenses can I deduct as a freelancer?',
-  'When is the Self-Assessment deadline?',
-  'Should I pay voluntary Class 2 NI?',
-  'What is "payment on account"?',
+const SUGGESTED = [
+  { label: 'Sole trader tax', q: 'How much tax and NI will I pay on £55,000 self-employed profit?' },
+  { label: 'Dividend structure', q: 'What is the optimal salary/dividend split for a director in 2026/27?' },
+  { label: 'Pension relief', q: 'How do SIPP contributions reduce my tax bill if I earn over £100,000?' },
+  { label: 'MTD obligations', q: 'When are my quarterly MTD submissions due for 2026/27?' },
+  { label: 'Allowable expenses', q: 'What home office expenses can I claim as a sole trader?' },
+  { label: 'Payment on account', q: 'How does payment on account work and how do I reduce it?' },
 ]
 
-function ChatBubble({ msg }: { msg: Message }) {
+function formatTime(ts: number) {
+  return new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+}
+
+function AdvisoryMessage({ msg }: { msg: Message }) {
   const isUser = msg.role === 'user'
-  return (
-    <div style={{ display: 'flex', gap: '10px', justifyContent: isUser ? 'flex-end' : 'flex-start', marginBottom: '1rem' }}>
-      {!isUser && (
-        <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: 'rgba(194,163,104,0.15)', border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <Bot size={15} style={{ color: C.gold }} />
+
+  if (isUser) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
+        <div style={{ maxWidth: '68%' }}>
+          <div style={{
+            background: C.accent,
+            border: `1px solid ${C.border}`,
+            borderRadius: '6px 6px 2px 6px',
+            padding: '10px 14px',
+            color: C.white,
+            fontSize: '0.875rem',
+            lineHeight: 1.65,
+          }}>
+            {msg.content}
+          </div>
+          <div style={{ textAlign: 'right', marginTop: '4px', color: 'rgba(244,245,248,0.2)', fontSize: '0.65rem', fontFamily: 'var(--font-geist-mono), monospace' }}>
+            {formatTime(msg.ts)}
+          </div>
         </div>
-      )}
-      <div style={{
-        maxWidth: '78%', padding: '11px 15px', borderRadius: isUser ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
-        background: isUser ? 'rgba(194,163,104,0.15)' : C.card,
-        border: `1px solid ${isUser ? 'rgba(194,163,104,0.3)' : C.border}`,
-        color: C.text, fontSize: '0.875rem', lineHeight: 1.65,
-        whiteSpace: 'pre-wrap',
-      }}>
-        {msg.content}
       </div>
-      {isUser && (
-        <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: 'rgba(194,163,104,0.15)', border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <User size={15} style={{ color: C.gold }} />
+    )
+  }
+
+  return (
+    <div style={{ display: 'flex', gap: '12px', marginBottom: '1.5rem' }}>
+      <div style={{ flexShrink: 0, paddingTop: '2px' }}>
+        <div style={{
+          width: '1px', height: '100%', minHeight: '20px',
+          background: 'rgba(244,245,248,0.15)',
+          marginLeft: '6px',
+        }} />
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ color: 'rgba(244,245,248,0.3)', fontSize: '0.62rem', fontFamily: 'var(--font-geist-mono), monospace', letterSpacing: '0.08em', marginBottom: '6px' }}>
+          ADVISORY · {formatTime(msg.ts)}
         </div>
-      )}
+        <div style={{
+          color: C.white,
+          fontSize: '0.875rem',
+          lineHeight: 1.75,
+          whiteSpace: 'pre-wrap',
+        }}>
+          {msg.content}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ThinkingIndicator() {
+  return (
+    <div style={{ display: 'flex', gap: '12px', marginBottom: '1.5rem' }}>
+      <div style={{ flexShrink: 0, paddingTop: '2px' }}>
+        <div style={{ width: '1px', minHeight: '20px', background: 'rgba(244,245,248,0.15)', marginLeft: '6px' }} />
+      </div>
+      <div style={{ flex: 1 }}>
+        <div style={{ color: 'rgba(244,245,248,0.3)', fontSize: '0.62rem', fontFamily: 'var(--font-geist-mono), monospace', letterSpacing: '0.08em', marginBottom: '8px' }}>
+          ADVISORY
+        </div>
+        <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+          {[0, 1, 2].map((i) => (
+            <div key={i} style={{
+              width: '4px', height: '4px', borderRadius: '50%',
+              background: 'rgba(244,245,248,0.3)',
+              animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite`,
+            }} />
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
 
 export default function AIPage() {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'Hello! I\'m Kittax 🐱 — your EasyAcco tax advisor. Ask me anything about UK tax, HMRC deadlines, expenses, dividends, and more. Or just type your income for an instant breakdown!' },
+    {
+      role: 'assistant',
+      content: 'Good day. I can advise on UK tax obligations for the 2026/27 fiscal year — sole trader and partnership income, director remuneration, MTD compliance, allowable deductions, and NI liabilities. What would you like to work through?',
+      ts: Date.now(),
+    },
   ])
-  const [input, setInput] = useState('')
+  const [input, setInput]     = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [error, setError]     = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, loading])
 
   async function send(text?: string) {
     const msg = (text ?? input).trim()
     if (!msg || loading) return
     setInput('')
     setError('')
-    const next: Message[] = [...messages, { role: 'user', content: msg }]
+    const next: Message[] = [...messages, { role: 'user', content: msg, ts: Date.now() }]
     setMessages(next)
     setLoading(true)
 
+    const history = next.slice(1, -1).map((m) => ({
+      role: m.role === 'user' ? 'user' : 'model' as const,
+      parts: [{ text: m.content }],
+    }))
+
     try {
-      const res = await fetch('/api/ai', {
+      const res  = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: msg }),
+        body: JSON.stringify({ message: msg, history }),
       })
       const data = await res.json()
-      if (!res.ok || data.error) throw new Error(data.error || 'API error')
-      setMessages([...next, { role: 'assistant', content: data.answer || data.reply || 'Sorry, no response.' }])
+      if (!res.ok || data.error) throw new Error(data.error || 'No response from server.')
+      setMessages([...next, {
+        role: 'assistant',
+        content: data.answer || data.reply || 'No response.',
+        ts: Date.now(),
+      }])
     } catch (err: unknown) {
-      const e = err instanceof Error ? err.message : 'Something went wrong'
-      setError(e)
-      setMessages(next) // remove pending user message on error? No — keep it, just show error below
+      setError(err instanceof Error ? err.message : 'Something went wrong.')
+      setMessages(next)
     } finally {
       setLoading(false)
     }
@@ -86,74 +162,161 @@ export default function AIPage() {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() }
   }
 
-  function reset() { setMessages([{ role: 'assistant', content: 'Hello! I\'m Kittax 🐱 — ask me anything about UK tax!' }]); setError('') }
+  function reset() {
+    setMessages([{
+      role: 'assistant',
+      content: 'Session cleared. What do you need to work through?',
+      ts: Date.now(),
+    }])
+    setError('')
+  }
+
+  const showSuggested = messages.length <= 1
 
   return (
-    <div style={{ padding: 'clamp(1rem,3vw,2rem)', maxWidth: '760px', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)' }}
-      className="md:h-screen">
+    <div style={{
+      padding: 'clamp(1.5rem,3vw,2.5rem)',
+      maxWidth: '720px',
+      display: 'flex',
+      flexDirection: 'column',
+      height: 'calc(100vh - 52px)',
+    }} className="md:h-screen">
 
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-        <p style={{ flex: 1, color: C.muted, fontSize: '0.82rem', margin: 0 }}>
-          Kittax is active in the bottom-right corner for tax tips.
-        </p>
+      {/* ── Header ── */}
+      <div style={{
+        display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
+        marginBottom: '2rem', flexWrap: 'wrap', gap: '0.5rem', flexShrink: 0,
+      }}>
+        <div>
+          <h1 style={{
+            color: C.white, fontSize: 'clamp(1.2rem,2.5vw,1.5rem)',
+            fontWeight: 600, letterSpacing: '-0.03em', margin: 0,
+          }}>
+            Tax Advisory
+          </h1>
+          <p style={{
+            color: C.muted, fontSize: '0.72rem', margin: '3px 0 0',
+            fontFamily: 'var(--font-geist-mono), monospace',
+          }}>
+            2026/27 HMRC rules · sole trader · director · MTD
+          </p>
+        </div>
         <button onClick={reset}
-          style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(194,163,104,0.1)', border: `1px solid ${C.border}`, borderRadius: '5px', color: C.muted, fontSize: '0.78rem', padding: '7px 13px', cursor: 'pointer' }}>
-          <RefreshCw size={13} /> New chat
+          style={{
+            display: 'flex', alignItems: 'center', gap: '6px',
+            background: 'transparent', border: `1px solid ${C.border}`,
+            borderRadius: '4px', color: C.muted, fontSize: '0.72rem',
+            padding: '6px 11px', cursor: 'pointer', letterSpacing: '-0.01em',
+          }}>
+          <RefreshCw size={11} /> New session
         </button>
       </div>
 
-      {/* Message area */}
-      <div style={{ flex: 1, overflowY: 'auto', marginBottom: '1rem', paddingRight: '4px' }}>
-        {messages.map((m, i) => <ChatBubble key={i} msg={m} />)}
-        {loading && (
-          <div style={{ display: 'flex', gap: '10px', marginBottom: '1rem' }}>
-            <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: 'rgba(194,163,104,0.15)', border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <Bot size={15} style={{ color: C.gold }} />
-            </div>
-            <div style={{ padding: '11px 15px', borderRadius: '14px 14px 14px 4px', background: C.card, border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Loader2 size={15} style={{ color: C.gold }} className="animate-spin" />
-              <span style={{ color: C.muted, fontSize: '0.85rem' }}>Thinking…</span>
-            </div>
-          </div>
-        )}
+      {/* ── Conversation ── */}
+      <div style={{ flex: 1, overflowY: 'auto', paddingRight: '4px', marginBottom: '1rem' }}>
+        {messages.map((m, i) => <AdvisoryMessage key={i} msg={m} />)}
+        {loading && <ThinkingIndicator />}
         {error && (
-          <div style={{ background: 'rgba(220,53,69,0.1)', border: '1px solid rgba(220,53,69,0.3)', borderRadius: '6px', padding: '10px 14px', color: '#ff8a9a', fontSize: '0.82rem', marginBottom: '0.75rem' }}>
-            ⚠ {error}
+          <div style={{
+            background: 'rgba(248,113,113,0.06)', border: '1px solid rgba(248,113,113,0.18)',
+            borderRadius: '4px', padding: '10px 14px', color: '#F87171',
+            fontSize: '0.78rem', marginBottom: '1.5rem',
+          }}>
+            {error}
           </div>
         )}
         <div ref={bottomRef} />
       </div>
 
-      {/* Starter prompts */}
-      {messages.length <= 1 && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.75rem', flexShrink: 0 }}>
-          {STARTERS.map((s) => (
-            <button key={s} onClick={() => send(s)}
-              style={{ padding: '6px 13px', background: 'rgba(194,163,104,0.07)', border: `1px solid ${C.border}`, borderRadius: '999px', color: C.muted, fontSize: '0.78rem', cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s' }}
-              onMouseEnter={(e) => { (e.currentTarget).style.borderColor = C.gold; (e.currentTarget).style.color = C.gold }}
-              onMouseLeave={(e) => { (e.currentTarget).style.borderColor = C.border; (e.currentTarget).style.color = C.muted }}>
-              {s}
-            </button>
-          ))}
+      {/* ── Suggested topics ── */}
+      {showSuggested && (
+        <div style={{ flexShrink: 0, marginBottom: '1rem' }}>
+          <div style={{
+            color: 'rgba(244,245,248,0.2)', fontSize: '0.6rem',
+            textTransform: 'uppercase', letterSpacing: '0.1em',
+            fontFamily: 'var(--font-geist-mono), monospace', marginBottom: '0.5rem',
+          }}>
+            Common topics
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(180px,1fr))', gap: '0.35rem' }}>
+            {SUGGESTED.map((s) => (
+              <button key={s.label} onClick={() => send(s.q)}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  gap: '6px', padding: '8px 11px',
+                  background: C.surface, border: `1px solid ${C.border}`,
+                  borderRadius: '4px', color: C.muted, fontSize: '0.75rem',
+                  cursor: 'pointer', textAlign: 'left', transition: 'all 0.1s',
+                  letterSpacing: '-0.01em',
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget
+                  el.style.borderColor = 'rgba(244,245,248,0.18)'
+                  el.style.color = C.white
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget
+                  el.style.borderColor = C.border
+                  el.style.color = C.muted
+                }}>
+                <span>{s.label}</span>
+                <ChevronRight size={11} style={{ flexShrink: 0, opacity: 0.4 }} />
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Input */}
-      <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
+      {/* ── Input ── */}
+      <div style={{
+        flexShrink: 0,
+        background: C.surface, border: `1px solid ${C.border}`,
+        borderRadius: '6px', overflow: 'hidden',
+      }}>
         <textarea
           ref={textareaRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKey}
-          placeholder="Ask about UK tax, HMRC, expenses…   (Enter to send, Shift+Enter for new line)"
+          placeholder="Ask a question…   (Enter to send, Shift+Enter for new line)"
           rows={2}
-          style={{ flex: 1, background: C.card, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '11px 14px', color: C.text, fontSize: '0.875rem', outline: 'none', resize: 'none', lineHeight: 1.5 }}
+          style={{
+            display: 'block', width: '100%',
+            background: 'transparent', border: 'none',
+            padding: '12px 14px 4px',
+            color: C.white, fontSize: '0.875rem', outline: 'none',
+            resize: 'none', lineHeight: 1.6,
+            boxSizing: 'border-box',
+          }}
         />
-        <button onClick={() => send()} disabled={loading || !input.trim()}
-          style={{ width: '46px', background: loading || !input.trim() ? 'rgba(194,163,104,0.3)' : C.gold, border: 'none', borderRadius: '6px', cursor: loading || !input.trim() ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <Send size={18} style={{ color: loading || !input.trim() ? C.muted : '#0F1628' }} />
-        </button>
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
+          padding: '4px 8px 8px', gap: '6px',
+        }}>
+          <span style={{ color: 'rgba(244,245,248,0.15)', fontSize: '0.62rem', fontFamily: 'var(--font-geist-mono), monospace', marginRight: 'auto' }}>
+            {input.length > 0 ? `${input.length} chars` : ''}
+          </span>
+          <button onClick={() => send()} disabled={loading || !input.trim()}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '5px',
+              background: loading || !input.trim() ? 'transparent' : C.white,
+              border: `1px solid ${loading || !input.trim() ? C.border : C.white}`,
+              borderRadius: '4px', padding: '6px 12px',
+              color: loading || !input.trim() ? C.muted : C.bg,
+              fontSize: '0.75rem', fontWeight: 600, cursor: loading || !input.trim() ? 'default' : 'pointer',
+              transition: 'all 0.1s', letterSpacing: '-0.01em',
+            }}>
+            <Send size={12} strokeWidth={2} /> Send
+          </button>
+        </div>
       </div>
+
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 0.2; transform: scale(0.85); }
+          50%       { opacity: 1;   transform: scale(1.1);  }
+        }
+      `}</style>
     </div>
   )
 }

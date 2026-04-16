@@ -1,15 +1,21 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
-import { Plus, Trash2, ArrowUpCircle, ArrowDownCircle, Calendar, Filter } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { Plus, Trash2, ArrowUpCircle, ArrowDownCircle, Calendar, Cloud, CloudOff } from 'lucide-react'
+import { useUserData } from '@/lib/use-user-data'
 
 const C = {
-  bg: '#0B0E1A', deep: '#050A14', card: '#111827',
-  gold: '#FFD700', soft: '#C2A368', text: '#E5E7EB',
-  muted: 'rgba(229,231,235,0.55)', border: 'rgba(255,215,0,0.15)',
+  bg:      '#181818',
+  surface: '#1C1D20',
+  gray:    '#222326',
+  white:   '#F4F5F8',
+  muted:   'rgba(244,245,248,0.42)',
+  border:  'rgba(244,245,248,0.07)',
+  green:   '#4ADE80',
+  red:     '#F87171',
 }
 
-type TxType = 'income' | 'expense'
+type TxType    = 'income' | 'expense'
 type DateFilter = 'all' | 'today' | 'month' | 'custom'
 
 interface Transaction {
@@ -18,16 +24,15 @@ interface Transaction {
 }
 
 const inputStyle: React.CSSProperties = {
-  background: C.deep, border: `1px solid ${C.border}`, borderRadius: '6px',
-  padding: '10px 13px', color: C.text, fontSize: '0.875rem', outline: 'none',
-  boxSizing: 'border-box', width: '100%', minHeight: '44px',
+  background: C.gray, border: `1px solid ${C.border}`, borderRadius: '4px',
+  padding: '9px 11px', color: C.white, fontSize: '0.84rem', outline: 'none',
+  boxSizing: 'border-box', width: '100%', minHeight: '40px',
+  fontFamily: 'var(--font-geist-mono), monospace', fontVariantNumeric: 'tabular-nums',
 }
 const labelStyle: React.CSSProperties = {
-  display: 'block', color: C.muted, fontSize: '0.72rem',
-  textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.3rem',
+  display: 'block', color: C.muted, fontSize: '0.62rem',
+  textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px', fontWeight: 600,
 }
-const STORAGE_KEY = 'easyacco_transactions'
-
 const SEED: Transaction[] = [
   { id: '1', date: '2026-04-01', description: 'Client Project — Acme Corp', type: 'income',  amount: 2400,  reference: 'INV-001' },
   { id: '2', date: '2026-04-02', description: 'Adobe Creative Cloud',       type: 'expense', amount: 54.99, reference: 'SUB-001' },
@@ -38,22 +43,22 @@ const SEED: Transaction[] = [
   { id: '7', date: '2026-02-28', description: 'Design Retainer',             type: 'income',  amount: 3200,  reference: 'INV-004' },
 ]
 
-function toISODate(d: Date) {
-  return d.toISOString().slice(0, 10)
-}
+function toISODate(d: Date) { return d.toISOString().slice(0, 10) }
 
-function isToday(dateStr: string) {
-  return dateStr === toISODate(new Date())
-}
-
+function isToday(dateStr: string)   { return dateStr === toISODate(new Date()) }
 function isThisMonth(dateStr: string) {
-  const now = new Date()
-  const d = new Date(dateStr)
+  const now = new Date(), d = new Date(dateStr)
   return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
 }
 
+const DATE_LABELS: Record<DateFilter, string> = {
+  all: 'All time', today: 'Today', month: 'This month', custom: 'Custom',
+}
+
 export default function TransactionsPage() {
-  const [txs, setTxs]           = useState<Transaction[]>([])
+  const { items: txs, persist, loading, isAuthenticated } = useUserData<Transaction>(
+    'user_transactions', 'easyacco_transactions', SEED,
+  )
   const [typeFilter, setType]   = useState<TxType | 'all'>('all')
   const [dateFilter, setDate]   = useState<DateFilter>('all')
   const [customFrom, setFrom]   = useState('')
@@ -63,83 +68,83 @@ export default function TransactionsPage() {
     date: toISODate(new Date()), description: '', type: 'income' as TxType, amount: '', reference: '',
   })
 
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY)
-      setTxs(saved ? JSON.parse(saved) : SEED)
-    } catch { setTxs(SEED) }
-  }, [])
-
-  function persist(next: Transaction[]) {
-    setTxs(next)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
-  }
-
-  function add(e: React.FormEvent) {
+  async function add(e: React.FormEvent) {
     e.preventDefault()
     const amount = parseFloat(form.amount)
-    if (!amount || !form.description) return
-    persist([{ id: crypto.randomUUID(), ...form, amount }, ...txs])
+    if (!amount || !form.description.trim()) return
+    await persist([{ id: crypto.randomUUID(), ...form, amount }, ...txs])
     setForm((f) => ({ ...f, description: '', amount: '', reference: '' }))
     setShowForm(false)
   }
 
-  function remove(id: string) { persist(txs.filter((t) => t.id !== id)) }
+  async function remove(id: string) { await persist(txs.filter((t) => t.id !== id)) }
 
-  // Filtering
-  const visible = useMemo(() => {
-    return txs
-      .filter((t) => typeFilter === 'all' || t.type === typeFilter)
-      .filter((t) => {
-        if (dateFilter === 'today')  return isToday(t.date)
-        if (dateFilter === 'month')  return isThisMonth(t.date)
-        if (dateFilter === 'custom' && customFrom && customTo)
-          return t.date >= customFrom && t.date <= customTo
-        return true
-      })
-      .sort((a, b) => b.date.localeCompare(a.date))
-  }, [txs, typeFilter, dateFilter, customFrom, customTo])
+  const visible = useMemo(() => txs
+    .filter((t) => typeFilter === 'all' || t.type === typeFilter)
+    .filter((t) => {
+      if (dateFilter === 'today')  return isToday(t.date)
+      if (dateFilter === 'month')  return isThisMonth(t.date)
+      if (dateFilter === 'custom' && customFrom && customTo) return t.date >= customFrom && t.date <= customTo
+      return true
+    })
+    .sort((a, b) => b.date.localeCompare(a.date)),
+  [txs, typeFilter, dateFilter, customFrom, customTo])
 
-  const totalIn   = visible.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
-  const totalOut  = visible.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
-  const net       = totalIn - totalOut
-  const fmt       = (n: number) => `£${Math.abs(n).toLocaleString('en-GB', { minimumFractionDigits: 2 })}`
+  const totalIn  = visible.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
+  const totalOut = visible.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
+  const net      = totalIn - totalOut
+  const fmt      = (n: number) => `£${Math.abs(n).toLocaleString('en-GB', { minimumFractionDigits: 2 })}`
 
-  const dateFilterLabels: Record<DateFilter, string> = {
-    all:    'All Time',
-    today:  'Today',
-    month:  'This Month',
-    custom: 'Custom Range',
-  }
+  const chipStyle = (active: boolean): React.CSSProperties => ({
+    padding: '5px 11px', borderRadius: '3px', border: `1px solid ${active ? 'rgba(244,245,248,0.2)' : C.border}`,
+    background: active ? 'rgba(244,245,248,0.07)' : 'transparent', color: active ? C.white : C.muted,
+    cursor: 'pointer', fontSize: '0.75rem', fontWeight: active ? 500 : 400, minHeight: '32px', transition: 'all 0.1s',
+  })
 
   return (
     <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)', maxWidth: '960px' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
         <div>
-          <h1 style={{ fontFamily: 'var(--font-playfair)', color: C.text, fontSize: 'clamp(1.5rem,3vw,2rem)', fontWeight: 700, marginBottom: '0.3rem' }}>
-            Daily Ledger
+          <div style={{ color: C.muted, fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '5px', fontFamily: 'var(--font-geist-mono), monospace' }}>ledger</div>
+          <h1 style={{ color: C.white, fontSize: 'clamp(1.4rem,3vw,1.9rem)', fontWeight: 600, letterSpacing: '-0.03em', margin: 0 }}>
+            Transaction Ledger
           </h1>
-          <p style={{ color: C.muted, fontSize: '0.875rem' }}>
-            {visible.length} records · Net: <strong style={{ color: net >= 0 ? C.gold : '#ff8a9a' }}>{net >= 0 ? '+' : '-'}{fmt(net)}</strong>
+          <p style={{ color: C.muted, fontSize: '0.78rem', marginTop: '4px', fontFamily: 'var(--font-geist-mono), monospace' }}>
+            {visible.length} records · net: <span style={{ color: net >= 0 ? C.green : C.red }}>{net >= 0 ? '+' : '-'}{fmt(net)}</span>
           </p>
         </div>
-        <button onClick={() => setShowForm(!showForm)}
-          style={{ display: 'flex', alignItems: 'center', gap: '7px', background: C.gold, color: C.deep, border: 'none', borderRadius: '6px', padding: '10px 18px', fontSize: '0.875rem', fontWeight: 700, cursor: 'pointer', minHeight: '44px' }}>
-          <Plus size={16} /> Add Transaction
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: C.muted, fontSize: '0.68rem', fontFamily: 'var(--font-geist-mono), monospace', padding: '6px 10px', border: `1px solid ${C.border}`, borderRadius: '4px' }}>
+            {isAuthenticated
+              ? <><Cloud size={11} style={{ color: '#4ADE80' }} /> synced</>
+              : <><CloudOff size={11} /> local only</>}
+          </div>
+          <button onClick={() => setShowForm(!showForm)}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', background: C.white, color: C.bg, border: 'none', borderRadius: '4px', padding: '8px 16px', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', minHeight: '36px', letterSpacing: '-0.01em' }}>
+            <Plus size={14} strokeWidth={2.5} /> Add Entry
+          </button>
+        </div>
       </div>
 
-      {/* Summary cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+      {/* Guest sync nudge */}
+      {!loading && !isAuthenticated && txs.length > 0 && (
+        <div style={{ background: 'rgba(251,191,36,0.05)', border: '1px solid rgba(251,191,36,0.18)', borderRadius: '4px', padding: '0.7rem 1rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <span style={{ color: '#FBBF24', fontSize: '0.75rem' }}>Data is saved in this browser only — sign in to sync across devices.</span>
+          <a href="/auth/login" style={{ color: '#FBBF24', fontSize: '0.72rem', fontWeight: 600, textDecoration: 'none', borderBottom: '1px solid rgba(251,191,36,0.4)' }}>Sign in →</a>
+        </div>
+      )}
+
+      {/* Summary tiles */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', border: `1px solid ${C.border}`, borderRadius: '6px', overflow: 'hidden', background: C.border, marginBottom: '1.5rem' }}>
         {[
-          { label: 'Income (filtered)', value: fmt(totalIn),  color: C.gold },
-          { label: 'Expenses (filtered)', value: fmt(totalOut), color: '#ff8a9a' },
-          { label: 'Net', value: `${net >= 0 ? '+' : '-'}${fmt(net)}`, color: net >= 0 ? C.gold : '#ff8a9a' },
+          { label: 'Income',   value: fmt(totalIn),  color: C.green },
+          { label: 'Expenses', value: fmt(totalOut), color: C.red   },
+          { label: 'Net',      value: `${net >= 0 ? '+' : '-'}${fmt(net)}`, color: net >= 0 ? C.green : C.red },
         ].map((s) => (
-          <div key={s.label} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: '8px', padding: '1.1rem 1.25rem', backdropFilter: 'blur(10px)' }}>
-            <div style={{ color: C.muted, fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>{s.label}</div>
-            <div style={{ color: s.color, fontWeight: 700, fontSize: '1.15rem' }}>{s.value}</div>
+          <div key={s.label} style={{ background: C.surface, padding: '0.9rem 1.1rem' }}>
+            <div style={{ color: C.muted, fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: 600, marginBottom: '4px' }}>{s.label}</div>
+            <div style={{ color: s.color, fontWeight: 600, fontSize: '1.05rem', fontFamily: 'var(--font-geist-mono), monospace', fontVariantNumeric: 'tabular-nums' }}>{s.value}</div>
           </div>
         ))}
       </div>
@@ -147,18 +152,18 @@ export default function TransactionsPage() {
       {/* Add form */}
       {showForm && (
         <form onSubmit={add}
-          style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: '8px', padding: '1.5rem', marginBottom: '1.5rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: '1rem', alignItems: 'end' }}>
+          style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '1.25rem', marginBottom: '1.25rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: '0.85rem', alignItems: 'end' }}>
           <div>
             <label style={labelStyle}>Date</label>
             <input type="date" value={form.date} onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))} style={inputStyle} />
           </div>
           <div style={{ gridColumn: 'span 2' }}>
             <label style={labelStyle}>Description</label>
-            <input type="text" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="e.g. Client Invoice" style={inputStyle} required />
+            <input type="text" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="e.g. Client Invoice" style={{ ...inputStyle, fontFamily: 'inherit' }} required />
           </div>
           <div>
             <label style={labelStyle}>Type</label>
-            <select value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value as TxType }))} style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}>
+            <select value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value as TxType }))} style={{ ...inputStyle, cursor: 'pointer' }}>
               <option value="income">Income</option>
               <option value="expense">Expense</option>
             </select>
@@ -171,40 +176,32 @@ export default function TransactionsPage() {
             <label style={labelStyle}>Reference</label>
             <input type="text" value={form.reference} onChange={(e) => setForm((f) => ({ ...f, reference: e.target.value }))} placeholder="INV-001" style={inputStyle} />
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button type="submit" style={{ flex: 1, background: C.gold, color: C.deep, border: 'none', borderRadius: '6px', padding: '10px', fontWeight: 700, cursor: 'pointer', fontSize: '0.875rem', minHeight: '44px' }}>Save</button>
-            <button type="button" onClick={() => setShowForm(false)} style={{ background: 'rgba(255,255,255,0.06)', color: C.muted, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '10px 12px', cursor: 'pointer', fontSize: '0.875rem', minHeight: '44px' }}>Cancel</button>
+          <div style={{ display: 'flex', gap: '0.4rem' }}>
+            <button type="submit" style={{ flex: 1, background: C.white, color: C.bg, border: 'none', borderRadius: '4px', padding: '9px', fontWeight: 600, cursor: 'pointer', fontSize: '0.8rem', minHeight: '40px', letterSpacing: '-0.01em' }}>Save</button>
+            <button type="button" onClick={() => setShowForm(false)} style={{ background: 'transparent', color: C.muted, border: `1px solid ${C.border}`, borderRadius: '4px', padding: '9px 12px', cursor: 'pointer', fontSize: '0.8rem', minHeight: '40px' }}>Cancel</button>
           </div>
         </form>
       )}
 
-      {/* ── FILTERS ── */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem', alignItems: 'center' }}>
-        {/* Type filter */}
+      {/* Filters */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '1rem', alignItems: 'center' }}>
         {(['all', 'income', 'expense'] as const).map((f) => (
-          <button key={f} onClick={() => setType(f)}
-            style={{ padding: '6px 14px', borderRadius: '6px', border: `1px solid ${typeFilter === f ? C.gold : C.border}`, background: typeFilter === f ? 'rgba(255,215,0,0.1)' : 'transparent', color: typeFilter === f ? C.gold : C.muted, cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, textTransform: 'capitalize', minHeight: '36px' }}>
-            {f}
+          <button key={f} onClick={() => setType(f)} style={chipStyle(typeFilter === f)}>
+            {f === 'all' ? 'All types' : f.charAt(0).toUpperCase() + f.slice(1)}
           </button>
         ))}
-
-        <div style={{ width: '1px', height: '24px', background: C.border }} />
-
-        {/* Date filter */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <Calendar size={14} style={{ color: C.muted }} />
-          {(['all', 'today', 'month', 'custom'] as DateFilter[]).map((f) => (
-            <button key={f} onClick={() => setDate(f)}
-              style={{ padding: '6px 12px', borderRadius: '6px', border: `1px solid ${dateFilter === f ? C.soft : C.border}`, background: dateFilter === f ? 'rgba(194,163,104,0.1)' : 'transparent', color: dateFilter === f ? C.soft : C.muted, cursor: 'pointer', fontSize: '0.78rem', fontWeight: 600, minHeight: '36px' }}>
-              {dateFilterLabels[f]}
-            </button>
-          ))}
-        </div>
+        <div style={{ width: '1px', height: '20px', background: C.border, margin: '0 2px' }} />
+        <Calendar size={12} style={{ color: C.muted }} />
+        {(['all', 'today', 'month', 'custom'] as DateFilter[]).map((f) => (
+          <button key={f} onClick={() => setDate(f)} style={chipStyle(dateFilter === f)}>
+            {DATE_LABELS[f]}
+          </button>
+        ))}
       </div>
 
       {/* Custom date range */}
       {dateFilter === 'custom' && (
-        <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.65rem', marginBottom: '1rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
           <div>
             <label style={labelStyle}>From</label>
             <input type="date" value={customFrom} onChange={(e) => setFrom(e.target.value)} style={{ ...inputStyle, width: 'auto' }} />
@@ -213,45 +210,43 @@ export default function TransactionsPage() {
             <label style={labelStyle}>To</label>
             <input type="date" value={customTo} onChange={(e) => setTo(e.target.value)} style={{ ...inputStyle, width: 'auto' }} />
           </div>
-          <div style={{ color: C.muted, fontSize: '0.78rem', marginTop: '20px' }}>
-            {visible.length} results
-          </div>
+          <span style={{ color: C.muted, fontSize: '0.72rem', fontFamily: 'var(--font-geist-mono), monospace', paddingBottom: '9px' }}>{visible.length} results</span>
         </div>
       )}
 
       {/* Table */}
-      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: '8px', overflow: 'hidden' }}>
+      <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', overflow: 'hidden' }}>
         {visible.length === 0 ? (
-          <div style={{ padding: '3rem', textAlign: 'center', color: C.muted, fontSize: '0.9rem' }}>
-            No transactions for this period.
-          </div>
+          <div style={{ padding: '3rem', textAlign: 'center', color: C.muted, fontSize: '0.84rem' }}>No entries for this period.</div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${C.border}` }}>
                   {['', 'Date', 'Description', 'Reference', 'Amount', ''].map((h, i) => (
-                    <th key={i} style={{ padding: '11px 14px', textAlign: h === 'Amount' ? 'right' : 'left', color: C.muted, fontWeight: 600, fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{h}</th>
+                    <th key={i} style={{ padding: '10px 13px', textAlign: h === 'Amount' ? 'right' : 'left', color: C.muted, fontWeight: 600, fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.07em', whiteSpace: 'nowrap' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {visible.map((tx) => (
-                  <tr key={tx.id} style={{ borderBottom: `1px solid rgba(255,215,0,0.05)` }}>
-                    <td style={{ padding: '10px 14px' }}>
+                {visible.map((tx, idx) => (
+                  <tr key={tx.id} style={{ borderBottom: idx < visible.length - 1 ? `1px solid rgba(244,245,248,0.04)` : 'none' }}>
+                    <td style={{ padding: '9px 13px', width: '32px' }}>
                       {tx.type === 'income'
-                        ? <ArrowUpCircle size={16} style={{ color: C.gold }} />
-                        : <ArrowDownCircle size={16} style={{ color: '#ff8a9a' }} />}
+                        ? <ArrowUpCircle   size={14} style={{ color: C.green }} strokeWidth={1.5} />
+                        : <ArrowDownCircle size={14} style={{ color: C.red   }} strokeWidth={1.5} />}
                     </td>
-                    <td style={{ padding: '10px 14px', color: C.muted, whiteSpace: 'nowrap' }}>{tx.date}</td>
-                    <td style={{ padding: '10px 14px', color: C.text }}>{tx.description}</td>
-                    <td style={{ padding: '10px 14px', color: C.muted, fontSize: '0.8rem' }}>{tx.reference}</td>
-                    <td style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 600, color: tx.type === 'income' ? C.gold : '#ff8a9a', whiteSpace: 'nowrap' }}>
+                    <td style={{ padding: '9px 13px', color: C.muted, whiteSpace: 'nowrap', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '0.75rem' }}>{tx.date}</td>
+                    <td style={{ padding: '9px 13px', color: C.white }}>{tx.description}</td>
+                    <td style={{ padding: '9px 13px', color: C.muted, fontSize: '0.72rem', fontFamily: 'var(--font-geist-mono), monospace' }}>{tx.reference}</td>
+                    <td style={{ padding: '9px 13px', textAlign: 'right', fontWeight: 500, color: tx.type === 'income' ? C.green : C.red, whiteSpace: 'nowrap', fontFamily: 'var(--font-geist-mono), monospace', fontVariantNumeric: 'tabular-nums' }}>
                       {tx.type === 'income' ? '+' : '-'}£{tx.amount.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
                     </td>
-                    <td style={{ padding: '10px 14px' }}>
-                      <button onClick={() => remove(tx.id)} style={{ background: 'none', border: 'none', color: 'rgba(255,100,100,0.5)', cursor: 'pointer', padding: '2px', display: 'flex' }}>
-                        <Trash2 size={14} />
+                    <td style={{ padding: '9px 13px', width: '32px' }}>
+                      <button onClick={() => remove(tx.id)} style={{ background: 'none', border: 'none', color: 'rgba(248,113,113,0.35)', cursor: 'pointer', padding: '2px', display: 'flex', transition: 'color 0.1s' }}
+                        onMouseEnter={(e) => (e.currentTarget as HTMLButtonElement).style.color = C.red}
+                        onMouseLeave={(e) => (e.currentTarget as HTMLButtonElement).style.color = 'rgba(248,113,113,0.35)'}>
+                        <Trash2 size={13} strokeWidth={1.5} />
                       </button>
                     </td>
                   </tr>
@@ -262,8 +257,8 @@ export default function TransactionsPage() {
         )}
       </div>
 
-      <p style={{ color: C.muted, fontSize: '0.68rem', textAlign: 'center', marginTop: '1rem' }}>
-        2026/27 HMRC Compliant | Encrypted via Supabase
+      <p style={{ color: C.muted, fontSize: '0.62rem', textAlign: 'right', marginTop: '0.75rem', fontFamily: 'var(--font-geist-mono), monospace' }}>
+        2026/27 HMRC compliant · digitally linked records
       </p>
     </div>
   )

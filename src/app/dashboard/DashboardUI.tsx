@@ -1,164 +1,191 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
-  Calculator,
-  Receipt,
-  ArrowLeftRight,
-  GraduationCap,
-  Bot,
-  BarChart2,
-  TrendingUp,
-  Settings,
-  ArrowRight,
+  Calculator, Receipt, ArrowLeftRight,
+  GraduationCap, Bot, BarChart2,
+  TrendingUp, Settings, BookOpen, FileText,
+  AlertCircle, CheckCircle2, Clock,
 } from 'lucide-react'
-import { calculateTax } from '@/lib/tax-logic'
+import { calculateTax, TaxResult } from '@/lib/calculations'
 
-type DashboardUIProps = {
-  displayName: string
-}
+type DashboardUIProps = { displayName: string }
 
 const C = {
-  bg:     '#020617',
-  card:   '#111827',
-  gold:   '#EAB308',
-  text:   '#E5E7EB',
-  muted:  'rgba(229,231,235,0.55)',
-  border: 'rgba(234,179,8,0.18)',
+  bg:      '#181818',
+  surface: '#1C1D20',
+  gray:    '#222326',
+  white:   '#F4F5F8',
+  muted:   'rgba(244,245,248,0.42)',
+  border:  'rgba(244,245,248,0.07)',
+  active:  'rgba(244,245,248,0.06)',
+  green:   '#4ADE80',
+  amber:   '#FBBF24',
+  red:     '#F87171',
 }
 
-const TILES = [
-  { href: '/dashboard/tax',          label: 'Tax Estimator',   Icon: Calculator,     desc: 'HMRC-accurate 2026/27 breakdown' },
-  { href: '/dashboard/expenses',     label: 'Expenses',        Icon: Receipt,        desc: 'Track & categorise outgoings'    },
-  { href: '/dashboard/transactions', label: 'Transactions',    Icon: ArrowLeftRight, desc: 'Income and payment history'      },
-  { href: '/dashboard/pnl',          label: 'P&L Report',      Icon: BarChart2,      desc: 'Profit & loss visualised'        },
-  { href: '/dashboard/currency',     label: 'Currency',        Icon: TrendingUp,     desc: 'Live rates · 170+ currencies'   },
-  { href: '/dashboard/learn',        label: 'Learn',           Icon: GraduationCap,  desc: 'UK tax literacy cards'           },
-  { href: '/dashboard/ai',           label: 'AI Assistant',    Icon: Bot,            desc: 'Ask anything about UK tax'      },
-  { href: '/dashboard/settings',     label: 'Settings',        Icon: Settings,       desc: 'Profile & preferences'           },
+// ── MTD 2026/27 Quarterly Calendar ────────────────────────────────────────
+const MTD_QUARTERS = [
+  { label: 'Q1', period: '6 Apr – 5 Jul 2026',  deadline: '2026-08-07', display: '7 Aug 2026' },
+  { label: 'Q2', period: '6 Jul – 5 Oct 2026',  deadline: '2026-11-07', display: '7 Nov 2026' },
+  { label: 'Q3', period: '6 Oct – 5 Jan 2027',  deadline: '2027-02-07', display: '7 Feb 2027' },
+  { label: 'Q4', period: '6 Jan – 5 Apr 2027',  deadline: '2027-05-07', display: '7 May 2027' },
+  { label: 'Final', period: 'Full Year 2026/27', deadline: '2028-01-31', display: '31 Jan 2028' },
 ]
 
-// ─── Quick Estimate widget — uses the real 2026/27 engine (tax-logic.ts) ────
-function QuickEstimate() {
-  const [income,   setIncome]   = useState('35000')
-  const [expenses, setExpenses] = useState('0')
+function getQuarterStatus(deadlineStr: string, today: Date) {
+  const deadline = new Date(deadlineStr)
+  const diffDays = Math.ceil((deadline.getTime() - today.getTime()) / 86400000)
+  if (diffDays < 0)   return { status: 'past',    color: C.muted,  Icon: CheckCircle2 }
+  if (diffDays <= 14) return { status: 'urgent',  color: C.red,    Icon: AlertCircle }
+  if (diffDays <= 45) return { status: 'upcoming',color: C.amber,  Icon: Clock }
+  return               { status: 'future',   color: C.muted,  Icon: Clock }
+}
 
-  const gross = Math.max(0, Number(income)   || 0)
-  const exp   = Math.max(0, Number(expenses) || 0)
-
-  const result = (() => {
-    try {
-      return calculateTax({
-        grossRevenue:          gross,
-        allowableExpenses:     exp,
-        dividendIncome:        0,
-        employmentType:        'self-employed',
-        taxRegion:             'ruk',
-        studentLoanPlan:       'none',
-        voluntaryClass2NI:     false,
-        marriageAllowance:     false,
-        blindPersonsAllowance: false,
-        pensionContribution:   0,
-      })
-    } catch { return null }
-  })()
-
-  const inp: React.CSSProperties = {
-    width: '100%', background: '#050816', border: `1px solid ${C.border}`,
-    borderRadius: '6px', padding: '9px 12px', color: C.text,
-    fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box',
-  }
-
+function MTDCalendar() {
+  const today = new Date()
   return (
-    <div style={{
-      background: C.card, border: `1px solid ${C.border}`,
-      borderRadius: '10px', padding: '1.5rem', marginBottom: '2rem',
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+    <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', overflow: 'hidden', marginBottom: '2rem' }}>
+      <div style={{ padding: '1rem 1.25rem', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <p style={{ color: C.gold, fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', margin: 0, marginBottom: '2px' }}>
-            Quick Estimate · 2026/27
-          </p>
-          <h2 style={{ color: C.text, fontSize: '1rem', fontWeight: 700, margin: 0 }}>Live Tax Snapshot</h2>
+          <div style={{ color: C.white, fontSize: '0.85rem', fontWeight: 600, letterSpacing: '-0.01em' }}>MTD Filing Calendar</div>
+          <div style={{ color: C.muted, fontSize: '0.7rem', marginTop: '2px', fontFamily: 'var(--font-geist-mono), monospace' }}>Making Tax Digital · ITSA 2026/27</div>
         </div>
-        <Link href="/dashboard/tax"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: C.gold, textDecoration: 'none', fontSize: '0.78rem', fontWeight: 600 }}>
-          Full calculator <ArrowRight size={13} />
-        </Link>
+        <span style={{ background: C.gray, color: C.white, fontSize: '0.6rem', fontWeight: 600, padding: '3px 8px', borderRadius: '3px', letterSpacing: '0.07em', fontFamily: 'var(--font-geist-mono), monospace' }}>ACTIVE</span>
       </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
-        <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <span style={{ color: C.muted, fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Gross Revenue</span>
-          <input type="number" min={0} value={income}   onChange={(e) => setIncome(e.target.value)}   style={inp} />
-        </label>
-        <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <span style={{ color: C.muted, fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Allowable Expenses</span>
-          <input type="number" min={0} value={expenses} onChange={(e) => setExpenses(e.target.value)} style={inp} />
-        </label>
-      </div>
-
-      {result && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '0.65rem' }}>
-          {[
-            { label: 'Net Profit',     value: `£${result.grossProfit.toLocaleString('en-GB')}` },
-            { label: 'Income Tax',     value: `£${result.incomeTax.toLocaleString('en-GB')}` },
-            { label: 'NI Class 4',     value: `£${result.niClass4.toLocaleString('en-GB')}` },
-            { label: 'Take-Home',      value: `£${result.netTakeHome.toLocaleString('en-GB')}`, highlight: true },
-            { label: 'Effective Rate', value: `${result.effectiveTaxRate.toFixed(1)}%` },
-          ].map(({ label, value, highlight }) => (
-            <div key={label} style={{
-              background: highlight ? 'rgba(234,179,8,0.08)' : 'rgba(255,255,255,0.03)',
-              border: `1px solid ${highlight ? 'rgba(234,179,8,0.3)' : C.border}`,
-              borderRadius: '6px', padding: '0.75rem 1rem',
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))' }}>
+        {MTD_QUARTERS.map((q, i) => {
+          const { status, color, Icon } = getQuarterStatus(q.deadline, today)
+          const isActive = status === 'upcoming' || status === 'urgent'
+          return (
+            <div key={q.label} style={{
+              padding: '1rem 1.25rem',
+              borderRight: i < MTD_QUARTERS.length - 1 ? `1px solid ${C.border}` : 'none',
+              background: isActive ? 'rgba(244,245,248,0.025)' : 'transparent',
             }}>
-              <div style={{ color: C.muted, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>
-                {label}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                <Icon size={12} style={{ color }} />
+                <span style={{ color, fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.08em', fontFamily: 'var(--font-geist-mono), monospace', textTransform: 'uppercase' }}>{q.label}</span>
               </div>
-              <div style={{ color: highlight ? C.gold : C.text, fontWeight: 700, fontSize: '0.9rem', fontFamily: 'monospace' }}>
-                {value}
-              </div>
+              <div style={{ color: status === 'past' ? C.muted : C.white, fontSize: '0.72rem', fontWeight: 500, marginBottom: '3px' }}>{q.display}</div>
+              <div style={{ color: C.muted, fontSize: '0.65rem', lineHeight: 1.4 }}>{q.period}</div>
             </div>
-          ))}
-        </div>
-      )}
-
-      {result?.sixtyPercentTrap && (
-        <div style={{ marginTop: '0.75rem', padding: '0.6rem 0.9rem', background: 'rgba(251,146,60,0.08)', border: '1px solid rgba(251,146,60,0.35)', borderRadius: '6px', color: '#FB923C', fontSize: '0.78rem' }}>
-          ⚠ 60% Tax Trap — income £100k–£125,140. Pension contributions can escape this.
-        </div>
-      )}
-      {result?.mtdWarning && (
-        <div style={{ marginTop: '0.5rem', padding: '0.6rem 0.9rem', background: 'rgba(234,179,8,0.06)', border: '1px solid rgba(234,179,8,0.28)', borderRadius: '6px', color: C.gold, fontSize: '0.78rem' }}>
-          ⚡ MTD — turnover over £50,000. Register for Making Tax Digital by 6 April 2026.
-        </div>
-      )}
+          )
+        })}
+      </div>
     </div>
   )
 }
 
+// ── Quick Estimator ──────────────────────────────────────────────────────
+function QuickEstimator() {
+  const [income, setIncome]     = useState('')
+  const [expenses, setExpenses] = useState('')
+  const [result, setResult]     = useState<TaxResult | null>(null)
+  const [error, setError]       = useState('')
+
+  const preview = useMemo(() => {
+    const inc = Number(income || 0)
+    const exp = Number(expenses || 0)
+    if (!isNaN(inc) && !isNaN(exp) && inc > 0) return calculateTax(inc, exp)
+    return null
+  }, [income, expenses])
+
+  function calculate() {
+    const inc = Number(income)
+    const exp = Number(expenses || 0)
+    if (isNaN(inc) || inc <= 0) { setError('Enter a valid income figure.'); return }
+    setError('')
+    setResult(calculateTax(inc, exp))
+  }
+
+  const display = result ?? preview
+
+  const inputS: React.CSSProperties = {
+    width: '100%', background: C.gray, border: `1px solid ${C.border}`,
+    borderRadius: '4px', padding: '9px 11px', color: C.white,
+    fontSize: '0.84rem', outline: 'none', fontFamily: 'var(--font-geist-mono), monospace',
+    fontVariantNumeric: 'tabular-nums',
+  }
+
+  return (
+    <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '1.25rem', marginBottom: '2rem' }}>
+      <div style={{ color: C.white, fontSize: '0.85rem', fontWeight: 600, letterSpacing: '-0.01em', marginBottom: '1rem' }}>Quick Estimator</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
+        <label style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+          <span style={{ color: C.muted, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>Annual Revenue</span>
+          <input value={income} onChange={(e) => setIncome(e.target.value)} type="number" min={0} placeholder="50000" style={inputS} />
+        </label>
+        <label style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+          <span style={{ color: C.muted, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>Allowable Expenses</span>
+          <input value={expenses} onChange={(e) => setExpenses(e.target.value)} type="number" min={0} placeholder="8000" style={inputS} />
+        </label>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <button onClick={calculate}
+          style={{ background: C.white, color: C.bg, border: 'none', borderRadius: '4px', padding: '8px 18px', cursor: 'pointer', fontWeight: 600, fontSize: '0.8rem', letterSpacing: '-0.01em' }}>
+          Calculate
+        </button>
+        {error && <span style={{ color: C.red, fontSize: '0.78rem' }}>{error}</span>}
+        {display && !error && (
+          <div style={{ display: 'flex', gap: '1.5rem', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '0.78rem' }}>
+            <span style={{ color: C.muted }}>Tax due: <span style={{ color: C.white, fontWeight: 600 }}>£{display.taxDue.toLocaleString('en-GB')}</span></span>
+            <span style={{ color: C.muted }}>Effective rate: <span style={{ color: C.white, fontWeight: 600 }}>{display.effectiveRate}%</span></span>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ── Nav tiles ────────────────────────────────────────────────────────────
+const TILES = [
+  { href: '/dashboard/tax',          label: 'Tax Engine',       Icon: Calculator,     desc: 'HMRC-accurate 2026/27 · 5 scenarios' },
+  { href: '/dashboard/expenses',     label: 'Expenses',         Icon: Receipt,        desc: 'Track and categorise outgoings' },
+  { href: '/dashboard/transactions', label: 'Ledger',           Icon: BookOpen,       desc: 'Income and payment history' },
+  { href: '/dashboard/pnl',          label: 'Reports',          Icon: FileText,       desc: 'P&L statement · MTD-ready' },
+  { href: '/dashboard/currency',     label: 'Currency',         Icon: TrendingUp,     desc: 'Live rates · 170+ currencies' },
+  { href: '/dashboard/learn',        label: 'Learn',            Icon: GraduationCap,  desc: 'UK tax literacy' },
+  { href: '/dashboard/ai',           label: 'Tax Advisory',     Icon: Bot,            desc: 'Ask any UK tax question' },
+  { href: '/dashboard/settings',     label: 'Settings',         Icon: Settings,       desc: 'Profile and preferences' },
+]
+
+function daysUntilYearEnd() {
+  const end = new Date('2027-04-05')
+  const now = new Date()
+  now.setHours(0, 0, 0, 0)
+  end.setHours(0, 0, 0, 0)
+  return Math.max(0, Math.ceil((end.getTime() - now.getTime()) / 86400000))
+}
+
 export default function DashboardUI({ displayName }: DashboardUIProps) {
   return (
-    <div className="dashboard-page" style={{ background: C.bg }}>
+    <div className="dashboard-page">
+      {/* Header */}
       <div style={{ marginBottom: '2rem' }}>
-        <p style={{ color: C.gold, fontSize: '0.65rem', letterSpacing: '0.18em', textTransform: 'uppercase', margin: '0 0 2px' }}>
-          Welcome back
-        </p>
-        <h1 style={{ fontFamily: 'var(--font-playfair)', color: C.text, fontSize: 'clamp(1.6rem, 4vw, 2.4rem)', fontWeight: 700, margin: '0 0 4px' }}>
+        <div style={{ color: C.muted, fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '5px', fontFamily: 'var(--font-geist-mono), monospace' }}>
+          overview
+        </div>
+        <h1 style={{ color: C.white, fontSize: 'clamp(1.4rem, 3vw, 1.9rem)', fontWeight: 600, letterSpacing: '-0.03em', margin: 0 }}>
           {displayName}
         </h1>
-        <p style={{ color: C.muted, fontSize: '0.875rem', margin: 0 }}>
-          2026/27 fiscal engine · all features active
+        <p style={{ color: C.muted, fontSize: '0.84rem', marginTop: '5px' }}>
+          2026/27 fiscal year · {daysUntilYearEnd()} days remaining
         </p>
       </div>
 
-      <QuickEstimate />
+      <MTDCalendar />
+      <QuickEstimator />
 
+      {/* Navigation tiles */}
+      <div style={{ marginBottom: '0.75rem' }}>
+        <div style={{ color: C.muted, fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.75rem', fontFamily: 'var(--font-geist-mono), monospace' }}>modules</div>
+      </div>
       <div className="dashboard-grid">
         {TILES.map(({ href, label, Icon, desc }) => (
           <Link key={href} href={href} className="dashboard-card">
-            <Icon size={22} className="dashboard-icon" />
+            <Icon size={16} className="dashboard-icon" strokeWidth={1.5} />
             <div>
               <div className="dashboard-title">{label}</div>
               <div className="dashboard-desc">{desc}</div>
@@ -166,6 +193,11 @@ export default function DashboardUI({ displayName }: DashboardUIProps) {
           </Link>
         ))}
       </div>
+
+      {/* Footer note */}
+      <p style={{ color: C.muted, fontSize: '0.65rem', marginTop: '2rem', fontFamily: 'var(--font-geist-mono), monospace' }}>
+        HMRC-compliant · 2026/27 fiscal year · Tax calculations run client-side
+      </p>
     </div>
   )
 }

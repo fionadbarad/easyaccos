@@ -45,28 +45,23 @@ export const TB = {
   // Student Loans 2026/27
   SL_PLAN1_THRESH:     26_900,
   SL_PLAN1_RATE:       0.09,
-  SL_PLAN2_THRESH:     29_385,
+  SL_PLAN2_THRESH:     29_385,    // Updated 2026/27
   SL_PLAN2_RATE:       0.09,
   SL_PLAN5_THRESH:     25_000,    // New for 2026/27
   SL_PLAN5_RATE:       0.09,
   SL_POSTGRAD_THRESH:  21_000,
   SL_POSTGRAD_RATE:    0.06,
 
-  // Married Couple's Allowance (born before 6 April 1935)
-  MCA_MAX:             11_700,
-  MCA_MIN:             4_530,
-  MCA_INCOME_LIMIT:    39_200,
-
-  // High Income Child Benefit Charge
-  HICBC_THRESHOLD:     60_000,
-  HICBC_FULL:          80_000,
-
-  // Student Loan — Plan 4 (Scotland only)
-  SL_PLAN4_THRESH:     33_795,
-  SL_PLAN4_RATE:       0.09,
-
   // National Living Wage (effective 1 April 2026)
   NLW_RATE:            12.71,
+
+  // Scotland Income Tax — band ceilings (absolute gross income)
+  SCO_STARTER_END:      16_537,   // 19%
+  SCO_BASIC_END:        29_526,   // 20%
+  SCO_INTERMEDIATE_END: 43_662,   // 21%
+  SCO_HIGHER_END:       75_000,   // 42%
+  SCO_ADVANCED_END:     125_140,  // 45%
+                                  // above: 48%
 
   // Job Loss — Scenario 4
   REDUNDANCY_EXEMPTION: 30_000,
@@ -105,6 +100,35 @@ export function calcIncomeTax(taxableIncome: number): number {
   }
   if (rem > 0) tax += rem * TB.ADDITIONAL_RATE
   return round2(tax)
+}
+
+// Scotland Income Tax on gross income with PA
+export function calcScotlandTax(grossIncome: number, pa: number): number {
+  const taxable = Math.max(0, grossIncome - pa)
+  if (taxable <= 0) return 0
+
+  const LIMITS = [
+    { rate: 0.19, ceiling: TB.SCO_STARTER_END },
+    { rate: 0.20, ceiling: TB.SCO_BASIC_END },
+    { rate: 0.21, ceiling: TB.SCO_INTERMEDIATE_END },
+    { rate: 0.42, ceiling: TB.SCO_HIGHER_END },
+    { rate: 0.45, ceiling: TB.SCO_ADVANCED_END },
+    { rate: 0.48, ceiling: Infinity },
+  ]
+
+  let totalTax = 0
+  let prev: number = TB.PA_BASE
+
+  for (const { rate, ceiling } of LIMITS) {
+    const lower  = Math.max(0, taxable - Math.max(0, prev    - pa))
+    const upper  = Math.max(0, taxable - Math.max(0, ceiling - pa))
+    const amount = lower - upper
+    if (amount > 0) totalTax += amount * rate
+    prev = ceiling
+    if (prev >= grossIncome) break
+  }
+
+  return round2(totalTax)
 }
 
 // NI Class 1 (Employed / Director on salary)
@@ -193,7 +217,7 @@ export function calcScenario1(inp: S1Input): ScenarioResult {
     taxableIncome: taxable, incomeTax: itax, nationalInsurance: ni,
     dividendTax: 0, totalDeductions: total, netTakeHome: takeHome,
     effectiveRate: effRate, taxProvision: total, sixtyTrap: false,
-    catMessage: `Your effective rate is ${effRate}%. ${ni > 0 ? `${fmtGBP(ni)} goes to ${niLabel}.` : ''}`,
+    catMessage: `Your effective rate is ${effRate}%. ${ni > 0 ? `You're paying ${fmtGBP(ni)} in ${niLabel}.` : ''}`,
     lines: [
       { label: 'Gross Income',        value: inp.grossIncome },
       { label: 'Allowable Expenses',  value: inp.expenses,   negative: true, indent: true },
@@ -234,8 +258,8 @@ export function calcScenario2(inp: S2Input): ScenarioResult {
     dividendTax: 0, totalDeductions: total, netTakeHome: takeHome,
     effectiveRate: effRate, taxProvision: total, sixtyTrap: inTrap,
     catMessage: inTrap
-      ? `60% Trap active. Personal Allowance reduced by ${fmtGBP(taperLoss)}. Contribute ${fmtGBP(toEscape)} to a pension to escape and save ~${fmtGBP(Math.round(toEscape * 0.6))}.`
-      : `Income exceeds £100k. PA tapered to ${fmtGBP(pa)}. Consider SIPP contributions for relief.`,
+      ? `⚠️ You're in the 60% Trap! Personal Allowance reduced by ${fmtGBP(taperLoss)}. Contribute ${fmtGBP(toEscape)} to a pension to escape and save ~${fmtGBP(Math.round(toEscape * 0.6))}!`
+      : `You earn over £100k. PA tapered to ${fmtGBP(pa)}. Consider SIPP contributions for relief.`,
     lines: [
       { label: 'Gross Income',             value: inp.grossIncome },
       { label: 'Pension Contribution',     value: pensionCap,  negative: true, indent: true },
@@ -274,8 +298,8 @@ export function calcScenario3(inp: S3Input): ScenarioResult {
     taxableIncome: taxable, incomeTax: itax, nationalInsurance: ni,
     dividendTax: 0, totalDeductions: total, netTakeHome: takeHome,
     effectiveRate: effRate, taxProvision: total, sixtyTrap: false,
-    catMessage: `Universal Credit is 100% tax-free and does not affect your £12,570 allowance. ${
-      inp.jsaAmount > 0 ? `JSA of ${fmtGBP(inp.jsaAmount)} is taxable income.` : ''
+    catMessage: `Universal Credit is 100% tax-free! It won't touch your £12,570 allowance. ${
+      inp.jsaAmount > 0 ? `JSA of ${fmtGBP(inp.jsaAmount)} is taxable income though.` : ''
     }`,
     lines: [
       { label: 'Universal Credit (Tax-Free)',  value: inp.universalCredit },
@@ -324,8 +348,8 @@ export function calcScenario4(inp: S4Input): ScenarioResult {
     netTakeHome: takeHome, effectiveRate: effRate,
     taxProvision: total, sixtyTrap: false,
     catMessage: refund > 0
-      ? `£30k redundancy exemption applied. You may be owed a PAYE refund of ${fmtGBP(refund)} — contact HMRC.`
-      : `${fmtGBP(taxFreeRedund)} tax-free redundancy exemption applied. The first £30,000 is always exempt.`,
+      ? `I've applied your £30k redundancy exemption. You're keeping every penny you're entitled to. Plus you may be owed a PAYE refund of ${fmtGBP(refund)} — contact HMRC!`
+      : `I've applied your ${fmtGBP(taxFreeRedund)} tax-free redundancy exemption. The first £30k is always yours free!`,
     lines: [
       { label: `Salary Earned (${monthsWorked} months)`, value: earnedIncome },
       { label: 'Redundancy Payment',          value: inp.redundancyPayment },
@@ -380,11 +404,11 @@ export function calcScenario5(inp: S5Input): ScenarioResult {
     taxableIncome: salTaxable, incomeTax: itaxTotal, nationalInsurance: ni,
     dividendTax: divTax, totalDeductions: total, netTakeHome: takeHome,
     effectiveRate: effRate, taxProvision: total, sixtyTrap: false,
-    catMessage: `By taking ${fmtGBP(divs)} in dividends, you avoid 8% NI on those earnings. ${
+    catMessage: `Brilliant move! By taking ${fmtGBP(divs)} in dividends, you're avoiding 8% NI on your top earnings. ${
       niSaving > 0 ? `Estimated NI saving vs self-employed: ${fmtGBP(niSaving)}.` : ''
     } ${
-      salary === TB.DIRECTOR_OPTIMAL_SALARY ? 'Optimal £12,570 salary — no NI, full State Pension credit.' : ''
-    }`.trim(),
+      salary === TB.DIRECTOR_OPTIMAL_SALARY ? '✓ Optimal £12,570 salary — no NI, full State Pension credit.' : ''
+    }`,
     lines: [
       { label: 'Director Salary',            value: salary },
       { label: 'Pension Contribution',       value: pensionCap,  negative: true, indent: true },
@@ -401,18 +425,16 @@ export function calcScenario5(inp: S5Input): ScenarioResult {
 }
 
 // ─── Student Loan Repayment ──────────────────────────────────────────────────
-export type StudentLoanPlan = 'plan1' | 'plan2' | 'plan4' | 'plan5' | 'postgrad'
+export type StudentLoanPlan = 'plan1' | 'plan2' | 'plan5' | 'postgrad'
 export function calcStudentLoan(grossIncome: number, plan: StudentLoanPlan): number {
-  const cfg: Record<StudentLoanPlan, { threshold: number; rate: number }> = {
+  const cfg = {
     plan1:    { threshold: TB.SL_PLAN1_THRESH,    rate: TB.SL_PLAN1_RATE },
     plan2:    { threshold: TB.SL_PLAN2_THRESH,    rate: TB.SL_PLAN2_RATE },
-    plan4:    { threshold: TB.SL_PLAN4_THRESH,    rate: TB.SL_PLAN4_RATE },
     plan5:    { threshold: TB.SL_PLAN5_THRESH,    rate: TB.SL_PLAN5_RATE },
     postgrad: { threshold: TB.SL_POSTGRAD_THRESH, rate: TB.SL_POSTGRAD_RATE },
-  }
-  const c = cfg[plan]
-  if (grossIncome <= c.threshold) return 0
-  return round2((grossIncome - c.threshold) * c.rate)
+  }[plan]
+  if (grossIncome <= cfg.threshold) return 0
+  return round2((grossIncome - cfg.threshold) * cfg.rate)
 }
 
 // ─── Employer NI ─────────────────────────────────────────────────────────────
@@ -421,121 +443,12 @@ export function calcEmployerNI(salary: number): number {
   return round2((salary - TB.EMPLOYER_NI_THRESH) * TB.EMPLOYER_NI_RATE)
 }
 
-// ─── Married Couple's Allowance ─────────────────────────────────────────────
-export function calcMCA(claimantIncome: number): number {
-  if (claimantIncome <= TB.MCA_INCOME_LIMIT) return round2(TB.MCA_MAX * 0.10)
-  const excess = claimantIncome - TB.MCA_INCOME_LIMIT
-  const reduced = TB.MCA_MAX - Math.floor(excess / 2)
-  const clamped = Math.max(reduced, TB.MCA_MIN)
-  return round2(clamped * 0.10) // MCA is a 10% tax credit
-}
-
-// ─── High Income Child Benefit Charge ───────────────────────────────────────
-export function calcHICBC(income: number, annualChildBenefit: number): number {
-  if (income <= TB.HICBC_THRESHOLD) return 0
-  if (income >= TB.HICBC_FULL) return round2(annualChildBenefit)
-  // 1% of benefit per £200 above threshold
-  const pct = Math.min(100, Math.floor((income - TB.HICBC_THRESHOLD) / 200))
-  return round2(annualChildBenefit * pct / 100)
-}
-
-// ─── Student Loan with Plan 4 (Scotland) + dual-plan ────────────────────────
-export type StudentLoanPlanFull = 'plan1' | 'plan2' | 'plan4' | 'plan5' | 'postgrad' | 'none'
-export type TaxRegion = 'uk' | 'scotland'
-
-export const PLANS_BY_REGION: Record<TaxRegion, StudentLoanPlanFull[]> = {
-  scotland: ['plan4', 'postgrad', 'none'],
-  uk:       ['plan1', 'plan2', 'plan5', 'postgrad', 'none'],
-}
-
-export const PLAN_LABELS: Record<StudentLoanPlanFull, string> = {
-  plan1:    'Plan 1 (£26,900 @ 9%)',
-  plan2:    'Plan 2 (£29,385 @ 9%)',
-  plan4:    'Plan 4 — Scotland (£33,795 @ 9%)',
-  plan5:    'Plan 5 (£25,000 @ 9%)',
-  postgrad: 'Postgraduate (£21,000 @ 6%)',
-  none:     'None',
-}
-
-export function calcStudentLoanFull(
-  grossIncome: number,
-  plan: StudentLoanPlanFull,
-  postgrad: boolean = false,
-): { planRepayment: number; postgradRepayment: number; total: number; dualRate: boolean } {
-  const cfg: Record<string, { threshold: number; rate: number }> = {
-    plan1:    { threshold: TB.SL_PLAN1_THRESH, rate: TB.SL_PLAN1_RATE },
-    plan2:    { threshold: TB.SL_PLAN2_THRESH, rate: TB.SL_PLAN2_RATE },
-    plan4:    { threshold: TB.SL_PLAN4_THRESH, rate: TB.SL_PLAN4_RATE },
-    plan5:    { threshold: TB.SL_PLAN5_THRESH, rate: TB.SL_PLAN5_RATE },
-  }
-  let planRepayment = 0
-  if (plan !== 'none' && plan !== 'postgrad' && cfg[plan]) {
-    const c = cfg[plan]
-    planRepayment = grossIncome > c.threshold ? round2((grossIncome - c.threshold) * c.rate) : 0
-  }
-  if (plan === 'postgrad') {
-    const pgRepay = grossIncome > TB.SL_POSTGRAD_THRESH
-      ? round2((grossIncome - TB.SL_POSTGRAD_THRESH) * TB.SL_POSTGRAD_RATE) : 0
-    return { planRepayment: 0, postgradRepayment: pgRepay, total: pgRepay, dualRate: false }
-  }
-  let postgradRepayment = 0
-  if (postgrad && grossIncome > TB.SL_POSTGRAD_THRESH) {
-    postgradRepayment = round2((grossIncome - TB.SL_POSTGRAD_THRESH) * TB.SL_POSTGRAD_RATE)
-  }
-  const dualRate = planRepayment > 0 && postgradRepayment > 0 // combined 15% marginal
-  return { planRepayment, postgradRepayment, total: round2(planRepayment + postgradRepayment), dualRate }
-}
-
-// ─── Trading Loss (negative income) ─────────────────────────────────────────
-export interface TradingLossResult {
-  loss: number
-  carryForwardAdvice: string
-  carryBackAdvice: string
-  taxDue: number
-  niDue: number
-}
-export function calcTradingLoss(revenue: number, expenses: number): TradingLossResult {
-  const loss = Math.max(0, expenses - revenue)
-  return {
-    loss,
-    carryForwardAdvice: loss > 0
-      ? `You can carry forward ${fmtGBP(loss)} to offset against future profits of the same trade.`
-      : 'No loss to carry forward.',
-    carryBackAdvice: loss > 0
-      ? `You may carry back ${fmtGBP(loss)} against last year's profits for a tax refund.`
-      : 'No loss to carry back.',
-    taxDue: 0,
-    niDue: 0,
-  }
-}
-
-// ─── Scotland Income Tax ────────────────────────────────────────────────────
-export function calcScotlandIncomeTax(taxableIncome: number): number {
-  if (taxableIncome <= 0) return 0
-  const bands = [
-    { width: 3_967,    rate: 0.19 },  // Starter: £12,571–£16,537
-    { width: 12_989,   rate: 0.20 },  // Basic: £16,538–£29,526
-    { width: 14_136,   rate: 0.21 },  // Intermediate: £29,527–£43,662
-    { width: 31_338,   rate: 0.42 },  // Higher: £43,663–£75,000
-    { width: 50_140,   rate: 0.45 },  // Advanced: £75,001–£125,140
-    { width: Infinity,  rate: 0.48 },  // Top: over £125,140
-  ]
-  let tax = 0, rem = taxableIncome
-  for (const b of bands) {
-    const chunk = Math.min(rem, b.width)
-    if (chunk <= 0) break
-    tax += chunk * b.rate
-    rem -= chunk
-  }
-  return round2(tax)
-}
-
-// ─── Scenario greetings ──────────────────────────────────────────────────────
+// ─── Cat Messages by scenario type ────────────────────────────────────────────
 export const CAT_GREETINGS: Record<string, string> = {
-  employed:        'Ready to audit your 2026/27 finances.',
-  'self-employed': 'Ensuring HMRC does not take a penny more than required.',
-  welfare:         'Universal Credit is tax-free and does not affect your £12,570 allowance.',
-  redundancy:      '£30k redundancy exemption applied. Every entitlement accounted for.',
-  director:        'Dividends avoid 8% NI on top earnings. Optimal structure in place.',
-  high_earner:     'You are in the 60% trap zone. A SIPP contribution could save you thousands.',
+  employed:     'Ready to audit your 2026/27 finances?',
+  'self-employed': 'Let\'s make sure HMRC doesn\'t take a penny more than they should!',
+  welfare:      'Universal Credit is tax-free! It won\'t touch your £12,570 allowance.',
+  redundancy:   'I\'ve applied your £30k redundancy exemption. You\'re keeping every penny you\'re entitled to.',
+  director:     'Brilliant move! By taking dividends, you\'re avoiding the 8% NI on your top earnings.',
+  high_earner:  'You\'re in the 60% trap zone. A SIPP contribution could save you thousands!',
 }

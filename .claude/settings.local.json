@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(npm run:*)",
-      "mcp__7db5de92-7fa8-424d-8ec1-e8084d605636__deploy_to_vercel",
-      "Bash(git add:*)"
-    ]
-  }
-}

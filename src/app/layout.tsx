@@ -1,26 +1,26 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Inter } from "next/font/google";
+import { Inter, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import '@/styles/EasyAccoTheme.css';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/next';
-import CookieConsent from '@/components/CookieConsent';
-
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-playfair",
-  display: "swap",
-});
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
+  axes: ["opsz"],
+});
+
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "EasyAcco — UK Tax Sanctuary for Freelancers & Gen Z",
-  description: "The UK's first Dark Luxury tax platform for freelancers and Gen Z. Free tax estimator, AI assistant, expense tracker, and more.",
+  title: "System Auditor — UK Compliance Operating System 2026/27",
+  description: "Precision tax engine, MTD ITSA compliance, and audit-ready financial reporting for UK sole traders, landlords, and directors. 2026/27 HMRC-accurate.",
 };
 
 export default function RootLayout({
@@ -29,10 +29,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable}`} suppressHydrationWarning>
-      <body className="antialiased" style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${geistMono.variable}`} suppressHydrationWarning>
+      <body className="antialiased" suppressHydrationWarning>
         {children}
-        <CookieConsent />
         <SpeedInsights />
         <Analytics />
       </body>

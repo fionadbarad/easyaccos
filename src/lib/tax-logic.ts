@@ -136,16 +136,16 @@ const NI_CLASS2_SPT = 7_105  // 2026/27 Small Profits Threshold (up from £6,845
 
 // Dividends
 const DIV_ALLOWANCE  = 500
-const DIV_BASIC      = 0.1075   // 10.75%
-const DIV_HIGHER     = 0.3575   // 35.75%
+const DIV_BASIC      = 0.1075   // 10.75% (2026/27 hike — was 8.75%)
+const DIV_HIGHER     = 0.3575   // 35.75% (2026/27 hike — was 33.75%)
 const DIV_ADDL       = 0.3935   // 39.35%
 
 // Student Loan 2026/27
 const STUDENT_LOAN: Record<StudentLoanPlan, { threshold: number; rate: number; label: string }> = {
   none:         { threshold: 0,      rate: 0,    label: 'None'                                       },
-  plan1:        { threshold: 24_990, rate: 0.09, label: 'Plan 1 \u2014 \u00a324,990 (pre-2012 England/Wales)' },
-  plan2:        { threshold: 27_295, rate: 0.09, label: 'Plan 2 \u2014 \u00a327,295 (2012\u20132023)'         },
-  plan4:        { threshold: 32_745, rate: 0.09, label: 'Plan 4 \u2014 \u00a332,745 (Scotland)'               },
+  plan1:        { threshold: 26_900, rate: 0.09, label: 'Plan 1 \u2014 \u00a326,900 (pre-2012 England/Wales)' },
+  plan2:        { threshold: 29_385, rate: 0.09, label: 'Plan 2 \u2014 \u00a329,385 (2012\u20132023)'         },
+  plan4:        { threshold: 33_795, rate: 0.09, label: 'Plan 4 \u2014 \u00a333,795 (Scotland)'               },
   plan5:        { threshold: 25_000, rate: 0.09, label: 'Plan 5 \u2014 \u00a325,000 (post-Aug 2023)'          },
   postgraduate: { threshold: 21_000, rate: 0.06, label: 'Postgraduate \u2014 \u00a321,000 (6%)'               },
 }

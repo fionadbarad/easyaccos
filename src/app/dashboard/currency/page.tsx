@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ArrowLeftRight, RefreshCw } from 'lucide-react'
 
-const C = { bg: '#1A2342', deep: '#0F1628', card: '#4A4066', gold: '#C2A368', text: '#E4D3B4', muted: 'rgba(228,211,180,0.55)', border: 'rgba(194,163,104,0.2)' }
+const C = { bg: '#181818', deep: '#222326', card: '#1C1D20', white: '#F4F5F8', text: '#F4F5F8', muted: 'rgba(244,245,248,0.42)', border: 'rgba(244,245,248,0.07)' }
 
 const POPULAR = ['USD','EUR','GBP','JPY','CAD','AUD','CHF','INR','SGD','HKD','NOK','SEK','DKK','NZD','ZAR','MXN','BRL','PLN','CZK','HUF']
 
@@ -62,19 +62,19 @@ export default function CurrencyPage() {
     <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)', maxWidth: '800px' }}>
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
         <div>
-          <h1 style={{ fontFamily: 'var(--font-playfair)', color: C.text, fontSize: 'clamp(1.5rem,3vw,2rem)', fontWeight: 700, marginBottom: '0.3rem' }}>
+          <h1 style={{ color: C.text, fontSize: 'clamp(1.5rem,3vw,2rem)', fontWeight: 700, marginBottom: '0.3rem' }}>
             Currency Converter
           </h1>
           <p style={{ color: C.muted, fontSize: '0.875rem' }}>Live exchange rates · 170+ currencies · Updates every 60s</p>
         </div>
         <button onClick={fetchRates} disabled={loading}
-          style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(194,163,104,0.12)', border: `1px solid ${C.border}`, borderRadius: '4px', color: C.gold, fontSize: '0.8rem', padding: '7px 14px', cursor: 'pointer' }}>
+          style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(244,245,248,0.05)', border: `1px solid ${C.border}`, borderRadius: '4px', color: C.white, fontSize: '0.8rem', padding: '7px 14px', cursor: 'pointer' }}>
           <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
           {loading ? 'Updating…' : 'Refresh'}
         </button>
       </div>
 
-      {error && <div style={{ background: 'rgba(220,53,69,0.1)', border: '1px solid rgba(220,53,69,0.3)', borderRadius: '4px', padding: '10px 14px', color: '#ff8a9a', fontSize: '0.85rem', marginBottom: '1.5rem' }}>{error}</div>}
+      {error && <div style={{ background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)', borderRadius: '4px', padding: '10px 14px', color: '#F87171', fontSize: '0.85rem', marginBottom: '1.5rem' }}>{error}</div>}
 
       {/* Converter */}
       <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: '8px', padding: '2rem', marginBottom: '1.5rem' }}>
@@ -93,14 +93,14 @@ export default function CurrencyPage() {
 
           {/* Swap */}
           <button onClick={swap}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(194,163,104,0.15)', border: `1px solid ${C.border}`, cursor: 'pointer', color: C.gold, flexShrink: 0 }}>
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(244,245,248,0.06)', border: `1px solid ${C.border}`, cursor: 'pointer', color: C.white, flexShrink: 0 }}>
             <ArrowLeftRight size={18} />
           </button>
 
           {/* To */}
           <div>
             <label style={{ display: 'block', color: C.muted, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>Converted</label>
-            <div style={{ ...inputStyle, background: 'rgba(194,163,104,0.08)', color: C.gold, fontWeight: 700, fontSize: '1.1rem' }}>
+            <div style={{ ...inputStyle, background: 'rgba(244,245,248,0.04)', color: C.white, fontWeight: 700, fontSize: '1.1rem' }}>
               {loading ? '…' : converted !== null ? converted.toLocaleString('en-GB', { maximumFractionDigits: 4 }) : '—'}
             </div>
             <div style={{ marginTop: '0.5rem' }}>
@@ -121,7 +121,7 @@ export default function CurrencyPage() {
       </div>
 
       {/* Popular pairs grid */}
-      <h2 style={{ fontFamily: 'var(--font-playfair)', color: C.text, fontSize: '1.1rem', fontWeight: 700, marginBottom: '1rem' }}>
+      <h2 style={{ color: C.text, fontSize: '1.1rem', fontWeight: 700, marginBottom: '1rem' }}>
         GBP Cross Rates
       </h2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(140px,1fr))', gap: '0.75rem' }}>
@@ -131,7 +131,7 @@ export default function CurrencyPage() {
             <div key={cur} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '0.9rem 1rem', cursor: 'pointer' }}
               onClick={() => { setFrom('GBP'); setTo(cur) }}>
               <div style={{ color: C.muted, fontSize: '0.72rem', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '4px' }}>GBP/{cur}</div>
-              <div style={{ color: C.gold, fontWeight: 700, fontSize: '1.1rem' }}>
+              <div style={{ color: C.white, fontWeight: 700, fontSize: '1.1rem' }}>
                 {r ? r.toFixed(4) : '—'}
               </div>
             </div>

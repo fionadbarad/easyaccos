@@ -3,12 +3,12 @@
 import { useState } from 'react'
 
 const C = {
-  bg:     '#0B0E1A',
-  card:   '#111827',
-  gold:   '#FFD700',
-  text:   '#E5E7EB',
-  muted:  'rgba(229,231,235,0.6)',
-  border: 'rgba(255,215,0,0.18)',
+  bg:     '#181818',
+  card:   '#1C1D20',
+  white:  '#F4F5F8',
+  text:   '#F4F5F8',
+  muted:  'rgba(244,245,248,0.42)',
+  border: 'rgba(244,245,248,0.08)',
 }
 
 type Region = 'SFE' | 'SAAS'
@@ -37,7 +37,7 @@ export default function StudentBudgeter() {
       backdropFilter: 'blur(12px)',
     }}>
       <h3 style={{
-        color: C.gold, fontWeight: 700, textTransform: 'uppercase',
+        color: C.white, fontWeight: 700, textTransform: 'uppercase',
         letterSpacing: '0.1em', fontSize: '0.7rem', margin: '0 0 1rem',
       }}>
         Daily Survival Budget

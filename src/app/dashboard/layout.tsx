@@ -77,22 +77,36 @@ function NavItem({ href, label, Icon, active, onClick }: {
   )
 }
 
-function Sidebar({ user, pathname, onSignOut, onNavClick }: {
-  user: User | null; pathname: string; onSignOut: () => void; onNavClick?: () => void
+function Sidebar({ user, pathname, onSignOut, onNavClick, onClose }: {
+  user: User | null; pathname: string; onSignOut: () => void; onNavClick?: () => void; onClose?: () => void
 }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
 
-      {/* Wordmark */}
-      <div style={{ padding: '1.25rem 1rem 1rem', borderBottom: `1px solid ${C.border}` }}>
+      {/* Wordmark + close button */}
+      <div style={{ padding: '1.25rem 1rem 1rem', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
         <Link href="/" onClick={onNavClick} style={{ textDecoration: 'none' }}>
           <div style={{ color: C.white, fontSize: '0.95rem', fontWeight: 600, letterSpacing: '-0.03em' }}>
             System Auditor
           </div>
+          <div style={{ color: C.muted, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '3px', fontFamily: 'var(--font-geist-mono), monospace' }}>
+            2026/27 · UK Fiscal Engine
+          </div>
         </Link>
-        <div style={{ color: C.muted, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '3px', fontFamily: 'var(--font-geist-mono), monospace' }}>
-          2026/27 · UK Fiscal Engine
-        </div>
+        {onClose && (
+          <button
+            onClick={onClose}
+            title="Collapse sidebar"
+            style={{
+              background: 'none', border: 'none', color: C.muted,
+              cursor: 'pointer', padding: '2px', marginTop: '2px', flexShrink: 0,
+              transition: 'color 0.1s',
+            }}
+            onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = C.white}
+            onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = C.muted}>
+            <X size={14} />
+          </button>
+        )}
       </div>
 
       {/* Nav */}
@@ -201,6 +215,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const [user, setUser]             = useState<User | null>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [desktopOpen, setDesktopOpen] = useState(true)
+  // Tracks whether viewport is desktop — initialises true (safe for SSR + most users)
+  const [isDesktop, setIsDesktop]   = useState(true)
 
   // Close on every route change — catches back button, programmatic nav, everything
   useEffect(() => { setMobileOpen(false) }, [pathname])
@@ -224,6 +241,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const close = () => setMobileOpen(false)
   const sidebarProps = { user, pathname, onSignOut: handleSignOut }
 
+  // Track viewport width for margin calculation
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)')
+    setIsDesktop(mq.matches)
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+
+  // Persist desktop sidebar preference
+  useEffect(() => {
+    const saved = localStorage.getItem('sidebarOpen')
+    if (saved !== null) setDesktopOpen(saved === 'true')
+  }, [])
+  useEffect(() => {
+    localStorage.setItem('sidebarOpen', String(desktopOpen))
+  }, [desktopOpen])
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: C.bg }}>
 
@@ -234,9 +269,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           width: `${SIDEBAR_W}px`, flexShrink: 0, flexDirection: 'column',
           background: C.bg, borderRight: `1px solid ${C.border}`,
           position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 30,
+          transform: desktopOpen ? 'translateX(0)' : `translateX(-${SIDEBAR_W}px)`,
+          transition: 'transform 0.25s cubic-bezier(0.4,0,0.2,1)',
+          pointerEvents: desktopOpen ? 'auto' : 'none',
         }}>
-        <Sidebar {...sidebarProps} />
+        <Sidebar {...sidebarProps} onNavClick={() => {}} onClose={() => setDesktopOpen(false)} />
       </aside>
+
+      {/* ── DESKTOP SIDEBAR REOPEN BUTTON ── */}
+      <button
+        className="hidden md:flex"
+        onClick={() => setDesktopOpen(true)}
+        title="Open sidebar"
+        style={{
+          position: 'fixed', top: '1rem', left: desktopOpen ? '-48px' : '0.75rem',
+          zIndex: 31, background: C.surface, border: `1px solid ${C.border}`,
+          borderRadius: '4px', color: C.muted, cursor: 'pointer',
+          padding: '6px 8px', alignItems: 'center', justifyContent: 'center',
+          transition: 'left 0.25s cubic-bezier(0.4,0,0.2,1), color 0.1s',
+        }}
+        onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = C.white}
+        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = C.muted}>
+        <Menu size={14} />
+      </button>
 
       {/* ── MOBILE TOP BAR ── */}
       <div
@@ -284,8 +339,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* ── MAIN CONTENT ── */}
       <main
-        className="md:ml-[232px] mt-[52px] md:mt-0"
-        style={{ flex: 1, minHeight: '100vh', background: C.bg, overflow: 'auto' }}>
+        className="mt-[52px] md:mt-0"
+        style={{
+          flex: 1, minHeight: '100vh', background: C.bg, overflow: 'auto',
+          marginLeft: isDesktop ? (desktopOpen ? `${SIDEBAR_W}px` : 0) : 0,
+          transition: 'margin-left 0.25s cubic-bezier(0.4,0,0.2,1)',
+        }}>
         {children}
       </main>
 

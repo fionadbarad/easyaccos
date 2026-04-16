@@ -379,8 +379,8 @@ export function calcScenario5(inp: S5Input): ScenarioResult {
   const pensionCap  = Math.min(inp.pension, salary, 60_000)
   const adjustedSal = Math.max(0, salary - pensionCap)
 
-  // NI only on salary (NOT dividends)
-  const ni          = calcClass1NI(salary)
+  // NI only on salary (NOT dividends) — after pension (salary sacrifice reduces NI-able pay)
+  const ni          = calcClass1NI(adjustedSal)
 
   // PA taper uses salary + dividends
   const pa          = calcPA(adjustedSal + divs)

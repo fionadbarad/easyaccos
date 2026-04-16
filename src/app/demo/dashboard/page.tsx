@@ -1,6 +1,6 @@
 ﻿import Link from 'next/link'
 
-const C = { bg: '#0B0F1A', card: '#111827', gold: '#C2A368', text: '#E5E7EB', muted: 'rgba(229,231,235,0.65)' }
+const C = { bg: '#181818', card: '#1C1D20', white: '#F4F5F8', text: '#F4F5F8', muted: 'rgba(244,245,248,0.42)' }
 
 const mock = {
   income: 42000,
@@ -16,7 +16,7 @@ export default function DemoDashboardPage() {
       <div style={{ maxWidth: 960, margin: '0 auto' }}>
         <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
           <h1 style={{ fontSize: '1.7rem', fontWeight: 700 }}>Demo Dashboard (No login)</h1>
-          <Link href="/auth/signup" style={{ background: C.gold, color: '#0B0F1A', padding: '8px 14px', borderRadius: '5px', fontWeight: 700 }}>
+          <Link href="/auth/signup" style={{ background: C.white, color: '#181818', padding: '8px 14px', borderRadius: '5px', fontWeight: 700 }}>
             Save and Sign In
           </Link>
         </div>
@@ -31,14 +31,14 @@ export default function DemoDashboardPage() {
             { label: 'Tax due', value: `£${mock.tax.toLocaleString()}` },
             { label: 'Take-home', value: `£${mock.net.toLocaleString()}` },
           ].map((item) => (
-            <div key={item.label} style={{ background: C.card, borderRadius: '8px', border: `1px solid rgba(194,163,104,0.27)`, padding: '1rem' }}>
+            <div key={item.label} style={{ background: C.card, borderRadius: '8px', border: `1px solid rgba(244,245,248,0.07)`, padding: '1rem' }}>
               <p style={{ color: C.muted, fontSize: '0.8rem', marginBottom: '0.5rem' }}>{item.label}</p>
               <p style={{ fontSize: '1.25rem', fontWeight: 700 }}>{item.value}</p>
             </div>
           ))}
         </section>
 
-        <section style={{ background: C.card, border: `1px solid rgba(194,163,104,0.27)`, borderRadius: '8px', padding: '1.2rem' }}>
+        <section style={{ background: C.card, border: `1px solid rgba(244,245,248,0.07)`, borderRadius: '8px', padding: '1.2rem' }}>
           <h2 style={{ fontSize: '1.1rem', marginBottom: '.75rem' }}>How this demo works</h2>
           <ul style={{ color: C.muted, lineHeight: 1.6, paddingLeft: '1.2rem' }}>
             <li>Instant calculations from your income and expenses</li>

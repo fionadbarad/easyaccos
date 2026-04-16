@@ -36,16 +36,16 @@ export default function CookieConsent() {
       style={{
         position: 'fixed', bottom: '1.25rem', left: '50%', transform: 'translateX(-50%)',
         zIndex: 9999, width: 'min(92vw, 560px)',
-        background: '#111827', border: '1px solid rgba(255,215,0,0.18)',
+        background: '#1C1D20', border: '1px solid rgba(244,245,248,0.1)',
         borderRadius: '10px', padding: '1.1rem 1.4rem',
         boxShadow: '0 12px 40px rgba(0,0,0,0.55)',
         display: 'flex', flexDirection: 'column', gap: '0.75rem',
       }}
     >
-      <p style={{ color: '#E5E7EB', fontSize: '0.82rem', lineHeight: 1.6, margin: 0 }}>
+      <p style={{ color: '#F4F5F8', fontSize: '0.82rem', lineHeight: 1.6, margin: 0 }}>
         EasyAcco uses essential cookies to keep your session active. We do not use advertising or
         tracking cookies. Your data is never sold.{' '}
-        <Link href="/privacy" style={{ color: '#FFD700', textDecoration: 'underline', fontSize: '0.82rem' }}>
+        <Link href="/privacy" style={{ color: '#F4F5F8', textDecoration: 'underline', fontSize: '0.82rem' }}>
           Privacy Policy
         </Link>
       </p>
@@ -53,7 +53,7 @@ export default function CookieConsent() {
         <button
           onClick={accept}
           style={{
-            padding: '8px 22px', background: '#FFD700', color: '#0B0E1A',
+            padding: '8px 22px', background: '#F4F5F8', color: '#181818',
             border: 'none', borderRadius: '5px', fontWeight: 700,
             fontSize: '0.82rem', cursor: 'pointer', minHeight: '36px',
           }}
@@ -64,7 +64,7 @@ export default function CookieConsent() {
           onClick={decline}
           style={{
             padding: '8px 18px', background: 'transparent',
-            color: 'rgba(229,231,235,0.6)', border: '1px solid rgba(255,215,0,0.2)',
+            color: 'rgba(244,245,248,0.42)', border: '1px solid rgba(244,245,248,0.1)',
             borderRadius: '5px', fontSize: '0.82rem', cursor: 'pointer', minHeight: '36px',
           }}
         >

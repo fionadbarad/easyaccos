@@ -10,14 +10,14 @@ import { createClient } from '@/lib/supabase-browser'
 import { ArrowRight, Mail, Loader2, CheckCircle } from 'lucide-react'
 
 const C = {
-  bg:     '#0B0E1A',
-  deep:   '#050A14',
-  card:   '#111827',
-  gold:   '#FFD700',
-  text:   '#E5E7EB',
-  muted:  'rgba(229,231,235,0.55)',
-  border: 'rgba(255,215,0,0.15)',
-  red:    '#FF6B6B',
+  bg:     '#181818',
+  deep:   '#222326',
+  card:   '#1C1D20',
+  white:  '#F4F5F8',
+  text:   '#F4F5F8',
+  muted:  'rgba(244,245,248,0.42)',
+  border: 'rgba(244,245,248,0.07)',
+  red:    '#F87171',
 }
 
 export default function LoginPage() {
@@ -62,7 +62,7 @@ export default function LoginPage() {
       >
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <Link href="/" style={{ fontFamily: 'var(--font-playfair)', color: C.gold, fontSize: '1.7rem', fontWeight: 700, textDecoration: 'none' }}>
+          <Link href="/" style={{ color: C.white, fontSize: '1.7rem', fontWeight: 700, textDecoration: 'none' }}>
             EasyAcco
           </Link>
           <p style={{ color: C.muted, fontSize: '0.82rem', marginTop: '6px' }}>
@@ -72,7 +72,7 @@ export default function LoginPage() {
 
         {/* ── OPTION 1: Guest (primary) ── */}
         <div style={{
-          background: 'rgba(255,215,0,0.07)', border: `1px solid rgba(255,215,0,0.25)`,
+          background: 'rgba(244,245,248,0.03)', border: `1px solid rgba(244,245,248,0.12)`,
           borderRadius: '12px', padding: '1.5rem', marginBottom: '1.25rem', textAlign: 'center',
         }}>
           <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>
@@ -85,9 +85,9 @@ export default function LoginPage() {
             style={{
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
               width: '100%', padding: '13px 20px',
-              background: C.gold, color: '#0B0E1A',
+              background: C.white, color: '#181818',
               fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none',
-              borderRadius: '8px', boxShadow: '0 4px 20px rgba(255,215,0,0.25)',
+              borderRadius: '8px',
             }}>
             Open Dashboard as Guest <ArrowRight size={17} />
           </Link>
@@ -109,7 +109,7 @@ export default function LoginPage() {
         }}>
           {sent ? (
             <div style={{ textAlign: 'center' }}>
-              <CheckCircle size={40} style={{ color: C.gold, margin: '0 auto 1rem' }} />
+              <CheckCircle size={40} style={{ color: '#4ADE80', margin: '0 auto 1rem' }} />
               <h3 style={{ color: C.text, fontWeight: 700, fontSize: '1rem', marginBottom: '8px' }}>
                 Check your inbox
               </h3>
@@ -120,7 +120,7 @@ export default function LoginPage() {
           ) : (
             <>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
-                <Mail size={16} style={{ color: C.gold }} />
+                <Mail size={16} style={{ color: C.white }} />
                 <span style={{ color: C.text, fontWeight: 600, fontSize: '0.88rem' }}>
                   Sign in with email link
                 </span>
@@ -149,9 +149,9 @@ export default function LoginPage() {
                 <button type="submit" disabled={loading || !email.trim()}
                   style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                    background: loading || !email.trim() ? 'rgba(255,215,0,0.3)' : 'rgba(255,215,0,0.15)',
+                    background: loading || !email.trim() ? 'rgba(244,245,248,0.04)' : 'rgba(244,245,248,0.08)',
                     border: `1px solid ${C.border}`,
-                    color: loading || !email.trim() ? C.muted : C.gold,
+                    color: loading || !email.trim() ? C.muted : C.white,
                     borderRadius: '8px', padding: '11px', fontSize: '0.88rem', fontWeight: 600,
                     cursor: loading || !email.trim() ? 'default' : 'pointer',
                   }}>
@@ -165,7 +165,7 @@ export default function LoginPage() {
           )}
         </div>
 
-        <p style={{ textAlign: 'center', color: 'rgba(229,231,235,0.3)', fontSize: '0.72rem', marginTop: '1.5rem', lineHeight: 1.5 }}>
+        <p style={{ textAlign: 'center', color: 'rgba(244,245,248,0.25)', fontSize: '0.72rem', marginTop: '1.5rem', lineHeight: 1.5 }}>
           Sign-in is only needed to save data between sessions. Every feature works without an account.
         </p>
       </motion.div>

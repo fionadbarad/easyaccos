@@ -6,7 +6,7 @@
   --sa-surface:  #1C1D20;
   --sa-gray:     #222326;
   --sa-white:    #F4F5F8;
-  --sa-muted:    rgba(244,245,248,0.42);
+  --sa-muted:    rgba(244,245,248,0.55);   /* raised from 0.42 — meets WCAG AA on #181818 */
   --sa-border:   rgba(244,245,248,0.07);
   --sa-active:   rgba(244,245,248,0.06);
   --sa-hover:    rgba(244,245,248,0.04);
@@ -172,3 +172,25 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ── Stat divider rule ───────────────────────────────────────────────── */
 .sa-divider { border: none; border-top: 1px solid var(--sa-border); }
+
+/* ── AI suggestion chips ────────────────────────────────────────────── */
+.ai-suggestion-btn {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  gap:             6px;
+  padding:         8px 11px;
+  background:      var(--sa-surface);
+  border:          1px solid var(--sa-border);
+  border-radius:   4px;
+  color:           var(--sa-muted);
+  font-size:       0.75rem;
+  cursor:          pointer;
+  text-align:      left;
+  transition:      border-color 0.1s ease, color 0.1s ease;
+  letter-spacing:  -0.01em;
+}
+.ai-suggestion-btn:hover {
+  border-color: rgba(244,245,248,0.18);
+  color:        var(--sa-white);
+}

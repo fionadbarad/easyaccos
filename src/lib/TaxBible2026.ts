@@ -1,6 +1,8 @@
 // ─── TaxBible2026.ts — EasyAcco Hard-coded HMRC 2026/27 Scenario Engine ────────
 // All figures are hard-coded. No API calls. Zero runtime cost.
 // Five distinct user journeys with accurate HMRC 2026/27 logic.
+import { round2, fmtGBP, calcPA as calcPACore } from './tax-logic'
+export { round2, fmtGBP }
 
 // ─── Shared Constants ────────────────────────────────────────────────────────
 export const TB = {
@@ -73,18 +75,11 @@ export const TB = {
 } as const
 
 // ─── Utility ─────────────────────────────────────────────────────────────────
-export function round2(n: number): number {
-  return Math.round(n * 100) / 100
-}
-export function fmtGBP(n: number): string {
-  return '£' + Math.round(Math.abs(n)).toLocaleString('en-GB')
-}
+// round2 and fmtGBP re-exported from tax-logic (single source of truth)
 
-// Personal Allowance taper
+// Personal Allowance taper — thin wrapper preserving TB constant references
 export function calcPA(adjustedIncome: number): number {
-  if (adjustedIncome <= TB.PA_TAPER_START) return TB.PA_BASE
-  const reduction = Math.floor((adjustedIncome - TB.PA_TAPER_START) / 2)
-  return Math.max(0, TB.PA_BASE - reduction)
+  return calcPACore(adjustedIncome)
 }
 
 // rUK Income Tax on taxable income

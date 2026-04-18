@@ -154,14 +154,23 @@ export const STUDENT_LOAN_LABELS = Object.fromEntries(
   Object.entries(STUDENT_LOAN).map(([k, v]) => [k, v.label])
 ) as Record<StudentLoanPlan, string>
 
+// ─── Reconciled constant: HIGHER_LIMIT naming ─────────────────────────────────
+// kittax-brain uses taxable-income basis (112,570 = 125,140 − 12,570).
+// The canonical gross-income ceiling is RUK_HIGHER_LIMIT = 125,140.
+// Import this in other modules instead of hard-coding 112,570.
+export const RUK_TAXABLE_ADDITIONAL_THRESHOLD = RUK_HIGHER_LIMIT - PA_BASE  // 112,570
+
+// ─── Exported constants (shared across engine modules) ───────────────────────
+export { PA_BASE, PA_TAPER_START, PA_TAPER_END, RUK_BASIC_RATE_WIDTH, RUK_BASIC_LIMIT, RUK_HIGHER_LIMIT }
+
 // ─── Utility ──────────────────────────────────────────────────────────────────
 /** Round to exactly 2 decimal places — eliminates floating point drift */
-function round2(n: number): number {
+export function round2(n: number): number {
   return Math.round(n * 100) / 100
 }
 
 /** Format £ amount for use inside tip description strings (no JSX) */
-function fmtGBP(n: number): string {
+export function fmtGBP(n: number): string {
   return '\u00a3' + Math.round(n).toLocaleString('en-GB')
 }
 
@@ -172,7 +181,7 @@ function fmtGBP(n: number): string {
  *   adjusted_net_income >  £100,000 → PA = max(0, 12,570 - floor((income - 100,000) / 2))
  *   adjusted_net_income >= £125,140 → PA = £0
  */
-function calcPA(adjustedNetIncome: number): number {
+export function calcPA(adjustedNetIncome: number): number {
   if (adjustedNetIncome <= PA_TAPER_START) return PA_BASE
   const reduction = Math.floor((adjustedNetIncome - PA_TAPER_START) / 2)
   return Math.max(0, PA_BASE - reduction)

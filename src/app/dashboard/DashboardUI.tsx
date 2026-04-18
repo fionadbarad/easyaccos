@@ -8,7 +8,8 @@ import {
   TrendingUp, Settings, BookOpen, FileText,
   AlertCircle, CheckCircle2, Clock,
 } from 'lucide-react'
-import { calculateTax, TaxResult } from '@/lib/calculations'
+import { calculateTax } from '@/lib/tax-engine'
+import type { TaxResult } from '@/lib/tax-engine'
 
 type DashboardUIProps = { displayName: string }
 
@@ -88,7 +89,12 @@ function QuickEstimator() {
   const preview = useMemo(() => {
     const inc = Number(income || 0)
     const exp = Number(expenses || 0)
-    if (!isNaN(inc) && !isNaN(exp) && inc > 0) return calculateTax(inc, exp)
+    if (!isNaN(inc) && !isNaN(exp) && inc > 0) return calculateTax({
+      grossRevenue: inc, allowableExpenses: exp, dividendIncome: 0,
+      employmentType: 'self-employed', taxRegion: 'ruk', studentLoanPlan: 'none',
+      voluntaryClass2NI: false, marriageAllowance: false,
+      blindPersonsAllowance: false, pensionContribution: 0,
+    })
     return null
   }, [income, expenses])
 
@@ -97,7 +103,12 @@ function QuickEstimator() {
     const exp = Number(expenses || 0)
     if (isNaN(inc) || inc <= 0) { setError('Enter a valid income figure.'); return }
     setError('')
-    setResult(calculateTax(inc, exp))
+    setResult(calculateTax({
+      grossRevenue: inc, allowableExpenses: exp, dividendIncome: 0,
+      employmentType: 'self-employed', taxRegion: 'ruk', studentLoanPlan: 'none',
+      voluntaryClass2NI: false, marriageAllowance: false,
+      blindPersonsAllowance: false, pensionContribution: 0,
+    }))
   }
 
   const display = result ?? preview
@@ -130,8 +141,8 @@ function QuickEstimator() {
         {error && <span style={{ color: C.red, fontSize: '0.78rem' }}>{error}</span>}
         {display && !error && (
           <div style={{ display: 'flex', gap: '1.5rem', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '0.78rem' }}>
-            <span style={{ color: C.muted }}>Tax due: <span style={{ color: C.white, fontWeight: 600 }}>£{display.taxDue.toLocaleString('en-GB')}</span></span>
-            <span style={{ color: C.muted }}>Effective rate: <span style={{ color: C.white, fontWeight: 600 }}>{display.effectiveRate}%</span></span>
+            <span style={{ color: C.muted }}>Tax due: <span style={{ color: C.white, fontWeight: 600 }}>£{display.incomeTax.toLocaleString('en-GB')}</span></span>
+            <span style={{ color: C.muted }}>Effective rate: <span style={{ color: C.white, fontWeight: 600 }}>{display.effectiveTaxRate}%</span></span>
           </div>
         )}
       </div>

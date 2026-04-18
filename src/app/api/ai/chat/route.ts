@@ -58,22 +58,13 @@ When the user provides income figures, explain:
 RULES:
 - Keep responses short — 2 to 4 sentences where possible
 - Never guess or invent tax rules
-- Do not use emoji (except the one wink on first greeting)
+- Do not use emoji
 - Do not be overly talkative
 - Always prioritise clarity and usefulness
-- Recommend a qualified accountant for complex personal circumstances
-
-GOOD RESPONSE EXAMPLES:
-- "You are below the £12,570 Personal Allowance, so no income tax is due."
-- "Your income is in the 20% basic rate band. Your estimated tax is £X."
-- "Above £100,000 your Personal Allowance reduces. For every £2 above that threshold, you lose £1 of your tax-free amount."
-- "A SIPP contribution of £X would bring your income back to £100,000 and restore your full Personal Allowance."
-
-BAD EXAMPLES (never do this):
-- Long paragraphs with unnecessary background
-- Vague answers that do not address the actual question`
+- Recommend a qualified accountant for complex personal circumstances`
 
 // ─── Offline fallback replies ─────────────────────────────────────────────────
+// Used when the API key is absent or when the upstream service fails.
 const OFFLINE: Record<string, string> = {
   allowance:
     'Your standard Personal Allowance is £12,570 for 2026/27. ' +
@@ -107,20 +98,14 @@ const OFFLINE: Record<string, string> = {
 
 function offlineReply(query: string): string {
   const q = query.toLowerCase()
-  if (q.includes('allowance') || q.includes('personal') || q.includes('12570') || q.includes('15820'))
-    return OFFLINE.allowance
-  if (q.includes('pension') || q.includes('sipp'))
-    return OFFLINE.pension
-  if (q.includes('dividend'))
-    return OFFLINE.dividend
-  if (q.includes('mileage') || q.includes('miles') || q.includes('car'))
-    return OFFLINE.mileage
-  if (q.includes('expense') || q.includes('claim') || q.includes('deduct'))
-    return OFFLINE.expense
-  if (q.includes('national insurance') || q.includes(' ni ') || q.includes('class'))
-    return OFFLINE.ni
-  if (q.includes('60%') || q.includes('trap') || q.includes('100k') || q.includes('100,000'))
-    return OFFLINE.trap
+  if (q.includes('allowance') || q.includes('personal') || q.includes('12570'))  return OFFLINE.allowance
+  if (q.includes('pension')   || q.includes('sipp'))                             return OFFLINE.pension
+  if (q.includes('dividend'))                                                     return OFFLINE.dividend
+  if (q.includes('mileage')   || q.includes('miles') || q.includes('car'))       return OFFLINE.mileage
+  if (q.includes('expense')   || q.includes('claim') || q.includes('deduct'))    return OFFLINE.expense
+  if (q.includes('national insurance') || q.includes(' ni ') || q.includes('class')) return OFFLINE.ni
+  if (q.includes('60%')       || q.includes('trap')  || q.includes('100,000'))   return OFFLINE.trap
+
   return (
     'The Tax Estimator on the Tax page gives you a full HMRC-accurate 2026/27 breakdown. ' +
     'Enter your income and expenses there for exact figures. ' +
@@ -128,12 +113,21 @@ function offlineReply(query: string): string {
   )
 }
 
+// ─── Module-level singleton ───────────────────────────────────────────────────
+// Instantiated once per cold start rather than on every request.
+// The API key is fixed for the lifetime of the module, so this is safe.
+let _genAI: GoogleGenerativeAI | null = null
+
+function getGenAI(apiKey: string): GoogleGenerativeAI {
+  if (!_genAI) _genAI = new GoogleGenerativeAI(apiKey)
+  return _genAI
+}
+
+// ─── Route handler ────────────────────────────────────────────────────────────
 export async function POST(request: NextRequest) {
-  const apiKey =
-    process.env.GEMINI_API_KEY ||
-    process.env.GOOGLE_API_KEY ||
-    process.env.GOOGLE_GENERATIVE_AI_API_KEY ||
-    process.env.NEXT_PUBLIC_GEMINI_API_KEY
+  // Single canonical env var. Set GEMINI_API_KEY in your environment.
+  // GOOGLE_API_KEY is accepted as a legacy fallback.
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
 
   let body: { message?: string }
   try {
@@ -152,16 +146,11 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey)
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
-      systemInstruction: SYSTEM,
-    })
+    const model  = getGenAI(apiKey).getGenerativeModel({ model: 'gemini-1.5-flash', systemInstruction: SYSTEM })
     const result = await model.generateContent(query)
     return NextResponse.json({ answer: result.response.text() })
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : 'Unexpected error'
-    console.error('Tax Advisor AI error:', msg)
+  } catch (err: unknown) {
+    console.error('[ai/chat] Gemini error:', err instanceof Error ? err.message : err)
     return NextResponse.json({ answer: offlineReply(query), offline: true })
   }
 }

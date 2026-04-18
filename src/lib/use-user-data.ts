@@ -40,7 +40,8 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { createClient, isSupabaseConfigured } from '@/lib/supabase-browser'
 import type { SupabaseClient, User } from '@supabase/supabase-js'
 
-type Table = 'user_transactions' | 'user_expenses'
+// Add new tables here as features expand
+type Table = 'user_transactions' | 'user_expenses' | 'user_invoices' | 'user_mileage'
 
 export function useUserData<T extends { id: string }>(
   table: Table,

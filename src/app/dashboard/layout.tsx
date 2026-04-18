@@ -9,7 +9,7 @@ import {
   LayoutDashboard, Calculator, Receipt,
   GraduationCap, Bot, Settings, TrendingUp,
   LogOut, LogIn, Menu, X, Shield, BookOpen, FileText,
-  MessageCircle,
+  MessageCircle, PiggyBank,
 } from 'lucide-react'
 
 const C = {
@@ -27,6 +27,7 @@ const SIDEBAR_W = 232
 const NAV = [
   { href: '/dashboard',              label: 'Overview',      icon: LayoutDashboard, group: 'core' },
   { href: '/dashboard/tax',          label: 'Tax Engine',    icon: Calculator,      group: 'core' },
+  { href: '/dashboard/tracker',      label: 'Tax Tracker',   icon: PiggyBank,       group: 'core' },
   { href: '/dashboard/expenses',     label: 'Expenses',      icon: Receipt,         group: 'core' },
   { href: '/dashboard/transactions', label: 'Ledger',        icon: BookOpen,        group: 'reports' },
   { href: '/dashboard/pnl',          label: 'Reports',       icon: FileText,        group: 'reports' },

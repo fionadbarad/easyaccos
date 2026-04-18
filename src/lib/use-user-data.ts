@@ -37,8 +37,8 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { createClient } from '@/lib/supabase-browser'
-import type { User } from '@supabase/supabase-js'
+import { createClient, isSupabaseConfigured } from '@/lib/supabase-browser'
+import type { SupabaseClient, User } from '@supabase/supabase-js'
 
 type Table = 'user_transactions' | 'user_expenses'
 
@@ -47,7 +47,7 @@ export function useUserData<T extends { id: string }>(
   localKey: string,
   seed: T[],
 ) {
-  const supabaseRef  = useRef(createClient())
+  const supabaseRef  = useRef<SupabaseClient | null>(isSupabaseConfigured ? createClient() : null)
   const supabase     = supabaseRef.current
 
   const [items,   setItems]   = useState<T[]>([])
@@ -56,6 +56,10 @@ export function useUserData<T extends { id: string }>(
 
   // ── Track auth state ──────────────────────────────────────────────────────
   useEffect(() => {
+    if (!supabase) {
+      setUser(null)   // no Supabase → always guest mode
+      return
+    }
     supabase.auth.getSession().then(({ data }) => {
       setUser(data.session?.user ?? null)
     })
@@ -70,7 +74,7 @@ export function useUserData<T extends { id: string }>(
     let cancelled = false
 
     async function load() {
-      if (user) {
+      if (user && supabase) {
         const { data: rows, error } = await supabase
           .from(table)
           .select('*')
@@ -111,7 +115,7 @@ export function useUserData<T extends { id: string }>(
   const persist = useCallback(async (next: T[]) => {
     setItems(next)
 
-    if (user) {
+    if (user && supabase) {
       try {
         // 1. Find IDs currently in Supabase for this user
         const { data: existing } = await supabase

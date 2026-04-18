@@ -1,13 +1,22 @@
 // ─── Kittax Brain: Free self-built UK tax AI engine ─────────────────────────
 // No external API needed. Parses natural language, calculates taxes, returns
 // intelligent responses. Always online, zero cost.
+//
+// Shared constants and calcPA imported from tax-logic — single source of truth.
+import {
+  PA_BASE, PA_TAPER_START, PA_TAPER_END,
+  RUK_BASIC_RATE_WIDTH, RUK_TAXABLE_ADDITIONAL_THRESHOLD,
+  calcPA,
+} from './tax-logic'
 
-// ─── 2026/27 Tax Constants ──────────────────────────────────────────────────
-const PA_FULL        = 12_570
-const PA_TAPER_START = 100_000
-const PA_TAPER_END   = 125_140
-const BASIC_LIMIT    = 37_700   // width of basic band (above PA)
-const HIGHER_LIMIT   = 112_570  // taxable income threshold for additional
+// ─── Local aliases for readability in this module ────────────────────────────
+const PA_FULL    = PA_BASE
+const BASIC_LIMIT = RUK_BASIC_RATE_WIDTH
+// Previously named TAXABLE_ADDITIONAL_THRESHOLD = 112_570 (taxable-income basis).
+// Reconciled: imported as RUK_TAXABLE_ADDITIONAL_THRESHOLD = RUK_TAXABLE_ADDITIONAL_THRESHOLD − PA_BASE.
+const TAXABLE_ADDITIONAL_THRESHOLD = RUK_TAXABLE_ADDITIONAL_THRESHOLD
+
+// ─── Module-specific constants ───────────────────────────────────────────────
 const DIV_ALLOWANCE  = 500
 const DIV_BASIC      = 0.1075
 const DIV_HIGHER     = 0.3575
@@ -32,12 +41,6 @@ interface TaxBreakdown {
   band: string
 }
 
-function calcPA(income: number): number {
-  if (income <= PA_TAPER_START) return PA_FULL
-  if (income >= PA_TAPER_END) return 0
-  return Math.max(0, PA_FULL - Math.floor((income - PA_TAPER_START) / 2))
-}
-
 function calcIncomeTax(taxable: number, region: string): number {
   if (taxable <= 0) return 0
   if (region === 'scotland') {
@@ -60,8 +63,8 @@ function calcIncomeTax(taxable: number, region: string): number {
   }
   // rUK
   if (taxable <= BASIC_LIMIT) return taxable * 0.20
-  if (taxable <= HIGHER_LIMIT) return BASIC_LIMIT * 0.20 + (taxable - BASIC_LIMIT) * 0.40
-  return BASIC_LIMIT * 0.20 + (HIGHER_LIMIT - BASIC_LIMIT) * 0.40 + (taxable - HIGHER_LIMIT) * 0.45
+  if (taxable <= TAXABLE_ADDITIONAL_THRESHOLD) return BASIC_LIMIT * 0.20 + (taxable - BASIC_LIMIT) * 0.40
+  return BASIC_LIMIT * 0.20 + (TAXABLE_ADDITIONAL_THRESHOLD - BASIC_LIMIT) * 0.40 + (taxable - TAXABLE_ADDITIONAL_THRESHOLD) * 0.45
 }
 
 function calcNI(income: number, employed: boolean): number {
@@ -75,7 +78,7 @@ function calcNI(income: number, employed: boolean): number {
 function getBand(taxable: number): string {
   if (taxable <= 0) return 'No tax (below Personal Allowance)'
   if (taxable <= BASIC_LIMIT) return 'Basic rate (20%)'
-  if (taxable <= HIGHER_LIMIT) return 'Higher rate (40%)'
+  if (taxable <= TAXABLE_ADDITIONAL_THRESHOLD) return 'Higher rate (40%)'
   return 'Additional rate (45%)'
 }
 

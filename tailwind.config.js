@@ -8,19 +8,21 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        midnight: '#0B0F1A',
-        midnightDeep: '#050816',
-        plum: '#111827',
-        plumLight: '#1f2937',
-        gold: '#C2A368',
-        goldMuted: 'rgba(194,163,104,0.55)',
-        blue: '#3B82F6',
-        white: '#E5E7EB',
-        textMuted: 'rgba(229,231,235,0.65)',
+        sa: {
+          black:   '#181818',
+          surface: '#1C1D20',
+          gray:    '#222326',
+          white:   '#F4F5F8',
+          green:   '#4ADE80',
+          red:     '#F87171',
+        },
       },
       fontFamily: {
         inter: ['var(--font-inter)', 'sans-serif'],
-        playfair: ['var(--font-playfair)', 'serif'],
+        mono:  ['var(--font-geist-mono)', 'Geist Mono', 'Fira Code', 'monospace'],
+      },
+      borderRadius: {
+        DEFAULT: '6px',
       },
     },
   },

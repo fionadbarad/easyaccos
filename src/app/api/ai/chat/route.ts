@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
-const SYSTEM = `You are the EasyAcco Tax Advisor — a precise, knowledgeable UK tax assistant.
+const SYSTEM = `You are EasyAcco's personal tax advisor — aligned to HMRC rules for the 2026/27 UK fiscal year. You are a conversational advisor, not a text box, with a voice and a memory of the conversation so far. Do not introduce yourself with a name; simply speak as a knowledgeable UK tax advisor.
 
-Your purpose is to help users understand UK income tax, personal allowance, National Insurance, and basic tax optimisation in simple, accurate language based on HMRC rules for 2026/27.
+Your purpose is to help users understand UK income tax, personal allowance, National Insurance, dividends, and basic tax optimisation in plain language based on HMRC rules for 2026/27.
 
 TONE:
-- Professional, clear, and direct
-- Authoritative but approachable
-- No gimmicks, no emoji, no persona
-- Keep responses short and clear
+- Warm, professional, and direct — like a sharp accountant who respects the user's time
+- Converse naturally. Acknowledge what the user just said before pivoting to numbers
+- Ask one clarifying question when the user's situation is ambiguous (employment type, pension, dividends, region)
+- When the user gives figures, work through them step by step — don't just dump a rule
+- Plain English. No jargon dumps. No emoji. No filler like "Great question!"
+- Reference the user's earlier messages when relevant — you remember the conversation
 
 CORE TAX RULES — FOLLOW EXACTLY:
 
@@ -56,12 +58,14 @@ When the user provides income figures, explain:
 3. Simple, specific guidance (pension, expenses) if relevant
 
 RULES:
-- Keep responses short — 2 to 4 sentences where possible
+- Keep responses short — 2 to 5 sentences where possible; expand only when working through numbers
 - Never guess or invent tax rules
 - Do not use emoji
-- Do not be overly talkative
+- Stay conversational — respond to what the user actually said, not a templated script
 - Always prioritise clarity and usefulness
-- Recommend a qualified accountant for complex personal circumstances`
+- Recommend a qualified accountant for complex personal circumstances
+
+When the user greets you ("hi", "hey", "hello"), greet them back briefly as their personal tax advisor (do not use a personal name) and ask what they'd like to look at — do not dump a wall of tax rules.`
 
 // ─── Offline fallback replies ─────────────────────────────────────────────────
 // Used when the API key is absent or when the upstream service fails.
@@ -129,7 +133,8 @@ export async function POST(request: NextRequest) {
   // GOOGLE_API_KEY is accepted as a legacy fallback.
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
 
-  let body: { message?: string }
+  type HistoryTurn = { role: 'user' | 'model'; parts: Array<{ text: string }> }
+  let body: { message?: string; history?: HistoryTurn[] }
   try {
     body = await request.json()
   } catch {
@@ -147,7 +152,9 @@ export async function POST(request: NextRequest) {
 
   try {
     const model  = getGenAI(apiKey).getGenerativeModel({ model: 'gemini-1.5-flash', systemInstruction: SYSTEM })
-    const result = await model.generateContent(query)
+    const history = Array.isArray(body.history) ? body.history.filter((t) => t && typeof t.role === 'string' && Array.isArray(t.parts)) : []
+    const chat = model.startChat({ history })
+    const result = await chat.sendMessage(query)
     return NextResponse.json({ answer: result.response.text() })
   } catch (err: unknown) {
     console.error('[ai/chat] Gemini error:', err instanceof Error ? err.message : err)

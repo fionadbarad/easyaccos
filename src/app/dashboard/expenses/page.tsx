@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, Trash2, CloudOff, Cloud } from 'lucide-react'
+import { Plus, Trash2, CloudOff, Cloud, Sparkles, Loader2 } from 'lucide-react'
 import { useUserData } from '@/lib/use-user-data'
+import ReceiptScanner, { type ReceiptExtract } from '@/components/ReceiptScanner'
 
 // ── Dark mono palette — matches dashboard ─────────────────────────────────
 const C = {
@@ -60,6 +61,40 @@ export default function ExpensesPage() {
   const [form, setForm] = useState({
     date: toISODate(new Date()), description: '', category: CATEGORIES[0], amount: '',
   })
+  const [suggesting, setSuggesting] = useState(false)
+
+  function onReceiptExtract(data: ReceiptExtract) {
+    setForm((f) => ({
+      ...f,
+      description: data.description || f.description,
+      amount: data.amount != null ? data.amount.toFixed(2) : f.amount,
+      date: data.date || f.date,
+    }))
+    setShowForm(true)
+  }
+
+  async function suggestCategory() {
+    if (!form.description.trim() || suggesting) return
+    setSuggesting(true)
+    try {
+      const res = await fetch('/api/ai/categorise', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          description: form.description,
+          amount: form.amount ? parseFloat(form.amount) : undefined,
+        }),
+      })
+      const data = await res.json()
+      if (data.category && CATEGORIES.includes(data.category)) {
+        setForm((f) => ({ ...f, category: data.category }))
+      }
+    } catch {
+      // silent — keep existing category
+    } finally {
+      setSuggesting(false)
+    }
+  }
 
   async function addExpense(e: React.FormEvent) {
     e.preventDefault()
@@ -113,6 +148,7 @@ export default function ExpensesPage() {
               ? <><Cloud size={11} style={{ color: C.green }} /> synced</>
               : <><CloudOff size={11} /> local only</>}
           </div>
+          <ReceiptScanner onExtract={onReceiptExtract} />
           <button onClick={() => setShowForm(!showForm)}
             style={{ display: 'flex', alignItems: 'center', gap: '6px', background: C.white, color: C.bg, border: 'none', borderRadius: '4px', padding: '8px 16px', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', minHeight: '36px', letterSpacing: '-0.01em' }}>
             <Plus size={14} strokeWidth={2.5} /> Add Expense
@@ -142,7 +178,16 @@ export default function ExpensesPage() {
               placeholder="e.g. Adobe CC subscription" style={{ ...inputS, fontFamily: 'inherit' }} required />
           </div>
           <div>
-            <label style={labelS}>Category</label>
+            <label style={labelS}>
+              Category
+              <button type="button" onClick={suggestCategory}
+                disabled={!form.description.trim() || suggesting}
+                title="Suggest a category using AI"
+                style={{ marginLeft: 6, background: 'transparent', border: `1px solid ${C.border}`, color: suggesting ? C.muted : C.white, borderRadius: 3, padding: '1px 6px', fontSize: '0.58rem', cursor: form.description.trim() && !suggesting ? 'pointer' : 'default', display: 'inline-flex', alignItems: 'center', gap: 3, verticalAlign: 'middle' }}>
+                {suggesting ? <Loader2 size={9} style={{ animation: 'spin 1s linear infinite' }} /> : <Sparkles size={9} />}
+                {suggesting ? 'thinking' : 'suggest'}
+              </button>
+            </label>
             <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
               style={{ ...inputS, cursor: 'pointer' }}>
               {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}

@@ -145,6 +145,9 @@ export async function POST(request: NextRequest) {
   if (!query) {
     return NextResponse.json({ error: 'message is required' }, { status: 400 })
   }
+  if (query.length > 4000) {
+    return NextResponse.json({ error: 'message too long (max 4000 chars)' }, { status: 400 })
+  }
 
   if (!apiKey) {
     return NextResponse.json({ answer: offlineReply(query), offline: true })
@@ -152,7 +155,18 @@ export async function POST(request: NextRequest) {
 
   try {
     const model  = getGenAI(apiKey).getGenerativeModel({ model: 'gemini-1.5-flash', systemInstruction: SYSTEM })
-    const history = Array.isArray(body.history) ? body.history.filter((t) => t && typeof t.role === 'string' && Array.isArray(t.parts)) : []
+    // Strict whitelist: only 'user' and 'model' roles are permitted so a crafted
+    // client cannot inject a 'system' turn that would override the system instruction.
+    const history = Array.isArray(body.history)
+      ? body.history
+          .filter((t): t is HistoryTurn =>
+            !!t &&
+            (t.role === 'user' || t.role === 'model') &&
+            Array.isArray(t.parts) &&
+            t.parts.every((p) => p && typeof p.text === 'string')
+          )
+          .slice(-20)
+      : []
     const chat = model.startChat({ history })
     const result = await chat.sendMessage(query)
     return NextResponse.json({ answer: result.response.text() })

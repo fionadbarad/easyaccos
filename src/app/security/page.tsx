@@ -88,10 +88,25 @@ export default function SecurityPage() {
           ))}
         </div>
 
+        {/* AI disclosure */}
+        <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: '10px', padding: '1.5rem', marginBottom: '2rem' }}>
+          <h2 style={{ color: C.white, fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem' }}>
+            AI Features &amp; Third-Party Processing
+          </h2>
+          <p style={{ color: C.muted, fontSize: '0.85rem', lineHeight: 1.7, margin: 0 }}>
+            The Tax Advisory chat and the optional <strong style={{ color: C.text }}>Suggest Category</strong> button on the Expenses
+            page send the relevant text (your question, or the expense description and amount) to
+            <strong style={{ color: C.text }}> Google Gemini</strong> for a single response. Numeric totals, receipt images, and your
+            full ledger are never transmitted. Receipt OCR runs <strong style={{ color: C.text }}>entirely in your browser</strong> via
+            Tesseract — the photo never leaves your device. If you prefer not to use AI features, simply don&apos;t click the
+            Suggest button or open the Advisory tab — the rest of the app runs fully client-side.
+          </p>
+        </div>
+
         {/* Contact */}
         <p style={{ color: C.muted, fontSize: '0.82rem', lineHeight: 1.7 }}>
           Questions? Contact us at{' '}
-          <span style={{ color: C.white }}>security@easyacco.com</span>
+          <a href="mailto:baradfiona14@gmail.com" style={{ color: C.white, textDecoration: 'none', borderBottom: '1px solid rgba(244,245,248,0.2)' }}>baradfiona14@gmail.com</a>
           {' '}— or{' '}
           <Link href="/dashboard" style={{ color: C.white }}>return to the dashboard</Link>.
         </p>

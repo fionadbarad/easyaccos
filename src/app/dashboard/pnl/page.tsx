@@ -176,7 +176,14 @@ export default function PnLPage() {
       ['National Insurance (Class 4)', taxCalc.nationalInsurance.toFixed(2)],
       ['Profit after tax', profitAfterTax.toFixed(2)],
     ]
-    const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\r\n')
+    // CSV-injection safe: prefix cells that start with formula triggers (=, +, -, @, tab, CR)
+    // with a single quote so spreadsheet apps treat them as text, not formulas.
+    const safe = (c: string) => {
+      let s = String(c)
+      if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`
+      return `"${s.replace(/"/g, '""')}"`
+    }
+    const csv = rows.map((r) => r.map(safe).join(',')).join('\r\n')
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')

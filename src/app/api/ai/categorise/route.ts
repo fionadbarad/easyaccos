@@ -56,6 +56,10 @@ export async function POST(request: NextRequest) {
   if (!description) {
     return NextResponse.json({ error: 'description is required' }, { status: 400 })
   }
+  if (description.length > 500) {
+    return NextResponse.json({ error: 'description too long (max 500 chars)' }, { status: 400 })
+  }
+  const amt = typeof body.amount === 'number' && Number.isFinite(body.amount) && body.amount >= 0 ? body.amount : undefined
 
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
   if (!apiKey) {
@@ -68,7 +72,7 @@ export async function POST(request: NextRequest) {
       systemInstruction: SYSTEM,
     })
     const prompt = `Categorise this expense: "${description}"${
-      typeof body.amount === 'number' ? ` (£${body.amount.toFixed(2)})` : ''
+      amt !== undefined ? ` (£${amt.toFixed(2)})` : ''
     }`
     const result = await model.generateContent(prompt)
     const text = (result.response.text() || '').trim()

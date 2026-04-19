@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const CATEGORIES = [
   'Office & Equipment',
@@ -33,6 +33,17 @@ function heuristic(description: string): Category {
   return 'Other'
 }
 
+let _genAI: GoogleGenerativeAI | null = null
+function getGenAI(apiKey: string): GoogleGenerativeAI {
+  if (!_genAI) _genAI = new GoogleGenerativeAI(apiKey)
+  return _genAI
+}
+
+const SYSTEM = `You are a UK sole-trader expense categoriser. Respond with exactly one category from this list, and nothing else:
+${CATEGORIES.join('\n')}
+
+If unsure, answer "Other".`
+
 export async function POST(request: NextRequest) {
   let body: { description?: string; amount?: number }
   try {
@@ -46,33 +57,25 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'description is required' }, { status: 400 })
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
   if (!apiKey) {
     return NextResponse.json({ category: heuristic(description), source: 'heuristic' })
   }
 
   try {
-    const client = new Anthropic({ apiKey })
-    const msg = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 32,
-      system: `You are a UK sole-trader expense categoriser. Respond with exactly one category from this list, no other text:\n${CATEGORIES.join('\n')}\n\nIf unsure, answer "Other".`,
-      messages: [
-        {
-          role: 'user',
-          content: `Categorise: "${description}"${typeof body.amount === 'number' ? ` (£${body.amount.toFixed(2)})` : ''}`,
-        },
-      ],
+    const model = getGenAI(apiKey).getGenerativeModel({
+      model: 'gemini-1.5-flash',
+      systemInstruction: SYSTEM,
     })
-    const text = msg.content
-      .filter((b) => b.type === 'text')
-      .map((b) => (b as { type: 'text'; text: string }).text)
-      .join('')
-      .trim()
+    const prompt = `Categorise this expense: "${description}"${
+      typeof body.amount === 'number' ? ` (£${body.amount.toFixed(2)})` : ''
+    }`
+    const result = await model.generateContent(prompt)
+    const text = (result.response.text() || '').trim()
     const match = CATEGORIES.find((c) => text.toLowerCase().includes(c.toLowerCase())) ?? heuristic(description)
     return NextResponse.json({ category: match, source: 'ai' })
   } catch (err) {
-    console.error('[ai/categorise] Anthropic error:', err instanceof Error ? err.message : err)
+    console.error('[ai/categorise] Gemini error:', err instanceof Error ? err.message : err)
     return NextResponse.json({ category: heuristic(description), source: 'heuristic-fallback' })
   }
 }

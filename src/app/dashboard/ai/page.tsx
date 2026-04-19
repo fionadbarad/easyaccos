@@ -98,9 +98,16 @@ function ThinkingIndicator() {
   )
 }
 
+function greetingByHour() {
+  const h = new Date().getHours()
+  if (h < 12) return 'Good morning'
+  if (h < 18) return 'Good afternoon'
+  return 'Good evening'
+}
+
 const INITIAL_MESSAGE = makeMessage(
   'assistant',
-  'Good day. I can advise on UK tax obligations for the 2026/27 fiscal year — sole trader and partnership income, director remuneration, MTD compliance, allowable deductions, and NI liabilities. What would you like to work through?',
+  `${greetingByHour()} — I'm your personal tax advisor, aligned to HMRC rules for the 2026/27 fiscal year.\n\nI can walk through sole-trader income, director pay, dividends, MTD deadlines, allowable expenses, National Insurance, the 60% trap — whatever's on your mind. Tell me roughly what you earn and where the friction is, and I'll take it from there.\n\nWhat shall we look at first?`,
 )
 
 export default function AIPage() {

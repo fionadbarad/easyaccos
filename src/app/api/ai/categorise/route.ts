@@ -1,0 +1,78 @@
+import { NextRequest, NextResponse } from 'next/server'
+import Anthropic from '@anthropic-ai/sdk'
+
+const CATEGORIES = [
+  'Office & Equipment',
+  'Travel & Transport',
+  'Software & Subscriptions',
+  'Marketing & Advertising',
+  'Professional Services',
+  'Training & Education',
+  'Utilities',
+  'Meals (business)',
+  'Other',
+] as const
+
+type Category = typeof CATEGORIES[number]
+
+const KEYWORDS: Array<[RegExp, Category]> = [
+  [/\b(uber|train|rail|taxi|tfl|bus|parking|fuel|petrol|diesel|mileage|flight|airline|hotel)\b/i, 'Travel & Transport'],
+  [/\b(adobe|figma|github|aws|vercel|notion|slack|zoom|microsoft|google workspace|subscription|saas|netflix|spotify)\b/i, 'Software & Subscriptions'],
+  [/\b(facebook ads|google ads|linkedin|marketing|advert|campaign|seo|ppc)\b/i, 'Marketing & Advertising'],
+  [/\b(accountant|solicitor|lawyer|consultant|legal|advisor|bookkeep)\b/i, 'Professional Services'],
+  [/\b(course|training|udemy|coursera|book|ebook|conference|workshop)\b/i, 'Training & Education'],
+  [/\b(electric|gas|water|broadband|internet|phone|mobile|ee|bt|vodafone|o2|three)\b/i, 'Utilities'],
+  [/\b(lunch|dinner|meal|restaurant|cafe|coffee|starbucks|pret|greggs|client lunch)\b/i, 'Meals (business)'],
+  [/\b(laptop|monitor|keyboard|mouse|desk|chair|printer|paper|pen|stationery|office)\b/i, 'Office & Equipment'],
+]
+
+function heuristic(description: string): Category {
+  for (const [pattern, cat] of KEYWORDS) {
+    if (pattern.test(description)) return cat
+  }
+  return 'Other'
+}
+
+export async function POST(request: NextRequest) {
+  let body: { description?: string; amount?: number }
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
+
+  const description = (body.description ?? '').trim()
+  if (!description) {
+    return NextResponse.json({ error: 'description is required' }, { status: 400 })
+  }
+
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  if (!apiKey) {
+    return NextResponse.json({ category: heuristic(description), source: 'heuristic' })
+  }
+
+  try {
+    const client = new Anthropic({ apiKey })
+    const msg = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 32,
+      system: `You are a UK sole-trader expense categoriser. Respond with exactly one category from this list, no other text:\n${CATEGORIES.join('\n')}\n\nIf unsure, answer "Other".`,
+      messages: [
+        {
+          role: 'user',
+          content: `Categorise: "${description}"${typeof body.amount === 'number' ? ` (£${body.amount.toFixed(2)})` : ''}`,
+        },
+      ],
+    })
+    const text = msg.content
+      .filter((b) => b.type === 'text')
+      .map((b) => (b as { type: 'text'; text: string }).text)
+      .join('')
+      .trim()
+    const match = CATEGORIES.find((c) => text.toLowerCase().includes(c.toLowerCase())) ?? heuristic(description)
+    return NextResponse.json({ category: match, source: 'ai' })
+  } catch (err) {
+    console.error('[ai/categorise] Anthropic error:', err instanceof Error ? err.message : err)
+    return NextResponse.json({ category: heuristic(description), source: 'heuristic-fallback' })
+  }
+}

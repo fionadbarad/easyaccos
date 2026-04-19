@@ -107,6 +107,7 @@ export default function PnLPage() {
   const [txs, setTxs]       = useState<Transaction[]>([])
   const [copied, setCopied] = useState(false)
   const [view, setView]     = useState<View>('overview')
+  const [cogsForm, setCogsForm] = useState({ date: new Date().toISOString().slice(0, 10), description: '', amount: '' })
 
   useEffect(() => {
     try {
@@ -117,8 +118,14 @@ export default function PnLPage() {
 
   const monthly      = buildMonthly(txs)
   const totalRevenue = txs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
-  const costOfSales  = txs.filter((t) => t.type === 'expense' && (t.description.toLowerCase().includes('material') || t.description.toLowerCase().includes('subcontract'))).reduce((s, t) => s + t.amount, 0)
+  const COGS_KEYWORDS = ['material', 'subcontract', 'cogs', 'stock', 'inventory', 'goods', 'purchases', 'wholesale', 'raw ', 'direct cost']
+  const isCogs = (desc: string) => {
+    const d = desc.toLowerCase()
+    return COGS_KEYWORDS.some((k) => d.includes(k))
+  }
+  const costOfSales  = txs.filter((t) => t.type === 'expense' && isCogs(t.description)).reduce((s, t) => s + t.amount, 0)
   const grossProfit  = totalRevenue - costOfSales
+  const cogsItems    = txs.filter((t) => t.type === 'expense' && isCogs(t.description))
   const opEx         = txs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0) - costOfSales
   const ebitda       = grossProfit - opEx
   const netProfit    = ebitda
@@ -136,6 +143,48 @@ export default function PnLPage() {
   const taxProvision   = taxCalc.totalDeductions
   const profitAfterTax = netProfit - taxProvision
   const margin         = totalRevenue > 0 ? (netProfit / totalRevenue * 100) : 0
+
+  function addCogsEntry(e: React.FormEvent) {
+    e.preventDefault()
+    const amt = parseFloat(cogsForm.amount)
+    if (!amt || !cogsForm.description.trim()) return
+    const tag = isCogs(cogsForm.description) ? cogsForm.description.trim() : `COGS — ${cogsForm.description.trim()}`
+    const next: Transaction[] = [
+      { id: crypto.randomUUID(), date: cogsForm.date, description: tag, type: 'expense', amount: amt },
+      ...txs,
+    ]
+    setTxs(next)
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)) } catch {}
+    setCogsForm({ date: new Date().toISOString().slice(0, 10), description: '', amount: '' })
+  }
+
+  function exportSA103CSV() {
+    const expensesTotal = txs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
+    const rows: Array<[string, string]> = [
+      ['SA103 Self-Employment (Short) — 2026/27', ''],
+      ['Generated', new Date().toISOString()],
+      ['', ''],
+      ['Box 9  Turnover (Total Revenue)', totalRevenue.toFixed(2)],
+      ['Box 10 Other business income', '0.00'],
+      ['Box 11 Cost of goods bought (COGS)', costOfSales.toFixed(2)],
+      ['Box 17 Other allowable business expenses', opEx.toFixed(2)],
+      ['Box 20 Total allowable expenses', expensesTotal.toFixed(2)],
+      ['Box 21 Net profit / (loss)', netProfit.toFixed(2)],
+      ['', ''],
+      ['— Tax provision (indicative) —', ''],
+      ['Income Tax', taxCalc.incomeTax.toFixed(2)],
+      ['National Insurance (Class 4)', taxCalc.nationalInsurance.toFixed(2)],
+      ['Profit after tax', profitAfterTax.toFixed(2)],
+    ]
+    const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\r\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `SA103-easyacco-${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
   function exportJSON() {
     const payload = {
@@ -184,6 +233,15 @@ export default function PnLPage() {
           }}>
             {copied ? <CheckCheck size={13} /> : <Copy size={13} />}
             {copied ? 'Copied' : 'Export JSON'}
+          </button>
+          <button onClick={exportSA103CSV} title="SA103 self-assessment pre-fill CSV" style={{
+            ...btnBase,
+            display: 'flex', alignItems: 'center', gap: '6px',
+            background: C.surface,
+            border: `1px solid ${C.border}`,
+            color: C.muted,
+          }}>
+            <FileText size={13} /> Export SA103 CSV
           </button>
         </div>
       </div>
@@ -281,8 +339,35 @@ export default function PnLPage() {
           <ISLine separator />
 
           <ISLine label="COST OF SALES" bold />
-          <ISLine label="Direct Materials / Subcontractors" value={costOfSales} indent={1} negative />
+          {cogsItems.length === 0 ? (
+            <ISLine label="Direct Materials / Subcontractors" value={costOfSales} indent={1} negative />
+          ) : (
+            cogsItems.slice(0, 6).map((t) => (
+              <ISLine key={t.id} label={t.description} value={t.amount} indent={1} negative />
+            ))
+          )}
+          {cogsItems.length > 6 && (
+            <ISLine label={`+ ${cogsItems.length - 6} more items`} indent={1} />
+          )}
           <ISLine label="Total Cost of Sales"               value={costOfSales} bold negative />
+
+          <form onSubmit={addCogsEntry} style={{
+            display: 'grid', gridTemplateColumns: 'auto 1fr 110px auto', gap: '6px',
+            alignItems: 'center', margin: '10px 0 4px', paddingLeft: '16px',
+          }}>
+            <input type="date" value={cogsForm.date}
+              onChange={(e) => setCogsForm((f) => ({ ...f, date: e.target.value }))}
+              style={{ background: C.gray, border: `1px solid ${C.border}`, borderRadius: '3px', padding: '6px 8px', color: C.white, fontSize: '0.72rem', fontFamily: 'var(--font-geist-mono), monospace', outline: 'none' }} />
+            <input type="text" value={cogsForm.description} placeholder="e.g. Raw materials — steel"
+              onChange={(e) => setCogsForm((f) => ({ ...f, description: e.target.value }))}
+              style={{ background: C.gray, border: `1px solid ${C.border}`, borderRadius: '3px', padding: '6px 8px', color: C.white, fontSize: '0.75rem', outline: 'none' }} />
+            <input type="number" min={0} step={0.01} value={cogsForm.amount} placeholder="0.00"
+              onChange={(e) => setCogsForm((f) => ({ ...f, amount: e.target.value }))}
+              style={{ background: C.gray, border: `1px solid ${C.border}`, borderRadius: '3px', padding: '6px 8px', color: C.white, fontSize: '0.75rem', textAlign: 'right', fontFamily: 'var(--font-geist-mono), monospace', outline: 'none' }} />
+            <button type="submit" style={{ background: C.white, color: C.bg, border: 'none', borderRadius: '3px', padding: '6px 12px', fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer' }}>
+              + COGS
+            </button>
+          </form>
           <ISLine separator />
 
           <ISLine label="GROSS PROFIT" value={grossProfit} bold highlight />
@@ -290,11 +375,11 @@ export default function PnLPage() {
           <ISLine separator />
 
           <ISLine label="OPERATING EXPENSES" bold />
-          {txs.filter((t) => t.type === 'expense').slice(0, 6).map((t) => (
+          {txs.filter((t) => t.type === 'expense' && !isCogs(t.description)).slice(0, 6).map((t) => (
             <ISLine key={t.id} label={t.description} value={t.amount} indent={1} negative />
           ))}
-          {txs.filter((t) => t.type === 'expense').length > 6 && (
-            <ISLine label={`+ ${txs.filter((t) => t.type === 'expense').length - 6} more items`} indent={1} />
+          {txs.filter((t) => t.type === 'expense' && !isCogs(t.description)).length > 6 && (
+            <ISLine label={`+ ${txs.filter((t) => t.type === 'expense' && !isCogs(t.description)).length - 6} more items`} indent={1} />
           )}
           <ISLine label="Total OpEx" value={opEx} bold negative />
           <ISLine separator />

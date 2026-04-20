@@ -16,16 +16,7 @@ interface Props {
   onExtract: (data: ReceiptExtract) => void
 }
 
-const C = {
-  surface: '#1C1D20',
-  gray:    '#222326',
-  white:   '#F4F5F8',
-  muted:   'rgba(244,245,248,0.42)',
-  border:  'rgba(244,245,248,0.07)',
-  green:   '#4ADE80',
-  red:     '#F87171',
-}
-
+import { C } from '@/styles/palette'
 function parseReceipt(raw: string): Omit<ReceiptExtract, 'raw' | 'imageUrl' | 'fileType'> {
   const text = raw.replace(/\r/g, '')
   const lines = text.split('\n').map((l) => l.trim()).filter(Boolean)

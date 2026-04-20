@@ -6,8 +6,7 @@ import { Loader2, CheckCircle } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 import { BackupRestore } from '@/components/BackupRestore'
 
-const C = { bg: '#181818', deep: '#222326', card: '#1C1D20', white: '#F4F5F8', text: '#F4F5F8', muted: 'rgba(244,245,248,0.42)', border: 'rgba(244,245,248,0.07)' }
-
+import { C } from '@/styles/palette'
 const inputStyle = { width: '100%', background: C.deep, border: `1px solid ${C.border}`, borderRadius: '4px', padding: '9px 13px', color: C.text, fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box' as const }
 const labelStyle = { display: 'block', color: C.muted, fontSize: '0.75rem', textTransform: 'uppercase' as const, letterSpacing: '0.07em', marginBottom: '0.35rem' }
 

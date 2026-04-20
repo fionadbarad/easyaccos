@@ -4,17 +4,7 @@ import { useState, useMemo } from 'react'
 import { Plus, Trash2, ArrowUpCircle, ArrowDownCircle, Calendar, Cloud, CloudOff } from 'lucide-react'
 import { useUserData } from '@/lib/use-user-data'
 
-const C = {
-  bg:      '#181818',
-  surface: '#1C1D20',
-  gray:    '#222326',
-  white:   '#F4F5F8',
-  muted:   'rgba(244,245,248,0.42)',
-  border:  'rgba(244,245,248,0.07)',
-  green:   '#4ADE80',
-  red:     '#F87171',
-}
-
+import { C } from '@/styles/palette'
 type TxType    = 'income' | 'expense'
 type DateFilter = 'all' | 'today' | 'month' | 'custom'
 

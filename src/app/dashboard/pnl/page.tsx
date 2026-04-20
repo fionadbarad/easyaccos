@@ -8,18 +8,7 @@ import {
 import { Copy, CheckCheck, FileText, TrendingUp, TrendingDown } from 'lucide-react'
 import { calcScenario1 } from '@/lib/TaxBible2026'
 
-const C = {
-  bg:      '#181818',
-  surface: '#1C1D20',
-  gray:    '#222326',
-  white:   '#F4F5F8',
-  muted:   'rgba(244,245,248,0.42)',
-  border:  'rgba(244,245,248,0.07)',
-  green:   '#4ADE80',
-  red:     '#F87171',
-  amber:   '#FBBF24',
-}
-
+import { C } from '@/styles/palette'
 interface Transaction { id: string; date: string; description: string; type: 'income' | 'expense'; amount: number }
 const STORAGE_KEY = 'easyacco_transactions'
 

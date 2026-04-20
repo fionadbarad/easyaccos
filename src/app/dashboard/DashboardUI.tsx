@@ -13,19 +13,7 @@ import type { TaxResult } from '@/lib/tax-engine'
 
 type DashboardUIProps = { displayName: string }
 
-const C = {
-  bg:      '#181818',
-  surface: '#1C1D20',
-  gray:    '#222326',
-  white:   '#F4F5F8',
-  muted:   'rgba(244,245,248,0.42)',
-  border:  'rgba(244,245,248,0.07)',
-  active:  'rgba(244,245,248,0.06)',
-  green:   '#4ADE80',
-  amber:   '#FBBF24',
-  red:     '#F87171',
-}
-
+import { C } from '@/styles/palette'
 // ── MTD 2026/27 Quarterly Calendar ────────────────────────────────────────
 const MTD_QUARTERS = [
   { label: 'Q1', period: '6 Apr – 5 Jul 2026',  deadline: '2026-08-07', display: '7 Aug 2026' },

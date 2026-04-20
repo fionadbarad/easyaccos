@@ -5,20 +5,7 @@ import { readAuditLog, type AuditEntry } from '@/lib/audit'
 import { isFlagEnabled, setFlag, FLAG_AUDIT } from '@/lib/feature-flags'
 import { RefreshCw, ShieldCheck, ToggleLeft, ToggleRight } from 'lucide-react'
 
-const C = {
-  bg:      '#181818',
-  surface: '#1C1D20',
-  gray:    '#222326',
-  white:   '#F4F5F8',
-  muted:   'rgba(244,245,248,0.42)',
-  dim:     'rgba(244,245,248,0.18)',
-  border:  'rgba(244,245,248,0.07)',
-  green:   '#4ADE80',
-  red:     '#F87171',
-  amber:   '#FBBF24',
-  blue:    '#93C5FD',
-}
-
+import { C } from '@/styles/palette'
 const OP_COLORS: Record<string, string> = {
   create: C.green,
   update: C.blue,

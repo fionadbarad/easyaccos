@@ -9,17 +9,7 @@ import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase-browser'
 import { ArrowRight, Mail, Loader2, CheckCircle } from 'lucide-react'
 
-const C = {
-  bg:     '#181818',
-  deep:   '#222326',
-  card:   '#1C1D20',
-  white:  '#F4F5F8',
-  text:   '#F4F5F8',
-  muted:  'rgba(244,245,248,0.42)',
-  border: 'rgba(244,245,248,0.07)',
-  red:    '#F87171',
-}
-
+import { C } from '@/styles/palette'
 export default function LoginPage() {
   const router      = useRouter()
   const supabaseRef = useRef(createClient())

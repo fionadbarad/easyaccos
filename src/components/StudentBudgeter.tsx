@@ -2,15 +2,7 @@
 
 import { useState } from 'react'
 
-const C = {
-  bg:     '#181818',
-  card:   '#1C1D20',
-  white:  '#F4F5F8',
-  text:   '#F4F5F8',
-  muted:  'rgba(244,245,248,0.42)',
-  border: 'rgba(244,245,248,0.08)',
-}
-
+import { C } from '@/styles/palette'
 type Region = 'SFE' | 'SAAS'
 
 function calculateDaily(amount: number, region: Region): string {

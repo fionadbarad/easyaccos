@@ -1,13 +1,8 @@
 'use client'
 
-import TaxCalculator5 from '@/components/TaxCalculator5'
+import TaxCalculator from '@/components/TaxCalculator'
 
-const C = {
-  white:  '#F4F5F8',
-  muted:  'rgba(244,245,248,0.42)',
-  border: 'rgba(244,245,248,0.07)',
-}
-
+import { C } from '@/styles/palette'
 export default function TaxPage() {
   return (
     <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)' }}>
@@ -31,7 +26,7 @@ export default function TaxPage() {
           <span>Class 4 NI: 6%</span>
         </div>
       </div>
-      <TaxCalculator5 />
+      <TaxCalculator />
     </div>
   )
 }

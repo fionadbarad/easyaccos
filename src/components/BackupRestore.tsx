@@ -11,16 +11,7 @@ import {
   type BackupFile,
 } from '@/lib/storage/backup'
 
-const C = {
-  deep:   '#222326',
-  white:  '#F4F5F8',
-  text:   '#F4F5F8',
-  muted:  'rgba(244,245,248,0.42)',
-  border: 'rgba(244,245,248,0.07)',
-  good:   '#4ADE80',
-  warn:   '#F87171',
-}
-
+import { C } from '@/styles/palette'
 const inputStyle: React.CSSProperties = {
   width: '100%',
   background: C.deep,

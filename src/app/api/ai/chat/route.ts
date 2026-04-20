@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { buildContextPrompt } from '@/lib/kittax/context'
+import type { KittaxContext } from '@/lib/kittax/types'
 
-const SYSTEM = `You are EasyAcco's personal tax advisor — aligned to HMRC rules for the 2026/27 UK fiscal year. You are a conversational advisor, not a text box, with a voice and a memory of the conversation so far. Do not introduce yourself with a name; simply speak as a knowledgeable UK tax advisor.
+const BASE_SYSTEM = `You are EasyAcco's personal tax advisor — aligned to HMRC rules for the 2026/27 UK fiscal year. You are a conversational advisor, not a text box, with a voice and a memory of the conversation so far. Do not introduce yourself with a name; simply speak as a knowledgeable UK tax advisor.
 
 Your purpose is to help users understand UK income tax, personal allowance, National Insurance, dividends, and basic tax optimisation in plain language based on HMRC rules for 2026/27.
 
@@ -12,6 +14,7 @@ TONE:
 - When the user gives figures, work through them step by step — don't just dump a rule
 - Plain English. No jargon dumps. No emoji. No filler like "Great question!"
 - Reference the user's earlier messages when relevant — you remember the conversation
+- Use markdown: **bold** for key figures, bullet lists for breakdowns, ## headings for sections
 
 CORE TAX RULES — FOLLOW EXACTLY:
 
@@ -67,34 +70,32 @@ RULES:
 
 When the user greets you ("hi", "hey", "hello"), greet them back briefly as their personal tax advisor (do not use a personal name) and ask what they'd like to look at — do not dump a wall of tax rules.`
 
-// ─── Offline fallback replies ─────────────────────────────────────────────────
-// Used when the API key is absent or when the upstream service fails.
 const OFFLINE: Record<string, string> = {
   allowance:
-    'Your standard Personal Allowance is £12,570 for 2026/27. ' +
+    'Your standard Personal Allowance is **£12,570** for 2026/27. ' +
     'If your income exceeds £100,000, it reduces by £1 for every £2 above that threshold. ' +
     'At £125,140 or above, no Personal Allowance applies.',
   pension:
     'SIPP pension contributions reduce your adjusted net income pound-for-pound. ' +
-    'If your income is between £100,000 and £125,140, you are in the 60% trap — ' +
+    'If your income is between **£100,000 and £125,140**, you are in the 60% trap — ' +
     'a contribution back to £100,000 restores your full Personal Allowance and saves significantly.',
   dividend:
-    'Directors: the first £500 in dividends is tax-free (2026/27). ' +
-    'Above that: 8.75% in the basic rate band, 33.75% in the higher rate band. ' +
+    'Directors: the first **£500** in dividends is tax-free (2026/27). ' +
+    'Above that: **8.75%** in the basic rate band, **33.75%** in the higher rate band. ' +
     'Optimal structure is a salary at the NI threshold (£12,570) plus dividends.',
   mileage:
-    'You can claim 45p per business mile for the first 10,000 miles, then 25p/mile. ' +
+    'You can claim **45p per business mile** for the first 10,000 miles, then **25p/mile**. ' +
     'Keep a log with dates, destinations and business purpose.',
   expense:
     'Common allowable expenses: Use of Home (£6/wk flat rate), mileage (45p/mile), ' +
     'equipment, training, professional subscriptions, pension contributions. ' +
     'Enter your expenses in the Tax Estimator to see the exact reduction.',
   ni:
-    'Self-employed Class 4 NI: 6% on profits £12,570 to £50,270, then 2% above. ' +
+    'Self-employed Class 4 NI: **6%** on profits £12,570 to £50,270, then **2%** above. ' +
     'Class 2 is deemed paid at no charge once profits exceed £7,105. ' +
-    'Employed Class 1: 8% on earnings £12,570 to £50,270, then 2% above.',
+    'Employed Class 1: **8%** on earnings £12,570 to £50,270, then 2% above.',
   trap:
-    'The 60% trap applies when income is between £100,000 and £125,140. ' +
+    'The **60% trap** applies when income is between £100,000 and £125,140. ' +
     'Your Personal Allowance reduces by £1 for every £2 above £100,000, ' +
     'creating an effective 60% marginal rate on that slice. ' +
     'A SIPP contribution to bring income below £100,000 is the standard solution.',
@@ -109,7 +110,6 @@ function offlineReply(query: string): string {
   if (q.includes('expense')   || q.includes('claim') || q.includes('deduct'))    return OFFLINE.expense
   if (q.includes('national insurance') || q.includes(' ni ') || q.includes('class')) return OFFLINE.ni
   if (q.includes('60%')       || q.includes('trap')  || q.includes('100,000'))   return OFFLINE.trap
-
   return (
     'The Tax Estimator on the Tax page gives you a full HMRC-accurate 2026/27 breakdown. ' +
     'Enter your income and expenses there for exact figures. ' +
@@ -117,24 +117,17 @@ function offlineReply(query: string): string {
   )
 }
 
-// ─── Module-level singleton ───────────────────────────────────────────────────
-// Instantiated once per cold start rather than on every request.
-// The API key is fixed for the lifetime of the module, so this is safe.
 let _genAI: GoogleGenerativeAI | null = null
-
 function getGenAI(apiKey: string): GoogleGenerativeAI {
   if (!_genAI) _genAI = new GoogleGenerativeAI(apiKey)
   return _genAI
 }
 
-// ─── Route handler ────────────────────────────────────────────────────────────
 export async function POST(request: NextRequest) {
-  // Single canonical env var. Set GEMINI_API_KEY in your environment.
-  // GOOGLE_API_KEY is accepted as a legacy fallback.
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
 
   type HistoryTurn = { role: 'user' | 'model'; parts: Array<{ text: string }> }
-  let body: { message?: string; history?: HistoryTurn[] }
+  let body: { message?: string; history?: HistoryTurn[]; context?: Partial<KittaxContext> }
   try {
     body = await request.json()
   } catch {
@@ -149,14 +142,22 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'message too long (max 4000 chars)' }, { status: 400 })
   }
 
+  // Build context-injected system prompt
+  let systemPrompt = BASE_SYSTEM
+  if (body.context && typeof body.context === 'object') {
+    const ctxText = buildContextPrompt(body.context as KittaxContext)
+    systemPrompt = `${BASE_SYSTEM}\n\nUSER CONTEXT (live data — use this for proactive guidance):\n${ctxText}`
+  }
+
   if (!apiKey) {
     return NextResponse.json({ answer: offlineReply(query), offline: true })
   }
 
   try {
-    const model  = getGenAI(apiKey).getGenerativeModel({ model: 'gemini-1.5-flash', systemInstruction: SYSTEM })
-    // Strict whitelist: only 'user' and 'model' roles are permitted so a crafted
-    // client cannot inject a 'system' turn that would override the system instruction.
+    const model = getGenAI(apiKey).getGenerativeModel({
+      model: 'gemini-1.5-flash',
+      systemInstruction: systemPrompt,
+    })
     const history = Array.isArray(body.history)
       ? body.history
           .filter((t): t is HistoryTurn =>
@@ -167,9 +168,32 @@ export async function POST(request: NextRequest) {
           )
           .slice(-20)
       : []
+
     const chat = model.startChat({ history })
-    const result = await chat.sendMessage(query)
-    return NextResponse.json({ answer: result.response.text() })
+
+    // Stream the response back to the client
+    const result = await chat.sendMessageStream(query)
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of result.stream) {
+            const text = chunk.text()
+            if (text) controller.enqueue(new TextEncoder().encode(text))
+          }
+        } finally {
+          controller.close()
+        }
+      },
+    })
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'X-Streaming': 'true',
+        'Cache-Control': 'no-store',
+      },
+    })
   } catch (err: unknown) {
     console.error('[ai/chat] Gemini error:', err instanceof Error ? err.message : err)
     return NextResponse.json({ answer: offlineReply(query), offline: true })

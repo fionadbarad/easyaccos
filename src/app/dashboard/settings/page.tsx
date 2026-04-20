@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-browser'
 import { Loader2, CheckCircle } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
+import { BackupRestore } from '@/components/BackupRestore'
 
 const C = { bg: '#181818', deep: '#222326', card: '#1C1D20', white: '#F4F5F8', text: '#F4F5F8', muted: 'rgba(244,245,248,0.42)', border: 'rgba(244,245,248,0.07)' }
 
@@ -124,6 +125,11 @@ export default function SettingsPage() {
             {pwSaving ? 'Updating…' : 'Update Password'}
           </button>
         </form>
+      </Section>
+
+      {/* Backup & Restore */}
+      <Section title="Backup & Restore">
+        <BackupRestore />
       </Section>
 
       {/* Account info */}

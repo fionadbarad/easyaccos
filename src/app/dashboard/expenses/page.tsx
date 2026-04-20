@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
-import { Plus, Trash2, CloudOff, Cloud, Sparkles, Loader2 } from 'lucide-react'
+import { useState, useMemo, useEffect } from 'react'
+import { Plus, Trash2, CloudOff, Cloud, Sparkles, Loader2, Camera, X, CheckCircle2 } from 'lucide-react'
 import { useUserData } from '@/lib/use-user-data'
 import ReceiptScanner, { type ReceiptExtract } from '@/components/ReceiptScanner'
+import { FilterBar, emptyFilter, matchesRange, matchesCategories, matchesQuery, type FilterState } from '@/components/tracker/FilterBar'
+import { SortableTable, type ColumnDef } from '@/components/tracker/SortableTable'
 
-// ── Dark mono palette — matches dashboard ─────────────────────────────────
 const C = {
   bg:      '#181818',
   surface: '#1C1D20',
@@ -16,6 +17,7 @@ const C = {
   green:   '#4ADE80',
   red:     '#F87171',
   amber:   '#FBBF24',
+  blue:    '#93C5FD',
 }
 
 const CATEGORIES = [
@@ -36,6 +38,13 @@ interface Expense {
   description: string
   category: string
   amount: number
+  ocrScanned?: boolean
+}
+
+// Pending scan: OCR extract waiting for user to verify before saving
+interface PendingScan {
+  extract: ReceiptExtract
+  form: { date: string; description: string; category: string; amount: string }
 }
 
 const SEED: Expense[] = []
@@ -53,24 +62,217 @@ const labelS: React.CSSProperties = {
 
 function toISODate(d: Date) { return d.toISOString().slice(0, 10) }
 
+// ── Receipt Verify Modal ──────────────────────────────────────────────────────
+function ReceiptVerifyModal({
+  scan,
+  onConfirm,
+  onCancel,
+}: {
+  scan: PendingScan
+  onConfirm: (form: PendingScan['form']) => void
+  onCancel: () => void
+}) {
+  const [form, setForm] = useState(scan.form)
+  const [suggesting, setSuggesting] = useState(false)
+  const isImage = scan.extract.fileType.startsWith('image/')
+
+  async function suggestCategory() {
+    if (!form.description.trim() || suggesting) return
+    setSuggesting(true)
+    try {
+      const res = await fetch('/api/ai/categorise', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description: form.description, amount: form.amount ? parseFloat(form.amount) : undefined }),
+      })
+      const data = await res.json()
+      if (data.category && CATEGORIES.includes(data.category)) {
+        setForm((f) => ({ ...f, category: data.category }))
+      }
+    } catch { /* silent */ } finally { setSuggesting(false) }
+  }
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.72)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      zIndex: 60, padding: '1rem',
+    }}>
+      <div style={{
+        background: C.surface, border: `1px solid ${C.border}`, borderRadius: '8px',
+        width: '100%', maxWidth: '860px', maxHeight: '90vh',
+        display: 'flex', flexDirection: 'column', overflow: 'hidden',
+      }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.25rem', borderBottom: `1px solid ${C.border}` }}>
+          <div>
+            <div style={{ color: C.muted, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontFamily: 'var(--font-geist-mono), monospace', marginBottom: '2px' }}>
+              OCR · Split-View Verification
+            </div>
+            <h3 style={{ color: C.white, fontSize: '0.95rem', fontWeight: 600, margin: 0 }}>
+              Verify Receipt Details
+            </h3>
+          </div>
+          <button onClick={onCancel} style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', padding: '4px' }}>
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* Body — split view */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', flex: 1, overflow: 'hidden', minHeight: 0 }}>
+          {/* Left: receipt image */}
+          <div style={{ borderRight: `1px solid ${C.border}`, overflowY: 'auto', background: C.bg, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '1rem' }}>
+            {isImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={scan.extract.imageUrl}
+                alt="Receipt"
+                style={{ maxWidth: '100%', borderRadius: '4px', border: `1px solid ${C.border}` }}
+              />
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '200px', color: C.muted, gap: '0.75rem' }}>
+                <Camera size={32} strokeWidth={1.2} />
+                <span style={{ fontSize: '0.75rem', fontFamily: 'var(--font-geist-mono), monospace' }}>PDF receipt</span>
+              </div>
+            )}
+          </div>
+
+          {/* Right: editable fields */}
+          <div style={{ overflowY: 'auto', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+
+            {/* Extracted date badge */}
+            {scan.extract.date && (
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(147,197,253,0.08)', border: '1px solid rgba(147,197,253,0.2)', borderRadius: '4px', padding: '5px 10px', alignSelf: 'flex-start' }}>
+                <Camera size={10} style={{ color: C.blue }} />
+                <span style={{ color: C.blue, fontSize: '0.68rem', fontFamily: 'var(--font-geist-mono), monospace' }}>
+                  Extracted date: {scan.extract.date}
+                </span>
+              </div>
+            )}
+
+            <div>
+              <label style={labelS}>Date</label>
+              <input type="date" value={form.date} onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))} style={inputS} />
+            </div>
+
+            <div>
+              <label style={labelS}>Description</label>
+              <input
+                type="text" value={form.description}
+                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                style={{ ...inputS, fontFamily: 'inherit' }}
+              />
+            </div>
+
+            <div>
+              <label style={labelS}>
+                Category
+                <button type="button" onClick={suggestCategory}
+                  disabled={!form.description.trim() || suggesting}
+                  style={{ marginLeft: 6, background: 'transparent', border: `1px solid ${C.border}`, color: suggesting ? C.muted : C.white, borderRadius: 3, padding: '1px 6px', fontSize: '0.58rem', cursor: form.description.trim() && !suggesting ? 'pointer' : 'default', display: 'inline-flex', alignItems: 'center', gap: 3, verticalAlign: 'middle' }}>
+                  {suggesting ? <Loader2 size={9} style={{ animation: 'spin 1s linear infinite' }} /> : <Sparkles size={9} />}
+                  {suggesting ? 'thinking' : 'suggest'}
+                </button>
+              </label>
+              <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
+                style={{ ...inputS, cursor: 'pointer' }}>
+                {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+
+            <div>
+              <label style={labelS}>Amount (£)</label>
+              <input
+                type="number" min={0} step={0.01} value={form.amount}
+                onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))}
+                placeholder="0.00" style={inputS}
+              />
+            </div>
+
+            {/* Raw OCR text (collapsible) */}
+            <details style={{ marginTop: 'auto' }}>
+              <summary style={{ color: C.muted, fontSize: '0.68rem', cursor: 'pointer', fontFamily: 'var(--font-geist-mono), monospace', letterSpacing: '0.04em' }}>
+                Raw OCR text
+              </summary>
+              <pre style={{ color: 'rgba(244,245,248,0.3)', fontSize: '0.65rem', marginTop: '0.5rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontFamily: 'var(--font-geist-mono), monospace', maxHeight: '120px', overflowY: 'auto', background: C.bg, border: `1px solid ${C.border}`, borderRadius: '4px', padding: '0.5rem' }}>
+                {scan.extract.raw || '(empty)'}
+              </pre>
+            </details>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', padding: '0.875rem 1.25rem', borderTop: `1px solid ${C.border}` }}>
+          <button onClick={onCancel}
+            style={{ background: 'transparent', color: C.muted, border: `1px solid ${C.border}`, borderRadius: '4px', padding: '8px 16px', cursor: 'pointer', fontSize: '0.8rem' }}>
+            Cancel
+          </button>
+          <button onClick={() => onConfirm(form)}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', background: C.white, color: C.bg, border: 'none', borderRadius: '4px', padding: '8px 18px', fontWeight: 600, cursor: 'pointer', fontSize: '0.8rem' }}>
+            <CheckCircle2 size={13} /> Confirm & Add
+          </button>
+        </div>
+      </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  )
+}
+
+// ── Main page ─────────────────────────────────────────────────────────────────
 export default function ExpensesPage() {
   const { items: expenses, persist, loading, isAuthenticated } = useUserData<Expense>(
     'user_expenses', 'easyacco_expenses', SEED,
   )
-  const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({
-    date: toISODate(new Date()), description: '', category: CATEGORIES[0], amount: '',
-  })
-  const [suggesting, setSuggesting] = useState(false)
+  const [showForm, setShowForm]       = useState(false)
+  const [form, setForm]               = useState({ date: toISODate(new Date()), description: '', category: CATEGORIES[0], amount: '' })
+  const [suggesting, setSuggesting]   = useState(false)
+  const [filter, setFilter]           = useState<FilterState>(emptyFilter())
+  const [pendingScan, setPendingScan] = useState<PendingScan | null>(null)
+
+  // Revoke blob URL when modal closes without confirming
+  useEffect(() => {
+    if (!pendingScan) return
+    return () => {
+      URL.revokeObjectURL(pendingScan.extract.imageUrl)
+    }
+  }, [pendingScan])
+
+  const filtered = useMemo(() => {
+    return expenses.filter(e =>
+      matchesRange(e.date, filter.range)
+      && matchesCategories(e.category, filter.categories)
+      && matchesQuery(`${e.description} ${e.category}`, filter.query),
+    )
+  }, [expenses, filter])
 
   function onReceiptExtract(data: ReceiptExtract) {
-    setForm((f) => ({
-      ...f,
-      description: data.description || f.description,
-      amount: data.amount != null ? data.amount.toFixed(2) : f.amount,
-      date: data.date || f.date,
-    }))
-    setShowForm(true)
+    // Open the split-view verification modal instead of pre-filling the form
+    setPendingScan({
+      extract: data,
+      form: {
+        date: data.date || toISODate(new Date()),
+        description: data.description || '',
+        category: CATEGORIES[0],
+        amount: data.amount != null ? data.amount.toFixed(2) : '',
+      },
+    })
+  }
+
+  async function confirmScan(confirmedForm: PendingScan['form']) {
+    const amount = parseFloat(confirmedForm.amount)
+    if (!amount || !confirmedForm.description.trim()) return
+    await persist([
+      { id: crypto.randomUUID(), ...confirmedForm, amount, ocrScanned: true },
+      ...expenses,
+    ])
+    // Revoke blob URL now that we're done with it
+    if (pendingScan) URL.revokeObjectURL(pendingScan.extract.imageUrl)
+    setPendingScan(null)
+  }
+
+  function cancelScan() {
+    if (pendingScan) URL.revokeObjectURL(pendingScan.extract.imageUrl)
+    setPendingScan(null)
   }
 
   async function suggestCategory() {
@@ -80,20 +282,13 @@ export default function ExpensesPage() {
       const res = await fetch('/api/ai/categorise', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          description: form.description,
-          amount: form.amount ? parseFloat(form.amount) : undefined,
-        }),
+        body: JSON.stringify({ description: form.description, amount: form.amount ? parseFloat(form.amount) : undefined }),
       })
       const data = await res.json()
       if (data.category && CATEGORIES.includes(data.category)) {
         setForm((f) => ({ ...f, category: data.category }))
       }
-    } catch {
-      // silent — keep existing category
-    } finally {
-      setSuggesting(false)
-    }
+    } catch { /* silent */ } finally { setSuggesting(false) }
   }
 
   async function addExpense(e: React.FormEvent) {
@@ -109,11 +304,56 @@ export default function ExpensesPage() {
     await persist(expenses.filter((e) => e.id !== id))
   }
 
-  const total      = expenses.reduce((s, e) => s + e.amount, 0)
+  const total      = filtered.reduce((s, e) => s + e.amount, 0)
   const byCategory = CATEGORIES
-    .map((cat) => ({ cat, total: expenses.filter((e) => e.category === cat).reduce((s, e) => s + e.amount, 0) }))
+    .map((cat) => ({ cat, total: filtered.filter((e) => e.category === cat).reduce((s, e) => s + e.amount, 0) }))
     .filter((c) => c.total > 0)
     .sort((a, b) => b.total - a.total)
+
+  const columns: ColumnDef<Expense>[] = [
+    {
+      key: 'date', header: 'Date', sortable: true,
+      accessor: (e) => e.date,
+      render: (e) => (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ color: C.muted, fontFamily: 'var(--font-geist-mono), monospace', fontSize: '0.75rem' }}>{e.date}</span>
+          {e.ocrScanned && (
+            <span title="Scanned via OCR" style={{ display: 'inline-flex', alignItems: 'center', color: C.blue, opacity: 0.8 }}>
+              <Camera size={10} strokeWidth={1.5} />
+            </span>
+          )}
+        </span>
+      ),
+    },
+    {
+      key: 'description', header: 'Description', sortable: true,
+      accessor: (e) => e.description,
+    },
+    {
+      key: 'category', header: 'Category', sortable: true,
+      accessor: (e) => e.category,
+      render: (e) => <span style={{ color: C.muted, fontSize: '0.75rem' }}>{e.category}</span>,
+    },
+    {
+      key: 'amount', header: 'Amount', sortable: true, align: 'right',
+      accessor: (e) => e.amount,
+      render: (e) => (
+        <span style={{ color: C.red, fontWeight: 500, fontFamily: 'var(--font-geist-mono), monospace', fontVariantNumeric: 'tabular-nums' }}>
+          -£{e.amount.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
+        </span>
+      ),
+    },
+    {
+      key: 'del', header: '', align: 'right', width: 40,
+      accessor: () => '',
+      render: (e) => (
+        <button onClick={() => remove(e.id)} aria-label="Delete expense"
+          style={{ background: 'none', border: 'none', color: 'rgba(248,113,113,0.4)', cursor: 'pointer', padding: 2, display: 'inline-flex' }}>
+          <Trash2 size={13} strokeWidth={1.5} />
+        </button>
+      ),
+    },
+  ]
 
   const chipStyle = (active: boolean): React.CSSProperties => ({
     padding: '5px 12px', borderRadius: '3px',
@@ -127,6 +367,15 @@ export default function ExpensesPage() {
   return (
     <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)', maxWidth: '900px' }}>
 
+      {/* Split-view verification modal */}
+      {pendingScan && (
+        <ReceiptVerifyModal
+          scan={pendingScan}
+          onConfirm={confirmScan}
+          onCancel={cancelScan}
+        />
+      )}
+
       {/* ── Header ── */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.75rem' }}>
         <div>
@@ -137,12 +386,13 @@ export default function ExpensesPage() {
             Expense Tracker
           </h1>
           <p style={{ color: C.muted, fontSize: '0.75rem', marginTop: '4px', fontFamily: 'var(--font-geist-mono), monospace' }}>
-            {loading ? '—' : `${expenses.length} records · total `}
+            {loading
+              ? '—'
+              : `${filtered.length}${filtered.length !== expenses.length ? ` of ${expenses.length}` : ''} records · total `}
             {!loading && <span style={{ color: C.white }}>£{total.toLocaleString('en-GB', { minimumFractionDigits: 2 })}</span>}
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          {/* Sync status */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: C.muted, fontSize: '0.68rem', fontFamily: 'var(--font-geist-mono), monospace', padding: '6px 10px', border: `1px solid ${C.border}`, borderRadius: '4px' }}>
             {isAuthenticated
               ? <><Cloud size={11} style={{ color: C.green }} /> synced</>
@@ -182,7 +432,6 @@ export default function ExpensesPage() {
               Category
               <button type="button" onClick={suggestCategory}
                 disabled={!form.description.trim() || suggesting}
-                title="Suggest a category using AI"
                 style={{ marginLeft: 6, background: 'transparent', border: `1px solid ${C.border}`, color: suggesting ? C.muted : C.white, borderRadius: 3, padding: '1px 6px', fontSize: '0.58rem', cursor: form.description.trim() && !suggesting ? 'pointer' : 'default', display: 'inline-flex', alignItems: 'center', gap: 3, verticalAlign: 'middle' }}>
                 {suggesting ? <Loader2 size={9} style={{ animation: 'spin 1s linear infinite' }} /> : <Sparkles size={9} />}
                 {suggesting ? 'thinking' : 'suggest'}
@@ -220,6 +469,11 @@ export default function ExpensesPage() {
         </div>
       )}
 
+      {/* ── Filter bar ── */}
+      {!loading && expenses.length > 0 && (
+        <FilterBar value={filter} onChange={setFilter} categories={CATEGORIES} />
+      )}
+
       {/* ── Table ── */}
       {loading ? (
         <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '3rem', textAlign: 'center', color: C.muted, fontSize: '0.84rem' }}>
@@ -233,49 +487,26 @@ export default function ExpensesPage() {
           </p>
         </div>
       ) : (
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', overflow: 'hidden' }}>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-              <thead>
-                <tr style={{ borderBottom: `1px solid ${C.border}` }}>
-                  {['Date', 'Description', 'Category', 'Amount', ''].map((h, i) => (
-                    <th key={i} style={{
-                      padding: '10px 13px',
-                      textAlign: h === 'Amount' ? 'right' : 'left',
-                      color: C.muted, fontWeight: 600, fontSize: '0.62rem',
-                      textTransform: 'uppercase', letterSpacing: '0.07em', whiteSpace: 'nowrap',
-                    }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {expenses.map((exp, idx) => (
-                  <tr key={exp.id} style={{ borderBottom: idx < expenses.length - 1 ? `1px solid rgba(244,245,248,0.04)` : 'none' }}>
-                    <td style={{ padding: '9px 13px', color: C.muted, whiteSpace: 'nowrap', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '0.75rem' }}>{exp.date}</td>
-                    <td style={{ padding: '9px 13px', color: C.white }}>{exp.description}</td>
-                    <td style={{ padding: '9px 13px', color: C.muted, fontSize: '0.75rem' }}>{exp.category}</td>
-                    <td style={{ padding: '9px 13px', textAlign: 'right', color: C.red, fontWeight: 500, whiteSpace: 'nowrap', fontFamily: 'var(--font-geist-mono), monospace', fontVariantNumeric: 'tabular-nums' }}>
-                      -£{exp.amount.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
-                    </td>
-                    <td style={{ padding: '9px 13px', width: '32px' }}>
-                      <button onClick={() => remove(exp.id)}
-                        style={{ background: 'none', border: 'none', color: 'rgba(248,113,113,0.3)', cursor: 'pointer', padding: '2px', display: 'flex', transition: 'color 0.1s' }}
-                        onMouseEnter={(e) => (e.currentTarget as HTMLButtonElement).style.color = C.red}
-                        onMouseLeave={(e) => (e.currentTarget as HTMLButtonElement).style.color = 'rgba(248,113,113,0.3)'}>
-                        <Trash2 size={13} strokeWidth={1.5} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <SortableTable
+          rows={filtered}
+          columns={columns}
+          initialSort={{ key: 'date', dir: 'desc' }}
+          empty="No expenses match these filters."
+        />
+      )}
+
+      {/* OCR legend */}
+      {expenses.some((e) => e.ocrScanned) && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '0.6rem', color: 'rgba(147,197,253,0.5)', fontSize: '0.62rem', fontFamily: 'var(--font-geist-mono), monospace' }}>
+          <Camera size={9} /> = scanned via OCR
         </div>
       )}
 
       <p style={{ color: 'rgba(244,245,248,0.18)', fontSize: '0.62rem', marginTop: '0.75rem', textAlign: 'right', fontFamily: 'var(--font-geist-mono), monospace' }}>
         HMRC "wholly and exclusively" rule · 2026/27
       </p>
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }

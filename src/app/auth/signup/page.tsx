@@ -9,17 +9,7 @@ import { createClient } from '@/lib/supabase-browser'
 import { Mail, Loader2, CheckCircle, ArrowRight } from 'lucide-react'
 
 // Same palette as login page — consistent auth experience
-const C = {
-  bg:     '#181818',
-  deep:   '#222326',
-  card:   '#1C1D20',
-  white:  '#F4F5F8',
-  text:   '#F4F5F8',
-  muted:  'rgba(244,245,248,0.42)',
-  border: 'rgba(244,245,248,0.07)',
-  red:    '#F87171',
-}
-
+import { C } from '@/styles/palette'
 export default function SignupPage() {
   const supabaseRef = useRef(createClient())
   const supabase    = supabaseRef.current

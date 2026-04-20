@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { calculateFullTax, kittaxAnswer } from '@/lib/kittax-brain'
+import { calculateFullTax, kittaxAnswer } from '@/lib/kittax/engine'
 
 // ─── 2026/27 UK Tax Engine (kept for direct calculate action) ───────────────
 interface TaxResult {

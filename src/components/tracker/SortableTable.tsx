@@ -3,14 +3,7 @@
 import { useMemo, useState } from 'react'
 import { ArrowDown, ArrowUp, ChevronsUpDown } from 'lucide-react'
 
-const C = {
-  surface: '#1C1D20',
-  white:   '#F4F5F8',
-  muted:   'rgba(244,245,248,0.42)',
-  dim:     'rgba(244,245,248,0.18)',
-  border:  'rgba(244,245,248,0.07)',
-}
-
+import { C } from '@/styles/palette'
 export type ColumnDef<T> = {
   key: string
   header: string

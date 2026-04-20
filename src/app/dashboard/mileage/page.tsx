@@ -8,19 +8,7 @@ import {
 import { useUserData } from '@/lib/use-user-data'
 import { fmtGBP } from '@/lib/tax-engine'
 
-const C = {
-  bg:      '#181818',
-  surface: '#1C1D20',
-  gray:    '#222326',
-  white:   '#F4F5F8',
-  muted:   'rgba(244,245,248,0.42)',
-  dim:     'rgba(244,245,248,0.18)',
-  border:  'rgba(244,245,248,0.07)',
-  green:   '#4ADE80',
-  red:     '#F87171',
-  amber:   '#FBBF24',
-}
-
+import { C } from '@/styles/palette'
 // HMRC 2026/27 approved mileage rates
 const RATE_CAR_FIRST   = 0.45   // First 10,000 miles
 const RATE_CAR_EXCESS  = 0.25   // Above 10,000 miles

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { kittaxAnswer } from '@/lib/kittax-brain'
+import { kittaxAnswer } from '@/lib/kittax/engine'
 
 type AIRequest = {
   message?: string

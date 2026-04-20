@@ -8,20 +8,7 @@ import type { EmploymentType, StudentLoanPlan, TaxRegion } from '@/lib/tax-engin
 import { useUserData } from '@/lib/use-user-data'
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
-const C = {
-  bg:      '#181818',
-  surface: '#1C1D20',
-  gray:    '#222326',
-  white:   '#F4F5F8',
-  muted:   'rgba(244,245,248,0.42)',
-  dim:     'rgba(244,245,248,0.18)',
-  border:  'rgba(244,245,248,0.07)',
-  active:  'rgba(244,245,248,0.04)',
-  green:   '#4ADE80',
-  red:     '#F87171',
-  amber:   '#FBBF24',
-}
-
+import { C } from '@/styles/palette'
 // ── Tax year constants ────────────────────────────────────────────────────────
 const TAX_YEAR_START = new Date('2026-04-06')
 const TAX_YEAR_END   = new Date('2027-04-05')

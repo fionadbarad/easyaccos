@@ -3,15 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Calendar, ChevronDown, Search, X } from 'lucide-react'
 
-const C = {
-  surface: '#1C1D20',
-  gray:    '#222326',
-  white:   '#F4F5F8',
-  muted:   'rgba(244,245,248,0.42)',
-  dim:     'rgba(244,245,248,0.18)',
-  border:  'rgba(244,245,248,0.07)',
-}
-
+import { C } from '@/styles/palette'
 export type DateRange =
   | { kind: 'all' }
   | { kind: 'month'; ym: string } // "2026-04"

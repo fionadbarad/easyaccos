@@ -1,46 +1,21 @@
 /**
- * useUserData — Supabase-backed persistence with localStorage guest fallback.
+ * useUserData — Supabase-backed persistence with encrypted IndexedDB
+ * guest fallback.
  *
- * When the user is authenticated, all reads/writes go to Supabase.
- * When the user is a guest, data lives in localStorage only.
- *
- * Required Supabase tables — run once in your Supabase SQL editor:
- *
- *   CREATE TABLE user_transactions (
- *     id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
- *     user_id     uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
- *     date        text        NOT NULL,
- *     description text        NOT NULL,
- *     type        text        NOT NULL CHECK (type IN ('income','expense')),
- *     amount      numeric     NOT NULL,
- *     reference   text        NOT NULL DEFAULT '',
- *     created_at  timestamptz NOT NULL DEFAULT now()
- *   );
- *   ALTER TABLE user_transactions ENABLE ROW LEVEL SECURITY;
- *   CREATE POLICY "own_transactions" ON user_transactions
- *     FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
- *
- *   CREATE TABLE user_expenses (
- *     id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
- *     user_id     uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
- *     date        text        NOT NULL,
- *     description text        NOT NULL,
- *     category    text        NOT NULL,
- *     amount      numeric     NOT NULL,
- *     created_at  timestamptz NOT NULL DEFAULT now()
- *   );
- *   ALTER TABLE user_expenses ENABLE ROW LEVEL SECURITY;
- *   CREATE POLICY "own_expenses" ON user_expenses
- *     FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+ * Public API is unchanged: { items, persist, loading, isAuthenticated }.
+ * Local data is now AES-GCM encrypted and survives browser refreshes via
+ * IndexedDB rather than localStorage. Existing localStorage data is migrated
+ * transparently on first read.
  */
 
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createClient, isSupabaseConfigured } from '@/lib/supabase-browser'
+import { secureRead, secureWrite } from '@/lib/storage/secure-store'
+import { appendAuditLog } from '@/lib/audit'
 import type { SupabaseClient, User } from '@supabase/supabase-js'
 
-// Add new tables here as features expand
 type Table = 'user_transactions' | 'user_expenses' | 'user_invoices' | 'user_mileage'
 
 export function useUserData<T extends { id: string }>(
@@ -58,7 +33,7 @@ export function useUserData<T extends { id: string }>(
   // ── Track auth state ──────────────────────────────────────────────────────
   useEffect(() => {
     if (!supabase) {
-      setUser(null)   // no Supabase → always guest mode
+      setUser(null)
       return
     }
     supabase.auth.getSession().then(({ data }) => {
@@ -74,6 +49,15 @@ export function useUserData<T extends { id: string }>(
   useEffect(() => {
     let cancelled = false
 
+    async function loadLocal() {
+      const recordKey = `${table}:guest`
+      const data = await secureRead<T[]>(recordKey, localKey, seed)
+      if (!cancelled) {
+        setItems(data)
+        setLoading(false)
+      }
+    }
+
     async function load() {
       if (user && supabase) {
         const { data: rows, error } = await supabase
@@ -82,29 +66,19 @@ export function useUserData<T extends { id: string }>(
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
 
-        if (!cancelled) {
-          if (error) {
-            // Supabase table may not exist yet — fall back to localStorage
-            loadLocal()
-          } else {
-            setItems((rows ?? []) as T[])
-            setLoading(false)
-          }
+        if (cancelled) return
+        if (error) {
+          await loadLocal()
+        } else {
+          setItems((rows ?? []) as T[])
+          // Also cache an encrypted local copy so the authed user gets
+          // instant rehydration on next load before Supabase replies.
+          await secureWrite(`${table}:${user.id}`, rows ?? [])
+          setLoading(false)
         }
       } else if (user === null) {
-        // Definitively not logged in (null vs undefined)
-        loadLocal()
+        await loadLocal()
       }
-    }
-
-    function loadLocal() {
-      try {
-        const saved = localStorage.getItem(localKey)
-        setItems(saved ? JSON.parse(saved) : seed)
-      } catch {
-        setItems(seed)
-      }
-      if (!cancelled) setLoading(false)
     }
 
     load()
@@ -114,36 +88,57 @@ export function useUserData<T extends { id: string }>(
 
   // ── Persist ───────────────────────────────────────────────────────────────
   const persist = useCallback(async (next: T[]) => {
+    // ── Audit diff (best-effort, never blocks persist) ──────────────────────
+    const prev     = items   // closure over latest state
+    const prevMap  = new Map(prev.map(i => [i.id, i]))
+    const nextMap  = new Map(next.map(i => [i.id, i]))
+    const actor    = user?.email ?? 'guest'
+    const entity   = table.replace(/^user_/, '')  // "expenses", "invoices", …
+
+    for (const [id, after] of nextMap) {
+      const before = prevMap.get(id)
+      const op = before ? 'update' : 'create'
+      if (op === 'update') {
+        if (JSON.stringify(before) === JSON.stringify(after)) continue
+      }
+      void appendAuditLog({ entity, entityId: id, op, before: before ?? null, after, actor }, supabase, user?.id)
+    }
+    for (const [id, before] of prevMap) {
+      if (!nextMap.has(id)) {
+        void appendAuditLog({ entity, entityId: id, op: 'delete', before, after: null, actor }, supabase, user?.id)
+      }
+    }
+
     setItems(next)
 
     if (user && supabase) {
       try {
-        // 1. Find IDs currently in Supabase for this user
         const { data: existing } = await supabase
           .from(table).select('id').eq('user_id', user.id)
         const existingIds = new Set<string>((existing ?? []).map((r: { id: string }) => r.id))
         const nextIds     = new Set<string>(next.map((i) => i.id))
 
-        // 2. Delete rows that were removed
         const toDelete = [...existingIds].filter((id) => !nextIds.has(id))
         if (toDelete.length > 0) {
           await supabase.from(table).delete().in('id', toDelete)
         }
 
-        // 3. Upsert current snapshot
         if (next.length > 0) {
           await supabase.from(table).upsert(
             next.map((item) => ({ ...item, user_id: user.id })),
             { onConflict: 'id' },
           )
         }
+
+        await secureWrite(`${table}:${user.id}`, next)
       } catch {
-        // Silent fallback — don't break the UI if Supabase is unreachable
+        await secureWrite(`${table}:${user.id}`, next)
       }
     } else {
-      localStorage.setItem(localKey, JSON.stringify(next))
+      await secureWrite(`${table}:guest`, next)
     }
-  }, [user, table, localKey, supabase])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, table, supabase, items])
 
   return { items, persist, loading, isAuthenticated: !!user }
 }

@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plus, Trash2, Cloud, CloudOff, Copy, Check,
-  FileText, Clock, AlertTriangle, CheckCircle2, ChevronDown,
+  FileText, Clock, AlertTriangle, CheckCircle2, ChevronDown, Undo2,
 } from 'lucide-react'
 import { useUserData } from '@/lib/use-user-data'
 
@@ -46,7 +46,10 @@ function fmt(n: number) { return '£' + Math.round(n).toLocaleString('en-GB') }
 function fmtDec(n: number) { return '£' + n.toLocaleString('en-GB', { minimumFractionDigits: 2 }) }
 
 function vatTotal(inv: Invoice)  { return inv.vat ? inv.amount * 1.2 : inv.amount }
-function isOverdue(inv: Invoice) { return inv.status === 'sent' && new Date(inv.dueDate) < new Date() }
+function isPastDue(inv: Invoice) {
+  return (inv.status === 'sent' || inv.status === 'overdue')
+    && new Date(inv.dueDate) < new Date(today())
+}
 function daysOverdue(inv: Invoice) {
   return Math.ceil((new Date().getTime() - new Date(inv.dueDate).getTime()) / 86400000)
 }
@@ -62,9 +65,8 @@ const STATUS_CONFIG: Record<InvoiceStatus, { label: string; color: string; bg: s
   overdue: { label: 'Overdue', color: C.red,    bg: 'rgba(248,113,113,0.08)', Icon: AlertTriangle },
 }
 
-function StatusBadge({ status, overrideOverdue }: { status: InvoiceStatus; overrideOverdue?: boolean }) {
-  const s = overrideOverdue && status === 'sent' ? 'overdue' : status
-  const { label, color, bg, Icon } = STATUS_CONFIG[s]
+function StatusBadge({ status }: { status: InvoiceStatus }) {
+  const { label, color, bg, Icon } = STATUS_CONFIG[status]
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 8px', borderRadius: '3px', background: bg, color, fontSize: '0.7rem', fontWeight: 600, fontFamily: 'var(--font-geist-mono), monospace', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>
       <Icon size={10} strokeWidth={2} />
@@ -146,7 +148,7 @@ function InvoiceRow({ inv, onUpdate, onDelete }: {
   onDelete: (id: string) => void
 }) {
   const [open, setOpen] = useState(false)
-  const overdue  = isOverdue(inv)
+  const overdue  = inv.status === 'overdue'
   const total    = vatTotal(inv)
   const daysLeft = daysToDue(inv)
 
@@ -163,7 +165,7 @@ function InvoiceRow({ inv, onUpdate, onDelete }: {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px', flexWrap: 'wrap' }}>
             <span style={{ color: C.white, fontSize: '0.85rem', fontWeight: 500 }}>{inv.client}</span>
             <span style={{ color: C.dim, fontSize: '0.72rem', fontFamily: 'var(--font-geist-mono), monospace' }}>#{inv.number}</span>
-            <StatusBadge status={inv.status} overrideOverdue={overdue} />
+            <StatusBadge status={inv.status} />
           </div>
           <div style={{ color: C.muted, fontSize: '0.75rem' }}>
             {inv.description}
@@ -242,6 +244,18 @@ function InvoiceRow({ inv, onUpdate, onDelete }: {
                     Mark as Paid
                   </button>
                 )}
+                {inv.status === 'sent' && (
+                  <button onClick={() => onUpdate(inv.id, { status: 'overdue' })}
+                    style={{ background: 'transparent', color: C.red, border: `1px solid rgba(248,113,113,0.3)`, borderRadius: '4px', padding: '6px 12px', fontSize: '0.75rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                    <AlertTriangle size={11} /> Mark Overdue
+                  </button>
+                )}
+                {overdue && (
+                  <button onClick={() => onUpdate(inv.id, { status: 'sent' })}
+                    style={{ background: 'transparent', color: C.muted, border: `1px solid ${C.border}`, borderRadius: '4px', padding: '6px 12px', fontSize: '0.75rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                    <Undo2 size={11} /> Revert to Sent
+                  </button>
+                )}
                 {inv.status === 'paid' && (
                   <span style={{ color: C.green, fontSize: '0.78rem', fontFamily: 'var(--font-geist-mono), monospace' }}>
                     ✓ Paid {inv.paidDate ?? ''}
@@ -284,10 +298,23 @@ export default function InvoicesPage() {
     return String(max + 1).padStart(4, '0')
   }, [invoices])
 
-  // ── Stats ──────────────────────────────────────────────────────────────────
+  // ── Sweep: flip sent → overdue for any past-due invoices, persisted. ──────
+  const sweptRef = useRef(false)
+  useEffect(() => {
+    if (loading || sweptRef.current) return
+    const needsFlip = invoices.some(i => i.status === 'sent' && isPastDue(i))
+    if (!needsFlip) { sweptRef.current = true; return }
+    sweptRef.current = true
+    const next = invoices.map(i =>
+      i.status === 'sent' && isPastDue(i) ? { ...i, status: 'overdue' as InvoiceStatus } : i,
+    )
+    void persist(next)
+  }, [loading, invoices, persist])
+
+  // ── Stats (trust persisted status) ────────────────────────────────────────
   const stats = useMemo(() => {
-    const sent    = invoices.filter(i => i.status === 'sent' && !isOverdue(i))
-    const overdue = invoices.filter(isOverdue)
+    const sent    = invoices.filter(i => i.status === 'sent')
+    const overdue = invoices.filter(i => i.status === 'overdue')
     const paid    = invoices.filter(i => i.status === 'paid')
     const draft   = invoices.filter(i => i.status === 'draft')
     return {
@@ -299,12 +326,9 @@ export default function InvoicesPage() {
     }
   }, [invoices])
 
-  // ── Filtered list (mark overdue dynamically) ───────────────────────────────
   const displayed = useMemo(() => {
-    const normalized = invoices.map(i => isOverdue(i) ? { ...i, status: 'overdue' as InvoiceStatus } : i)
-    if (filter === 'all') return normalized
-    if (filter === 'overdue') return normalized.filter(i => i.status === 'overdue')
-    return normalized.filter(i => i.status === filter)
+    if (filter === 'all') return invoices
+    return invoices.filter(i => i.status === filter)
   }, [invoices, filter])
 
   // ── Mutations ──────────────────────────────────────────────────────────────

@@ -21,15 +21,26 @@ export default function DashboardError({
       <p style={{ color: 'rgba(244,245,248,0.5)', fontSize: '0.82rem', lineHeight: 1.5, marginBottom: '1.25rem' }}>
         Your data is safe — nothing was written. You can retry, or navigate away.
       </p>
+      {error.message && (
+        <pre style={{ color: 'rgba(244,245,248,0.75)', fontSize: '0.72rem', fontFamily: 'var(--font-geist-mono), monospace', background: '#1C1D20', border: '1px solid rgba(244,245,248,0.07)', borderRadius: '4px', padding: '0.6rem 0.8rem', marginBottom: '0.6rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+          {error.message}
+        </pre>
+      )}
       {error.digest && (
         <pre style={{ color: 'rgba(244,245,248,0.3)', fontSize: '0.68rem', fontFamily: 'var(--font-geist-mono), monospace', background: '#1C1D20', border: '1px solid rgba(244,245,248,0.07)', borderRadius: '4px', padding: '0.6rem 0.8rem', marginBottom: '1.25rem' }}>
           digest: {error.digest}
         </pre>
       )}
-      <button onClick={reset}
-        style={{ background: '#F4F5F8', color: '#181818', border: 'none', borderRadius: '4px', padding: '9px 16px', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', letterSpacing: '-0.01em' }}>
-        Try again
-      </button>
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        <button onClick={reset}
+          style={{ background: '#F4F5F8', color: '#181818', border: 'none', borderRadius: '4px', padding: '9px 16px', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', letterSpacing: '-0.01em' }}>
+          Try again
+        </button>
+        <a href="mailto:support@easyacco.com?subject=Dashboard%20error"
+          style={{ background: 'transparent', color: 'rgba(244,245,248,0.7)', border: '1px solid rgba(244,245,248,0.15)', borderRadius: '4px', padding: '9px 16px', fontSize: '0.82rem', fontWeight: 500, textDecoration: 'none', letterSpacing: '-0.01em' }}>
+          Contact support
+        </a>
+      </div>
     </div>
   )
 }

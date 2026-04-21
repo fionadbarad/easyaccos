@@ -2,71 +2,72 @@
 // All figures are hard-coded. No API calls. Zero runtime cost.
 // Five distinct user journeys with accurate HMRC 2026/27 logic.
 import { round2, fmtGBP, calcPA as calcPACore } from './tax-logic'
+import * as B from './tax/bands-2026'
 export { round2, fmtGBP }
 
 // ─── Shared Constants ────────────────────────────────────────────────────────
+// All numbers sourced from lib/tax/bands-2026 — edit that file to update rates.
 export const TB = {
   // Personal Allowance
-  PA_BASE:             12_570,
-  PA_TAPER_START:      100_000,
-  PA_TAPER_END:        125_140,
-  MARRIAGE_ALLOWANCE:  1_260,
-  BLIND_ALLOWANCE:     3_250,
+  PA_BASE:             B.PA_BASE,
+  PA_TAPER_START:      B.PA_TAPER_START,
+  PA_TAPER_END:        B.PA_TAPER_END,
+  MARRIAGE_ALLOWANCE:  B.MARRIAGE_ALLOWANCE_XFER,
+  BLIND_ALLOWANCE:     B.BLIND_PERSONS_ALLOWANCE,
 
   // Income Tax — rUK
-  BASIC_RATE:          0.20,
-  HIGHER_RATE:         0.40,
-  ADDITIONAL_RATE:     0.45,
-  BASIC_BAND_WIDTH:    37_700,    // £12,571–£50,270
-  BASIC_LIMIT:         50_270,
-  HIGHER_LIMIT:        125_140,
+  BASIC_RATE:          B.RUK_BASIC_RATE,
+  HIGHER_RATE:         B.RUK_HIGHER_RATE,
+  ADDITIONAL_RATE:     B.RUK_ADDITIONAL_RATE,
+  BASIC_BAND_WIDTH:    B.RUK_BASIC_RATE_WIDTH,
+  BASIC_LIMIT:         B.RUK_BASIC_LIMIT,
+  HIGHER_LIMIT:        B.RUK_HIGHER_LIMIT,
 
   // NI
-  NI_PT:               12_570,    // Primary Threshold
-  NI_UEL:              50_270,    // Upper Earnings Limit
-  NI_CLASS1_MAIN:      0.08,      // Employee — Scenario 1
-  NI_CLASS1_UPPER:     0.02,
-  NI_CLASS4_MAIN:      0.06,      // Self-Employed — Scenario 1
-  NI_CLASS4_UPPER:     0.02,
-  NI_CLASS2_WEEKLY:    3.65,
-  NI_CLASS2_SPT:       7_105,
+  NI_PT:               B.NI_PT,
+  NI_UEL:              B.NI_UEL,
+  NI_CLASS1_MAIN:      B.NI_C1_MAIN,
+  NI_CLASS1_UPPER:     B.NI_C1_UPPER,
+  NI_CLASS4_MAIN:      B.NI_C4_MAIN,
+  NI_CLASS4_UPPER:     B.NI_C4_UPPER,
+  NI_CLASS2_WEEKLY:    B.NI_C2_WEEKLY,
+  NI_CLASS2_SPT:       B.NI_CLASS2_SPT,
 
-  // Dividends — Scenario 5 (2026/27 Dividend Hike — effective 6 April 2026)
-  DIV_ALLOWANCE:       500,
-  DIV_BASIC_RATE:      0.1075,    // 10.75% (was 8.75%)
-  DIV_HIGHER_RATE:     0.3575,    // 35.75% (was 33.75%)
-  DIV_ADDL_RATE:       0.3935,    // 39.35%
+  // Dividends
+  DIV_ALLOWANCE:       B.DIV_ALLOWANCE,
+  DIV_BASIC_RATE:      B.DIV_BASIC,
+  DIV_HIGHER_RATE:     B.DIV_HIGHER,
+  DIV_ADDL_RATE:       B.DIV_ADDL,
 
   // Director optimal salary
-  DIRECTOR_OPTIMAL_SALARY: 12_570,
+  DIRECTOR_OPTIMAL_SALARY: B.DIRECTOR_OPTIMAL_SALARY,
 
-  // Employer NI — 2026 Spike (effective 6 April 2026)
-  EMPLOYER_NI_RATE:    0.15,      // 15% (was 13.8%)
-  EMPLOYER_NI_THRESH:  5_000,     // Secondary Threshold dropped to £5,000
+  // Employer NI — 2026 Spike
+  EMPLOYER_NI_RATE:    B.EMPLOYER_NI_RATE,
+  EMPLOYER_NI_THRESH:  B.EMPLOYER_NI_THRESH,
 
   // Student Loans 2026/27
-  SL_PLAN1_THRESH:     26_900,
-  SL_PLAN1_RATE:       0.09,
-  SL_PLAN2_THRESH:     29_385,    // Updated 2026/27
-  SL_PLAN2_RATE:       0.09,
-  SL_PLAN5_THRESH:     25_000,    // New for 2026/27
-  SL_PLAN5_RATE:       0.09,
-  SL_POSTGRAD_THRESH:  21_000,
-  SL_POSTGRAD_RATE:    0.06,
+  SL_PLAN1_THRESH:     B.SL_PLAN1_THRESH,
+  SL_PLAN1_RATE:       B.SL_PLAN_RATE,
+  SL_PLAN2_THRESH:     B.SL_PLAN2_THRESH,
+  SL_PLAN2_RATE:       B.SL_PLAN_RATE,
+  SL_PLAN5_THRESH:     B.SL_PLAN5_THRESH,
+  SL_PLAN5_RATE:       B.SL_PLAN_RATE,
+  SL_POSTGRAD_THRESH:  B.SL_POSTGRAD_THRESH,
+  SL_POSTGRAD_RATE:    B.SL_POSTGRAD_RATE,
 
-  // National Living Wage (effective 1 April 2026)
-  NLW_RATE:            12.71,
+  // National Living Wage
+  NLW_RATE:            B.NLW_RATE,
 
-  // Scotland Income Tax — band ceilings (absolute gross income)
-  SCO_STARTER_END:      16_537,   // 19%
-  SCO_BASIC_END:        29_526,   // 20%
-  SCO_INTERMEDIATE_END: 43_662,   // 21%
-  SCO_HIGHER_END:       75_000,   // 42%
-  SCO_ADVANCED_END:     125_140,  // 45%
-                                  // above: 48%
+  // Scotland Income Tax
+  SCO_STARTER_END:      B.SCO_STARTER_END,
+  SCO_BASIC_END:        B.SCO_BASIC_END,
+  SCO_INTERMEDIATE_END: B.SCO_INTERMEDIATE_END,
+  SCO_HIGHER_END:       B.SCO_HIGHER_END,
+  SCO_ADVANCED_END:     B.SCO_ADVANCED_END,
 
   // Job Loss — Scenario 4
-  REDUNDANCY_EXEMPTION: 30_000,
+  REDUNDANCY_EXEMPTION: B.REDUNDANCY_EXEMPTION,
 
   // Welfare — Scenario 3
   UC_TAXABLE:          false,     // Universal Credit is NOT taxable

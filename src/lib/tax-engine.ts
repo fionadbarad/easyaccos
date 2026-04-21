@@ -27,5 +27,3 @@ export type {
   StudentLoanPlan as ScenarioStudentLoanPlan,
 } from './TaxBible2026'
 
-// ── Conversational advisor (NLP → structured UK tax answers) ─────────────────
-export { kittaxAnswer, calculateFullTax } from './kittax/engine'

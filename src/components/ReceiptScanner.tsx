@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Camera, Loader2, X } from 'lucide-react'
 
 export interface ReceiptExtract {
@@ -8,27 +8,19 @@ export interface ReceiptExtract {
   amount: number | null
   date: string | null
   raw: string
+  imageUrl: string   // blob URL — caller must revoke when done
+  fileType: string   // MIME type of the uploaded file
 }
 
 interface Props {
   onExtract: (data: ReceiptExtract) => void
 }
 
-const C = {
-  surface: '#1C1D20',
-  gray:    '#222326',
-  white:   '#F4F5F8',
-  muted:   'rgba(244,245,248,0.42)',
-  border:  'rgba(244,245,248,0.07)',
-  green:   '#4ADE80',
-  red:     '#F87171',
-}
-
-function parseReceipt(raw: string): Omit<ReceiptExtract, 'raw'> {
+import { C } from '@/styles/palette'
+function parseReceipt(raw: string): Omit<ReceiptExtract, 'raw' | 'imageUrl' | 'fileType'> {
   const text = raw.replace(/\r/g, '')
   const lines = text.split('\n').map((l) => l.trim()).filter(Boolean)
 
-  // Find total amount: look for "total", "amount", "£", then largest decimal as fallback.
   const amountRegex = /(?:£\s?|gbp\s?|total\s*[:\-]?\s*|amount\s*[:\-]?\s*|grand\s*total\s*[:\-]?\s*)(\d{1,6}[.,]\d{2})/i
   const allNums = Array.from(text.matchAll(/(\d{1,6}[.,]\d{2})/g)).map((m) => parseFloat(m[1].replace(',', '.')))
   const totalLine = lines.find((l) => /total|amount due|grand total/i.test(l))
@@ -43,7 +35,6 @@ function parseReceipt(raw: string): Omit<ReceiptExtract, 'raw'> {
   }
   if (amount == null && allNums.length) amount = Math.max(...allNums)
 
-  // Date: match dd/mm/yyyy, yyyy-mm-dd, dd mmm yyyy.
   let date: string | null = null
   const dmY = text.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/)
   const iso = text.match(/(\d{4})-(\d{2})-(\d{2})/)
@@ -62,7 +53,6 @@ function parseReceipt(raw: string): Omit<ReceiptExtract, 'raw'> {
     if (mi >= 0) date = `${y}-${String(mi + 1).padStart(2, '0')}-${mmm[1].padStart(2, '0')}`
   }
 
-  // Description: first line that looks like a merchant name (has letters, not just numbers).
   const description = (lines.find((l) => /[a-zA-Z]{3,}/.test(l) && !/receipt|vat|invoice/i.test(l)) || lines[0] || 'Receipt').slice(0, 80)
 
   return { description, amount, date }
@@ -75,11 +65,30 @@ export default function ReceiptScanner({ onExtract }: Props) {
   const [error, setError]       = useState('')
   const [busy, setBusy]         = useState(false)
 
+  // Holds the blob URL of the current file; revoked if we close without extracting
+  const blobUrlRef = useRef<string>('')
+
+  function close() {
+    if (!busy) {
+      if (blobUrlRef.current) { URL.revokeObjectURL(blobUrlRef.current); blobUrlRef.current = '' }
+      setOpen(false)
+      setError('')
+      setProgress(0)
+      setStatus('')
+    }
+  }
+
   async function handleFile(file: File) {
     setError('')
     setBusy(true)
     setStatus('Loading OCR engine…')
     setProgress(2)
+
+    // Create object URL now so we can pass it to the parent for the preview modal
+    if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current)
+    blobUrlRef.current = URL.createObjectURL(file)
+    const imageUrl = blobUrlRef.current
+
     try {
       const Tesseract = (await import('tesseract.js')).default
       const result = await Tesseract.recognize(file, 'eng', {
@@ -90,7 +99,9 @@ export default function ReceiptScanner({ onExtract }: Props) {
       })
       const raw = result.data.text || ''
       const parsed = parseReceipt(raw)
-      onExtract({ ...parsed, raw })
+      // Pass imageUrl to parent — parent is responsible for revoking it
+      blobUrlRef.current = ''
+      onExtract({ ...parsed, raw, imageUrl, fileType: file.type })
       setStatus('Done')
       setOpen(false)
     } catch (err) {
@@ -134,7 +145,7 @@ export default function ReceiptScanner({ onExtract }: Props) {
                   Runs client-side. Nothing is uploaded.
                 </p>
               </div>
-              <button onClick={() => !busy && setOpen(false)}
+              <button onClick={close}
                 style={{ background: 'none', border: 'none', color: C.muted, cursor: busy ? 'not-allowed' : 'pointer' }}>
                 <X size={16} />
               </button>

@@ -4,8 +4,7 @@ import { useState } from 'react'
 import cards from '@/content/learning-cards.json'
 import { ChevronLeft, ChevronRight, BookOpen, X } from 'lucide-react'
 
-const C = { bg: '#181818', deep: '#222326', card: '#1C1D20', white: '#F4F5F8', text: '#F4F5F8', muted: 'rgba(244,245,248,0.42)', border: 'rgba(244,245,248,0.07)' }
-
+import { C } from '@/styles/palette'
 const CATEGORIES = ['All', ...Array.from(new Set((cards as Card[]).map((c) => c.category)))]
 
 interface Card { id: string; title: string; summary: string; deepDive: string; category: string; icon: string }

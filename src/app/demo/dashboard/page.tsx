@@ -1,7 +1,6 @@
 ﻿import Link from 'next/link'
 
-const C = { bg: '#181818', card: '#1C1D20', white: '#F4F5F8', text: '#F4F5F8', muted: 'rgba(244,245,248,0.42)' }
-
+import { C } from '@/styles/palette'
 const mock = {
   income: 42000,
   expenses: 8600,

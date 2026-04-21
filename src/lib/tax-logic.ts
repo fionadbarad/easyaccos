@@ -103,42 +103,18 @@ export interface TaxResult {
 }
 
 // ─── 2026/27 Constants ────────────────────────────────────────────────────────
-
-// Income Tax — Personal Allowance
-const PA_BASE                 = 12_570
-const MARRIAGE_ALLOWANCE_XFER = 1_260
-const BLIND_PERSONS_ALLOWANCE = 3_250
-const PA_TAPER_START          = 100_000
-const PA_TAPER_END            = 125_140
-
-// Income Tax — rUK bands
-const RUK_BASIC_RATE_WIDTH = 37_700   // £12,571 – £50,270 at 20%
-const RUK_BASIC_LIMIT      = 50_270
-const RUK_HIGHER_LIMIT     = 125_140  // above this: 45%
-
-// Income Tax — Scotland band ceilings (absolute gross income)
-const SCO_STARTER_END      = 16_537   // 19%
-const SCO_BASIC_END        = 29_526   // 20%
-const SCO_INTERMEDIATE_END = 43_662   // 21%
-const SCO_HIGHER_END       = 75_000   // 42%
-const SCO_ADVANCED_END     = 125_140  // 45%
-                                      // above: 48%
-
-// NI
-const NI_PT  = 12_570   // Primary Threshold
-const NI_UEL = 50_270   // Upper Earnings Limit
-const NI_C1_MAIN  = 0.08   // Employee Class 1 — main rate
-const NI_C1_UPPER = 0.02   // Employee Class 1 — above UEL
-const NI_C4_MAIN  = 0.06   // SE Class 4 — main rate
-const NI_C4_UPPER = 0.02   // SE Class 4 — above UEL
-const NI_C2_WEEKLY = 3.65
-const NI_CLASS2_SPT = 7_105  // 2026/27 Small Profits Threshold (up from £6,845)
-
-// Dividends
-const DIV_ALLOWANCE  = 500
-const DIV_BASIC      = 0.1075   // 10.75% (2026/27 hike — was 8.75%)
-const DIV_HIGHER     = 0.3575   // 35.75% (2026/27 hike — was 33.75%)
-const DIV_ADDL       = 0.3935   // 39.35%
+// Single source of truth lives in ./tax/bands-2026.
+import {
+  PA_BASE, PA_TAPER_START, PA_TAPER_END,
+  MARRIAGE_ALLOWANCE_XFER, BLIND_PERSONS_ALLOWANCE,
+  RUK_BASIC_RATE_WIDTH, RUK_BASIC_LIMIT, RUK_HIGHER_LIMIT,
+  SCO_STARTER_END, SCO_BASIC_END, SCO_INTERMEDIATE_END,
+  SCO_HIGHER_END, SCO_ADVANCED_END,
+  NI_PT, NI_UEL,
+  NI_C1_MAIN, NI_C1_UPPER, NI_C4_MAIN, NI_C4_UPPER,
+  NI_C2_WEEKLY, NI_CLASS2_SPT,
+  DIV_ALLOWANCE, DIV_BASIC, DIV_HIGHER, DIV_ADDL,
+} from './tax/bands-2026'
 
 // Student Loan 2026/27
 const STUDENT_LOAN: Record<StudentLoanPlan, { threshold: number; rate: number; label: string }> = {

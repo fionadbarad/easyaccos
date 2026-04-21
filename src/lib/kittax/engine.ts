@@ -7,7 +7,13 @@ import {
   PA_BASE, PA_TAPER_START, PA_TAPER_END,
   RUK_BASIC_RATE_WIDTH, RUK_TAXABLE_ADDITIONAL_THRESHOLD,
   calcPA,
-} from './tax-logic'
+} from '../tax-logic'
+import {
+  DIV_ALLOWANCE, DIV_BASIC, DIV_HIGHER, DIV_ADDL,
+  SA_DEADLINE, SA_REG_DEADLINE,
+  MILEAGE_FIRST, MILEAGE_AFTER,
+  HOME_FLAT_RATE, CLASS2_RATE, CLASS2_SPT,
+} from '../tax/constants'
 
 // ─── Local aliases for readability in this module ────────────────────────────
 const PA_FULL    = PA_BASE
@@ -15,19 +21,6 @@ const BASIC_LIMIT = RUK_BASIC_RATE_WIDTH
 // Previously named TAXABLE_ADDITIONAL_THRESHOLD = 112_570 (taxable-income basis).
 // Reconciled: imported as RUK_TAXABLE_ADDITIONAL_THRESHOLD = RUK_TAXABLE_ADDITIONAL_THRESHOLD − PA_BASE.
 const TAXABLE_ADDITIONAL_THRESHOLD = RUK_TAXABLE_ADDITIONAL_THRESHOLD
-
-// ─── Module-specific constants ───────────────────────────────────────────────
-const DIV_ALLOWANCE  = 500
-const DIV_BASIC      = 0.1075
-const DIV_HIGHER     = 0.3575
-const DIV_ADDL       = 0.3935
-const SA_DEADLINE    = '31 January 2028'
-const SA_REG_DEADLINE= '5 October 2026'
-const MILEAGE_FIRST  = 0.45
-const MILEAGE_AFTER  = 0.25
-const HOME_FLAT_RATE = 6 // £/week
-const CLASS2_RATE    = 3.65 // £/week
-const CLASS2_SPT     = 7_105
 
 interface TaxBreakdown {
   income: number

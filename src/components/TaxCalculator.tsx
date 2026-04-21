@@ -14,13 +14,7 @@ import {
 } from '@/lib/TaxBible2026'
 
 // ─── Palette ─────────────────────────────────────────────────────────────────
-const C = {
-  bg:     '#181818', deep:  '#222326', card:  '#1C1D20',
-  white:  '#F4F5F8', text:  '#F4F5F8',
-  muted:  'rgba(244,245,248,0.42)', border: 'rgba(244,245,248,0.07)',
-  red:    '#F87171', green: '#4ADE80', blue:  '#60A5FA',
-}
-
+import { C } from '@/styles/palette'
 // ─── Debounce hook ───────────────────────────────────────────────────────────
 function useDebounce<T>(value: T, ms: number): T {
   const [debounced, setDebounced] = useState(value)
@@ -387,7 +381,7 @@ const SCENARIOS: { key: ScenarioKey; label: string; desc: string; icon: string }
   { key: 'jobloss',        label: 'Job Loss',        desc: '£30k exemption & PAYE refund', icon: '⚡' },
 ]
 
-export default function TaxCalculator5() {
+export default function TaxCalculator() {
   const [scenario, setScenario] = useState<ScenarioKey>('employed')
   const [showMonthly, setShowMonthly] = useState(false)
   const [sliderIncome, setSliderIncome] = useState(45_000)

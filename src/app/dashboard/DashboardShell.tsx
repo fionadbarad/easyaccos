@@ -8,6 +8,8 @@ import { Menu } from 'lucide-react'
 import { C } from '@/styles/palette'
 import Sidebar from '@/features/shell/Sidebar'
 import MobileTopBar from '@/features/shell/MobileTopBar'
+import OfflineChip from '@/features/shell/OfflineChip'
+import EncryptionOnboardingDialog from '@/features/onboarding/EncryptionOnboardingDialog'
 import { SIDEBAR_W } from '@/features/shell/nav-config'
 
 export default function DashboardShell({
@@ -122,6 +124,9 @@ export default function DashboardShell({
         style={{ flex: 1, minHeight: '100vh', background: C.bg, overflow: 'auto' }}>
         {children}
       </main>
+
+      {user && <EncryptionOnboardingDialog />}
+      <OfflineChip />
     </div>
   )
 }

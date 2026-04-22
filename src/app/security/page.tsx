@@ -63,6 +63,27 @@ export default function SecurityPage() {
             body="Authentication is handled by Supabase Auth with Google OAuth 2.0. We never see or store your Google password." />
         </div>
 
+        {/* Local-first encryption */}
+        <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: '10px', padding: '1.5rem', marginBottom: '2rem' }}>
+          <h2 style={{ color: C.white, fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem' }}>
+            Your Device, Your Keys
+          </h2>
+          <p style={{ color: C.muted, fontSize: '0.85rem', lineHeight: 1.7, margin: '0 0 0.75rem' }}>
+            Expenses, invoices, and mileage you enter are stored in your browser&apos;s IndexedDB,
+            encrypted with an <strong style={{ color: C.text }}>AES-GCM 256</strong> device key
+            generated on first use. The key is marked <strong style={{ color: C.text }}>non-extractable</strong> —
+            it cannot be read or exported, not even by this app&apos;s own code. Xero, QuickBooks,
+            FreeAgent, and Sage all require server round-trips; we don&apos;t.
+          </p>
+          <p style={{ color: C.muted, fontSize: '0.85rem', lineHeight: 1.7, margin: 0 }}>
+            <strong style={{ color: C.text }}>The trade-off:</strong> clearing site data or switching
+            browsers loses access to the key, and therefore the data. Use{' '}
+            <Link href="/dashboard/settings#backup" style={{ color: C.white }}>Settings → Backup</Link>{' '}
+            to export a passphrase-protected snapshot. The passphrase derives a separate key via
+            PBKDF2 (310,000 iterations, SHA-256) — keep it somewhere safe; it cannot be recovered.
+          </p>
+        </div>
+
         {/* What we store */}
         <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: '10px', padding: '1.5rem', marginBottom: '2rem' }}>
           <h2 style={{ color: C.white, fontSize: '1.1rem', fontWeight: 700, marginBottom: '1rem' }}>

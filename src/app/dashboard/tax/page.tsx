@@ -1,6 +1,6 @@
 'use client'
 
-import TaxCalculator from '@/components/TaxCalculator'
+import TaxCalculator from '@/features/tax/TaxCalculator'
 
 import { C } from '@/styles/palette'
 export default function TaxPage() {

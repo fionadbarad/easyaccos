@@ -3,10 +3,7 @@
 // system prompt so Kittax can give proactive, user-specific guidance.
 
 import type { KittaxContext } from './types'
-
-function fmtGBP(n: number) {
-  return '£' + n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
+import { fmtDec as fmtGBP } from '@/lib/formatters'
 
 /** Returns current tax-year context populated with static 2026/27 thresholds. */
 export function buildBaseContext(): KittaxContext {

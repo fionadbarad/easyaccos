@@ -34,8 +34,8 @@ export function daysToDue(inv: Invoice) {
   return Math.ceil((new Date(inv.dueDate).getTime() - new Date().getTime()) / 86400000)
 }
 
-export function fmtDec(n: number) { return '£' + n.toLocaleString('en-GB', { minimumFractionDigits: 2 }) }
-export function fmt(n: number)    { return '£' + Math.round(n).toLocaleString('en-GB') }
+export { fmtDec, fmtGBP as fmt } from '@/lib/formatters'
+import { fmtDec } from '@/lib/formatters'
 
 export function chaseEmail(inv: Invoice): string {
   const days  = daysOverdue(inv)

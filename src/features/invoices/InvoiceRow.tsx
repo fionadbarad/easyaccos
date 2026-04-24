@@ -11,20 +11,19 @@ import {
   vatTotal, daysOverdue, daysToDue, fmtDec, chaseEmail,
 } from '@/lib/hooks/useInvoices'
 
-import { C } from '@/styles/palette'
 function today() { return new Date().toISOString().slice(0, 10) }
 
-const STATUS_CONFIG: Record<InvoiceStatus, { label: string; color: string; bg: string; Icon: React.ElementType }> = {
-  draft:   { label: 'Draft',   color: C.muted, bg: 'rgba(244,245,248,0.05)', Icon: FileText      },
-  sent:    { label: 'Sent',    color: C.blue,  bg: 'rgba(147,197,253,0.08)', Icon: Clock         },
-  paid:    { label: 'Paid',    color: C.green, bg: 'rgba(74,222,128,0.08)',  Icon: CheckCircle2  },
-  overdue: { label: 'Overdue', color: C.red,   bg: 'rgba(248,113,113,0.08)', Icon: AlertTriangle },
+const STATUS_CLASSES: Record<InvoiceStatus, { label: string; className: string; Icon: React.ElementType }> = {
+  draft:   { label: 'Draft',   className: 'text-[rgba(244,245,248,0.42)] bg-[rgba(244,245,248,0.05)]', Icon: FileText      },
+  sent:    { label: 'Sent',    className: 'text-[#93C5FD] bg-[rgba(147,197,253,0.08)]',                 Icon: Clock         },
+  paid:    { label: 'Paid',    className: 'text-[#4ADE80] bg-[rgba(74,222,128,0.08)]',                  Icon: CheckCircle2  },
+  overdue: { label: 'Overdue', className: 'text-[#F87171] bg-[rgba(248,113,113,0.08)]',                 Icon: AlertTriangle },
 }
 
 function StatusBadge({ status }: { status: InvoiceStatus }) {
-  const { label, color, bg, Icon } = STATUS_CONFIG[status]
+  const { label, className, Icon } = STATUS_CLASSES[status]
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 8px', borderRadius: '3px', background: bg, color, fontSize: '0.7rem', fontWeight: 600, fontFamily: 'var(--font-geist-mono), monospace', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>
+    <span className={`inline-flex items-center gap-1 px-2 py-[3px] rounded-[3px] text-[0.7rem] font-semibold font-mono tracking-[0.04em] whitespace-nowrap ${className}`}>
       <Icon size={10} strokeWidth={2} />
       {label}
     </span>
@@ -39,8 +38,10 @@ function CopyBtn({ text }: { text: string }) {
     setTimeout(() => setCopied(false), 2000)
   }
   return (
-    <button onClick={copy}
-      style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'none', border: `1px solid ${C.border}`, borderRadius: '4px', padding: '6px 10px', color: copied ? C.green : C.muted, fontSize: '0.72rem', cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'var(--font-geist-mono), monospace' }}>
+    <button
+      onClick={copy}
+      className={`flex items-center gap-[5px] bg-transparent border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[10px] py-[6px] text-[0.72rem] cursor-pointer transition-all duration-150 font-mono ${copied ? 'text-[#4ADE80]' : 'text-[rgba(244,245,248,0.42)]'}`}
+    >
       {copied ? <Check size={11} /> : <Copy size={11} />}
       {copied ? 'Copied' : 'Copy email'}
     </button>
@@ -58,46 +59,47 @@ export function InvoiceRow({ inv, onUpdate, onDelete }: {
   const daysLeft = daysToDue(inv)
 
   return (
-    <div style={{ borderBottom: `1px solid ${C.border}` }}>
+    <div className="border-b border-[rgba(244,245,248,0.07)]">
       <div
         onClick={() => setOpen(o => !o)}
-        style={{ display: 'grid', gridTemplateColumns: '1fr auto auto auto', gap: '1rem', alignItems: 'center', padding: '0.9rem 1.1rem', cursor: 'pointer', transition: 'background 0.1s' }}
-        onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(244,245,248,0.02)'}
-        onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+        className="grid grid-cols-[1fr_auto_auto_auto] gap-4 items-center px-[1.1rem] py-[0.9rem] cursor-pointer transition-[background] duration-100 hover:bg-[rgba(244,245,248,0.02)]"
       >
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px', flexWrap: 'wrap' }}>
-            <span style={{ color: C.white, fontSize: '0.85rem', fontWeight: 500 }}>{inv.client}</span>
-            <span style={{ color: C.dim, fontSize: '0.72rem', fontFamily: 'var(--font-geist-mono), monospace' }}>#{inv.number}</span>
+          <div className="flex items-center gap-2 mb-[3px] flex-wrap">
+            <span className="text-[#F4F5F8] text-[0.85rem] font-medium">{inv.client}</span>
+            <span className="text-[rgba(244,245,248,0.18)] text-[0.72rem] font-mono">#{inv.number}</span>
             <StatusBadge status={inv.status} />
           </div>
-          <div style={{ color: C.muted, fontSize: '0.75rem' }}>
+          <div className="text-[rgba(244,245,248,0.42)] text-[0.75rem]">
             {inv.description}
             {inv.status === 'sent' && !overdue && (
-              <span style={{ color: daysLeft <= 7 ? C.amber : C.dim, fontFamily: 'var(--font-geist-mono), monospace', marginLeft: '8px' }}>
+              <span className={`font-mono ml-2 ${daysLeft <= 7 ? 'text-[#FBBF24]' : 'text-[rgba(244,245,248,0.18)]'}`}>
                 · due in {daysLeft}d
               </span>
             )}
             {overdue && (
-              <span style={{ color: C.red, fontFamily: 'var(--font-geist-mono), monospace', marginLeft: '8px' }}>
+              <span className="text-[#F87171] font-mono ml-2">
                 · {daysOverdue(inv)}d overdue
               </span>
             )}
           </div>
         </div>
 
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ color: inv.status === 'paid' ? C.green : C.white, fontSize: '0.9rem', fontWeight: 600, fontFamily: 'var(--font-geist-mono), monospace', fontVariantNumeric: 'tabular-nums' }}>
+        <div className="text-right">
+          <div className={`text-[0.9rem] font-semibold font-mono tabular-nums ${inv.status === 'paid' ? 'text-[#4ADE80]' : 'text-[#F4F5F8]'}`}>
             {fmtDec(total)}
           </div>
-          {inv.vat && <div style={{ color: C.dim, fontSize: '0.62rem', fontFamily: 'var(--font-geist-mono), monospace' }}>inc. VAT</div>}
+          {inv.vat && <div className="text-[rgba(244,245,248,0.18)] text-[0.62rem] font-mono">inc. VAT</div>}
         </div>
 
-        <div style={{ color: C.dim, fontSize: '0.7rem', fontFamily: 'var(--font-geist-mono), monospace', whiteSpace: 'nowrap' }}>
+        <div className="text-[rgba(244,245,248,0.18)] text-[0.7rem] font-mono whitespace-nowrap">
           {inv.date}
         </div>
 
-        <ChevronDown size={13} style={{ color: C.dim, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }} />
+        <ChevronDown
+          size={13}
+          className={`text-[rgba(244,245,248,0.18)] transition-transform duration-200 flex-shrink-0 ${open ? 'rotate-180' : ''}`}
+        />
       </div>
 
       <AnimatePresence>
@@ -107,65 +109,73 @@ export function InvoiceRow({ inv, onUpdate, onDelete }: {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.18 }}
-            style={{ overflow: 'hidden' }}
+            className="overflow-hidden"
           >
-            <div style={{ padding: '0 1.1rem 1.1rem', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-              <div style={{ background: C.gray, borderRadius: '4px', padding: '0.75rem 1rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.75rem' }}>
+            <div className="px-[1.1rem] pb-[1.1rem] flex flex-col gap-[0.85rem]">
+              <div className="bg-[#222326] rounded-[4px] px-4 py-3 grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-3">
                 <div>
-                  <div style={{ color: C.dim, fontSize: '0.58rem', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-geist-mono), monospace', marginBottom: '3px' }}>Net</div>
-                  <div style={{ color: C.white, fontFamily: 'var(--font-geist-mono), monospace', fontVariantNumeric: 'tabular-nums' }}>{fmtDec(inv.amount)}</div>
+                  <div className="text-[rgba(244,245,248,0.18)] text-[0.58rem] uppercase tracking-[0.08em] font-mono mb-[3px]">Net</div>
+                  <div className="text-[#F4F5F8] font-mono tabular-nums">{fmtDec(inv.amount)}</div>
                 </div>
                 {inv.vat && (
                   <div>
-                    <div style={{ color: C.dim, fontSize: '0.58rem', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-geist-mono), monospace', marginBottom: '3px' }}>VAT (20%)</div>
-                    <div style={{ color: C.white, fontFamily: 'var(--font-geist-mono), monospace', fontVariantNumeric: 'tabular-nums' }}>{fmtDec(inv.amount * 0.2)}</div>
+                    <div className="text-[rgba(244,245,248,0.18)] text-[0.58rem] uppercase tracking-[0.08em] font-mono mb-[3px]">VAT (20%)</div>
+                    <div className="text-[#F4F5F8] font-mono tabular-nums">{fmtDec(inv.amount * 0.2)}</div>
                   </div>
                 )}
                 <div>
-                  <div style={{ color: C.dim, fontSize: '0.58rem', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-geist-mono), monospace', marginBottom: '3px' }}>Total due</div>
-                  <div style={{ color: C.white, fontWeight: 600, fontFamily: 'var(--font-geist-mono), monospace', fontVariantNumeric: 'tabular-nums' }}>{fmtDec(total)}</div>
+                  <div className="text-[rgba(244,245,248,0.18)] text-[0.58rem] uppercase tracking-[0.08em] font-mono mb-[3px]">Total due</div>
+                  <div className="text-[#F4F5F8] font-semibold font-mono tabular-nums">{fmtDec(total)}</div>
                 </div>
                 <div>
-                  <div style={{ color: C.dim, fontSize: '0.58rem', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-geist-mono), monospace', marginBottom: '3px' }}>Due date</div>
-                  <div style={{ color: overdue ? C.red : C.white, fontFamily: 'var(--font-geist-mono), monospace' }}>{inv.dueDate}</div>
+                  <div className="text-[rgba(244,245,248,0.18)] text-[0.58rem] uppercase tracking-[0.08em] font-mono mb-[3px]">Due date</div>
+                  <div className={`font-mono ${overdue ? 'text-[#F87171]' : 'text-[#F4F5F8]'}`}>{inv.dueDate}</div>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              <div className="flex gap-2 flex-wrap items-center">
                 {inv.status === 'draft' && (
-                  <button onClick={() => onUpdate(inv.id, { status: 'sent', sentDate: today() })}
-                    style={{ background: C.white, color: C.bg, border: 'none', borderRadius: '4px', padding: '7px 14px', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', letterSpacing: '-0.01em' }}>
+                  <button
+                    onClick={() => onUpdate(inv.id, { status: 'sent', sentDate: today() })}
+                    className="bg-[#F4F5F8] text-[#181818] border-none rounded-[4px] px-[14px] py-[7px] text-[0.78rem] font-semibold cursor-pointer tracking-[-0.01em]"
+                  >
                     Mark as Sent
                   </button>
                 )}
                 {(inv.status === 'sent' || overdue) && (
-                  <button onClick={() => onUpdate(inv.id, { status: 'paid', paidDate: today() })}
-                    style={{ background: C.green, color: C.bg, border: 'none', borderRadius: '4px', padding: '7px 14px', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', letterSpacing: '-0.01em' }}>
+                  <button
+                    onClick={() => onUpdate(inv.id, { status: 'paid', paidDate: today() })}
+                    className="bg-[#4ADE80] text-[#181818] border-none rounded-[4px] px-[14px] py-[7px] text-[0.78rem] font-semibold cursor-pointer tracking-[-0.01em]"
+                  >
                     Mark as Paid
                   </button>
                 )}
                 {inv.status === 'sent' && (
-                  <button onClick={() => onUpdate(inv.id, { status: 'overdue' })}
-                    style={{ background: 'transparent', color: C.red, border: `1px solid rgba(248,113,113,0.3)`, borderRadius: '4px', padding: '6px 12px', fontSize: '0.75rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                  <button
+                    onClick={() => onUpdate(inv.id, { status: 'overdue' })}
+                    className="bg-transparent text-[#F87171] border border-[rgba(248,113,113,0.3)] rounded-[4px] px-3 py-[6px] text-[0.75rem] cursor-pointer inline-flex items-center gap-[5px]"
+                  >
                     <AlertTriangle size={11} /> Mark Overdue
                   </button>
                 )}
                 {overdue && (
-                  <button onClick={() => onUpdate(inv.id, { status: 'sent' })}
-                    style={{ background: 'transparent', color: C.muted, border: `1px solid ${C.border}`, borderRadius: '4px', padding: '6px 12px', fontSize: '0.75rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                  <button
+                    onClick={() => onUpdate(inv.id, { status: 'sent' })}
+                    className="bg-transparent text-[rgba(244,245,248,0.42)] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-3 py-[6px] text-[0.75rem] cursor-pointer inline-flex items-center gap-[5px]"
+                  >
                     <Undo2 size={11} /> Revert to Sent
                   </button>
                 )}
                 {inv.status === 'paid' && (
-                  <span style={{ color: C.green, fontSize: '0.78rem', fontFamily: 'var(--font-geist-mono), monospace' }}>
+                  <span className="text-[#4ADE80] text-[0.78rem] font-mono">
                     ✓ Paid {inv.paidDate ?? ''}
                   </span>
                 )}
                 {overdue && <CopyBtn text={chaseEmail(inv)} />}
-                <button onClick={() => onDelete(inv.id)}
-                  style={{ marginLeft: 'auto', background: 'none', border: `1px solid ${C.border}`, borderRadius: '4px', padding: '6px 10px', color: 'rgba(248,113,113,0.5)', fontSize: '0.72rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', transition: 'all 0.15s' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = C.red; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(248,113,113,0.3)' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(248,113,113,0.5)'; (e.currentTarget as HTMLElement).style.borderColor = C.border }}>
+                <button
+                  onClick={() => onDelete(inv.id)}
+                  className="ml-auto bg-transparent border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[10px] py-[6px] text-[rgba(248,113,113,0.5)] text-[0.72rem] cursor-pointer flex items-center gap-1 transition-all duration-150 hover:text-[#F87171] hover:border-[rgba(248,113,113,0.3)]"
+                >
                   <Trash2 size={11} /> Delete
                 </button>
               </div>

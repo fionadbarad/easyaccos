@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase-browser'
 import { Mail, Loader2, CheckCircle, ArrowRight } from 'lucide-react'
-import { C } from '@/styles/palette'
 
 type Mode = 'login' | 'signup'
 
@@ -40,6 +39,8 @@ const COPY = {
   },
 } as const
 
+const INPUT_CLASS = 'w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-lg px-[14px] py-3 text-[#F4F5F8] text-[0.9rem] outline-none box-border'
+
 export default function AuthForm({ mode }: AuthFormProps) {
   const supabaseRef = useRef(createClient())
   const supabase = supabaseRef.current
@@ -63,108 +64,87 @@ export default function AuthForm({ mode }: AuthFormProps) {
     setSent(true)
   }
 
-  const inputStyle: React.CSSProperties = {
-    width: '100%', background: C.deep, border: `1px solid ${C.border}`,
-    borderRadius: '8px', padding: '12px 14px', color: C.text,
-    fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box',
-  }
+  const submitDisabled = loading || !email.trim()
 
   return (
-    <div style={{
-      minHeight: '100vh', background: C.bg,
-      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem',
-    }}>
+    <div className="min-h-screen bg-[#181818] flex items-center justify-center p-6">
       <motion.div
-        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        style={{ width: '100%', maxWidth: '420px' }}
+        className="w-full max-w-[420px]"
         suppressHydrationWarning
       >
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <Link href="/" style={{ color: C.white, fontSize: '1.7rem', fontWeight: 700, textDecoration: 'none' }}>
+        <div className="text-center mb-8">
+          <Link href="/" className="text-[#F4F5F8] text-[1.7rem] font-bold no-underline">
             EasyAcco
           </Link>
-          <p style={{ color: C.muted, fontSize: '0.82rem', marginTop: '6px' }}>{copy.subtitle}</p>
+          <p className="text-[rgba(244,245,248,0.42)] text-[0.82rem] mt-[6px]">{copy.subtitle}</p>
         </div>
 
-        <div style={{
-          background: 'rgba(244,245,248,0.03)', border: `1px solid rgba(244,245,248,0.12)`,
-          borderRadius: '12px', padding: '1.5rem', marginBottom: '1.25rem', textAlign: 'center',
-        }}>
-          <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>No account needed</div>
-          <p style={{ color: C.muted, fontSize: '0.82rem', lineHeight: 1.55, marginBottom: '1.1rem' }}>
+        <div className="bg-[rgba(244,245,248,0.03)] border border-[rgba(244,245,248,0.12)] rounded-xl p-6 mb-5 text-center">
+          <div className="text-[2rem] mb-2">No account needed</div>
+          <p className="text-[rgba(244,245,248,0.42)] text-[0.82rem] leading-[1.55] mb-[1.1rem]">
             {copy.guestCopy}
           </p>
-          <Link href="/dashboard"
-            style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-              width: '100%', padding: '13px 20px',
-              background: C.white, color: '#181818',
-              fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none',
-              borderRadius: '8px',
-            }}>
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center justify-center gap-2 w-full px-5 py-[13px] bg-[#F4F5F8] text-[#181818] font-bold text-[0.95rem] no-underline rounded-lg"
+          >
             Open Dashboard as Guest <ArrowRight size={17} />
           </Link>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.25rem' }}>
-          <div style={{ flex: 1, height: '1px', background: C.border }} />
-          <span style={{ color: C.muted, fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+        <div className="flex items-center gap-3 mb-5">
+          <div className="flex-1 h-px bg-[rgba(244,245,248,0.07)]" />
+          <span className="text-[rgba(244,245,248,0.42)] text-[0.72rem] uppercase tracking-[0.1em]">
             {copy.dividerLabel}
           </span>
-          <div style={{ flex: 1, height: '1px', background: C.border }} />
+          <div className="flex-1 h-px bg-[rgba(244,245,248,0.07)]" />
         </div>
 
-        <div style={{
-          background: C.card, border: `1px solid ${C.border}`,
-          borderRadius: '12px', padding: '1.5rem',
-        }}>
+        <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-xl p-6">
           {sent ? (
-            <div style={{ textAlign: 'center' }}>
-              <CheckCircle size={40} style={{ color: '#4ADE80', margin: '0 auto 1rem' }} />
-              <h3 style={{ color: C.text, fontWeight: 700, fontSize: '1rem', marginBottom: '8px' }}>
+            <div className="text-center">
+              <CheckCircle size={40} className="text-[#4ADE80] mx-auto mb-4" />
+              <h3 className="text-[#F4F5F8] font-bold text-[1rem] mb-2">
                 Check your inbox
               </h3>
-              <p style={{ color: C.muted, fontSize: '0.82rem', lineHeight: 1.6 }}>
-                We sent a sign-in link to <strong style={{ color: C.text }}>{email}</strong>. {copy.sentCopy}
+              <p className="text-[rgba(244,245,248,0.42)] text-[0.82rem] leading-[1.6]">
+                We sent a sign-in link to <strong className="text-[#F4F5F8]">{email}</strong>. {copy.sentCopy}
               </p>
             </div>
           ) : (
             <>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
-                <Mail size={16} style={{ color: C.white }} />
-                <span style={{ color: C.text, fontWeight: 600, fontSize: '0.88rem' }}>{copy.formTitle}</span>
+              <div className="flex items-center gap-2 mb-4">
+                <Mail size={16} className="text-[#F4F5F8]" />
+                <span className="text-[#F4F5F8] font-semibold text-[0.88rem]">{copy.formTitle}</span>
               </div>
-              <p style={{ color: C.muted, fontSize: '0.78rem', lineHeight: 1.5, marginBottom: '1rem' }}>
+              <p className="text-[rgba(244,245,248,0.42)] text-[0.78rem] leading-[1.5] mb-4">
                 {copy.formCopy}
               </p>
 
-              <form onSubmit={sendMagicLink} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+              <form onSubmit={sendMagicLink} className="flex flex-col gap-[0.85rem]">
                 <input
-                  type="email" required value={email}
+                  type="email"
+                  required
+                  value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
-                  style={inputStyle}
+                  className={INPUT_CLASS}
                 />
 
                 {error && (
-                  <div style={{
-                    background: 'rgba(255,107,107,0.1)', border: '1px solid rgba(255,107,107,0.3)',
-                    borderRadius: '6px', padding: '9px 12px', color: C.red, fontSize: '0.8rem',
-                  }}>
+                  <div className="bg-[rgba(255,107,107,0.1)] border border-[rgba(255,107,107,0.3)] rounded-md px-3 py-[9px] text-[#F87171] text-[0.8rem]">
                     {error}
                   </div>
                 )}
 
-                <button type="submit" disabled={loading || !email.trim()}
-                  style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                    background: loading || !email.trim() ? 'rgba(244,245,248,0.04)' : 'rgba(244,245,248,0.08)',
-                    border: `1px solid ${C.border}`,
-                    color: loading || !email.trim() ? C.muted : C.white,
-                    borderRadius: '8px', padding: '11px', fontSize: '0.88rem', fontWeight: 600,
-                    cursor: loading || !email.trim() ? 'default' : 'pointer',
-                  }}>
+                <button
+                  type="submit"
+                  disabled={submitDisabled}
+                  className={`flex items-center justify-center gap-2 border border-[rgba(244,245,248,0.07)] rounded-lg p-[11px] text-[0.88rem] font-semibold ${submitDisabled ? 'bg-[rgba(244,245,248,0.04)] text-[rgba(244,245,248,0.42)] cursor-default' : 'bg-[rgba(244,245,248,0.08)] text-[#F4F5F8] cursor-pointer'}`}
+                >
                   {loading
                     ? <><Loader2 size={15} className="animate-spin" /> {copy.buttonLoading}</>
                     : <><Mail size={15} /> {copy.buttonIdle}</>
@@ -176,14 +156,14 @@ export default function AuthForm({ mode }: AuthFormProps) {
         </div>
 
         {copy.footer && (
-          <p style={{ textAlign: 'center', color: 'rgba(244,245,248,0.25)', fontSize: '0.72rem', marginTop: '1.5rem', lineHeight: 1.5 }}>
+          <p className="text-center text-[rgba(244,245,248,0.25)] text-[0.72rem] mt-6 leading-[1.5]">
             {copy.footer}
           </p>
         )}
         {copy.footerLink && (
-          <p style={{ textAlign: 'center', color: 'rgba(244,245,248,0.25)', fontSize: '0.72rem', marginTop: '1.5rem', lineHeight: 1.5 }}>
+          <p className="text-center text-[rgba(244,245,248,0.25)] text-[0.72rem] mt-6 leading-[1.5]">
             {copy.footerLink.prefix}
-            <Link href={copy.footerLink.href} style={{ color: C.muted, textDecoration: 'none' }}>
+            <Link href={copy.footerLink.href} className="text-[rgba(244,245,248,0.42)] no-underline">
               {copy.footerLink.label}
             </Link>
           </p>

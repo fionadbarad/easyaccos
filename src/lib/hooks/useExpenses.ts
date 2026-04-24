@@ -43,7 +43,7 @@ export function useExpenses() {
   )
   const [showForm, setShowForm]       = useState(false)
   const [form, setForm]               = useState<ExpenseFormState>({
-    date: toISODate(new Date()), description: '', category: CATEGORIES[0], amount: '',
+    date: toISODate(new Date()), description: '', category: CATEGORIES[0]!, amount: '',
   })
   const [suggesting, setSuggesting]   = useState(false)
   const [filter, setFilter]           = useState<FilterState>(emptyFilter())
@@ -75,7 +75,7 @@ export function useExpenses() {
       form: {
         date: data.date || toISODate(new Date()),
         description: data.description || '',
-        category: CATEGORIES[0],
+        category: CATEGORIES[0]!,
         amount: data.amount != null ? data.amount.toFixed(2) : '',
       },
     })

@@ -70,7 +70,7 @@ RULES:
 
 When the user greets you ("hi", "hey", "hello"), greet them back briefly as their personal tax advisor (do not use a personal name) and ask what they'd like to look at — do not dump a wall of tax rules.`
 
-const OFFLINE: Record<string, string> = {
+const OFFLINE = {
   allowance:
     'Your standard Personal Allowance is **£12,570** for 2026/27. ' +
     'If your income exceeds £100,000, it reduces by £1 for every £2 above that threshold. ' +

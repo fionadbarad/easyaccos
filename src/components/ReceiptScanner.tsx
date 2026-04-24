@@ -22,16 +22,16 @@ function parseReceipt(raw: string): Omit<ReceiptExtract, 'raw' | 'imageUrl' | 'f
   const lines = text.split('\n').map((l) => l.trim()).filter(Boolean)
 
   const amountRegex = /(?:£\s?|gbp\s?|total\s*[:\-]?\s*|amount\s*[:\-]?\s*|grand\s*total\s*[:\-]?\s*)(\d{1,6}[.,]\d{2})/i
-  const allNums = Array.from(text.matchAll(/(\d{1,6}[.,]\d{2})/g)).map((m) => parseFloat(m[1].replace(',', '.')))
+  const allNums = Array.from(text.matchAll(/(\d{1,6}[.,]\d{2})/g)).map((m) => parseFloat((m[1] ?? '0').replace(',', '.')))
   const totalLine = lines.find((l) => /total|amount due|grand total/i.test(l))
   let amount: number | null = null
   if (totalLine) {
     const m = totalLine.match(/(\d{1,6}[.,]\d{2})/)
-    if (m) amount = parseFloat(m[1].replace(',', '.'))
+    if (m?.[1]) amount = parseFloat(m[1].replace(',', '.'))
   }
   if (amount == null) {
     const m = text.match(amountRegex)
-    if (m) amount = parseFloat(m[1].replace(',', '.'))
+    if (m?.[1]) amount = parseFloat(m[1].replace(',', '.'))
   }
   if (amount == null && allNums.length) amount = Math.max(...allNums)
 
@@ -39,13 +39,13 @@ function parseReceipt(raw: string): Omit<ReceiptExtract, 'raw' | 'imageUrl' | 'f
   const dmY = text.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/)
   const iso = text.match(/(\d{4})-(\d{2})-(\d{2})/)
   const mmm = text.match(/(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(\d{2,4})/i)
-  if (iso) {
+  if (iso?.[1] && iso[2] && iso[3]) {
     date = `${iso[1]}-${iso[2]}-${iso[3]}`
-  } else if (dmY) {
+  } else if (dmY?.[1] && dmY[2] && dmY[3]) {
     let y = dmY[3]
     if (y.length === 2) y = `20${y}`
     date = `${y}-${dmY[2].padStart(2, '0')}-${dmY[1].padStart(2, '0')}`
-  } else if (mmm) {
+  } else if (mmm?.[1] && mmm[2] && mmm[3]) {
     const months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec']
     const mi = months.indexOf(mmm[2].toLowerCase().slice(0, 3))
     let y = mmm[3]

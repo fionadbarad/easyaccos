@@ -7,6 +7,7 @@ import {
 } from 'recharts'
 import { Copy, CheckCheck, FileText, TrendingUp, TrendingDown } from 'lucide-react'
 import { calcScenario1 } from '@/lib/TaxBible2026'
+import { fmtGBP as fmt, fmtDecAbs as fmtDp } from '@/lib/formatters'
 
 import { C } from '@/styles/palette'
 interface Transaction { id: string; date: string; description: string; type: 'income' | 'expense'; amount: number }
@@ -24,8 +25,6 @@ const SEED: Transaction[] = [
 ]
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-const fmt    = (v: number) => `£${Math.round(v).toLocaleString('en-GB')}`
-const fmtDp  = (v: number) => `£${Math.abs(v).toLocaleString('en-GB', { minimumFractionDigits: 2 })}`
 
 function buildMonthly(txs: Transaction[]) {
   const map: Record<string, { income: number; expenses: number }> = {}

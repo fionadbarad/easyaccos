@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { Plus, Trash2, ArrowUpCircle, ArrowDownCircle, Calendar, Cloud, CloudOff } from 'lucide-react'
 import { useUserData } from '@/lib/use-user-data'
+import { fmtDecAbs as fmt } from '@/lib/formatters'
 
 import { C } from '@/styles/palette'
 type TxType    = 'income' | 'expense'
@@ -83,7 +84,6 @@ export default function TransactionsPage() {
   const totalIn  = visible.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
   const totalOut = visible.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
   const net      = totalIn - totalOut
-  const fmt      = (n: number) => `£${Math.abs(n).toLocaleString('en-GB', { minimumFractionDigits: 2 })}`
 
   const chipStyle = (active: boolean): React.CSSProperties => ({
     padding: '5px 11px', borderRadius: '3px', border: `1px solid ${active ? 'rgba(244,245,248,0.2)' : C.border}`,

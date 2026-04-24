@@ -6,9 +6,7 @@ export const TAX_YEAR_END   = new Date('2027-04-05')
 export const SA_DEADLINE    = new Date('2028-01-31')
 export const TAX_YEAR_DAYS  = Math.ceil((TAX_YEAR_END.getTime() - TAX_YEAR_START.getTime()) / 86400000)
 
-export function fmt(n: number): string {
-  return '£' + Math.round(Math.abs(n)).toLocaleString('en-GB')
-}
+export { fmtAbs as fmt } from '@/lib/formatters'
 
 export function clamp(n: number, lo: number, hi: number): number {
   return Math.max(lo, Math.min(hi, n))

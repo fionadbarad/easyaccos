@@ -30,10 +30,11 @@ const fmtDp  = (v: number) => `£${Math.abs(v).toLocaleString('en-GB', { minimum
 function buildMonthly(txs: Transaction[]) {
   const map: Record<string, { income: number; expenses: number }> = {}
   for (const tx of txs) {
-    const m = MONTHS[new Date(tx.date).getMonth()]
-    if (!map[m]) map[m] = { income: 0, expenses: 0 }
-    if (tx.type === 'income') map[m].income += tx.amount
-    else map[m].expenses += tx.amount
+    const m = MONTHS[new Date(tx.date).getMonth()] ?? 'Jan'
+    const bucket = map[m] ?? { income: 0, expenses: 0 }
+    if (tx.type === 'income') bucket.income += tx.amount
+    else bucket.expenses += tx.amount
+    map[m] = bucket
   }
   return Object.entries(map).map(([month, d]) => ({ month, ...d, profit: d.income - d.expenses }))
 }

@@ -91,7 +91,7 @@ export async function secureWrite<T>(recordKey: string, value: T): Promise<void>
 
 function legacyFromRecord(recordKey: string): string {
   // e.g. "user_expenses:guest" → "user_expenses" for localStorage compat
-  return recordKey.split(':')[0]
+  return recordKey.split(':')[0] ?? recordKey
 }
 
 function readLegacy<T>(legacyKey: string | null, fallback: T): T {

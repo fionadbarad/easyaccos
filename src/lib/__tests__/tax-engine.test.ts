@@ -73,15 +73,15 @@ describe('rUK income tax', () => {
     // taxable = 30,000 − 12,570 = 17,430 — all basic rate
     expect(r.incomeTax).toBe(round2(17_430 * 0.20))
     expect(r.taxBands).toHaveLength(1)
-    expect(r.taxBands[0].rate).toBe(20)
+    expect(r.taxBands[0]!.rate).toBe(20)
   })
 
   it('basic rate band exhausted at £50,270', () => {
     const r = calculateTax(seInput(50_270))
     // taxable = 37,700 — exactly fills basic band
     expect(r.taxBands).toHaveLength(1)
-    expect(r.taxBands[0].rate).toBe(20)
-    expect(r.taxBands[0].amount).toBe(37_700)
+    expect(r.taxBands[0]!.rate).toBe(20)
+    expect(r.taxBands[0]!.amount).toBe(37_700)
   })
 
   it('higher rate kicks in above £50,270', () => {
@@ -117,7 +117,7 @@ describe('rUK income tax', () => {
 describe('Scotland income tax', () => {
   it('starter rate at £15,000', () => {
     const r = calculateTax({ ...seInput(15_000), taxRegion: 'scotland' })
-    expect(r.taxBands[0].rate).toBe(19)
+    expect(r.taxBands[0]!.rate).toBe(19)
   })
 
   it('no tax below PA in Scotland', () => {

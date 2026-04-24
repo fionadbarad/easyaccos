@@ -18,8 +18,9 @@ interface SidebarProps {
 
 export default function Sidebar({ user, pathname, onSignOut, onNavClick, onClose }: SidebarProps) {
   const grouped = NAV.reduce((acc, item) => {
-    if (!acc[item.group]) acc[item.group] = []
-    acc[item.group].push(item)
+    const list = acc[item.group] ?? []
+    list.push(item)
+    acc[item.group] = list
     return acc
   }, {} as Record<string, NavEntry[]>)
 

@@ -145,10 +145,9 @@ export function round2(n: number): number {
   return Math.round(n * 100) / 100
 }
 
-/** Format £ amount for use inside tip description strings (no JSX) */
-export function fmtGBP(n: number): string {
-  return '\u00a3' + Math.round(n).toLocaleString('en-GB')
-}
+// fmtGBP lives in lib/formatters.ts — re-exported here for legacy imports
+export { fmtGBP } from './formatters'
+import { fmtGBP } from './formatters'
 
 // ─── Personal Allowance ───────────────────────────────────────────────────────
 /**

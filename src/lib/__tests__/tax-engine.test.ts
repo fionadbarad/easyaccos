@@ -10,6 +10,7 @@ import {
   RUK_HIGHER_LIMIT,
   RUK_TAXABLE_ADDITIONAL_THRESHOLD,
 } from '../tax-logic'
+import { DIV_BASIC, DIV_ALLOWANCE } from '../tax/bands-2026'
 import type { TaxInput } from '../tax-logic'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -252,7 +253,7 @@ describe('Dividend tax', () => {
 
   it('10.75% on dividend income in basic band', () => {
     const r = calculateTax({ ...seInput(20_000), dividendIncome: 5_000 })
-    expect(r.dividendTax).toBe(round2((5_000 - 500) * 0.1075))
+    expect(r.dividendTax).toBe(round2((5_000 - DIV_ALLOWANCE) * DIV_BASIC))
   })
 })
 

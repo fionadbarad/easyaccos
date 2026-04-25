@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Legend,
@@ -10,8 +10,8 @@ import { calcScenario1 } from '@/lib/TaxBible2026'
 
 import { C } from '@/styles/palette'
 import { STORAGE_KEYS } from '@/lib/storageKeys'
+import { useUserData } from '@/lib/use-user-data'
 interface Transaction { id: string; date: string; description: string; type: 'income' | 'expense'; amount: number }
-const STORAGE_KEY = STORAGE_KEYS.TRANSACTIONS
 
 const SEED: Transaction[] = [
   { id: '1', date: '2026-01-01', description: 'Client A — Consulting',  type: 'income',  amount: 2400   },
@@ -94,17 +94,12 @@ const tooltipStyle = {
 type View = 'overview' | 'income-statement'
 
 export default function PnLPage() {
-  const [txs, setTxs]       = useState<Transaction[]>([])
+  const { items: txs, persist } = useUserData<Transaction>(
+    'user_transactions', STORAGE_KEYS.TRANSACTIONS, SEED,
+  )
   const [copied, setCopied] = useState(false)
   const [view, setView]     = useState<View>('overview')
   const [cogsForm, setCogsForm] = useState({ date: new Date().toISOString().slice(0, 10), description: '', amount: '' })
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY)
-      setTxs(saved ? JSON.parse(saved) : SEED)
-    } catch { setTxs(SEED) }
-  }, [])
 
   const monthly      = buildMonthly(txs)
   const totalRevenue = txs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
@@ -134,17 +129,15 @@ export default function PnLPage() {
   const profitAfterTax = netProfit - taxProvision
   const margin         = totalRevenue > 0 ? (netProfit / totalRevenue * 100) : 0
 
-  function addCogsEntry(e: React.FormEvent) {
+  async function addCogsEntry(e: React.FormEvent) {
     e.preventDefault()
     const amt = parseFloat(cogsForm.amount)
     if (!amt || !cogsForm.description.trim()) return
     const tag = isCogs(cogsForm.description) ? cogsForm.description.trim() : `COGS — ${cogsForm.description.trim()}`
-    const next: Transaction[] = [
+    await persist([
       { id: crypto.randomUUID(), date: cogsForm.date, description: tag, type: 'expense', amount: amt },
       ...txs,
-    ]
-    setTxs(next)
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)) } catch {}
+    ])
     setCogsForm({ date: new Date().toISOString().slice(0, 10), description: '', amount: '' })
   }
 

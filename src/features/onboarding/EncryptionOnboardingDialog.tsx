@@ -9,8 +9,9 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Lock, X } from 'lucide-react'
 import { C } from '@/styles/palette'
+import { STORAGE_KEYS } from '@/lib/storageKeys'
 
-const SEEN_KEY = 'ea_crypto_onboard_seen_v1'
+const SEEN_KEY = STORAGE_KEYS.CRYPTO_ONBOARD
 
 export default function EncryptionOnboardingDialog() {
   const [open, setOpen] = useState(false)

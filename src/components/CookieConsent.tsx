@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { STORAGE_KEYS } from '@/lib/storageKeys'
 
-const STORAGE_KEY = 'easyacco_cookie_consent'
+const STORAGE_KEY = STORAGE_KEYS.COOKIE_CONSENT
 
 export default function CookieConsent() {
   const [visible, setVisible] = useState(false)

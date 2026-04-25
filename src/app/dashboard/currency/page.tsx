@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { ArrowLeftRight, RefreshCw } from 'lucide-react'
+import { STORAGE_KEYS } from '@/lib/storageKeys'
 
 const POPULAR: string[] = [
   'USD','EUR','GBP','JPY','CAD','AUD','CHF','INR','SGD','HKD',
   'NOK','SEK','DKK','NZD','ZAR','MXN','BRL','PLN','CZK','HUF',
 ]
 
-const CACHE_KEY      = 'ea_fx_rates'
+const CACHE_KEY      = STORAGE_KEYS.FX_RATES
 const CACHE_TTL_MS   = 5 * 60 * 1000   // serve cached rates for up to 5 minutes
 const FETCH_TIMEOUT  = 8_000            // abort stalled requests after 8 s
 

@@ -3,7 +3,8 @@ import { Inter, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/next';
-import PWARegister from '@/components/PWARegister';
+import PWARegister from '@/components/PWARegister'
+import StorageMigration from '@/components/StorageMigration';
 
 const inter = Inter({
   subsets: ["latin"],
@@ -41,6 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body className="antialiased" suppressHydrationWarning>
+        <StorageMigration />
         {children}
         <PWARegister />
         <SpeedInsights />

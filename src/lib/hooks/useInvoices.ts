@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useUserData } from '@/lib/use-user-data'
+import { STORAGE_KEYS } from '@/lib/storageKeys'
 import type { Invoice, InvoiceStatus } from '@/lib/validators'
 
 export type { Invoice, InvoiceStatus }
@@ -68,7 +69,7 @@ export function makeBlankForm(): InvoiceFormState {
 
 export function useInvoices() {
   const { items: invoices, persist, loading, isAuthenticated } = useUserData<Invoice>(
-    'user_invoices', 'ea_invoices', [],
+    'user_invoices', STORAGE_KEYS.INVOICES, [],
   )
   const [showForm, setShowForm] = useState(false)
   const [filter,   setFilter]   = useState<InvoiceStatus | 'all'>('all')

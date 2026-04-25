@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import { useUserData } from '@/lib/use-user-data'
+import { STORAGE_KEYS } from '@/lib/storageKeys'
 import type { ReceiptExtract } from '@/components/ReceiptScanner'
 import {
   emptyFilter, matchesRange, matchesCategories, matchesQuery,
@@ -39,7 +40,7 @@ function toISODate(d: Date) { return d.toISOString().slice(0, 10) }
 
 export function useExpenses() {
   const { items: expenses, persist, loading, isAuthenticated } = useUserData<Expense>(
-    'user_expenses', 'easyacco_expenses', SEED,
+    'user_expenses', STORAGE_KEYS.EXPENSES, SEED,
   )
   const [showForm, setShowForm]       = useState(false)
   const [form, setForm]               = useState<ExpenseFormState>({

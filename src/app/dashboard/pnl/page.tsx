@@ -9,8 +9,9 @@ import { Copy, CheckCheck, FileText, TrendingUp, TrendingDown } from 'lucide-rea
 import { calcScenario1 } from '@/lib/TaxBible2026'
 
 import { C } from '@/styles/palette'
+import { STORAGE_KEYS } from '@/lib/storageKeys'
 interface Transaction { id: string; date: string; description: string; type: 'income' | 'expense'; amount: number }
-const STORAGE_KEY = 'easyacco_transactions'
+const STORAGE_KEY = STORAGE_KEYS.TRANSACTIONS
 
 const SEED: Transaction[] = [
   { id: '1', date: '2026-01-01', description: 'Client A — Consulting',  type: 'income',  amount: 2400   },

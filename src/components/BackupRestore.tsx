@@ -12,17 +12,7 @@ import {
 } from '@/lib/storage/backup'
 
 import { C } from '@/styles/palette'
-const inputStyle: React.CSSProperties = {
-  width: '100%',
-  background: C.deep,
-  border: `1px solid ${C.border}`,
-  borderRadius: 4,
-  padding: '9px 13px',
-  color: C.text,
-  fontSize: '0.9rem',
-  outline: 'none',
-  boxSizing: 'border-box',
-}
+import { inputStyleBase as inputStyle } from '@/styles/inputs'
 const labelStyle: React.CSSProperties = {
   display: 'block',
   color: C.muted,

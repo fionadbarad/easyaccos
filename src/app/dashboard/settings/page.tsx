@@ -7,7 +7,7 @@ import type { User } from '@supabase/supabase-js'
 import { BackupRestore } from '@/components/BackupRestore'
 
 import { C } from '@/styles/palette'
-const inputStyle = { width: '100%', background: C.deep, border: `1px solid ${C.border}`, borderRadius: '4px', padding: '9px 13px', color: C.text, fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box' as const }
+import { inputStyleBase as inputStyle } from '@/styles/inputs'
 const labelStyle = { display: 'block', color: C.muted, fontSize: '0.75rem', textTransform: 'uppercase' as const, letterSpacing: '0.07em', marginBottom: '0.35rem' }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {

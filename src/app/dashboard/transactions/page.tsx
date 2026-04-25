@@ -5,6 +5,7 @@ import { Plus, Trash2, ArrowUpCircle, ArrowDownCircle, Calendar, Cloud, CloudOff
 import { useUserData } from '@/lib/use-user-data'
 
 import { C } from '@/styles/palette'
+import { inputStyleMonospace } from '@/styles/inputs'
 type TxType    = 'income' | 'expense'
 type DateFilter = 'all' | 'today' | 'month' | 'custom'
 
@@ -14,10 +15,12 @@ interface Transaction {
 }
 
 const inputStyle: React.CSSProperties = {
-  background: C.gray, border: `1px solid ${C.border}`, borderRadius: '4px',
-  padding: '9px 11px', color: C.white, fontSize: '0.84rem', outline: 'none',
-  boxSizing: 'border-box', width: '100%', minHeight: '40px',
-  fontFamily: 'var(--font-geist-mono), monospace', fontVariantNumeric: 'tabular-nums',
+  ...inputStyleMonospace,
+  padding: '9px 11px',
+  fontSize: '0.84rem',
+  boxSizing: 'border-box',
+  minHeight: '40px',
+  transition: undefined,
 }
 const labelStyle: React.CSSProperties = {
   display: 'block', color: C.muted, fontSize: '0.62rem',

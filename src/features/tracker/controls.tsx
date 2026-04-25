@@ -6,20 +6,9 @@
 import { ChevronDown } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { C } from '@/styles/palette'
+import { inputStyleMonospace } from '@/styles/inputs'
 
-export const inputStyle: React.CSSProperties = {
-  width: '100%',
-  background: C.gray,
-  border: `1px solid ${C.border}`,
-  borderRadius: '4px',
-  color: C.white,
-  padding: '10px 12px',
-  fontSize: '0.875rem',
-  outline: 'none',
-  fontFamily: 'var(--font-geist-mono), monospace',
-  fontVariantNumeric: 'tabular-nums',
-  transition: 'border-color 0.15s',
-}
+export const inputStyle = inputStyleMonospace
 
 export function Label({ children }: { children: React.ReactNode }) {
   return (

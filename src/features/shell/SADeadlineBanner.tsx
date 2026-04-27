@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Bell, X } from 'lucide-react'
+
+const DISMISS_KEY = 'easyacco.sa-deadline.dismissed'
 
 const DEADLINES = [
   { month: 10, day: 5,  label: 'Register for Self Assessment',          detail: 'Deadline to register if you are self-employed for the first time.' },
@@ -34,8 +36,20 @@ function daysUntil(date: Date) {
 }
 
 export default function SADeadlineBanner() {
-  const [dismissed, setDismissed] = useState(false)
+  const [dismissed, setDismissed] = useState(true)
   const next = getNextDeadline()
+  const dismissId = next ? next.date.toISOString().slice(0, 10) : ''
+
+  useEffect(() => {
+    if (!dismissId) return
+    const stored = typeof window !== 'undefined' ? window.localStorage.getItem(DISMISS_KEY) : null
+    setDismissed(stored === dismissId)
+  }, [dismissId])
+
+  const handleDismiss = () => {
+    setDismissed(true)
+    try { window.localStorage.setItem(DISMISS_KEY, dismissId) } catch {}
+  }
 
   if (!next || dismissed) return null
 
@@ -62,7 +76,7 @@ export default function SADeadlineBanner() {
         <span style={{ opacity: 0.65 }}> · {next.detail}</span>
       </span>
       <button
-        onClick={() => setDismissed(true)}
+        onClick={handleDismiss}
         title="Dismiss"
         style={{
           background: 'none', border: 'none', cursor: 'pointer',

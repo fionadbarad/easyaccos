@@ -1,7 +1,18 @@
 // ─── TaxBible2026.ts — EasyAcco Hard-coded HMRC 2026/27 Scenario Engine ────────
 // All figures are hard-coded. No API calls. Zero runtime cost.
 // Five distinct user journeys with accurate HMRC 2026/27 logic.
-import { round2, fmtGBP, calcPA as calcPACore } from './tax-logic'
+import {
+  round2,
+  fmtGBP,
+  calcPA as calcPACore,
+  calcRukTax as calcRukTaxCore,
+  calcScotlandTax as calcScotlandTaxCore,
+  calcClass1NI as calcClass1NICore,
+  calcClass4NI as calcClass4NICore,
+  calcDividendTax as calcDividendTaxCore,
+  calcStudentLoan as calcStudentLoanCore,
+  type StudentLoanPlan as CoreStudentLoanPlan,
+} from './tax-logic'
 import * as B from './tax/bands-2026'
 export { round2, fmtGBP }
 
@@ -83,89 +94,25 @@ export function calcPA(adjustedIncome: number): number {
   return calcPACore(adjustedIncome)
 }
 
-// rUK Income Tax on taxable income
+// rUK Income Tax on taxable income — thin number-returning wrapper around tax-logic
 export function calcIncomeTax(taxableIncome: number): number {
-  if (taxableIncome <= 0) return 0
-  let tax = 0
-  let rem = taxableIncome
-  const basic = Math.min(rem, TB.BASIC_BAND_WIDTH)
-  tax += basic * TB.BASIC_RATE; rem -= basic
-  if (rem > 0) {
-    const higher = Math.min(rem, TB.HIGHER_LIMIT - TB.BASIC_LIMIT)
-    tax += higher * TB.HIGHER_RATE; rem -= higher
-  }
-  if (rem > 0) tax += rem * TB.ADDITIONAL_RATE
-  return round2(tax)
+  return calcRukTaxCore(taxableIncome).tax
 }
 
-// Scotland Income Tax on gross income with PA
+// Scotland Income Tax on gross income with PA — number-returning wrapper
 export function calcScotlandTax(grossIncome: number, pa: number): number {
-  const taxable = Math.max(0, grossIncome - pa)
-  if (taxable <= 0) return 0
-
-  const LIMITS = [
-    { rate: 0.19, ceiling: TB.SCO_STARTER_END },
-    { rate: 0.20, ceiling: TB.SCO_BASIC_END },
-    { rate: 0.21, ceiling: TB.SCO_INTERMEDIATE_END },
-    { rate: 0.42, ceiling: TB.SCO_HIGHER_END },
-    { rate: 0.45, ceiling: TB.SCO_ADVANCED_END },
-    { rate: 0.48, ceiling: Infinity },
-  ]
-
-  let totalTax = 0
-  let prev: number = TB.PA_BASE
-
-  for (const { rate, ceiling } of LIMITS) {
-    const lower  = Math.max(0, taxable - Math.max(0, prev    - pa))
-    const upper  = Math.max(0, taxable - Math.max(0, ceiling - pa))
-    const amount = lower - upper
-    if (amount > 0) totalTax += amount * rate
-    prev = ceiling
-    if (prev >= grossIncome) break
-  }
-
-  return round2(totalTax)
+  return calcScotlandTaxCore(grossIncome, pa).tax
 }
 
-// NI Class 1 (Employed / Director on salary)
-export function calcClass1NI(earnings: number): number {
-  if (earnings <= TB.NI_PT) return 0
-  if (earnings <= TB.NI_UEL)
-    return round2((earnings - TB.NI_PT) * TB.NI_CLASS1_MAIN)
-  return round2(
-    (TB.NI_UEL - TB.NI_PT) * TB.NI_CLASS1_MAIN +
-    (earnings - TB.NI_UEL) * TB.NI_CLASS1_UPPER
-  )
-}
+// NI Class 1 (Employed / Director on salary) — re-export from canonical engine
+export const calcClass1NI = calcClass1NICore
 
-// NI Class 4 (Self-Employed on profit)
-export function calcClass4NI(profit: number): number {
-  if (profit <= TB.NI_PT) return 0
-  if (profit <= TB.NI_UEL)
-    return round2((profit - TB.NI_PT) * TB.NI_CLASS4_MAIN)
-  return round2(
-    (TB.NI_UEL - TB.NI_PT) * TB.NI_CLASS4_MAIN +
-    (profit - TB.NI_UEL) * TB.NI_CLASS4_UPPER
-  )
-}
+// NI Class 4 (Self-Employed on profit) — re-export from canonical engine
+export const calcClass4NI = calcClass4NICore
 
-// Dividend tax (stacked on top of non-dividend income)
+// Dividend tax (stacked on top of non-dividend income) — defaults to rUK band widths
 export function calcDividendTax(dividends: number, taxableNonDivIncome: number): number {
-  if (dividends <= TB.DIV_ALLOWANCE) return 0
-  const taxable = dividends - TB.DIV_ALLOWANCE
-  let rem = taxable; let tax = 0
-  const basicRemaining = Math.max(0, TB.BASIC_BAND_WIDTH - taxableNonDivIncome)
-  const inBasic = Math.min(rem, basicRemaining)
-  tax += inBasic * TB.DIV_BASIC_RATE; rem -= inBasic
-  if (rem > 0) {
-    const higherWidth = TB.HIGHER_LIMIT - TB.BASIC_LIMIT
-    const nonDivAboveBasic = Math.max(0, taxableNonDivIncome - TB.BASIC_BAND_WIDTH)
-    const higherRemaining = Math.max(0, higherWidth - nonDivAboveBasic)
-    const inHigher = Math.min(rem, higherRemaining)
-    tax += inHigher * TB.DIV_HIGHER_RATE; rem -= inHigher
-  }
-  if (rem > 0) tax += rem * TB.DIV_ADDL_RATE
-  return round2(tax)
+  return calcDividendTaxCore(dividends, taxableNonDivIncome, 'ruk')
 }
 
 // ─── SCENARIO RESULT TYPE ────────────────────────────────────────────────────
@@ -421,16 +368,16 @@ export function calcScenario5(inp: S5Input): ScenarioResult {
 }
 
 // ─── Student Loan Repayment ──────────────────────────────────────────────────
+// Scenario UX uses a shorter plan-key set; map to the canonical engine's keys.
 export type StudentLoanPlan = 'plan1' | 'plan2' | 'plan5' | 'postgrad'
+const SL_PLAN_MAP: Record<StudentLoanPlan, CoreStudentLoanPlan> = {
+  plan1:    'plan1',
+  plan2:    'plan2',
+  plan5:    'plan5',
+  postgrad: 'postgraduate',
+}
 export function calcStudentLoan(grossIncome: number, plan: StudentLoanPlan): number {
-  const cfg = {
-    plan1:    { threshold: TB.SL_PLAN1_THRESH,    rate: TB.SL_PLAN1_RATE },
-    plan2:    { threshold: TB.SL_PLAN2_THRESH,    rate: TB.SL_PLAN2_RATE },
-    plan5:    { threshold: TB.SL_PLAN5_THRESH,    rate: TB.SL_PLAN5_RATE },
-    postgrad: { threshold: TB.SL_POSTGRAD_THRESH, rate: TB.SL_POSTGRAD_RATE },
-  }[plan]
-  if (grossIncome <= cfg.threshold) return 0
-  return round2((grossIncome - cfg.threshold) * cfg.rate)
+  return calcStudentLoanCore(grossIncome, SL_PLAN_MAP[plan])
 }
 
 // ─── Employer NI ─────────────────────────────────────────────────────────────

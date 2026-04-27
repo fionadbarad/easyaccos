@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { calculateTax } from '@/lib/tax-logic'
-import type { TaxRegion, StudentLoanPlan } from '@/lib/tax-logic'
+import { calculateTax } from '@/lib/tax-engine'
+import type { TaxRegion, StudentLoanPlan } from '@/lib/tax-engine'
 
 const REGION_OPTIONS: Record<TaxRegion, string> = {
   ruk:      'England, Wales & Northern Ireland',

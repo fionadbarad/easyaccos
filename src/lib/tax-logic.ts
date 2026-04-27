@@ -169,7 +169,7 @@ export function calcPA(adjustedNetIncome: number): number {
  * Higher rate band: from end of basic to £125,140.
  * Additional rate: above £125,140.
  */
-function calcRukTax(taxableIncome: number): { tax: number; bands: TaxBand[] } {
+export function calcRukTax(taxableIncome: number): { tax: number; bands: TaxBand[] } {
   if (taxableIncome <= 0) return { tax: 0, bands: [] }
 
   const bands: TaxBand[] = []
@@ -207,7 +207,7 @@ function calcRukTax(taxableIncome: number): { tax: number; bands: TaxBand[] } {
 }
 
 // ─── Scotland Income Tax ──────────────────────────────────────────────────────
-function calcScotlandTax(grossIncome: number, pa: number): { tax: number; bands: TaxBand[] } {
+export function calcScotlandTax(grossIncome: number, pa: number): { tax: number; bands: TaxBand[] } {
   const taxable = Math.max(0, grossIncome - pa)
   if (taxable <= 0) return { tax: 0, bands: [] }
 
@@ -242,7 +242,7 @@ function calcScotlandTax(grossIncome: number, pa: number): { tax: number; bands:
 
 // ─── NI Class 1 (Employed / Director) ────────────────────────────────────────
 // Uses earnings (gross salary / director salary before expenses)
-function calcClass1NI(earnings: number): number {
+export function calcClass1NI(earnings: number): number {
   if (earnings <= NI_PT) return 0
   if (earnings <= NI_UEL) {
     return round2((earnings - NI_PT) * NI_C1_MAIN)
@@ -255,7 +255,7 @@ function calcClass1NI(earnings: number): number {
 
 // ─── NI Class 4 (Self-Employed) ──────────────────────────────────────────────
 // Uses PROFIT (after expenses, before income tax — not taxable income)
-function calcClass4NI(profit: number): number {
+export function calcClass4NI(profit: number): number {
   if (profit <= NI_PT) return 0
   if (profit <= NI_UEL) {
     return round2((profit - NI_PT) * NI_C4_MAIN)
@@ -269,10 +269,10 @@ function calcClass4NI(profit: number): number {
 // ─── Dividend Tax ─────────────────────────────────────────────────────────────
 // Dividends are stacked on top of non-dividend income within the tax bands.
 // The first £500 (dividend allowance) is tax-free.
-function calcDividendTax(
+export function calcDividendTax(
   dividends:           number,
   taxableNonDivIncome: number,
-  region:              TaxRegion,
+  region:              TaxRegion = 'ruk',
 ): number {
   if (dividends <= DIV_ALLOWANCE) return 0
 
@@ -311,7 +311,7 @@ function calcDividendTax(
 // IMPORTANT: HMRC computes student loan repayments on GROSS PROFIT (profit
 // after allowable expenses, BEFORE pension deductions and BEFORE income tax).
 // The base used here is grossProfit, NOT taxableIncome.
-function calcStudentLoan(grossProfit: number, plan: StudentLoanPlan): number {
+export function calcStudentLoan(grossProfit: number, plan: StudentLoanPlan): number {
   if (plan === 'none') return 0
   const { threshold, rate } = STUDENT_LOAN[plan]
   const repayable = Math.max(0, grossProfit - threshold)

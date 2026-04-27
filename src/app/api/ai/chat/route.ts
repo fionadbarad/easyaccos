@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { buildContextPrompt } from '@/lib/kittax/context'
 import type { KittaxContext } from '@/lib/kittax/types'
+import { ChatRequestSchema } from '@/app/api/ai/schemas'
+import { reportError } from '@/lib/monitor'
 
 const BASE_SYSTEM = `You are EasyAcco's personal tax advisor — aligned to HMRC rules for the 2026/27 UK fiscal year. You are a conversational advisor, not a text box, with a voice and a memory of the conversation so far. Do not introduce yourself with a name; simply speak as a knowledgeable UK tax advisor.
 
@@ -126,26 +128,26 @@ function getGenAI(apiKey: string): GoogleGenerativeAI {
 export async function POST(request: NextRequest) {
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
 
-  type HistoryTurn = { role: 'user' | 'model'; parts: Array<{ text: string }> }
-  let body: { message?: string; history?: HistoryTurn[]; context?: Partial<KittaxContext> }
+  let raw: unknown
   try {
-    body = await request.json()
+    raw = await request.json()
   } catch {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
   }
 
-  const query = (body.message ?? '').trim()
-  if (!query) {
-    return NextResponse.json({ error: 'message is required' }, { status: 400 })
+  const parsed = ChatRequestSchema.safeParse(raw)
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? 'Invalid request' },
+      { status: 400 },
+    )
   }
-  if (query.length > 4000) {
-    return NextResponse.json({ error: 'message too long (max 4000 chars)' }, { status: 400 })
-  }
+  const { message: query, history: validatedHistory, context } = parsed.data
 
   // Build context-injected system prompt
   let systemPrompt = BASE_SYSTEM
-  if (body.context && typeof body.context === 'object') {
-    const ctxText = buildContextPrompt(body.context as KittaxContext)
+  if (context) {
+    const ctxText = buildContextPrompt(context as unknown as KittaxContext)
     systemPrompt = `${BASE_SYSTEM}\n\nUSER CONTEXT (live data — use this for proactive guidance):\n${ctxText}`
   }
 
@@ -158,16 +160,7 @@ export async function POST(request: NextRequest) {
       model: 'gemini-1.5-flash',
       systemInstruction: systemPrompt,
     })
-    const history = Array.isArray(body.history)
-      ? body.history
-          .filter((t): t is HistoryTurn =>
-            !!t &&
-            (t.role === 'user' || t.role === 'model') &&
-            Array.isArray(t.parts) &&
-            t.parts.every((p) => p && typeof p.text === 'string')
-          )
-          .slice(-20)
-      : []
+    const history = (validatedHistory ?? []).slice(-20)
 
     const chat = model.startChat({ history })
 
@@ -195,7 +188,7 @@ export async function POST(request: NextRequest) {
       },
     })
   } catch (err: unknown) {
-    console.error('[ai/chat] Gemini error:', err instanceof Error ? err.message : err)
+    reportError('api.ai.chat', err)
     return NextResponse.json({ answer: offlineReply(query), offline: true })
   }
 }

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { CategoriseRequestSchema } from '@/app/api/ai/schemas'
+import { reportError } from '@/lib/monitor'
 
 const CATEGORIES = [
   'Office & Equipment',
@@ -45,21 +47,21 @@ ${CATEGORIES.join('\n')}
 If unsure, answer "Other".`
 
 export async function POST(request: NextRequest) {
-  let body: { description?: string; amount?: number }
+  let raw: unknown
   try {
-    body = await request.json()
+    raw = await request.json()
   } catch {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
   }
 
-  const description = (body.description ?? '').trim()
-  if (!description) {
-    return NextResponse.json({ error: 'description is required' }, { status: 400 })
+  const parsed = CategoriseRequestSchema.safeParse(raw)
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? 'Invalid request' },
+      { status: 400 },
+    )
   }
-  if (description.length > 500) {
-    return NextResponse.json({ error: 'description too long (max 500 chars)' }, { status: 400 })
-  }
-  const amt = typeof body.amount === 'number' && Number.isFinite(body.amount) && body.amount >= 0 ? body.amount : undefined
+  const { description, amount } = parsed.data
 
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
   if (!apiKey) {
@@ -72,14 +74,14 @@ export async function POST(request: NextRequest) {
       systemInstruction: SYSTEM,
     })
     const prompt = `Categorise this expense: "${description}"${
-      amt !== undefined ? ` (£${amt.toFixed(2)})` : ''
+      amount !== undefined ? ` (£${amount.toFixed(2)})` : ''
     }`
     const result = await model.generateContent(prompt)
     const text = (result.response.text() || '').trim()
     const match = CATEGORIES.find((c) => text.toLowerCase().includes(c.toLowerCase())) ?? heuristic(description)
     return NextResponse.json({ category: match, source: 'ai' })
   } catch (err) {
-    console.error('[ai/categorise] Gemini error:', err instanceof Error ? err.message : err)
+    reportError('api.ai.categorise', err)
     return NextResponse.json({ category: heuristic(description), source: 'heuristic-fallback' })
   }
 }

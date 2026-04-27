@@ -4,12 +4,13 @@ import { useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import type { User } from '@supabase/supabase-js'
-import { Menu } from 'lucide-react'
+import { Menu, AlertTriangle } from 'lucide-react'
 import { C } from '@/styles/palette'
 import Sidebar from '@/features/shell/Sidebar'
 import MobileTopBar from '@/features/shell/MobileTopBar'
 import OfflineChip from '@/features/shell/OfflineChip'
 import EncryptionOnboardingDialog from '@/features/onboarding/EncryptionOnboardingDialog'
+import SADeadlineBanner from '@/features/shell/SADeadlineBanner'
 import { SIDEBAR_W } from '@/features/shell/nav-config'
 
 export default function DashboardShell({
@@ -122,6 +123,26 @@ export default function DashboardShell({
       <main
         className="mt-[52px] md:mt-0"
         style={{ flex: 1, minHeight: '100vh', background: C.bg, overflow: 'auto' }}>
+        <SADeadlineBanner />
+        {!user && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '10px',
+            padding: '10px 16px',
+            background: 'rgba(234,179,8,0.08)',
+            borderBottom: '1px solid rgba(234,179,8,0.2)',
+            color: 'rgba(234,179,8,0.9)',
+            fontSize: '0.78rem',
+            fontFamily: 'var(--font-mono, monospace)',
+          }}>
+            <AlertTriangle size={13} style={{ flexShrink: 0 }} />
+            <span>
+              Guest mode — your data is not saved.{' '}
+              <a href="/auth/login" style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: '2px' }}>
+                Sign in to keep your records →
+              </a>
+            </span>
+          </div>
+        )}
         {children}
       </main>
 

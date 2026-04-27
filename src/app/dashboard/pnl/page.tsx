@@ -1,27 +1,38 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Legend,
 } from 'recharts'
 import { Copy, CheckCheck, FileText, TrendingUp, TrendingDown } from 'lucide-react'
-import { calcScenario1 } from '@/lib/TaxBible2026'
+import { calcScenario1 } from '@/lib/tax-engine'
 import { fmtGBP as fmt, fmtDecAbs as fmtDp } from '@/lib/formatters'
+import { useUserData } from '@/lib/use-user-data'
 
 import { C } from '@/styles/palette'
-interface Transaction { id: string; date: string; description: string; type: 'income' | 'expense'; amount: number }
-const STORAGE_KEY = 'easyacco_transactions'
+// P&L shares the user_transactions table with the Transactions page so figures
+// stay consistent across the app. Schema must match that page's Transaction
+// type — `reference` is optional in the UI but always present on the row.
+interface Transaction {
+  id:          string
+  date:        string
+  description: string
+  type:        'income' | 'expense'
+  amount:      number
+  reference:   string
+  updated_at?: string
+}
 
 const SEED: Transaction[] = [
-  { id: '1', date: '2026-01-01', description: 'Client A — Consulting',  type: 'income',  amount: 2400   },
-  { id: '2', date: '2026-01-10', description: 'Subscriptions',          type: 'expense', amount: 120    },
-  { id: '3', date: '2026-02-01', description: 'Client B — Project',     type: 'income',  amount: 3100   },
-  { id: '4', date: '2026-02-14', description: 'Travel',                 type: 'expense', amount: 230    },
-  { id: '5', date: '2026-03-01', description: 'Client A — Retainer',    type: 'income',  amount: 2800   },
-  { id: '6', date: '2026-03-05', description: 'Software Licences',      type: 'expense', amount: 54.99  },
-  { id: '7', date: '2026-03-12', description: 'Client C — Design',      type: 'income',  amount: 1800   },
-  { id: '8', date: '2026-03-20', description: 'Freelance Writing',       type: 'income',  amount: 750    },
+  { id: '1', date: '2026-01-01', description: 'Client A — Consulting',  type: 'income',  amount: 2400,  reference: '' },
+  { id: '2', date: '2026-01-10', description: 'Subscriptions',          type: 'expense', amount: 120,   reference: '' },
+  { id: '3', date: '2026-02-01', description: 'Client B — Project',     type: 'income',  amount: 3100,  reference: '' },
+  { id: '4', date: '2026-02-14', description: 'Travel',                 type: 'expense', amount: 230,   reference: '' },
+  { id: '5', date: '2026-03-01', description: 'Client A — Retainer',    type: 'income',  amount: 2800,  reference: '' },
+  { id: '6', date: '2026-03-05', description: 'Software Licences',      type: 'expense', amount: 54.99, reference: '' },
+  { id: '7', date: '2026-03-12', description: 'Client C — Design',      type: 'income',  amount: 1800,  reference: '' },
+  { id: '8', date: '2026-03-20', description: 'Freelance Writing',      type: 'income',  amount: 750,   reference: '' },
 ]
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
@@ -93,17 +104,12 @@ const tooltipStyle = {
 type View = 'overview' | 'income-statement'
 
 export default function PnLPage() {
-  const [txs, setTxs]       = useState<Transaction[]>([])
+  const { items: txs, persist } = useUserData<Transaction>(
+    'user_transactions', 'easyacco_transactions', SEED,
+  )
   const [copied, setCopied] = useState(false)
   const [view, setView]     = useState<View>('overview')
   const [cogsForm, setCogsForm] = useState({ date: new Date().toISOString().slice(0, 10), description: '', amount: '' })
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY)
-      setTxs(saved ? JSON.parse(saved) : SEED)
-    } catch { setTxs(SEED) }
-  }, [])
 
   const monthly      = buildMonthly(txs)
   const totalRevenue = txs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
@@ -133,17 +139,16 @@ export default function PnLPage() {
   const profitAfterTax = netProfit - taxProvision
   const margin         = totalRevenue > 0 ? (netProfit / totalRevenue * 100) : 0
 
-  function addCogsEntry(e: React.FormEvent) {
+  async function addCogsEntry(e: React.FormEvent) {
     e.preventDefault()
     const amt = parseFloat(cogsForm.amount)
     if (!amt || !cogsForm.description.trim()) return
     const tag = isCogs(cogsForm.description) ? cogsForm.description.trim() : `COGS — ${cogsForm.description.trim()}`
     const next: Transaction[] = [
-      { id: crypto.randomUUID(), date: cogsForm.date, description: tag, type: 'expense', amount: amt },
+      { id: crypto.randomUUID(), date: cogsForm.date, description: tag, type: 'expense', amount: amt, reference: '' },
       ...txs,
     ]
-    setTxs(next)
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)) } catch {}
+    await persist(next)
     setCogsForm({ date: new Date().toISOString().slice(0, 10), description: '', amount: '' })
   }
 

@@ -111,7 +111,7 @@ describe('backup — plain file restore', () => {
       encrypted: false,
       records:   null as unknown as Record<string, unknown>,
     }
-    await expect(restoreBackup(file, 'merge')).rejects.toThrow(/invalid backup payload/i)
+    await expect(restoreBackup(file, 'merge')).rejects.toThrow(/schema validation/i)
   })
 })
 

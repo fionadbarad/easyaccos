@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { calculateTax, type TaxInput, type TaxResult } from '@/services/tax'
+import { calculateTax, type TaxInput, type TaxResult } from '@/lib/tax-engine'
 import { fmtGBP } from '@/lib/formatters'
 import { ShieldCheck, AlertCircle, CheckCircle2 } from 'lucide-react'
 
@@ -304,7 +304,7 @@ export default function ValidationPage() {
 
         <p className="text-[rgba(244,245,248,0.42)] text-[0.72rem] leading-[1.6] mt-8">
           All calculations executed on the server using the production engine exported from
-          <code className="font-mono text-[rgba(244,245,248,0.7)] px-1">@/services/tax</code>.
+          <code className="font-mono text-[rgba(244,245,248,0.7)] px-1">@/lib/tax-engine</code>.
           2026/27 HMRC rates. Class 2 NI is deemed paid above the Small Profits Threshold of £7,105.
           Scotland band ranges use the Holyrood-set thresholds for non-savings, non-dividend income.
         </p>

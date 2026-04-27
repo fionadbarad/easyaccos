@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, ChevronUp, AlertTriangle, Info, Lightbulb, TrendingDown } from 'lucide-react'
 import { C } from '@/styles/palette'
 import type { TaxResult } from '@/lib/tax-logic'
-import { round2 } from '@/lib/TaxBible2026'
+import { round2 } from '@/lib/tax-scenarios'
 import { cardStyle, toggleStyle, fmt, pct } from './tokens'
 
 export default function FullResultPanel({ result, showMonthly, setShowMonthly }: {

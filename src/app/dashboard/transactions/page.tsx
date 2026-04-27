@@ -4,15 +4,10 @@ import { useState, useMemo } from 'react'
 import { Plus, Trash2, ArrowUpCircle, ArrowDownCircle, Calendar, Cloud, CloudOff } from 'lucide-react'
 import { useUserData } from '@/lib/use-user-data'
 import { fmtDecAbs as fmt } from '@/lib/formatters'
+import { TRANSACTIONS_SEED, type Transaction, type TxType } from '@/lib/transactions/seed'
 
 import { C } from '@/styles/palette'
-type TxType    = 'income' | 'expense'
 type DateFilter = 'all' | 'today' | 'month' | 'custom'
-
-interface Transaction {
-  id: string; date: string; description: string
-  type: TxType; amount: number; reference: string
-}
 
 const inputStyle: React.CSSProperties = {
   background: C.gray, border: `1px solid ${C.border}`, borderRadius: '4px',
@@ -24,15 +19,6 @@ const labelStyle: React.CSSProperties = {
   display: 'block', color: C.muted, fontSize: '0.62rem',
   textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px', fontWeight: 600,
 }
-const SEED: Transaction[] = [
-  { id: '1', date: '2026-04-01', description: 'Client Project — Acme Corp', type: 'income',  amount: 2400,  reference: 'INV-001' },
-  { id: '2', date: '2026-04-02', description: 'Adobe Creative Cloud',       type: 'expense', amount: 54.99, reference: 'SUB-001' },
-  { id: '3', date: '2026-04-05', description: 'Consulting — Beta Ltd',       type: 'income',  amount: 1800,  reference: 'INV-002' },
-  { id: '4', date: '2026-04-07', description: 'Home Office Internet',        type: 'expense', amount: 45,    reference: 'UTIL-001' },
-  { id: '5', date: '2026-03-20', description: 'Freelance Writing Project',   type: 'income',  amount: 750,   reference: 'INV-003' },
-  { id: '6', date: '2026-03-15', description: 'Travel — Client Visit',       type: 'expense', amount: 120,   reference: 'EXP-001' },
-  { id: '7', date: '2026-02-28', description: 'Design Retainer',             type: 'income',  amount: 3200,  reference: 'INV-004' },
-]
 
 function toISODate(d: Date) { return d.toISOString().slice(0, 10) }
 
@@ -48,7 +34,7 @@ const DATE_LABELS: Record<DateFilter, string> = {
 
 export default function TransactionsPage() {
   const { items: txs, persist, loading, isAuthenticated } = useUserData<Transaction>(
-    'user_transactions', 'easyacco_transactions', SEED,
+    'user_transactions', 'easyacco_transactions', TRANSACTIONS_SEED,
   )
   const [typeFilter, setType]   = useState<TxType | 'all'>('all')
   const [dateFilter, setDate]   = useState<DateFilter>('all')

@@ -9,31 +9,9 @@ import { Copy, CheckCheck, FileText, TrendingUp, TrendingDown } from 'lucide-rea
 import { calcScenario1 } from '@/lib/tax-engine'
 import { fmtGBP as fmt, fmtDecAbs as fmtDp } from '@/lib/formatters'
 import { useUserData } from '@/lib/use-user-data'
+import { TRANSACTIONS_SEED, type Transaction } from '@/lib/transactions/seed'
 
 import { C } from '@/styles/palette'
-// P&L shares the user_transactions table with the Transactions page so figures
-// stay consistent across the app. Schema must match that page's Transaction
-// type — `reference` is optional in the UI but always present on the row.
-interface Transaction {
-  id:          string
-  date:        string
-  description: string
-  type:        'income' | 'expense'
-  amount:      number
-  reference:   string
-  updated_at?: string
-}
-
-const SEED: Transaction[] = [
-  { id: '1', date: '2026-01-01', description: 'Client A — Consulting',  type: 'income',  amount: 2400,  reference: '' },
-  { id: '2', date: '2026-01-10', description: 'Subscriptions',          type: 'expense', amount: 120,   reference: '' },
-  { id: '3', date: '2026-02-01', description: 'Client B — Project',     type: 'income',  amount: 3100,  reference: '' },
-  { id: '4', date: '2026-02-14', description: 'Travel',                 type: 'expense', amount: 230,   reference: '' },
-  { id: '5', date: '2026-03-01', description: 'Client A — Retainer',    type: 'income',  amount: 2800,  reference: '' },
-  { id: '6', date: '2026-03-05', description: 'Software Licences',      type: 'expense', amount: 54.99, reference: '' },
-  { id: '7', date: '2026-03-12', description: 'Client C — Design',      type: 'income',  amount: 1800,  reference: '' },
-  { id: '8', date: '2026-03-20', description: 'Freelance Writing',      type: 'income',  amount: 750,   reference: '' },
-]
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
@@ -105,7 +83,7 @@ type View = 'overview' | 'income-statement'
 
 export default function PnLPage() {
   const { items: txs, persist } = useUserData<Transaction>(
-    'user_transactions', 'easyacco_transactions', SEED,
+    'user_transactions', 'easyacco_transactions', TRANSACTIONS_SEED,
   )
   const [copied, setCopied] = useState(false)
   const [view, setView]     = useState<View>('overview')

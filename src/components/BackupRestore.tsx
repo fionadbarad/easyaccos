@@ -13,60 +13,31 @@ import {
 import { emitRestoreEvent } from '@/lib/use-user-data'
 import { reportError } from '@/lib/monitor'
 
-import { C } from '@/styles/palette'
-const inputStyle: React.CSSProperties = {
-  width: '100%',
-  background: C.deep,
-  border: `1px solid ${C.border}`,
-  borderRadius: 4,
-  padding: '9px 13px',
-  color: C.text,
-  fontSize: '0.9rem',
-  outline: 'none',
-  boxSizing: 'border-box',
-}
-const labelStyle: React.CSSProperties = {
-  display: 'block',
-  color: C.muted,
-  fontSize: '0.75rem',
-  textTransform: 'uppercase',
-  letterSpacing: '0.07em',
-  marginBottom: '0.35rem',
-}
-const btnPrimary: React.CSSProperties = {
-  background: C.white,
-  color: '#181818',
-  border: 'none',
-  borderRadius: 4,
-  padding: '9px 22px',
-  fontWeight: 700,
-  fontSize: '0.875rem',
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 8,
-  cursor: 'pointer',
-  transition: 'opacity 140ms ease',
-}
-const btnGhost: React.CSSProperties = {
-  ...btnPrimary,
-  background: 'transparent',
-  color: C.text,
-  border: `1px solid ${C.border}`,
-}
-
 type Status =
   | { kind: 'idle' }
   | { kind: 'working'; msg: string }
-  | { kind: 'ok'; msg: string }
-  | { kind: 'error'; msg: string }
+  | { kind: 'ok';      msg: string }
+  | { kind: 'error';   msg: string }
+
+const inputCls =
+  'w-full rounded bg-[var(--sa-gray)] border border-[var(--sa-border)] ' +
+  'text-sa-white text-sm px-3 py-2 outline-none focus:border-[rgba(244,245,248,0.18)]'
+const labelCls =
+  'block uppercase tracking-[0.07em] text-xs font-semibold ' +
+  'text-[var(--sa-muted)] mb-1.5'
+const btnPrimary =
+  'inline-flex items-center gap-2 rounded bg-sa-white text-[#181818] ' +
+  'font-bold text-sm px-5 py-2 transition-opacity hover:opacity-90 disabled:opacity-50'
+const btnGhost =
+  'inline-flex items-center gap-2 rounded border border-[var(--sa-border)] ' +
+  'bg-transparent text-sa-white font-bold text-sm px-5 py-2 hover:bg-[var(--sa-hover)]'
 
 export function BackupRestore() {
   const fileRef = useRef<HTMLInputElement | null>(null)
-  const [exportPw, setExportPw] = useState('')
-  const [status, setStatus] = useState<Status>({ kind: 'idle' })
-
-  const [pending, setPending] = useState<BackupFile | null>(null)
-  const [restorePw, setRestorePw] = useState('')
+  const [exportPw,    setExportPw]    = useState('')
+  const [status,      setStatus]      = useState<Status>({ kind: 'idle' })
+  const [pending,     setPending]     = useState<BackupFile | null>(null)
+  const [restorePw,   setRestorePw]   = useState('')
   const [restoreMode, setRestoreMode] = useState<'merge' | 'replace'>('merge')
 
   async function onExport() {
@@ -107,8 +78,6 @@ export function BackupRestore() {
     setStatus({ kind: 'working', msg: 'Restoring…' })
     try {
       const { restored } = await restoreBackup(pending, restoreMode, restorePw.trim() || undefined)
-      // Notify every useUserData consumer to re-read from the store so the
-      // UI updates instantly without a manual page refresh.
       emitRestoreEvent()
       setStatus({ kind: 'ok', msg: `Restored ${restored} record groups.` })
       setPending(null)
@@ -119,85 +88,77 @@ export function BackupRestore() {
     }
   }
 
+  const statusColor =
+    status.kind === 'ok'    ? 'text-[var(--sa-green)]'
+    : status.kind === 'error' ? 'text-[var(--sa-red)]'
+    : 'text-[var(--sa-muted)]'
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.4rem' }}>
-      <p style={{ color: C.muted, fontSize: '0.85rem', margin: 0, lineHeight: 1.55 }}>
+    <div className="flex flex-col gap-6">
+      <p className="text-sm leading-relaxed text-[var(--sa-muted)]">
         Your local data is encrypted on this device. Use backup to move your data between
         devices or keep an off-device copy. An optional passphrase encrypts the backup file
         itself.
       </p>
 
-      {/* ── Export ─────────────────────────────────────────── */}
+      {/* ── Export ───────────────────────────────────────────────────── */}
       <div>
-        <label style={labelStyle}>Backup passphrase (optional)</label>
+        <label className={labelCls}>Backup passphrase (optional)</label>
         <input
           type="password"
           placeholder="Leave blank for unencrypted backup"
           value={exportPw}
           onChange={(e) => setExportPw(e.target.value)}
-          style={inputStyle}
+          className={inputCls}
           autoComplete="new-password"
         />
-        <div style={{ marginTop: 10 }}>
-          <button onClick={onExport} style={btnPrimary}>
+        <div className="mt-2.5">
+          <button onClick={onExport} className={btnPrimary}>
             <Download size={15} /> Download backup
           </button>
         </div>
       </div>
 
-      <div style={{ borderTop: `1px solid ${C.border}` }} />
+      <div className="border-t border-[var(--sa-border)]" />
 
-      {/* ── Import ─────────────────────────────────────────── */}
+      {/* ── Import ───────────────────────────────────────────────────── */}
       <div>
-        <label style={labelStyle}>Restore from backup file</label>
+        <label className={labelCls}>Restore from backup file</label>
         <input
           ref={fileRef}
           type="file"
           accept="application/json,.json"
           onChange={onPickFile}
-          style={{ display: 'none' }}
+          className="hidden"
         />
-        <button onClick={() => fileRef.current?.click()} style={btnGhost}>
+        <button onClick={() => fileRef.current?.click()} className={btnGhost}>
           <Upload size={15} /> Choose file…
         </button>
 
         {pending && (
-          <div
-            style={{
-              marginTop: 14,
-              padding: 14,
-              border: `1px solid ${C.border}`,
-              borderRadius: 6,
-              background: C.deep,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 12,
-            }}
-          >
-            <div style={{ color: C.text, fontSize: '0.88rem' }}>
-              Backup from{' '}
-              <strong>{new Date(pending.createdAt).toLocaleString('en-GB')}</strong>
-              {' · '}
-              {pending.encrypted ? 'encrypted' : 'unencrypted'}
+          <div className="mt-3.5 flex flex-col gap-3 rounded-md border border-[var(--sa-border)] bg-[var(--sa-gray)] p-3.5">
+            <div className="text-sm text-sa-white">
+              Backup from <strong>{new Date(pending.createdAt).toLocaleString('en-GB')}</strong>
+              {' · '}{pending.encrypted ? 'encrypted' : 'unencrypted'}
             </div>
 
             {pending.encrypted && (
               <div>
-                <label style={labelStyle}>Passphrase</label>
+                <label className={labelCls}>Passphrase</label>
                 <input
                   type="password"
                   value={restorePw}
                   onChange={(e) => setRestorePw(e.target.value)}
-                  style={inputStyle}
+                  className={inputCls}
                   autoComplete="off"
                 />
               </div>
             )}
 
             <div>
-              <label style={labelStyle}>Mode</label>
-              <div style={{ display: 'flex', gap: 14, color: C.text, fontSize: '0.85rem' }}>
-                <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <label className={labelCls}>Mode</label>
+              <div className="flex gap-3.5 text-sm text-sa-white">
+                <label className="inline-flex items-center gap-1.5">
                   <input
                     type="radio"
                     checked={restoreMode === 'merge'}
@@ -205,7 +166,7 @@ export function BackupRestore() {
                   />
                   Merge into current data
                 </label>
-                <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <label className="inline-flex items-center gap-1.5">
                   <input
                     type="radio"
                     checked={restoreMode === 'replace'}
@@ -216,13 +177,11 @@ export function BackupRestore() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={onConfirmRestore} style={btnPrimary}>
-                Restore
-              </button>
+            <div className="flex gap-2.5">
+              <button onClick={onConfirmRestore} className={btnPrimary}>Restore</button>
               <button
                 onClick={() => { setPending(null); setRestorePw('') }}
-                style={btnGhost}
+                className={btnGhost}
               >
                 Cancel
               </button>
@@ -231,21 +190,9 @@ export function BackupRestore() {
         )}
       </div>
 
-      {/* ── Status line ────────────────────────────────────── */}
+      {/* ── Status line ──────────────────────────────────────────────── */}
       {status.kind !== 'idle' && (
-        <div
-          role="status"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            fontSize: '0.85rem',
-            color:
-              status.kind === 'ok'    ? C.good
-              : status.kind === 'error' ? C.warn
-              : C.muted,
-          }}
-        >
+        <div role="status" className={`inline-flex items-center gap-2 text-sm ${statusColor}`}>
           {status.kind === 'working' && <Loader2 size={15} className="animate-spin" />}
           {status.kind === 'ok'      && <CheckCircle size={15} />}
           {status.kind === 'error'   && <AlertCircle size={15} />}

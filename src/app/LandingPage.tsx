@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowRight, Calculator, BarChart2, MessageCircle, Shield, BookOpen, Receipt, CheckCircle2, FileText } from 'lucide-react'
+import { ArrowRight, Calculator, BarChart2, MessageCircle, Shield, BookOpen, Receipt, CheckCircle2, FileText, Car } from 'lucide-react'
 
 const MODULES = [
   { icon: Calculator,    label: 'HMRC Tax Engine',      desc: '2026/27-accurate income tax, NI, dividends, and pension relief across all UK regions and employment types.' },
@@ -10,8 +10,9 @@ const MODULES = [
   { icon: BarChart2,     label: 'P&L Reports',          desc: 'Instant profit & loss statements with monthly breakdowns. Export-ready for your accountant or Self Assessment return.' },
   { icon: FileText,      label: 'Invoice Generator',    desc: 'Create professional invoices with auto-incrementing numbers, VAT support, and PDF export. Track Draft, Sent, Paid, and Overdue.' },
   { icon: BookOpen,      label: 'Double-Entry Ledger',  desc: 'Maintain a clean transaction log with journal entries and a live net position — built for sole-trader bookkeeping.' },
+  { icon: Car,           label: 'Mileage Tracker',      desc: 'Log business journeys at HMRC-approved rates (45p first 10k miles, 25p after). Auto-totals for your Self Assessment.' },
   { icon: Shield,        label: 'MTD Compliance',       desc: 'All 2026/27 quarterly Making Tax Digital deadlines tracked with urgency indicators and early-warning alerts.' },
-  { icon: MessageCircle, label: 'Tax Advisory',         desc: 'Ask any UK tax question — sole trader income, dividends, expenses, Self Assessment deadlines, and more.' },
+  { icon: MessageCircle, label: 'Tax Q&A Assistant',    desc: 'Ask UK tax questions and get structured answers grounded in HMRC 2026/27 rules — sole trader income, dividends, deadlines, and more.' },
 ]
 
 const TRUST_POINTS = [
@@ -41,7 +42,7 @@ const JSON_LD = {
   },
   featureList: [
     'HMRC 2026/27 income tax and NI calculator',
-    'Sole trader expense tracker with receipt scanning',
+    'Sole trader expense tracker with receipt OCR scanning',
     'Invoice lifecycle management with VAT support',
     'Making Tax Digital (MTD) deadline tracker',
     'Mileage claim tracker (45p/25p HMRC rates)',

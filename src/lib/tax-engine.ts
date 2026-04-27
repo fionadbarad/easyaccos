@@ -20,10 +20,10 @@ export {
   calcDividendTax as calcDividendTaxScenario,
   calcScotlandTax as calcScotlandTaxScenario,
   CAT_GREETINGS,
-} from './TaxBible2026'
+} from './tax-scenarios'
 export type {
   ScenarioResult,
   S1Input, S2Input, S3Input, S4Input, S5Input,
   StudentLoanPlan as ScenarioStudentLoanPlan,
-} from './TaxBible2026'
+} from './tax-scenarios'
 

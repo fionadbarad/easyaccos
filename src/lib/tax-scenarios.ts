@@ -1,4 +1,4 @@
-// ─── TaxBible2026.ts — EasyAcco Hard-coded HMRC 2026/27 Scenario Engine ────────
+// ─── tax-scenarios.ts — EasyAcco Hard-coded HMRC 2026/27 Scenario Engine ──────
 // All figures are hard-coded. No API calls. Zero runtime cost.
 // Five distinct user journeys with accurate HMRC 2026/27 logic.
 import {

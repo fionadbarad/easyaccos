@@ -12,6 +12,7 @@ import {
   STORE_RECORDS,
   idbGet,
   idbSet,
+  idbDelete,
   idbKeys,
   isIDBAvailable,
 } from './idb'
@@ -124,16 +125,20 @@ export async function secureDumpAll(): Promise<Record<string, unknown>> {
   return out
 }
 
-/** Write a full record snapshot (used by restore). */
+/** Write a full record snapshot (used by restore).
+ *
+ * In `replace` mode any existing record key NOT present in the incoming
+ * snapshot is truly deleted from IndexedDB rather than overwritten with an
+ * empty array. This keeps the encrypted store consistent with the backup
+ * file and avoids ghost records lingering after a restore. */
 export async function secureRestoreAll(records: Record<string, unknown>, mode: 'merge' | 'replace'): Promise<void> {
   if (!isIDBAvailable()) return
   if (mode === 'replace') {
     const keys = await idbKeys(STORE_RECORDS)
-    const key = await getDeviceKey()
     for (const k of keys) {
       if (typeof k !== 'string') continue
       if (!(k in records)) {
-        await idbSet(STORE_RECORDS, k, await encryptWithKey(key, JSON.stringify([])))
+        await idbDelete(STORE_RECORDS, k)
       }
     }
   }

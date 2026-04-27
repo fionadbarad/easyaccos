@@ -10,6 +10,8 @@ import {
   isBackupFile,
   type BackupFile,
 } from '@/lib/storage/backup'
+import { emitRestoreEvent } from '@/lib/use-user-data'
+import { reportError } from '@/lib/monitor'
 
 import { C } from '@/styles/palette'
 const inputStyle: React.CSSProperties = {
@@ -78,6 +80,7 @@ export function BackupRestore() {
       })
       setExportPw('')
     } catch (err) {
+      reportError('BackupRestore.export', err)
       setStatus({ kind: 'error', msg: err instanceof Error ? err.message : 'Export failed' })
     }
   }
@@ -93,6 +96,7 @@ export function BackupRestore() {
       setPending(file)
       setStatus({ kind: 'idle' })
     } catch (err) {
+      reportError('BackupRestore.read', err)
       setPending(null)
       setStatus({ kind: 'error', msg: err instanceof Error ? err.message : 'Invalid file' })
     }
@@ -103,10 +107,14 @@ export function BackupRestore() {
     setStatus({ kind: 'working', msg: 'Restoring…' })
     try {
       const { restored } = await restoreBackup(pending, restoreMode, restorePw.trim() || undefined)
-      setStatus({ kind: 'ok', msg: `Restored ${restored} record groups. Refresh to see changes.` })
+      // Notify every useUserData consumer to re-read from the store so the
+      // UI updates instantly without a manual page refresh.
+      emitRestoreEvent()
+      setStatus({ kind: 'ok', msg: `Restored ${restored} record groups.` })
       setPending(null)
       setRestorePw('')
     } catch (err) {
+      reportError('BackupRestore.confirm', err)
       setStatus({ kind: 'error', msg: err instanceof Error ? err.message : 'Restore failed' })
     }
   }

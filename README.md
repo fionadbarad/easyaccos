@@ -27,7 +27,7 @@ EasyAcco is a high-fidelity financial management platform specifically engineere
 *   **Testing:** Vitest for unit testing the core tax engine logic to ensure 100% mathematical accuracy.
 
 ## Project Structure
-*   `src/lib/TaxBible2026.ts`: The central source of truth for UK tax constants and logic.
+*   `src/lib/tax-scenarios.ts`: The central source of truth for UK tax constants and logic.
 *   `src/lib/storage/crypto.ts`: Implementation of the AES-GCM encryption layer.
 *   `src/features/`: Modularized feature components (Invoices, Expenses, Tax Estimator).
 *   `src/lib/__tests__/`: Comprehensive test suite for validating fiscal calculations against HMRC manual cases.

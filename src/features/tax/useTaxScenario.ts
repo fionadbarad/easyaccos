@@ -11,7 +11,7 @@ import {
 import {
   calcScenario3, calcScenario4,
   type ScenarioResult, type S3Input, type S4Input,
-} from '@/lib/TaxBible2026'
+} from '@/lib/tax-scenarios'
 import { buildTaxInput, isFullEngineScenario, type ScenarioKey } from './scenarios'
 
 export function useTaxScenario() {

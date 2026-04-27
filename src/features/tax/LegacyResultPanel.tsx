@@ -8,7 +8,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react'
 import { C } from '@/styles/palette'
-import { round2, type ScenarioResult } from '@/lib/TaxBible2026'
+import { round2, type ScenarioResult } from '@/lib/tax-scenarios'
 import { cardStyle, fmt, pct } from './tokens'
 
 export default function LegacyResultPanel({ result }: { result: ScenarioResult }) {

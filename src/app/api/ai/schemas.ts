@@ -17,9 +17,24 @@ const HistoryTurnSchema = z.object({
 })
 export type HistoryTurn = z.infer<typeof HistoryTurnSchema>
 
+// Mirrors KittaxContext in src/lib/kittax/types.ts. Kept structural so the
+// route can hand it straight to buildContextPrompt with no cast.
+const KittaxContextSchema = z.object({
+  currentMonth:          z.string(),
+  taxYear:               z.string(),
+  personalAllowance:     z.number().finite().nonnegative(),
+  basicRateLimit:        z.number().finite().nonnegative(),
+  higherRateTaper:       z.number().finite().nonnegative(),
+  topRateTaper:          z.number().finite().nonnegative(),
+  totalExpensesYTD:      z.number().finite().nonnegative().optional(),
+  estimatedProfit:       z.number().finite().optional(),
+  estimatedTaxLiability: z.number().finite().nonnegative().optional(),
+  taxBand:               z.string().optional(),
+})
+
 export const ChatRequestSchema = z.object({
   message: z.string().trim().min(1, 'message is required').max(4000, 'message too long (max 4000 chars)'),
   history: z.array(HistoryTurnSchema).max(50).optional(),
-  context: z.record(z.string(), z.unknown()).optional(),
+  context: KittaxContextSchema.optional(),
 })
 export type ChatRequest = z.infer<typeof ChatRequestSchema>

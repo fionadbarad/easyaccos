@@ -4,18 +4,24 @@
 
 import type { KittaxContext } from './types'
 import { fmtDec as fmtGBP } from '@/lib/formatters'
+import {
+  PA_BASE,
+  RUK_BASIC_RATE_WIDTH,
+  PA_TAPER_START,
+  PA_TAPER_END,
+} from '@/lib/tax/bands-2026'
 
-/** Returns current tax-year context populated with static 2026/27 thresholds. */
+/** Returns current tax-year context populated from bands-2026 (single source). */
 export function buildBaseContext(): KittaxContext {
   const now = new Date()
   const month = now.toLocaleString('en-GB', { month: 'long', year: 'numeric' })
   return {
-    currentMonth:     month,
-    taxYear:          '2026/27',
-    personalAllowance: 12_570,
-    basicRateLimit:    37_700,
-    higherRateTaper:  100_000,
-    topRateTaper:     125_140,
+    currentMonth:      month,
+    taxYear:           '2026/27',
+    personalAllowance: PA_BASE,
+    basicRateLimit:    RUK_BASIC_RATE_WIDTH,
+    higherRateTaper:   PA_TAPER_START,
+    topRateTaper:      PA_TAPER_END,
   }
 }
 

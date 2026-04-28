@@ -230,7 +230,8 @@ export default function LandingPage() {
           <p className="text-[rgba(244,245,248,0.18)] text-[0.72rem] font-mono">
             2026 · UK Sole Traders &amp; Freelancers · Not financial advice · HMRC 2026/27
           </p>
-          <div className="flex gap-4">
+          <div className="flex items-center gap-4">
+            <span className="text-[rgba(244,245,248,0.25)] text-[0.72rem] font-mono">Encrypted via Supabase</span>
             <a href="/security" className="text-[rgba(244,245,248,0.25)] text-[0.72rem] no-underline hover:text-[rgba(244,245,248,0.5)] transition-colors">Security &amp; Privacy</a>
             <a href="/demo" className="text-[rgba(244,245,248,0.25)] text-[0.72rem] no-underline hover:text-[rgba(244,245,248,0.5)] transition-colors">Demo</a>
           </div>

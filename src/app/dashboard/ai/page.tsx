@@ -24,8 +24,8 @@ const QUICK_ACTIONS = [
   { label: 'Pension strategy',    q: 'How can I use pension contributions to reduce my tax?' },
 ]
 
-function makeMessage(role: KittaxMessage['role'], content: string): KittaxMessage {
-  return { id: crypto.randomUUID(), role, content, ts: Date.now() }
+function makeMessage(role: KittaxMessage['role'], content: string, offline = false): KittaxMessage {
+  return { id: crypto.randomUUID(), role, content, ts: Date.now(), offline }
 }
 
 function formatTime(ts: number) {
@@ -135,8 +135,20 @@ function AssistantMessage({
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ color: 'rgba(244,245,248,0.3)', fontSize: '0.62rem', fontFamily: 'var(--font-geist-mono), monospace', letterSpacing: '0.08em', marginBottom: '6px' }}>
-          ADVISORY · {formatTime(msg.ts)}
+          {msg.offline ? 'OFFLINE · GENERIC ANSWER' : 'ADVISORY'} · {formatTime(msg.ts)}
         </div>
+        {msg.offline && (
+          <div role="status" aria-live="polite" style={{
+            background: 'rgba(250,204,21,0.06)', border: '1px solid rgba(250,204,21,0.22)',
+            borderRadius: '4px', padding: '8px 12px', marginBottom: '10px',
+            color: '#FACC15', fontSize: '0.72rem', lineHeight: 1.45,
+            fontFamily: 'var(--font-geist-mono), monospace',
+          }}>
+            The live advisor is unavailable. This is a canned reply matched on
+            keywords — accurate for HMRC 2026/27 thresholds, but not tailored to
+            your numbers. Try again shortly for a full advisory response.
+          </div>
+        )}
         <MarkdownBlock text={msg.content} />
 
         {/* Contextual action buttons on latest assistant message */}
@@ -292,10 +304,12 @@ export default function AIPage() {
           setMessages([...next, { ...streamMsg, content: accumulated }])
         }
       } else {
-        // JSON fallback (offline mode)
+        // JSON fallback — server is in offline mode (no GEMINI_API_KEY) or the
+        // upstream call failed and the route degraded to a canned reply.
         const data = await res.json()
         if (!res.ok || data.error) throw new Error(data.error || 'No response from server.')
-        setMessages([...next, makeMessage('assistant', data.answer || data.reply || 'No response.')])
+        const isOffline = data.offline === true
+        setMessages([...next, makeMessage('assistant', data.answer || data.reply || 'No response.', isOffline)])
       }
     } catch (err: unknown) {
       if ((err as Error).name === 'AbortError') {
@@ -325,7 +339,7 @@ export default function AIPage() {
   const canSend = !loading && input.trim().length > 0
   const lastAssistantIdx = [...messages].reverse().findIndex((m) => m.role === 'assistant')
   const lastAssistantId  = lastAssistantIdx >= 0
-    ? messages[messages.length - 1 - lastAssistantIdx]?.id ?? null
+    ? messages[messages.length - 1 - lastAssistantIdx].id
     : null
 
   // Context summary for the UI

@@ -80,7 +80,7 @@ export default function LegacyResultPanel({ result }: { result: ScenarioResult }
       </div>
 
       <p style={{ color: C.muted, fontSize: '0.68rem', textAlign: 'center', marginTop: '1rem' }}>
-        2026/27 HMRC Compliant | Encrypted via Supabase
+        2026/27 HMRC Compliant
       </p>
     </motion.div>
   )

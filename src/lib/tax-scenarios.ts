@@ -1,6 +1,7 @@
-// ─── tax-scenarios.ts — EasyAcco Hard-coded HMRC 2026/27 Scenario Engine ──────
-// All figures are hard-coded. No API calls. Zero runtime cost.
-// Five distinct user journeys with accurate HMRC 2026/27 logic.
+// ─── tax-scenarios.ts — EasyAcco HMRC 2026/27 Scenario Engine ────────────────
+// Thin wrappers over tax-logic.ts (single source of truth for tax math) +
+// bands-2026.ts (single source of truth for rates/thresholds).
+// Five distinct user journeys composed from the canonical engine.
 import {
   round2,
   fmtGBP,
@@ -265,7 +266,7 @@ export interface S4Input {
   annualSalary:       number   // full-year salary
   monthsWorked:       number   // 1–12 (stopped work mid-year)
   redundancyPayment:  number   // total package received
-  paydeTaxPaid:       number   // PAYE tax actually deducted so far
+  payeTaxPaid:       number   // PAYE tax actually deducted so far
 }
 export function calcScenario4(inp: S4Input): ScenarioResult {
   const monthsWorked    = Math.max(1, Math.min(12, inp.monthsWorked))
@@ -279,7 +280,7 @@ export function calcScenario4(inp: S4Input): ScenarioResult {
   const ni              = calcClass1NI(earnedIncome)
   const total           = round2(itaxDue + ni)
   // PAYE Refund: tax already collected vs actual liability
-  const refund          = round2(Math.max(0, inp.paydeTaxPaid - itaxDue))
+  const refund          = round2(Math.max(0, inp.payeTaxPaid - itaxDue))
   const takeHome        = round2(earnedIncome + taxFreeRedund + taxableRedund - itaxDue - ni)
   const effRate         = totalTaxable > 0 ? round2((total / totalTaxable) * 100) : 0
   return {
@@ -302,7 +303,7 @@ export function calcScenario4(inp: S4Input): ScenarioResult {
       { label: 'Personal Allowance',          value: pa,                   negative: true, indent: true },
       { label: 'Taxable After PA',            value: taxable },
       { label: 'Income Tax Due',              value: itaxDue,              negative: true, indent: true },
-      { label: 'PAYE Tax Already Paid',       value: inp.paydeTaxPaid,     negative: true, indent: true },
+      { label: 'PAYE Tax Already Paid',       value: inp.payeTaxPaid,     negative: true, indent: true },
       { label: 'PAYE Refund Owed',            value: refund,               bold: true },
       { label: 'NI Class 1 (8%)',             value: ni,                   negative: true, indent: true },
       { label: 'Estimated Net Position',      value: takeHome,             bold: true },

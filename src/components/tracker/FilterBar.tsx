@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Calendar, ChevronDown, Search, X } from 'lucide-react'
 
-import { C } from '@/styles/palette'
 export type DateRange =
   | { kind: 'all' }
   | { kind: 'month'; ym: string } // "2026-04"
@@ -36,16 +35,8 @@ export function matchesQuery(haystack: string, query: string): boolean {
   return haystack.toLowerCase().includes(q)
 }
 
-const inputS: React.CSSProperties = {
-  background: C.gray, border: `1px solid ${C.border}`, borderRadius: 4,
-  padding: '7px 10px', color: C.white, fontSize: '0.8rem', outline: 'none',
-  boxSizing: 'border-box', fontFamily: 'var(--font-geist-mono), monospace',
-}
-const labelS: React.CSSProperties = {
-  color: C.dim, fontSize: '0.58rem', textTransform: 'uppercase',
-  letterSpacing: '0.08em', fontWeight: 600, marginBottom: 4,
-  fontFamily: 'var(--font-geist-mono), monospace',
-}
+const INPUT_S = 'bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[10px] py-[7px] text-[#F4F5F8] text-[0.8rem] outline-none font-mono'
+const LABEL_S = 'text-[rgba(244,245,248,0.18)] text-[0.58rem] uppercase tracking-[0.08em] font-semibold mb-[4px] font-mono'
 
 export function FilterBar({
   value,
@@ -90,18 +81,14 @@ export function FilterBar({
   }
 
   return (
-    <div style={{
-      background: C.surface, border: `1px solid ${C.border}`, borderRadius: 6,
-      padding: '0.85rem 1rem', display: 'flex', gap: '0.85rem', flexWrap: 'wrap',
-      alignItems: 'flex-end', marginBottom: '1rem',
-    }}>
+    <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[0.85rem_1rem] flex gap-[0.85rem] flex-wrap items-end mb-[1rem]">
       {/* Date range kind */}
-      <div style={{ minWidth: 130 }}>
-        <div style={labelS}>Period</div>
+      <div className="min-w-[130px]">
+        <div className={LABEL_S}>Period</div>
         <select
           value={range.kind}
           onChange={e => setRangeKind(e.target.value as DateRange['kind'])}
-          style={{ ...inputS, cursor: 'pointer' }}
+          className={`${INPUT_S} cursor-pointer`}
         >
           <option value="all">All time</option>
           <option value="month">Month</option>
@@ -110,13 +97,13 @@ export function FilterBar({
       </div>
 
       {range.kind === 'month' && (
-        <div style={{ minWidth: 140 }}>
-          <div style={labelS}>Month</div>
+        <div className="min-w-[140px]">
+          <div className={LABEL_S}>Month</div>
           <input
             type="month"
             value={range.ym}
             onChange={e => onChange({ ...value, range: { kind: 'month', ym: e.target.value } })}
-            style={inputS}
+            className={INPUT_S}
           />
         </div>
       )}
@@ -124,69 +111,55 @@ export function FilterBar({
       {range.kind === 'custom' && (
         <>
           <div>
-            <div style={labelS}>From</div>
+            <div className={LABEL_S}>From</div>
             <input
               type="date"
               value={range.from}
               onChange={e => onChange({ ...value, range: { ...range, from: e.target.value } })}
-              style={inputS}
+              className={INPUT_S}
             />
           </div>
           <div>
-            <div style={labelS}>To</div>
+            <div className={LABEL_S}>To</div>
             <input
               type="date"
               value={range.to}
               onChange={e => onChange({ ...value, range: { ...range, to: e.target.value } })}
-              style={inputS}
+              className={INPUT_S}
             />
           </div>
         </>
       )}
 
       {/* Category multi-select */}
-      <div ref={catRef} style={{ position: 'relative', minWidth: 180 }}>
-        <div style={labelS}>Categories</div>
+      <div ref={catRef} className="relative min-w-[180px]">
+        <div className={LABEL_S}>Categories</div>
         <button
           type="button"
           onClick={() => setCatOpen(o => !o)}
-          style={{
-            ...inputS, cursor: 'pointer', textAlign: 'left',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6,
-            width: '100%',
-          }}
+          className={`${INPUT_S} cursor-pointer text-left flex items-center justify-between gap-[6px] w-full`}
         >
-          <span style={{ color: selected.length ? C.white : C.muted, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <span className={`overflow-hidden text-ellipsis whitespace-nowrap ${selected.length ? 'text-[#F4F5F8]' : 'text-[rgba(244,245,248,0.42)]'}`}>
             {selected.length === 0 ? 'All' : `${selected.length} selected`}
           </span>
-          <ChevronDown size={12} style={{ color: C.muted, flexShrink: 0 }} />
+          <ChevronDown size={12} className="text-[rgba(244,245,248,0.42)] shrink-0" />
         </button>
         {catOpen && (
-          <div style={{
-            position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, zIndex: 20,
-            background: C.gray, border: `1px solid ${C.border}`, borderRadius: 4,
-            padding: 6, maxHeight: 260, overflowY: 'auto',
-            boxShadow: '0 6px 20px rgba(0,0,0,0.35)',
-          }}>
+          <div className="absolute top-[calc(100%+4px)] left-0 right-0 z-20 bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] p-[6px] max-h-[260px] overflow-y-auto shadow-[0_6px_20px_rgba(0,0,0,0.35)]">
             {categories.length === 0 && (
-              <div style={{ color: C.muted, fontSize: '0.75rem', padding: 6 }}>No categories</div>
+              <div className="text-[rgba(244,245,248,0.42)] text-[0.75rem] p-[6px]">No categories</div>
             )}
             {categories.map(c => {
               const on = selected.includes(c)
               return (
-                <label key={c} style={{
-                  display: 'flex', alignItems: 'center', gap: 8,
-                  padding: '5px 8px', borderRadius: 3, cursor: 'pointer',
-                  background: on ? 'rgba(244,245,248,0.05)' : 'transparent',
-                  color: on ? C.white : C.muted, fontSize: '0.78rem',
-                }}>
+                <label key={c} className={`flex items-center gap-2 px-[8px] py-[5px] rounded-[3px] cursor-pointer text-[0.78rem] ${on ? 'bg-[rgba(244,245,248,0.05)] text-[#F4F5F8]' : 'bg-transparent text-[rgba(244,245,248,0.42)]'}`}>
                   <input
                     type="checkbox"
                     checked={on}
                     onChange={() => toggleCategory(c)}
-                    style={{ accentColor: C.white }}
+                    className="accent-[#F4F5F8]"
                   />
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c}</span>
+                  <span className="overflow-hidden text-ellipsis whitespace-nowrap">{c}</span>
                 </label>
               )
             })}
@@ -194,11 +167,7 @@ export function FilterBar({
               <button
                 type="button"
                 onClick={() => onChange({ ...value, categories: [] })}
-                style={{
-                  marginTop: 4, width: '100%', background: 'transparent', color: C.muted,
-                  border: `1px solid ${C.border}`, borderRadius: 3,
-                  padding: '5px 8px', fontSize: '0.72rem', cursor: 'pointer',
-                }}
+                className="mt-[4px] w-full bg-transparent text-[rgba(244,245,248,0.42)] border border-[rgba(244,245,248,0.07)] rounded-[3px] px-[8px] py-[5px] text-[0.72rem] cursor-pointer"
               >
                 Clear
               </button>
@@ -208,27 +177,23 @@ export function FilterBar({
       </div>
 
       {/* Text search */}
-      <div style={{ flex: 1, minWidth: 180 }}>
-        <div style={labelS}>Search</div>
-        <div style={{ position: 'relative' }}>
-          <Search size={12} style={{ position: 'absolute', top: '50%', left: 10, transform: 'translateY(-50%)', color: C.dim }} />
+      <div className="flex-1 min-w-[180px]">
+        <div className={LABEL_S}>Search</div>
+        <div className="relative">
+          <Search size={12} className="absolute top-1/2 left-[10px] -translate-y-1/2 text-[rgba(244,245,248,0.18)]" />
           <input
             type="text"
             value={query}
             onChange={e => onChange({ ...value, query: e.target.value })}
             placeholder="Description, reference…"
-            style={{ ...inputS, paddingLeft: 28, paddingRight: query ? 28 : 10, width: '100%', fontFamily: 'inherit' }}
+            className={`bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] py-[7px] pl-[28px] ${query ? 'pr-[28px]' : 'pr-[10px]'} text-[#F4F5F8] text-[0.8rem] outline-none w-full`}
           />
           {query && (
             <button
               type="button"
               onClick={() => onChange({ ...value, query: '' })}
               aria-label="Clear search"
-              style={{
-                position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)',
-                background: 'transparent', border: 'none', color: C.muted, cursor: 'pointer',
-                padding: 2, display: 'flex',
-              }}
+              className="absolute right-[6px] top-1/2 -translate-y-1/2 bg-transparent border-none text-[rgba(244,245,248,0.42)] cursor-pointer p-[2px] flex"
             >
               <X size={12} />
             </button>
@@ -241,11 +206,7 @@ export function FilterBar({
         <button
           type="button"
           onClick={() => onChange(emptyFilter())}
-          style={{
-            background: 'transparent', color: C.muted, border: `1px solid ${C.border}`,
-            borderRadius: 4, padding: '7px 12px', fontSize: '0.75rem', cursor: 'pointer',
-            display: 'inline-flex', alignItems: 'center', gap: 5,
-          }}
+          className="bg-transparent text-[rgba(244,245,248,0.42)] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[12px] py-[7px] text-[0.75rem] cursor-pointer inline-flex items-center gap-[5px]"
         >
           <Calendar size={11} /> Reset
         </button>

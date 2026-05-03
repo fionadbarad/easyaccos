@@ -11,47 +11,6 @@ import {
   type BackupFile,
 } from '@/lib/storage/backup'
 
-import { C } from '@/styles/palette'
-const inputStyle: React.CSSProperties = {
-  width: '100%',
-  background: C.deep,
-  border: `1px solid ${C.border}`,
-  borderRadius: 4,
-  padding: '9px 13px',
-  color: C.text,
-  fontSize: '0.9rem',
-  outline: 'none',
-  boxSizing: 'border-box',
-}
-const labelStyle: React.CSSProperties = {
-  display: 'block',
-  color: C.muted,
-  fontSize: '0.75rem',
-  textTransform: 'uppercase',
-  letterSpacing: '0.07em',
-  marginBottom: '0.35rem',
-}
-const btnPrimary: React.CSSProperties = {
-  background: C.white,
-  color: '#181818',
-  border: 'none',
-  borderRadius: 4,
-  padding: '9px 22px',
-  fontWeight: 700,
-  fontSize: '0.875rem',
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 8,
-  cursor: 'pointer',
-  transition: 'opacity 140ms ease',
-}
-const btnGhost: React.CSSProperties = {
-  ...btnPrimary,
-  background: 'transparent',
-  color: C.text,
-  border: `1px solid ${C.border}`,
-}
-
 type Status =
   | { kind: 'idle' }
   | { kind: 'working'; msg: string }
@@ -112,8 +71,8 @@ export function BackupRestore() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.4rem' }}>
-      <p style={{ color: C.muted, fontSize: '0.85rem', margin: 0, lineHeight: 1.55 }}>
+    <div className="flex flex-col gap-[1.4rem]">
+      <p className="text-[rgba(244,245,248,0.42)] text-[0.85rem] m-0 leading-[1.55]">
         Your local data is encrypted on this device. Use backup to move your data between
         devices or keep an off-device copy. An optional passphrase encrypts the backup file
         itself.
@@ -121,52 +80,41 @@ export function BackupRestore() {
 
       {/* ── Export ─────────────────────────────────────────── */}
       <div>
-        <label style={labelStyle}>Backup passphrase (optional)</label>
+        <label className="block text-[rgba(244,245,248,0.42)] text-[0.75rem] uppercase tracking-[0.07em] mb-[0.35rem]">Backup passphrase (optional)</label>
         <input
           type="password"
           placeholder="Leave blank for unencrypted backup"
           value={exportPw}
           onChange={(e) => setExportPw(e.target.value)}
-          style={inputStyle}
+          className="w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[13px] py-[9px] text-[#F4F5F8] text-[0.9rem] outline-none"
           autoComplete="new-password"
         />
-        <div style={{ marginTop: 10 }}>
-          <button onClick={onExport} style={btnPrimary}>
+        <div className="mt-[10px]">
+          <button onClick={onExport} className="bg-[#F4F5F8] text-[#181818] border-none rounded-[4px] px-[22px] py-[9px] font-bold text-[0.875rem] inline-flex items-center gap-[8px] cursor-pointer transition-opacity duration-[140ms] ease-in-out">
             <Download size={15} /> Download backup
           </button>
         </div>
       </div>
 
-      <div style={{ borderTop: `1px solid ${C.border}` }} />
+      <div className="border-t border-[rgba(244,245,248,0.07)]" />
 
       {/* ── Import ─────────────────────────────────────────── */}
       <div>
-        <label style={labelStyle}>Restore from backup file</label>
+        <label className="block text-[rgba(244,245,248,0.42)] text-[0.75rem] uppercase tracking-[0.07em] mb-[0.35rem]">Restore from backup file</label>
         <input
           ref={fileRef}
           type="file"
           accept="application/json,.json"
           onChange={onPickFile}
-          style={{ display: 'none' }}
+          className="hidden"
         />
-        <button onClick={() => fileRef.current?.click()} style={btnGhost}>
+        <button onClick={() => fileRef.current?.click()} className="bg-transparent text-[#F4F5F8] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[22px] py-[9px] font-bold text-[0.875rem] inline-flex items-center gap-[8px] cursor-pointer transition-opacity duration-[140ms] ease-in-out">
           <Upload size={15} /> Choose file…
         </button>
 
         {pending && (
-          <div
-            style={{
-              marginTop: 14,
-              padding: 14,
-              border: `1px solid ${C.border}`,
-              borderRadius: 6,
-              background: C.deep,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 12,
-            }}
-          >
-            <div style={{ color: C.text, fontSize: '0.88rem' }}>
+          <div className="mt-[14px] p-[14px] border border-[rgba(244,245,248,0.07)] rounded-[6px] bg-[#222326] flex flex-col gap-[12px]">
+            <div className="text-[#F4F5F8] text-[0.88rem]">
               Backup from{' '}
               <strong>{new Date(pending.createdAt).toLocaleString('en-GB')}</strong>
               {' · '}
@@ -175,21 +123,21 @@ export function BackupRestore() {
 
             {pending.encrypted && (
               <div>
-                <label style={labelStyle}>Passphrase</label>
+                <label className="block text-[rgba(244,245,248,0.42)] text-[0.75rem] uppercase tracking-[0.07em] mb-[0.35rem]">Passphrase</label>
                 <input
                   type="password"
                   value={restorePw}
                   onChange={(e) => setRestorePw(e.target.value)}
-                  style={inputStyle}
+                  className="w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[13px] py-[9px] text-[#F4F5F8] text-[0.9rem] outline-none"
                   autoComplete="off"
                 />
               </div>
             )}
 
             <div>
-              <label style={labelStyle}>Mode</label>
-              <div style={{ display: 'flex', gap: 14, color: C.text, fontSize: '0.85rem' }}>
-                <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <label className="block text-[rgba(244,245,248,0.42)] text-[0.75rem] uppercase tracking-[0.07em] mb-[0.35rem]">Mode</label>
+              <div className="flex gap-[14px] text-[#F4F5F8] text-[0.85rem]">
+                <label className="inline-flex items-center gap-[6px]">
                   <input
                     type="radio"
                     checked={restoreMode === 'merge'}
@@ -197,7 +145,7 @@ export function BackupRestore() {
                   />
                   Merge into current data
                 </label>
-                <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <label className="inline-flex items-center gap-[6px]">
                   <input
                     type="radio"
                     checked={restoreMode === 'replace'}
@@ -208,13 +156,13 @@ export function BackupRestore() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={onConfirmRestore} style={btnPrimary}>
+            <div className="flex gap-[10px]">
+              <button onClick={onConfirmRestore} className="bg-[#F4F5F8] text-[#181818] border-none rounded-[4px] px-[22px] py-[9px] font-bold text-[0.875rem] inline-flex items-center gap-[8px] cursor-pointer transition-opacity duration-[140ms] ease-in-out">
                 Restore
               </button>
               <button
                 onClick={() => { setPending(null); setRestorePw('') }}
-                style={btnGhost}
+                className="bg-transparent text-[#F4F5F8] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[22px] py-[9px] font-bold text-[0.875rem] inline-flex items-center gap-[8px] cursor-pointer transition-opacity duration-[140ms] ease-in-out"
               >
                 Cancel
               </button>
@@ -227,16 +175,11 @@ export function BackupRestore() {
       {status.kind !== 'idle' && (
         <div
           role="status"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            fontSize: '0.85rem',
-            color:
-              status.kind === 'ok'    ? C.good
-              : status.kind === 'error' ? C.warn
-              : C.muted,
-          }}
+          className={`inline-flex items-center gap-[8px] text-[0.85rem] ${
+            status.kind === 'ok'    ? 'text-[#4ADE80]'
+            : status.kind === 'error' ? 'text-[#F87171]'
+            : 'text-[rgba(244,245,248,0.42)]'
+          }`}
         >
           {status.kind === 'working' && <Loader2 size={15} className="animate-spin" />}
           {status.kind === 'ok'      && <CheckCircle size={15} />}

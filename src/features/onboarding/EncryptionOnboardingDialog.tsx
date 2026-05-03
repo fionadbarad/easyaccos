@@ -8,7 +8,6 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Lock, X } from 'lucide-react'
-import { C } from '@/styles/palette'
 
 const SEEN_KEY = 'ea_crypto_onboard_seen_v1'
 
@@ -34,72 +33,48 @@ export default function EncryptionOnboardingDialog() {
       role="dialog"
       aria-modal="true"
       aria-labelledby="ea-crypto-onboard-title"
-      style={{
-        position: 'fixed', inset: 0, zIndex: 60,
-        background: 'rgba(0,0,0,0.7)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '1rem',
-      }}
+      className="fixed inset-0 z-[60] bg-[rgba(0,0,0,0.7)] flex items-center justify-center p-4"
     >
-      <div style={{
-        background: C.card, border: `1px solid ${C.border}`, borderRadius: '12px',
-        padding: '1.75rem', maxWidth: '480px', width: '100%',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div style={{
-              width: '40px', height: '40px', borderRadius: '10px',
-              background: 'rgba(244,245,248,0.06)', border: `1px solid rgba(244,245,248,0.1)`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <Lock size={20} style={{ color: C.white }} />
+      <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[12px] p-7 max-w-[480px] w-full shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+        <div className="flex justify-between items-start gap-4 mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-[10px] bg-[rgba(244,245,248,0.06)] border border-[rgba(244,245,248,0.1)] flex items-center justify-center">
+              <Lock size={20} className="text-[#F4F5F8]" />
             </div>
-            <h2 id="ea-crypto-onboard-title" style={{ color: C.white, fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>
+            <h2 id="ea-crypto-onboard-title" className="text-[#F4F5F8] text-[1.1rem] font-bold m-0">
               Your data stays on this device
             </h2>
           </div>
           <button
             onClick={dismiss}
             aria-label="Close"
-            style={{
-              background: 'transparent', border: 'none', color: C.muted,
-              cursor: 'pointer', padding: '4px', borderRadius: '6px',
-            }}
+            className="bg-transparent border-0 text-[rgba(244,245,248,0.42)] cursor-pointer p-1 rounded-[6px]"
           >
             <X size={18} />
           </button>
         </div>
 
-        <p style={{ color: C.text, fontSize: '0.9rem', lineHeight: 1.65, margin: '0 0 0.75rem' }}>
+        <p className="text-[#F4F5F8] text-[0.9rem] leading-[1.65] m-0 mb-3">
           EasyAcco encrypts your expenses, invoices, and mileage on this device with a key
           that never leaves your browser. We can&apos;t read it — and neither can anyone else.
         </p>
-        <p style={{ color: C.muted, fontSize: '0.85rem', lineHeight: 1.65, margin: '0 0 1.25rem' }}>
-          <strong style={{ color: C.text }}>The trade-off:</strong> if you clear site data or
+        <p className="text-[rgba(244,245,248,0.42)] text-[0.85rem] leading-[1.65] m-0 mb-5">
+          <strong className="text-[#F4F5F8]">The trade-off:</strong> if you clear site data or
           switch devices without a backup, your records are gone. Take a passphrase-protected
           backup now so you&apos;re covered.
         </p>
 
-        <div style={{ display: 'flex', gap: '0.6rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+        <div className="flex gap-[0.6rem] justify-end flex-wrap">
           <button
             onClick={dismiss}
-            style={{
-              background: 'transparent', border: `1px solid ${C.border}`,
-              color: C.muted, padding: '8px 14px', borderRadius: '8px',
-              cursor: 'pointer', fontSize: '0.85rem',
-            }}
+            className="bg-transparent border border-[rgba(244,245,248,0.07)] text-[rgba(244,245,248,0.42)] px-[14px] py-2 rounded-[8px] cursor-pointer text-[0.85rem]"
           >
             Got it
           </button>
           <Link
             href="/dashboard/settings#backup"
             onClick={dismiss}
-            style={{
-              background: C.white, color: C.bg, padding: '8px 14px',
-              borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600,
-              textDecoration: 'none',
-            }}
+            className="bg-[#F4F5F8] text-[#181818] px-[14px] py-2 rounded-[8px] text-[0.85rem] font-semibold no-underline"
           >
             Create backup
           </Link>

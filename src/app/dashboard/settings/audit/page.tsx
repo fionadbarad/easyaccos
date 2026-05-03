@@ -5,11 +5,10 @@ import { readAuditLog, type AuditEntry } from '@/lib/audit'
 import { isFlagEnabled, setFlag, FLAG_AUDIT } from '@/lib/feature-flags'
 import { RefreshCw, ShieldCheck, ToggleLeft, ToggleRight } from 'lucide-react'
 
-import { C } from '@/styles/palette'
 const OP_COLORS: Record<string, string> = {
-  create: C.green,
-  update: C.blue,
-  delete: C.red,
+  create: '#4ADE80',
+  update: '#93C5FD',
+  delete: '#F87171',
 }
 
 export default function AuditPage() {
@@ -33,127 +32,105 @@ export default function AuditPage() {
   }
 
   return (
-    <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)', maxWidth: 960 }}>
-      <div style={{ marginBottom: '1.75rem' }}>
-        <div style={{ color: C.dim, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.12em', fontFamily: 'var(--font-geist-mono),monospace', marginBottom: 5 }}>
+    <div className="p-[clamp(1.5rem,4vw,2.5rem)] max-w-[960px]">
+      <div className="mb-[1.75rem]">
+        <div className="text-[rgba(244,245,248,0.18)] text-[0.6rem] uppercase tracking-[0.12em] font-mono mb-[5px]">
           security
         </div>
-        <h1 style={{ color: C.white, fontSize: 'clamp(1.3rem,3vw,1.8rem)', fontWeight: 600, letterSpacing: '-0.03em', margin: '0 0 4px' }}>
+        <h1 className="text-[#F4F5F8] text-[clamp(1.3rem,3vw,1.8rem)] font-semibold tracking-[-0.03em] m-0 mb-[4px]">
           Audit Trail
         </h1>
-        <p style={{ color: C.muted, fontSize: '0.78rem', margin: 0, lineHeight: 1.55 }}>
+        <p className="text-[rgba(244,245,248,0.42)] text-[0.78rem] m-0 leading-[1.55]">
           Every create, update, and delete logged locally. Enable to start recording.
         </p>
       </div>
 
       {/* Controls */}
-      <div style={{ display: 'flex', gap: '0.6rem', marginBottom: '1.25rem', flexWrap: 'wrap', alignItems: 'center' }}>
+      <div className="flex gap-[0.6rem] mb-[1.25rem] flex-wrap items-center">
         <button
           onClick={toggleFlag}
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
-            background: enabled ? 'rgba(74,222,128,0.08)' : C.surface,
-            border: `1px solid ${enabled ? 'rgba(74,222,128,0.25)' : C.border}`,
-            color: enabled ? C.green : C.muted,
-            borderRadius: 4, padding: '7px 14px', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 500,
-          }}
+          className={`inline-flex items-center gap-[8px] rounded-[4px] p-[7px_14px] text-[0.8rem] cursor-pointer font-medium ${enabled ? 'bg-[rgba(74,222,128,0.08)] border border-[rgba(74,222,128,0.25)] text-[#4ADE80]' : 'bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] text-[rgba(244,245,248,0.42)]'}`}
         >
           {enabled ? <ToggleRight size={15} /> : <ToggleLeft size={15} />}
           Audit logging {enabled ? 'on' : 'off'}
         </button>
         <button
           onClick={load}
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            background: 'transparent', border: `1px solid ${C.border}`,
-            color: C.muted, borderRadius: 4, padding: '7px 12px', fontSize: '0.8rem', cursor: 'pointer',
-          }}
+          className="inline-flex items-center gap-[6px] bg-transparent border border-[rgba(244,245,248,0.07)] text-[rgba(244,245,248,0.42)] rounded-[4px] p-[7px_12px] text-[0.8rem] cursor-pointer"
         >
           <RefreshCw size={13} /> Refresh
         </button>
       </div>
 
       {!enabled && (
-        <div style={{
-          background: 'rgba(251,191,36,0.05)', border: '1px solid rgba(251,191,36,0.2)',
-          borderRadius: 6, padding: '0.85rem 1rem', marginBottom: '1.25rem',
-          display: 'flex', alignItems: 'center', gap: 8, color: C.amber, fontSize: '0.8rem',
-        }}>
+        <div className="bg-[rgba(251,191,36,0.05)] border border-[rgba(251,191,36,0.2)] rounded-[6px] p-[0.85rem_1rem] mb-[1.25rem] flex items-center gap-[8px] text-[#FBBF24] text-[0.8rem]">
           <ShieldCheck size={14} />
           Audit logging is off — no events are being recorded. Toggle above to enable.
         </div>
       )}
 
       {loading ? (
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 6, padding: '3rem', textAlign: 'center', color: C.muted, fontSize: '0.84rem' }}>
+        <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[3rem] text-center text-[rgba(244,245,248,0.42)] text-[0.84rem]">
           Loading…
         </div>
       ) : entries.length === 0 ? (
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 6, padding: '3rem', textAlign: 'center', color: C.muted, fontSize: '0.84rem' }}>
+        <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[3rem] text-center text-[rgba(244,245,248,0.42)] text-[0.84rem]">
           No audit entries yet.{enabled ? ' Events will appear here after you create, edit, or delete data.' : ''}
         </div>
       ) : (
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 6, overflow: 'hidden' }}>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
+        <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-[0.8rem]">
               <thead>
-                <tr style={{ borderBottom: `1px solid ${C.border}` }}>
+                <tr className="border-b border-[rgba(244,245,248,0.07)]">
                   {['Timestamp', 'Entity', 'Op', 'ID', 'Actor', ''].map((h, i) => (
-                    <th key={i} style={{
-                      padding: '9px 12px', textAlign: 'left', color: C.muted, fontWeight: 600,
-                      fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.07em', whiteSpace: 'nowrap',
-                    }}>
+                    <th key={i} className="p-[9px_12px] text-left text-[rgba(244,245,248,0.42)] font-semibold text-[0.6rem] uppercase tracking-[0.07em] whitespace-nowrap">
                       {h}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {entries.map((e, idx) => {
+                {entries.map((e) => {
                   const isOpen = expanded === e.id
                   return (
                     <>
                       <tr
                         key={e.id}
-                        style={{
-                          borderBottom: `1px solid rgba(244,245,248,0.04)`,
-                          cursor: 'pointer',
-                          background: isOpen ? 'rgba(244,245,248,0.02)' : 'transparent',
-                        }}
+                        className={`border-b border-[rgba(244,245,248,0.04)] cursor-pointer ${isOpen ? 'bg-[rgba(244,245,248,0.02)]' : 'bg-transparent'}`}
                         onClick={() => setExpanded(isOpen ? null : e.id)}
                       >
-                        <td style={{ padding: '8px 12px', color: C.muted, fontFamily: 'var(--font-geist-mono),monospace', fontSize: '0.72rem', whiteSpace: 'nowrap' }}>
+                        <td className="p-[8px_12px] text-[rgba(244,245,248,0.42)] font-mono text-[0.72rem] whitespace-nowrap">
                           {new Date(e.ts).toLocaleString('en-GB')}
                         </td>
-                        <td style={{ padding: '8px 12px', color: C.white }}>{e.entity}</td>
-                        <td style={{ padding: '8px 12px' }}>
-                          <span style={{
-                            color: OP_COLORS[e.op] ?? C.muted,
-                            fontFamily: 'var(--font-geist-mono),monospace',
-                            fontSize: '0.72rem', fontWeight: 600,
-                          }}>
+                        <td className="p-[8px_12px] text-[#F4F5F8]">{e.entity}</td>
+                        <td className="p-[8px_12px]">
+                          <span
+                            className="font-mono text-[0.72rem] font-semibold"
+                            style={{ color: OP_COLORS[e.op] ?? 'rgba(244,245,248,0.42)' }}
+                          >
                             {e.op}
                           </span>
                         </td>
-                        <td style={{ padding: '8px 12px', color: C.dim, fontFamily: 'var(--font-geist-mono),monospace', fontSize: '0.68rem' }}>
+                        <td className="p-[8px_12px] text-[rgba(244,245,248,0.18)] font-mono text-[0.68rem]">
                           {e.entityId.slice(0, 8)}…
                         </td>
-                        <td style={{ padding: '8px 12px', color: C.muted, fontSize: '0.72rem' }}>{e.actor ?? '—'}</td>
-                        <td style={{ padding: '8px 12px', color: C.dim, fontSize: '0.7rem' }}>{isOpen ? '▲' : '▼'}</td>
+                        <td className="p-[8px_12px] text-[rgba(244,245,248,0.42)] text-[0.72rem]">{e.actor ?? '—'}</td>
+                        <td className="p-[8px_12px] text-[rgba(244,245,248,0.18)] text-[0.7rem]">{isOpen ? '▲' : '▼'}</td>
                       </tr>
                       {isOpen && (
-                        <tr key={`${e.id}-detail`} style={{ borderBottom: `1px solid rgba(244,245,248,0.04)` }}>
-                          <td colSpan={6} style={{ padding: '0 12px 12px' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                        <tr key={`${e.id}-detail`} className="border-b border-[rgba(244,245,248,0.04)]">
+                          <td colSpan={6} className="p-[0_12px_12px]">
+                            <div className="grid grid-cols-2 gap-[0.75rem]">
                               <div>
-                                <div style={{ color: C.dim, fontSize: '0.58rem', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4, fontFamily: 'var(--font-geist-mono),monospace' }}>Before</div>
-                                <pre style={{ background: C.gray, borderRadius: 4, padding: '8px 10px', color: C.muted, fontSize: '0.68rem', overflowX: 'auto', margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                                <div className="text-[rgba(244,245,248,0.18)] text-[0.58rem] uppercase tracking-[0.07em] mb-[4px] font-mono">Before</div>
+                                <pre className="bg-[#222326] rounded-[4px] p-[8px_10px] text-[rgba(244,245,248,0.42)] text-[0.68rem] overflow-x-auto m-0 whitespace-pre-wrap break-all">
                                   {e.before !== null ? JSON.stringify(e.before, null, 2) : 'null'}
                                 </pre>
                               </div>
                               <div>
-                                <div style={{ color: C.dim, fontSize: '0.58rem', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4, fontFamily: 'var(--font-geist-mono),monospace' }}>After</div>
-                                <pre style={{ background: C.gray, borderRadius: 4, padding: '8px 10px', color: C.muted, fontSize: '0.68rem', overflowX: 'auto', margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                                <div className="text-[rgba(244,245,248,0.18)] text-[0.58rem] uppercase tracking-[0.07em] mb-[4px] font-mono">After</div>
+                                <pre className="bg-[#222326] rounded-[4px] p-[8px_10px] text-[rgba(244,245,248,0.42)] text-[0.68rem] overflow-x-auto m-0 whitespace-pre-wrap break-all">
                                   {e.after !== null ? JSON.stringify(e.after, null, 2) : 'null'}
                                 </pre>
                               </div>
@@ -167,7 +144,7 @@ export default function AuditPage() {
               </tbody>
             </table>
           </div>
-          <div style={{ padding: '8px 12px', borderTop: `1px solid ${C.border}`, color: C.dim, fontSize: '0.68rem', fontFamily: 'var(--font-geist-mono),monospace' }}>
+          <div className="p-[8px_12px] border-t border-[rgba(244,245,248,0.07)] text-[rgba(244,245,248,0.18)] text-[0.68rem] font-mono">
             {entries.length} entries (device-local) · click row to diff
           </div>
         </div>

@@ -17,7 +17,6 @@ const SUGGESTED = [
   { label: 'Payment on account',  icon: FileText,     q: 'How does payment on account work and how do I reduce it?' },
 ]
 
-// Action buttons that appear after each assistant response
 const QUICK_ACTIONS = [
   { label: 'Calculate my tax',    q: 'Can you calculate my full income tax and NI liability?' },
   { label: 'Expenses I can claim', q: 'What expenses can I claim to reduce my tax bill?' },
@@ -37,13 +36,13 @@ function renderInline(text: string): React.ReactNode[] {
   const parts = text.split(/(\*\*[^*]+\*\*|£[\d,]+(?:\.\d{2})?%?|`[^`]+`)/)
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={i} style={{ color: '#F4F5F8', fontWeight: 600 }}>{part.slice(2, -2)}</strong>
+      return <strong key={i} className="text-[#F4F5F8] font-semibold">{part.slice(2, -2)}</strong>
     }
     if (part.startsWith('£') || (/^[\d,]+%$/.test(part) && part.length < 8)) {
-      return <span key={i} style={{ color: '#4ADE80', fontFamily: 'var(--font-geist-mono), monospace', fontWeight: 500 }}>{part}</span>
+      return <span key={i} className="text-[#4ADE80] font-mono font-medium">{part}</span>
     }
     if (part.startsWith('`') && part.endsWith('`')) {
-      return <code key={i} style={{ background: 'rgba(244,245,248,0.08)', borderRadius: '3px', padding: '1px 5px', fontSize: '0.82rem', fontFamily: 'var(--font-geist-mono), monospace' }}>{part.slice(1, -1)}</code>
+      return <code key={i} className="bg-[rgba(244,245,248,0.08)] rounded-[3px] px-[5px] py-[1px] text-[0.82rem] font-mono">{part.slice(1, -1)}</code>
     }
     return <span key={i}>{part}</span>
   })
@@ -57,10 +56,10 @@ function MarkdownBlock({ text }: { text: string }) {
   function flushList() {
     if (listItems.length === 0) return
     nodes.push(
-      <ul key={nodes.length} style={{ margin: '0.35rem 0', paddingLeft: '1.1rem', listStyle: 'none' }}>
+      <ul key={nodes.length} className="my-[0.35rem] pl-[1.1rem] list-none">
         {listItems.map((item, i) => (
-          <li key={i} style={{ color: 'var(--sa-white)', fontSize: '0.875rem', lineHeight: 1.75, position: 'relative', paddingLeft: '0.75rem' }}>
-            <span style={{ position: 'absolute', left: 0, color: 'rgba(244,245,248,0.35)' }}>·</span>
+          <li key={i} className="text-[#F4F5F8] text-[0.875rem] leading-[1.75] relative pl-[0.75rem]">
+            <span className="absolute left-0 text-[rgba(244,245,248,0.35)]">·</span>
             {renderInline(item)}
           </li>
         ))}
@@ -78,24 +77,24 @@ function MarkdownBlock({ text }: { text: string }) {
       flushList()
       if (line.startsWith('## ')) {
         nodes.push(
-          <p key={nodes.length} style={{ color: 'rgba(244,245,248,0.5)', fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontFamily: 'var(--font-geist-mono), monospace', margin: '0.75rem 0 0.25rem', fontWeight: 600 }}>
+          <p key={nodes.length} className="text-[rgba(244,245,248,0.5)] text-[0.62rem] uppercase tracking-[0.1em] font-mono my-[0.75rem_0_0.25rem] font-semibold">
             {line.slice(3)}
           </p>,
         )
       } else if (line.startsWith('# ')) {
         nodes.push(
-          <p key={nodes.length} style={{ color: 'var(--sa-white)', fontSize: '0.95rem', fontWeight: 600, margin: '0.75rem 0 0.25rem', letterSpacing: '-0.02em' }}>
+          <p key={nodes.length} className="text-[#F4F5F8] text-[0.95rem] font-semibold my-[0.75rem_0_0.25rem] tracking-[-0.02em]">
             {line.slice(2)}
           </p>,
         )
       } else if (line.trim()) {
         nodes.push(
-          <p key={nodes.length} style={{ color: 'var(--sa-white)', fontSize: '0.875rem', lineHeight: 1.75, margin: '0.2rem 0' }}>
+          <p key={nodes.length} className="text-[#F4F5F8] text-[0.875rem] leading-[1.75] my-[0.2rem]">
             {renderInline(line)}
           </p>,
         )
       } else {
-        nodes.push(<div key={nodes.length} style={{ height: '0.4rem' }} />)
+        nodes.push(<div key={nodes.length} className="h-[0.4rem]" />)
       }
     }
   }
@@ -106,12 +105,12 @@ function MarkdownBlock({ text }: { text: string }) {
 // ── Message components ────────────────────────────────────────────────────────
 function UserMessage({ msg }: { msg: KittaxMessage }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
-      <div style={{ maxWidth: '68%' }}>
-        <div style={{ background: 'rgba(244,245,248,0.12)', border: '1px solid var(--sa-border)', borderRadius: '6px 6px 2px 6px', padding: '10px 14px', color: 'var(--sa-white)', fontSize: '0.875rem', lineHeight: 1.65 }}>
+    <div className="flex justify-end mb-[1.5rem]">
+      <div className="max-w-[68%]">
+        <div className="bg-[rgba(244,245,248,0.12)] border border-[rgba(244,245,248,0.07)] rounded-[6px_6px_2px_6px] px-[14px] py-[10px] text-[#F4F5F8] text-[0.875rem] leading-[1.65]">
           {msg.content}
         </div>
-        <div style={{ textAlign: 'right', marginTop: '4px', color: 'rgba(244,245,248,0.2)', fontSize: '0.65rem', fontFamily: 'var(--font-geist-mono), monospace' }}>
+        <div className="text-right mt-[4px] text-[rgba(244,245,248,0.2)] text-[0.65rem] font-mono">
           {formatTime(msg.ts)}
         </div>
       </div>
@@ -129,29 +128,23 @@ function AssistantMessage({
   onAction: (q: string) => void
 }) {
   return (
-    <div style={{ display: 'flex', gap: '12px', marginBottom: '1.5rem' }}>
-      <div style={{ flexShrink: 0, paddingTop: '2px' }}>
-        <div style={{ width: '1px', minHeight: '20px', background: 'rgba(244,245,248,0.15)', marginLeft: '6px' }} />
+    <div className="flex gap-[12px] mb-[1.5rem]">
+      <div className="shrink-0 pt-[2px]">
+        <div className="w-[1px] min-h-[20px] bg-[rgba(244,245,248,0.15)] ml-[6px]" />
       </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ color: 'rgba(244,245,248,0.3)', fontSize: '0.62rem', fontFamily: 'var(--font-geist-mono), monospace', letterSpacing: '0.08em', marginBottom: '6px' }}>
+      <div className="flex-1 min-w-0">
+        <div className="text-[rgba(244,245,248,0.3)] text-[0.62rem] font-mono tracking-[0.08em] mb-[6px]">
           ADVISORY · {formatTime(msg.ts)}
         </div>
         <MarkdownBlock text={msg.content} />
 
-        {/* Contextual action buttons on latest assistant message */}
         {isLatest && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginTop: '0.85rem' }}>
+          <div className="flex flex-wrap gap-[0.35rem] mt-[0.85rem]">
             {QUICK_ACTIONS.map((a) => (
               <button
                 key={a.label}
                 onClick={() => onAction(a.q)}
-                style={{
-                  background: 'transparent', border: '1px solid rgba(244,245,248,0.1)',
-                  borderRadius: '3px', color: 'rgba(244,245,248,0.45)', fontSize: '0.65rem',
-                  padding: '4px 10px', cursor: 'pointer', fontFamily: 'var(--font-geist-mono), monospace',
-                  letterSpacing: '0.02em', transition: 'all 0.1s',
-                }}
+                className="bg-transparent border border-[rgba(244,245,248,0.1)] rounded-[3px] text-[rgba(244,245,248,0.45)] text-[0.65rem] px-[10px] py-[4px] cursor-pointer font-mono tracking-[0.02em] transition-all duration-100"
                 onMouseEnter={(e) => {
                   const el = e.currentTarget as HTMLElement
                   el.style.borderColor = 'rgba(244,245,248,0.25)'
@@ -175,17 +168,18 @@ function AssistantMessage({
 
 function ThinkingIndicator() {
   return (
-    <div style={{ display: 'flex', gap: '12px', marginBottom: '1.5rem' }}>
-      <div style={{ flexShrink: 0, paddingTop: '2px' }}>
-        <div style={{ width: '1px', minHeight: '20px', background: 'rgba(244,245,248,0.15)', marginLeft: '6px' }} />
+    <div className="flex gap-[12px] mb-[1.5rem]">
+      <div className="shrink-0 pt-[2px]">
+        <div className="w-[1px] min-h-[20px] bg-[rgba(244,245,248,0.15)] ml-[6px]" />
       </div>
-      <div style={{ flex: 1 }}>
-        <div style={{ color: 'rgba(244,245,248,0.3)', fontSize: '0.62rem', fontFamily: 'var(--font-geist-mono), monospace', letterSpacing: '0.08em', marginBottom: '8px' }}>
+      <div className="flex-1">
+        <div className="text-[rgba(244,245,248,0.3)] text-[0.62rem] font-mono tracking-[0.08em] mb-[8px]">
           ADVISORY
         </div>
-        <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+        <div className="flex gap-[5px] items-center">
           {[0, 1, 2].map((i) => (
-            <div key={i} style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(244,245,248,0.3)', animation: `ai-pulse 1.2s ease-in-out ${i * 0.2}s infinite` }} />
+            <div key={i} className="w-[4px] h-[4px] rounded-full bg-[rgba(244,245,248,0.3)]"
+              style={{ animation: `ai-pulse 1.2s ease-in-out ${i * 0.2}s infinite` }} />
           ))}
         </div>
       </div>
@@ -200,7 +194,6 @@ function greetingByHour() {
   return 'Good evening'
 }
 
-// ── Dummy expense type for context loading ────────────────────────────────────
 interface ExpenseStub { id: string; amount: number; date: string }
 
 export default function AIPage() {
@@ -218,14 +211,12 @@ export default function AIPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const abortRef    = useRef<AbortController | null>(null)
 
-  // Load user's expenses for context injection
   const { items: expenses } = useUserData<ExpenseStub>('user_expenses', 'easyacco_expenses', [])
 
   const taxContext: Partial<KittaxContext> = useMemo(() => {
     const base = buildBaseContext()
-    // Sum expenses from the current tax year (6 Apr – 5 Apr)
     const now = new Date()
-    const taxYearStart = now.getMonth() >= 3   // April = 3
+    const taxYearStart = now.getMonth() >= 3
       ? new Date(now.getFullYear(), 3, 6)
       : new Date(now.getFullYear() - 1, 3, 6)
     const totalExpensesYTD = expenses
@@ -276,7 +267,6 @@ export default function AIPage() {
       const isStreaming = res.headers.get('X-Streaming') === 'true'
 
       if (isStreaming && res.body) {
-        // Real streaming — read chunks and update the last message progressively
         const reader  = res.body.getReader()
         const decoder = new TextDecoder()
         let accumulated = ''
@@ -292,7 +282,6 @@ export default function AIPage() {
           setMessages([...next, { ...streamMsg, content: accumulated }])
         }
       } else {
-        // JSON fallback (offline mode)
         const data = await res.json()
         if (!res.ok || data.error) throw new Error(data.error || 'No response from server.')
         setMessages([...next, makeMessage('assistant', data.answer || data.reply || 'No response.')])
@@ -328,32 +317,31 @@ export default function AIPage() {
     ? messages[messages.length - 1 - lastAssistantIdx].id
     : null
 
-  // Context summary for the UI
   const ctxSummary = taxContext.totalExpensesYTD != null
     ? `£${taxContext.totalExpensesYTD.toLocaleString('en-GB', { minimumFractionDigits: 2 })} expenses YTD · ${taxContext.currentMonth}`
     : taxContext.currentMonth
 
   return (
-    <div style={{ padding: 'clamp(1.5rem,3vw,2.5rem)', maxWidth: '720px', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 52px)' }} className="md:h-screen">
+    <div className="p-[clamp(1.5rem,3vw,2.5rem)] max-w-[720px] flex flex-col h-[calc(100vh-52px)] md:h-screen">
 
-      {/* ── Header ── */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '0.5rem', flexShrink: 0 }}>
+      {/* Header */}
+      <div className="flex items-start justify-between mb-[2rem] flex-wrap gap-[0.5rem] shrink-0">
         <div>
-          <h1 style={{ color: 'var(--sa-white)', fontSize: 'clamp(1.2rem,2.5vw,1.5rem)', fontWeight: 600, letterSpacing: '-0.03em', margin: 0 }}>
+          <h1 className="text-[#F4F5F8] text-[clamp(1.2rem,2.5vw,1.5rem)] font-semibold tracking-[-0.03em] m-0">
             Tax Advisory
           </h1>
-          <p style={{ color: 'var(--sa-muted)', fontSize: '0.72rem', margin: '3px 0 0', fontFamily: 'var(--font-geist-mono), monospace' }}>
+          <p className="text-[rgba(244,245,248,0.42)] text-[0.72rem] mt-[3px] mb-0 font-mono">
             {ctxSummary}
           </p>
         </div>
         <button onClick={reset}
-          style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: '1px solid var(--sa-border)', borderRadius: '4px', color: 'var(--sa-muted)', fontSize: '0.72rem', padding: '6px 11px', cursor: 'pointer', letterSpacing: '-0.01em' }}>
+          className="flex items-center gap-[6px] bg-transparent border border-[rgba(244,245,248,0.07)] rounded-[4px] text-[rgba(244,245,248,0.42)] text-[0.72rem] px-[11px] py-[6px] cursor-pointer tracking-[-0.01em]">
           <RefreshCw size={11} /> New session
         </button>
       </div>
 
-      {/* ── Conversation ── */}
-      <div style={{ flex: 1, overflowY: 'auto', paddingRight: '4px', marginBottom: '1rem' }}>
+      {/* Conversation */}
+      <div className="flex-1 overflow-y-auto pr-[4px] mb-[1rem]">
         {messages.map((m) =>
           m.role === 'user'
             ? <UserMessage key={m.id} msg={m} />
@@ -361,32 +349,32 @@ export default function AIPage() {
         )}
         {loading && <ThinkingIndicator />}
         {error && (
-          <div role="alert" style={{ background: 'rgba(248,113,113,0.06)', border: '1px solid rgba(248,113,113,0.18)', borderRadius: '4px', padding: '10px 14px', color: '#F87171', fontSize: '0.78rem', marginBottom: '1.5rem' }}>
+          <div role="alert" className="bg-[rgba(248,113,113,0.06)] border border-[rgba(248,113,113,0.18)] rounded-[4px] px-[14px] py-[10px] text-[#F87171] text-[0.78rem] mb-[1.5rem]">
             {error}
           </div>
         )}
         <div ref={bottomRef} />
       </div>
 
-      {/* ── Suggested topics ── */}
+      {/* Suggested topics */}
       {showSuggested && (
-        <div style={{ flexShrink: 0, marginBottom: '1rem' }}>
-          <div style={{ color: 'rgba(244,245,248,0.2)', fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontFamily: 'var(--font-geist-mono), monospace', marginBottom: '0.5rem' }}>
+        <div className="shrink-0 mb-[1rem]">
+          <div className="text-[rgba(244,245,248,0.2)] text-[0.6rem] uppercase tracking-[0.1em] font-mono mb-[0.5rem]">
             Common topics
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(180px,1fr))', gap: '0.35rem' }}>
+          <div className="grid gap-[0.35rem]" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(180px,1fr))' }}>
             {SUGGESTED.map((s) => (
               <button key={s.label} onClick={() => send(s.q)} className="ai-suggestion-btn">
                 <span>{s.label}</span>
-                <ChevronRight size={11} style={{ flexShrink: 0, opacity: 0.4 }} />
+                <ChevronRight size={11} className="shrink-0 opacity-40" />
               </button>
             ))}
           </div>
         </div>
       )}
 
-      {/* ── Input ── */}
-      <div style={{ flexShrink: 0, background: 'var(--sa-surface)', border: '1px solid var(--sa-border)', borderRadius: '6px', overflow: 'hidden' }}>
+      {/* Input */}
+      <div className="shrink-0 bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] overflow-hidden">
         <textarea
           ref={textareaRef}
           value={input}
@@ -395,14 +383,14 @@ export default function AIPage() {
           placeholder="Ask a question…   (Enter to send, Shift+Enter for new line)"
           rows={2}
           aria-label="Tax question"
-          style={{ display: 'block', width: '100%', background: 'transparent', border: 'none', padding: '12px 14px 4px', color: 'var(--sa-white)', fontSize: '0.875rem', outline: 'none', resize: 'none', lineHeight: 1.6, boxSizing: 'border-box' }}
+          className="block w-full bg-transparent border-none p-[12px_14px_4px] text-[#F4F5F8] text-[0.875rem] outline-none resize-none leading-[1.6] box-border"
         />
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '4px 8px 8px', gap: '6px' }}>
-          <span style={{ color: 'rgba(244,245,248,0.15)', fontSize: '0.62rem', fontFamily: 'var(--font-geist-mono), monospace', marginRight: 'auto' }}>
+        <div className="flex items-center justify-end px-[8px] pb-[8px] pt-[4px] gap-[6px]">
+          <span className="text-[rgba(244,245,248,0.15)] text-[0.62rem] font-mono mr-auto">
             {input.length > 0 ? `${input.length} chars` : ''}
           </span>
           <button onClick={() => send()} disabled={!canSend}
-            style={{ display: 'flex', alignItems: 'center', gap: '5px', background: canSend ? 'var(--sa-white)' : 'transparent', border: `1px solid ${canSend ? 'var(--sa-white)' : 'var(--sa-border)'}`, borderRadius: '4px', padding: '6px 12px', color: canSend ? 'var(--sa-black)' : 'var(--sa-muted)', fontSize: '0.75rem', fontWeight: 600, cursor: canSend ? 'pointer' : 'default', transition: 'all 0.1s', letterSpacing: '-0.01em' }}>
+            className={`flex items-center gap-[5px] rounded-[4px] px-[12px] py-[6px] text-[0.75rem] font-semibold tracking-[-0.01em] transition-all duration-100 border ${canSend ? 'bg-[#F4F5F8] text-[#181818] border-[#F4F5F8] cursor-pointer' : 'bg-transparent text-[rgba(244,245,248,0.42)] border-[rgba(244,245,248,0.07)] cursor-default'}`}>
             <Send size={12} strokeWidth={2} /> Send
           </button>
         </div>

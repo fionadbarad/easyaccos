@@ -54,7 +54,7 @@ export function Skeleton({ width = '100%', height = 14, radius = 4, style }: Ske
 
 export function SkeletonRows({ count = 5, rowHeight = 34 }: { count?: number; rowHeight?: number }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
+    <div className="flex flex-col gap-2 w-full">
       {Array.from({ length: count }, (_, i) => (
         <Skeleton key={i} height={rowHeight} />
       ))}

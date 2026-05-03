@@ -13,7 +13,6 @@ import type { TaxResult } from '@/lib/tax-engine'
 
 type DashboardUIProps = { displayName: string }
 
-import { C } from '@/styles/palette'
 // ── MTD 2026/27 Quarterly Calendar ────────────────────────────────────────
 const MTD_QUARTERS = [
   { label: 'Q1', period: '6 Apr – 5 Jul 2026',  deadline: '2026-08-07', display: '7 Aug 2026' },
@@ -26,39 +25,35 @@ const MTD_QUARTERS = [
 function getQuarterStatus(deadlineStr: string, today: Date) {
   const deadline = new Date(deadlineStr)
   const diffDays = Math.ceil((deadline.getTime() - today.getTime()) / 86400000)
-  if (diffDays < 0)   return { status: 'past',    color: C.muted,  Icon: CheckCircle2 }
-  if (diffDays <= 14) return { status: 'urgent',  color: C.red,    Icon: AlertCircle }
-  if (diffDays <= 45) return { status: 'upcoming',color: C.amber,  Icon: Clock }
-  return               { status: 'future',   color: C.muted,  Icon: Clock }
+  if (diffDays < 0)   return { status: 'past',    color: 'rgba(244,245,248,0.42)',  Icon: CheckCircle2 }
+  if (diffDays <= 14) return { status: 'urgent',  color: '#F87171',    Icon: AlertCircle }
+  if (diffDays <= 45) return { status: 'upcoming',color: '#FBBF24',  Icon: Clock }
+  return               { status: 'future',   color: 'rgba(244,245,248,0.42)',  Icon: Clock }
 }
 
 function MTDCalendar() {
   const today = new Date()
   return (
-    <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', overflow: 'hidden', marginBottom: '2rem' }}>
-      <div style={{ padding: '1rem 1.25rem', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] overflow-hidden mb-[2rem]">
+      <div className="px-[1.25rem] py-[1rem] border-b border-[rgba(244,245,248,0.07)] flex items-center justify-between">
         <div>
-          <div style={{ color: C.white, fontSize: '0.85rem', fontWeight: 600, letterSpacing: '-0.01em' }}>MTD Filing Calendar</div>
-          <div style={{ color: C.muted, fontSize: '0.7rem', marginTop: '2px', fontFamily: 'var(--font-geist-mono), monospace' }}>Making Tax Digital · ITSA 2026/27</div>
+          <div className="text-[#F4F5F8] text-[0.85rem] font-semibold tracking-[-0.01em]">MTD Filing Calendar</div>
+          <div className="text-[rgba(244,245,248,0.42)] text-[0.7rem] mt-[2px] font-mono">Making Tax Digital · ITSA 2026/27</div>
         </div>
-        <span style={{ background: C.gray, color: C.white, fontSize: '0.6rem', fontWeight: 600, padding: '3px 8px', borderRadius: '3px', letterSpacing: '0.07em', fontFamily: 'var(--font-geist-mono), monospace' }}>ACTIVE</span>
+        <span className="bg-[#222326] text-[#F4F5F8] text-[0.6rem] font-semibold px-[8px] py-[3px] rounded-[3px] tracking-[0.07em] font-mono">ACTIVE</span>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))' }}>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))]">
         {MTD_QUARTERS.map((q, i) => {
           const { status, color, Icon } = getQuarterStatus(q.deadline, today)
           const isActive = status === 'upcoming' || status === 'urgent'
           return (
-            <div key={q.label} style={{
-              padding: '1rem 1.25rem',
-              borderRight: i < MTD_QUARTERS.length - 1 ? `1px solid ${C.border}` : 'none',
-              background: isActive ? 'rgba(244,245,248,0.025)' : 'transparent',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+            <div key={q.label} className={`px-[1.25rem] py-[1rem]${i < MTD_QUARTERS.length - 1 ? ' border-r border-[rgba(244,245,248,0.07)]' : ''}${isActive ? ' bg-[rgba(244,245,248,0.025)]' : ' bg-transparent'}`}>
+              <div className="flex items-center gap-[6px] mb-[6px]">
                 <Icon size={12} style={{ color }} />
-                <span style={{ color, fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.08em', fontFamily: 'var(--font-geist-mono), monospace', textTransform: 'uppercase' }}>{q.label}</span>
+                <span className="text-[0.6rem] font-bold tracking-[0.08em] font-mono uppercase" style={{ color }}>{q.label}</span>
               </div>
-              <div style={{ color: status === 'past' ? C.muted : C.white, fontSize: '0.72rem', fontWeight: 500, marginBottom: '3px' }}>{q.display}</div>
-              <div style={{ color: C.muted, fontSize: '0.65rem', lineHeight: 1.4 }}>{q.period}</div>
+              <div className={`text-[0.72rem] font-medium mb-[3px]${status === 'past' ? ' text-[rgba(244,245,248,0.42)]' : ' text-[#F4F5F8]'}`}>{q.display}</div>
+              <div className="text-[rgba(244,245,248,0.42)] text-[0.65rem] leading-[1.4]">{q.period}</div>
             </div>
           )
         })}
@@ -101,36 +96,31 @@ function QuickEstimator() {
 
   const display = result ?? preview
 
-  const inputS: React.CSSProperties = {
-    width: '100%', background: C.gray, border: `1px solid ${C.border}`,
-    borderRadius: '4px', padding: '9px 11px', color: C.white,
-    fontSize: '0.84rem', outline: 'none', fontFamily: 'var(--font-geist-mono), monospace',
-    fontVariantNumeric: 'tabular-nums',
-  }
-
   return (
-    <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '1.25rem', marginBottom: '2rem' }}>
-      <div style={{ color: C.white, fontSize: '0.85rem', fontWeight: 600, letterSpacing: '-0.01em', marginBottom: '1rem' }}>Quick Estimator</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
-        <label style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-          <span style={{ color: C.muted, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>Annual Revenue</span>
-          <input value={income} onChange={(e) => setIncome(e.target.value)} type="number" min={0} placeholder="50000" style={inputS} />
+    <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[1.25rem] mb-[2rem]">
+      <div className="text-[#F4F5F8] text-[0.85rem] font-semibold tracking-[-0.01em] mb-[1rem]">Quick Estimator</div>
+      <div className="grid grid-cols-[1fr_1fr] gap-[0.75rem] mb-[0.75rem]">
+        <label className="flex flex-col gap-[5px]">
+          <span className="text-[rgba(244,245,248,0.42)] text-[0.65rem] uppercase tracking-[0.08em] font-semibold">Annual Revenue</span>
+          <input value={income} onChange={(e) => setIncome(e.target.value)} type="number" min={0} placeholder="50000"
+            className="w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[11px] py-[9px] text-[#F4F5F8] text-[0.84rem] outline-none font-mono tabular-nums" />
         </label>
-        <label style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-          <span style={{ color: C.muted, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>Allowable Expenses</span>
-          <input value={expenses} onChange={(e) => setExpenses(e.target.value)} type="number" min={0} placeholder="8000" style={inputS} />
+        <label className="flex flex-col gap-[5px]">
+          <span className="text-[rgba(244,245,248,0.42)] text-[0.65rem] uppercase tracking-[0.08em] font-semibold">Allowable Expenses</span>
+          <input value={expenses} onChange={(e) => setExpenses(e.target.value)} type="number" min={0} placeholder="8000"
+            className="w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[11px] py-[9px] text-[#F4F5F8] text-[0.84rem] outline-none font-mono tabular-nums" />
         </label>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+      <div className="flex items-center gap-[0.75rem] flex-wrap">
         <button onClick={calculate}
-          style={{ background: C.white, color: C.bg, border: 'none', borderRadius: '4px', padding: '8px 18px', cursor: 'pointer', fontWeight: 600, fontSize: '0.8rem', letterSpacing: '-0.01em' }}>
+          className="bg-[#F4F5F8] text-[#181818] border-none rounded-[4px] px-[18px] py-[8px] cursor-pointer font-semibold text-[0.8rem] tracking-[-0.01em]">
           Calculate
         </button>
-        {error && <span style={{ color: C.red, fontSize: '0.78rem' }}>{error}</span>}
+        {error && <span className="text-[#F87171] text-[0.78rem]">{error}</span>}
         {display && !error && (
-          <div style={{ display: 'flex', gap: '1.5rem', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '0.78rem' }}>
-            <span style={{ color: C.muted }}>Tax due: <span style={{ color: C.white, fontWeight: 600 }}>£{display.incomeTax.toLocaleString('en-GB')}</span></span>
-            <span style={{ color: C.muted }}>Effective rate: <span style={{ color: C.white, fontWeight: 600 }}>{display.effectiveTaxRate}%</span></span>
+          <div className="flex gap-[1.5rem] font-mono text-[0.78rem]">
+            <span className="text-[rgba(244,245,248,0.42)]">Tax due: <span className="text-[#F4F5F8] font-semibold">£{display.incomeTax.toLocaleString('en-GB')}</span></span>
+            <span className="text-[rgba(244,245,248,0.42)]">Effective rate: <span className="text-[#F4F5F8] font-semibold">{display.effectiveTaxRate}%</span></span>
           </div>
         )}
       </div>
@@ -162,14 +152,14 @@ export default function DashboardUI({ displayName }: DashboardUIProps) {
   return (
     <div className="dashboard-page">
       {/* Header */}
-      <div style={{ marginBottom: '2rem' }}>
-        <div style={{ color: C.muted, fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '5px', fontFamily: 'var(--font-geist-mono), monospace' }}>
+      <div className="mb-[2rem]">
+        <div className="text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.12em] mb-[5px] font-mono">
           overview
         </div>
-        <h1 style={{ color: C.white, fontSize: 'clamp(1.4rem, 3vw, 1.9rem)', fontWeight: 600, letterSpacing: '-0.03em', margin: 0 }}>
+        <h1 className="text-[#F4F5F8] text-[clamp(1.4rem,3vw,1.9rem)] font-semibold tracking-[-0.03em] m-0">
           {displayName}
         </h1>
-        <p style={{ color: C.muted, fontSize: '0.84rem', marginTop: '5px' }}>
+        <p className="text-[rgba(244,245,248,0.42)] text-[0.84rem] mt-[5px]">
           2026/27 fiscal year · {daysUntilYearEnd()} days remaining
         </p>
       </div>
@@ -178,8 +168,8 @@ export default function DashboardUI({ displayName }: DashboardUIProps) {
       <QuickEstimator />
 
       {/* Navigation tiles */}
-      <div style={{ marginBottom: '0.75rem' }}>
-        <div style={{ color: C.muted, fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '0.75rem', fontFamily: 'var(--font-geist-mono), monospace' }}>modules</div>
+      <div className="mb-[0.75rem]">
+        <div className="text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.12em] mb-[0.75rem] font-mono">modules</div>
       </div>
       <div className="dashboard-grid">
         {TILES.map(({ href, label, Icon, desc }) => (
@@ -194,7 +184,7 @@ export default function DashboardUI({ displayName }: DashboardUIProps) {
       </div>
 
       {/* Footer note */}
-      <p style={{ color: C.muted, fontSize: '0.65rem', marginTop: '2rem', fontFamily: 'var(--font-geist-mono), monospace' }}>
+      <p className="text-[rgba(244,245,248,0.42)] text-[0.65rem] mt-[2rem] font-mono">
         HMRC-compliant · 2026/27 fiscal year · Tax calculations run client-side
       </p>
     </div>

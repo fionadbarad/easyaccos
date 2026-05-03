@@ -1,6 +1,5 @@
-﻿import Link from 'next/link'
+import Link from 'next/link'
 
-import { C } from '@/styles/palette'
 const mock = {
   income: 42000,
   expenses: 8600,
@@ -11,35 +10,35 @@ const mock = {
 
 export default function DemoDashboardPage() {
   return (
-    <main style={{ minHeight: '100vh', background: C.bg, color: C.text, padding: '2.5rem 1.25rem' }}>
-      <div style={{ maxWidth: 960, margin: '0 auto' }}>
-        <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
-          <h1 style={{ fontSize: '1.7rem', fontWeight: 700 }}>Demo Dashboard (No login)</h1>
-          <Link href="/auth/signup" style={{ background: C.white, color: '#181818', padding: '8px 14px', borderRadius: '5px', fontWeight: 700 }}>
+    <main className="min-h-screen bg-[#181818] text-[#F4F5F8] p-[2.5rem_1.25rem]">
+      <div className="max-w-[960px] mx-auto">
+        <div className="mb-[1rem] flex items-center justify-between gap-[1rem]">
+          <h1 className="text-[1.7rem] font-bold">Demo Dashboard (No login)</h1>
+          <Link href="/auth/signup" className="bg-[#F4F5F8] text-[#181818] px-[14px] py-[8px] rounded-[5px] font-bold no-underline">
             Save and Sign In
           </Link>
         </div>
-        <p style={{ color: C.muted, marginBottom: '1.5rem' }}>
+        <p className="text-[rgba(244,245,248,0.42)] mb-[1.5rem]">
           Explore EasyAcco with sample freelancer data. All data is mocked, no account required.
         </p>
 
-        <section style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit,minmax(190px,1fr))', marginBottom: '1.25rem' }}>
+        <section className="grid gap-[1rem] mb-[1.25rem]" style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(190px,1fr))' }}>
           {[
             { label: 'Annual Income', value: `£${mock.income.toLocaleString()}` },
             { label: 'Expenses', value: `£${mock.expenses.toLocaleString()}` },
             { label: 'Tax due', value: `£${mock.tax.toLocaleString()}` },
             { label: 'Take-home', value: `£${mock.net.toLocaleString()}` },
           ].map((item) => (
-            <div key={item.label} style={{ background: C.card, borderRadius: '8px', border: `1px solid rgba(244,245,248,0.07)`, padding: '1rem' }}>
-              <p style={{ color: C.muted, fontSize: '0.8rem', marginBottom: '0.5rem' }}>{item.label}</p>
-              <p style={{ fontSize: '1.25rem', fontWeight: 700 }}>{item.value}</p>
+            <div key={item.label} className="bg-[#1C1D20] rounded-[8px] border border-[rgba(244,245,248,0.07)] p-[1rem]">
+              <p className="text-[rgba(244,245,248,0.42)] text-[0.8rem] mb-[0.5rem]">{item.label}</p>
+              <p className="text-[1.25rem] font-bold m-0">{item.value}</p>
             </div>
           ))}
         </section>
 
-        <section style={{ background: C.card, border: `1px solid rgba(244,245,248,0.07)`, borderRadius: '8px', padding: '1.2rem' }}>
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '.75rem' }}>How this demo works</h2>
-          <ul style={{ color: C.muted, lineHeight: 1.6, paddingLeft: '1.2rem' }}>
+        <section className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[8px] p-[1.2rem]">
+          <h2 className="text-[1.1rem] mb-[0.75rem]">How this demo works</h2>
+          <ul className="text-[rgba(244,245,248,0.42)] leading-[1.6] pl-[1.2rem] m-0">
             <li>Instant calculations from your income and expenses</li>
             <li>HMRC-style tax bands (20/40/45%) with personal allowance</li>
             <li>Realistic growth scenario for freelancers in 2026 UK tax year</li>
@@ -47,9 +46,9 @@ export default function DemoDashboardPage() {
           </ul>
         </section>
 
-        <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#111827', border: '1px solid rgba(98,113,148,0.25)', borderRadius: '8px' }}>
-          <p style={{ color: C.muted, marginBottom: '0.35rem' }}>Trust signals:</p>
-          <p style={{ fontSize: '0.95rem', color: C.text }}>Secure & encrypted · Built for UK freelancers · Your data stays private</p>
+        <div className="mt-[1.5rem] p-[1rem] bg-[#111827] border border-[rgba(98,113,148,0.25)] rounded-[8px]">
+          <p className="text-[rgba(244,245,248,0.42)] mb-[0.35rem]">Trust signals:</p>
+          <p className="text-[0.95rem] text-[#F4F5F8] m-0">Secure & encrypted · Built for UK freelancers · Your data stays private</p>
         </div>
       </div>
     </main>

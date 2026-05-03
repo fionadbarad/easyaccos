@@ -8,7 +8,6 @@ import {
 import { Copy, CheckCheck, FileText, TrendingUp, TrendingDown } from 'lucide-react'
 import { calcScenario1 } from '@/lib/TaxBible2026'
 
-import { C } from '@/styles/palette'
 interface Transaction { id: string; date: string; description: string; type: 'income' | 'expense'; amount: number }
 const STORAGE_KEY = 'easyacco_transactions'
 
@@ -44,26 +43,18 @@ function ISLine({
   label?: string; value?: number; indent?: number; bold?: boolean;
   separator?: boolean; highlight?: boolean; negative?: boolean;
 }) {
-  if (separator) return <div style={{ borderTop: `1px solid ${C.border}`, margin: '5px 0' }} />
+  if (separator) return <div className="border-t border-[rgba(244,245,248,0.07)] my-[5px]" />
   return (
-    <div style={{
-      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-      padding: `${bold ? 9 : 6}px 0`,
-      paddingLeft: `${indent * 16}px`,
-      background: highlight ? 'rgba(244,245,248,0.03)' : 'transparent',
-      borderRadius: highlight ? '3px' : 0,
-    }}>
-      <span style={{ color: bold ? C.white : C.muted, fontSize: bold ? '0.82rem' : '0.78rem', fontWeight: bold ? 600 : 400 }}>
+    <div
+      className={`flex justify-between items-center ${bold ? 'py-[9px]' : 'py-[6px]'} ${highlight ? 'bg-[rgba(244,245,248,0.03)] rounded-[3px]' : ''}`}
+      style={{ paddingLeft: `${indent * 16}px` }}>
+      <span className={`${bold ? 'text-[#F4F5F8] text-[0.82rem] font-semibold' : 'text-[rgba(244,245,248,0.42)] text-[0.78rem] font-normal'}`}>
         {label}
       </span>
       {value !== undefined && (
-        <span style={{
-          color: highlight ? C.white : negative ? C.red : (bold ? C.white : C.muted),
-          fontWeight: bold ? 600 : 400,
-          fontSize: bold ? '0.9rem' : '0.82rem',
-          fontFamily: 'var(--font-geist-mono), monospace',
-          fontVariantNumeric: 'tabular-nums',
-        }}>
+        <span
+          className={`${bold ? 'font-semibold text-[0.9rem]' : 'font-normal text-[0.82rem]'} font-mono tabular-nums`}
+          style={{ color: highlight ? '#F4F5F8' : negative ? '#F87171' : (bold ? '#F4F5F8' : 'rgba(244,245,248,0.42)') }}>
           {negative && value > 0 ? '(' : ''}{fmtDp(value)}{negative && value > 0 ? ')' : ''}
         </span>
       )}
@@ -73,21 +64,21 @@ function ISLine({
 
 function StatCard({ label, value, sub, trend }: { label: string; value: string; sub?: string; trend?: 'up' | 'down' }) {
   return (
-    <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '1.1rem 1.25rem' }}>
-      <div style={{ color: C.muted, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 600 }}>
-        {trend === 'up'   && <TrendingUp  size={10} style={{ color: C.green }} />}
-        {trend === 'down' && <TrendingDown size={10} style={{ color: C.red   }} />}
+    <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[1.1rem_1.25rem]">
+      <div className="text-[rgba(244,245,248,0.42)] text-[0.65rem] uppercase tracking-[0.08em] mb-[6px] flex items-center gap-[5px] font-semibold">
+        {trend === 'up'   && <TrendingUp  size={10} className="text-[#4ADE80]" />}
+        {trend === 'down' && <TrendingDown size={10} className="text-[#F87171]" />}
         {label}
       </div>
-      <div style={{ color: C.white, fontWeight: 600, fontSize: '1.2rem', letterSpacing: '-0.02em', fontFamily: 'var(--font-geist-mono), monospace', fontVariantNumeric: 'tabular-nums' }}>{value}</div>
-      {sub && <div style={{ color: C.muted, fontSize: '0.7rem', marginTop: '3px' }}>{sub}</div>}
+      <div className="text-[#F4F5F8] font-semibold text-[1.2rem] tracking-[-0.02em] font-mono tabular-nums">{value}</div>
+      {sub && <div className="text-[rgba(244,245,248,0.42)] text-[0.7rem] mt-[3px]">{sub}</div>}
     </div>
   )
 }
 
 const tooltipStyle = {
   background: '#1C1D20', border: `1px solid rgba(244,245,248,0.1)`,
-  borderRadius: '4px', color: C.white, fontSize: '0.75rem',
+  borderRadius: '4px', color: '#F4F5F8', fontSize: '0.75rem',
 }
 
 type View = 'overview' | 'income-statement'
@@ -193,50 +184,32 @@ export default function PnLPage() {
       .catch(() => alert('Clipboard access denied — check browser permissions.'))
   }
 
-  const btnBase: React.CSSProperties = {
-    padding: '7px 14px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 500,
-    minHeight: '36px', transition: 'all 0.1s',
-  }
+  const btnBaseClass = 'p-[7px_14px] rounded-[4px] cursor-pointer text-[0.78rem] font-medium min-h-[36px] transition-all duration-[100ms]'
 
   return (
-    <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)', maxWidth: '960px' }}>
+    <div className="p-[clamp(1.5rem,4vw,2.5rem)] max-w-[960px]">
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div className="flex items-start justify-between flex-wrap gap-[1rem] mb-[1.5rem]">
         <div>
-          <div style={{ color: C.muted, fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '5px', fontFamily: 'var(--font-geist-mono), monospace' }}>reports</div>
-          <h1 style={{ color: C.white, fontSize: 'clamp(1.4rem,3vw,1.9rem)', fontWeight: 600, letterSpacing: '-0.03em', margin: 0 }}>
+          <div className="text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.12em] mb-[5px] font-mono">reports</div>
+          <h1 className="text-[#F4F5F8] text-[clamp(1.4rem,3vw,1.9rem)] font-semibold tracking-[-0.03em] m-0">
             Financial Reports
           </h1>
-          <p style={{ color: C.muted, fontSize: '0.78rem', marginTop: '4px', fontFamily: 'var(--font-geist-mono), monospace' }}>2026/27 · GBP · HMRC-compliant</p>
+          <p className="text-[rgba(244,245,248,0.42)] text-[0.78rem] mt-[4px] font-mono">2026/27 · GBP · HMRC-compliant</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+        <div className="flex gap-[0.4rem] flex-wrap">
           {(['overview', 'income-statement'] as View[]).map((v) => (
-            <button key={v} onClick={() => setView(v)} style={{
-              ...btnBase,
-              background: view === v ? 'rgba(244,245,248,0.08)' : 'transparent',
-              border: `1px solid ${view === v ? 'rgba(244,245,248,0.2)' : C.border}`,
-              color: view === v ? C.white : C.muted,
-            }}>
+            <button key={v} onClick={() => setView(v)}
+              className={`${btnBaseClass} border ${view === v ? 'bg-[rgba(244,245,248,0.08)] border-[rgba(244,245,248,0.2)] text-[#F4F5F8]' : 'bg-transparent border-[rgba(244,245,248,0.07)] text-[rgba(244,245,248,0.42)]'}`}>
               {v === 'overview' ? 'Overview' : 'Income Statement'}
             </button>
           ))}
-          <button onClick={exportJSON} style={{
-            ...btnBase,
-            display: 'flex', alignItems: 'center', gap: '6px',
-            background: copied ? 'rgba(74,222,128,0.08)' : C.surface,
-            border: `1px solid ${copied ? 'rgba(74,222,128,0.25)' : C.border}`,
-            color: copied ? C.green : C.muted,
-          }}>
+          <button onClick={exportJSON}
+            className={`${btnBaseClass} flex items-center gap-[6px] border ${copied ? 'bg-[rgba(74,222,128,0.08)] border-[rgba(74,222,128,0.25)] text-[#4ADE80]' : 'bg-[#1C1D20] border-[rgba(244,245,248,0.07)] text-[rgba(244,245,248,0.42)]'}`}>
             {copied ? <CheckCheck size={13} /> : <Copy size={13} />}
             {copied ? 'Copied' : 'Export JSON'}
           </button>
-          <button onClick={exportSA103CSV} title="SA103 self-assessment pre-fill CSV" style={{
-            ...btnBase,
-            display: 'flex', alignItems: 'center', gap: '6px',
-            background: C.surface,
-            border: `1px solid ${C.border}`,
-            color: C.muted,
-          }}>
+          <button onClick={exportSA103CSV} title="SA103 self-assessment pre-fill CSV" className={`${btnBaseClass} flex items-center gap-[6px] bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] text-[rgba(244,245,248,0.42)]`}>
             <FileText size={13} /> Export SA103 CSV
           </button>
         </div>
@@ -244,12 +217,12 @@ export default function PnLPage() {
 
       {/* MTD Alert */}
       {totalRevenue >= 50_000 && (
-        <div style={{ background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: '4px', padding: '0.8rem 1rem', marginBottom: '1.5rem', display: 'flex', gap: '0.65rem', alignItems: 'flex-start' }}>
-          <span style={{ color: C.amber, fontSize: '0.75rem', fontWeight: 700, fontFamily: 'var(--font-geist-mono), monospace', flexShrink: 0 }}>MTD</span>
+        <div className="bg-[rgba(251,191,36,0.06)] border border-[rgba(251,191,36,0.2)] rounded-[4px] p-[0.8rem_1rem] mb-[1.5rem] flex gap-[0.65rem] items-start">
+          <span className="text-[#FBBF24] text-[0.75rem] font-bold font-mono shrink-0">MTD</span>
           <div>
-            <span style={{ color: C.amber, fontWeight: 600, fontSize: '0.82rem' }}>Making Tax Digital — registration required</span>
-            <p style={{ color: C.muted, fontSize: '0.75rem', margin: '2px 0 0', lineHeight: 1.5 }}>
-              Turnover exceeds <span style={{ color: C.white, fontFamily: 'var(--font-geist-mono), monospace' }}>£50,000</span>. Register for MTD ITSA before <span style={{ color: C.white }}>6 April 2026</span>.
+            <span className="text-[#FBBF24] font-semibold text-[0.82rem]">Making Tax Digital — registration required</span>
+            <p className="text-[rgba(244,245,248,0.42)] text-[0.75rem] m-[2px_0_0] leading-[1.5]">
+              Turnover exceeds <span className="text-[#F4F5F8] font-mono">£50,000</span>. Register for MTD ITSA before <span className="text-[#F4F5F8]">6 April 2026</span>.
             </p>
           </div>
         </div>
@@ -258,7 +231,8 @@ export default function PnLPage() {
       {/* ── OVERVIEW ── */}
       {view === 'overview' && (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(165px,1fr))', gap: '1px', border: `1px solid ${C.border}`, borderRadius: '6px', overflow: 'hidden', background: C.border, marginBottom: '1.5rem' }}>
+          <div className="grid gap-[1px] border border-[rgba(244,245,248,0.07)] rounded-[6px] overflow-hidden bg-[rgba(244,245,248,0.07)] mb-[1.5rem]"
+            style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(165px,1fr))' }}>
             {[
               { label: 'Total Revenue',    value: fmt(totalRevenue),      trend: 'up' as const   },
               { label: 'Total Expenses',   value: fmt(opEx + costOfSales),trend: 'down' as const },
@@ -266,52 +240,52 @@ export default function PnLPage() {
               { label: 'Tax Provision',    value: fmt(taxProvision),      sub: '2026/27 HMRC liability' },
               { label: 'Profit After Tax', value: fmt(profitAfterTax)                               },
             ].map((s) => (
-              <div key={s.label} style={{ background: C.surface, padding: '1rem 1.15rem' }}>
-                <div style={{ color: C.muted, fontSize: '0.63rem', textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: 600, marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  {s.trend === 'up'   && <TrendingUp  size={9} style={{ color: C.green }} />}
-                  {s.trend === 'down' && <TrendingDown size={9} style={{ color: C.red   }} />}
+              <div key={s.label} className="bg-[#1C1D20] p-[1rem_1.15rem]">
+                <div className="text-[rgba(244,245,248,0.42)] text-[0.63rem] uppercase tracking-[0.07em] font-semibold mb-[5px] flex items-center gap-[4px]">
+                  {s.trend === 'up'   && <TrendingUp  size={9} className="text-[#4ADE80]" />}
+                  {s.trend === 'down' && <TrendingDown size={9} className="text-[#F87171]" />}
                   {s.label}
                 </div>
-                <div style={{ color: C.white, fontWeight: 600, fontSize: '1.1rem', letterSpacing: '-0.02em', fontFamily: 'var(--font-geist-mono), monospace' }}>{s.value}</div>
-                {s.sub && <div style={{ color: C.muted, fontSize: '0.68rem', marginTop: '2px' }}>{s.sub}</div>}
+                <div className="text-[#F4F5F8] font-semibold text-[1.1rem] tracking-[-0.02em] font-mono">{s.value}</div>
+                {s.sub && <div className="text-[rgba(244,245,248,0.42)] text-[0.68rem] mt-[2px]">{s.sub}</div>}
               </div>
             ))}
           </div>
 
-          <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '1.25rem', marginBottom: '1rem' }}>
-            <h2 style={{ color: C.white, fontSize: '0.85rem', fontWeight: 600, letterSpacing: '-0.01em', marginBottom: '1.1rem' }}>Income vs Expenses — Monthly</h2>
+          <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[1.25rem] mb-[1rem]">
+            <h2 className="text-[#F4F5F8] text-[0.85rem] font-semibold tracking-[-0.01em] mb-[1.1rem]">Income vs Expenses — Monthly</h2>
             <ResponsiveContainer width="100%" height={200}>
               <AreaChart data={monthly} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="incomeGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor={C.white} stopOpacity={0.15} />
-                    <stop offset="95%" stopColor={C.white} stopOpacity={0}    />
+                    <stop offset="5%"  stopColor="#F4F5F8" stopOpacity={0.15} />
+                    <stop offset="95%" stopColor="#F4F5F8" stopOpacity={0}    />
                   </linearGradient>
                   <linearGradient id="expGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor={C.red}   stopOpacity={0.15} />
-                    <stop offset="95%" stopColor={C.red}   stopOpacity={0}    />
+                    <stop offset="5%"  stopColor="#F87171" stopOpacity={0.15} />
+                    <stop offset="95%" stopColor="#F87171" stopOpacity={0}    />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(244,245,248,0.05)" />
-                <XAxis dataKey="month" tick={{ fill: C.muted, fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: C.muted, fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `£${(Number(v)/1000).toFixed(0)}k`} />
+                <XAxis dataKey="month" tick={{ fill: 'rgba(244,245,248,0.42)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: 'rgba(244,245,248,0.42)', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `£${(Number(v)/1000).toFixed(0)}k`} />
                 <Tooltip contentStyle={tooltipStyle} formatter={(value) => typeof value === 'number' ? fmt(value) : value} />
-                <Legend wrapperStyle={{ fontSize: '0.75rem', color: C.muted }} />
-                <Area type="monotone" dataKey="income"   name="Income"   stroke={C.white} strokeWidth={1.5} fill="url(#incomeGrad)" />
-                <Area type="monotone" dataKey="expenses" name="Expenses" stroke={C.red}   strokeWidth={1.5} fill="url(#expGrad)"    />
+                <Legend wrapperStyle={{ fontSize: '0.75rem', color: 'rgba(244,245,248,0.42)' }} />
+                <Area type="monotone" dataKey="income"   name="Income"   stroke="#F4F5F8" strokeWidth={1.5} fill="url(#incomeGrad)" />
+                <Area type="monotone" dataKey="expenses" name="Expenses" stroke="#F87171" strokeWidth={1.5} fill="url(#expGrad)"    />
               </AreaChart>
             </ResponsiveContainer>
           </div>
 
-          <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '1.25rem' }}>
-            <h2 style={{ color: C.white, fontSize: '0.85rem', fontWeight: 600, letterSpacing: '-0.01em', marginBottom: '1.1rem' }}>Monthly Net Profit</h2>
+          <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[1.25rem]">
+            <h2 className="text-[#F4F5F8] text-[0.85rem] font-semibold tracking-[-0.01em] mb-[1.1rem]">Monthly Net Profit</h2>
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={monthly} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(244,245,248,0.05)" />
-                <XAxis dataKey="month" tick={{ fill: C.muted, fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: C.muted, fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `£${(Number(v)/1000).toFixed(0)}k`} />
+                <XAxis dataKey="month" tick={{ fill: 'rgba(244,245,248,0.42)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: 'rgba(244,245,248,0.42)', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `£${(Number(v)/1000).toFixed(0)}k`} />
                 <Tooltip contentStyle={tooltipStyle} formatter={(value) => typeof value === 'number' ? fmt(value) : value} />
-                <Bar dataKey="profit" name="Net Profit" fill={C.white} fillOpacity={0.85} radius={[2,2,0,0]} />
+                <Bar dataKey="profit" name="Net Profit" fill="#F4F5F8" fillOpacity={0.85} radius={[2,2,0,0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -320,12 +294,12 @@ export default function PnLPage() {
 
       {/* ── INCOME STATEMENT ── */}
       {view === 'income-statement' && (
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '1.75rem', maxWidth: '580px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '1.5rem' }}>
-            <FileText size={16} style={{ color: C.muted }} strokeWidth={1.5} />
+        <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[1.75rem] max-w-[580px]">
+          <div className="flex items-center gap-[0.65rem] mb-[1.5rem]">
+            <FileText size={16} className="text-[rgba(244,245,248,0.42)]" strokeWidth={1.5} />
             <div>
-              <h2 style={{ color: C.white, fontSize: '0.95rem', fontWeight: 600, letterSpacing: '-0.02em', margin: 0 }}>Income Statement (P&amp;L)</h2>
-              <p style={{ color: C.muted, fontSize: '0.68rem', margin: 0, fontFamily: 'var(--font-geist-mono), monospace' }}>Period ending 5 April 2027 · 2026/27 Fiscal Year</p>
+              <h2 className="text-[#F4F5F8] text-[0.95rem] font-semibold tracking-[-0.02em] m-0">Income Statement (P&amp;L)</h2>
+              <p className="text-[rgba(244,245,248,0.42)] text-[0.68rem] m-0 font-mono">Period ending 5 April 2027 · 2026/27 Fiscal Year</p>
             </div>
           </div>
 
@@ -347,20 +321,18 @@ export default function PnLPage() {
           )}
           <ISLine label="Total Cost of Sales"               value={costOfSales} bold negative />
 
-          <form onSubmit={addCogsEntry} style={{
-            display: 'grid', gridTemplateColumns: 'auto 1fr 110px auto', gap: '6px',
-            alignItems: 'center', margin: '10px 0 4px', paddingLeft: '16px',
-          }}>
+          <form onSubmit={addCogsEntry} className="grid gap-[6px] items-center m-[10px_0_4px] pl-[16px]"
+            style={{ gridTemplateColumns: 'auto 1fr 110px auto' }}>
             <input type="date" value={cogsForm.date}
               onChange={(e) => setCogsForm((f) => ({ ...f, date: e.target.value }))}
-              style={{ background: C.gray, border: `1px solid ${C.border}`, borderRadius: '3px', padding: '6px 8px', color: C.white, fontSize: '0.72rem', fontFamily: 'var(--font-geist-mono), monospace', outline: 'none' }} />
+              className="bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[3px] p-[6px_8px] text-[#F4F5F8] text-[0.72rem] font-mono outline-none" />
             <input type="text" value={cogsForm.description} placeholder="e.g. Raw materials — steel"
               onChange={(e) => setCogsForm((f) => ({ ...f, description: e.target.value }))}
-              style={{ background: C.gray, border: `1px solid ${C.border}`, borderRadius: '3px', padding: '6px 8px', color: C.white, fontSize: '0.75rem', outline: 'none' }} />
+              className="bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[3px] p-[6px_8px] text-[#F4F5F8] text-[0.75rem] outline-none" />
             <input type="number" min={0} step={0.01} value={cogsForm.amount} placeholder="0.00"
               onChange={(e) => setCogsForm((f) => ({ ...f, amount: e.target.value }))}
-              style={{ background: C.gray, border: `1px solid ${C.border}`, borderRadius: '3px', padding: '6px 8px', color: C.white, fontSize: '0.75rem', textAlign: 'right', fontFamily: 'var(--font-geist-mono), monospace', outline: 'none' }} />
-            <button type="submit" style={{ background: C.white, color: C.bg, border: 'none', borderRadius: '3px', padding: '6px 12px', fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer' }}>
+              className="bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[3px] p-[6px_8px] text-[#F4F5F8] text-[0.75rem] text-right font-mono outline-none" />
+            <button type="submit" className="bg-[#F4F5F8] text-[#181818] border-none rounded-[3px] p-[6px_12px] text-[0.72rem] font-semibold cursor-pointer">
               + COGS
             </button>
           </form>
@@ -389,14 +361,16 @@ export default function PnLPage() {
           <ISLine label="Total Tax Provision"          value={taxProvision}               bold negative />
           <ISLine separator />
 
-          <div style={{ background: 'rgba(244,245,248,0.04)', border: `1px solid ${C.border}`, borderRadius: '4px', padding: '0.9rem 1rem', marginTop: '0.25rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: C.white, fontWeight: 600, fontSize: '0.85rem', letterSpacing: '-0.01em' }}>NET PROFIT AFTER TAX</span>
-              <span style={{ color: profitAfterTax >= 0 ? C.white : C.red, fontWeight: 600, fontSize: '1rem', fontFamily: 'var(--font-geist-mono), monospace', fontVariantNumeric: 'tabular-nums' }}>
+          <div className="bg-[rgba(244,245,248,0.04)] border border-[rgba(244,245,248,0.07)] rounded-[4px] p-[0.9rem_1rem] mt-[0.25rem]">
+            <div className="flex justify-between items-center">
+              <span className="text-[#F4F5F8] font-semibold text-[0.85rem] tracking-[-0.01em]">NET PROFIT AFTER TAX</span>
+              <span
+                className="font-semibold text-[1rem] font-mono tabular-nums"
+                style={{ color: profitAfterTax >= 0 ? '#F4F5F8' : '#F87171' }}>
                 {fmtDp(profitAfterTax)}
               </span>
             </div>
-            <div style={{ color: C.muted, fontSize: '0.65rem', marginTop: '4px', fontFamily: 'var(--font-geist-mono), monospace' }}>
+            <div className="text-[rgba(244,245,248,0.42)] text-[0.65rem] mt-[4px] font-mono">
               2026/27 HMRC compliant · tax calculations run client-side
             </div>
           </div>

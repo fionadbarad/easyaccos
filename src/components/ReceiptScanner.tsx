@@ -16,7 +16,6 @@ interface Props {
   onExtract: (data: ReceiptExtract) => void
 }
 
-import { C } from '@/styles/palette'
 function parseReceipt(raw: string): Omit<ReceiptExtract, 'raw' | 'imageUrl' | 'fileType'> {
   const text = raw.replace(/\r/g, '')
   const lines = text.split('\n').map((l) => l.trim()).filter(Boolean)
@@ -117,53 +116,36 @@ export default function ReceiptScanner({ onExtract }: Props) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        style={{
-          display: 'flex', alignItems: 'center', gap: '6px',
-          background: 'transparent', color: C.muted,
-          border: `1px solid ${C.border}`, borderRadius: '4px',
-          padding: '8px 14px', fontSize: '0.78rem', fontWeight: 500,
-          cursor: 'pointer', minHeight: '36px',
-        }}
+        className="flex items-center gap-[6px] bg-transparent text-[rgba(244,245,248,0.42)] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[14px] py-[8px] text-[0.78rem] font-medium cursor-pointer min-h-[36px]"
       >
         <Camera size={13} /> Scan Receipt
       </button>
 
       {open && (
-        <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 50, padding: '1rem',
-        }}>
-          <div style={{
-            background: C.surface, border: `1px solid ${C.border}`,
-            borderRadius: '6px', padding: '1.5rem', maxWidth: '440px', width: '100%',
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+        <div className="fixed inset-0 bg-[rgba(0,0,0,0.6)] flex items-center justify-center z-50 p-[1rem]">
+          <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[1.5rem] max-w-[440px] w-full">
+            <div className="flex justify-between items-start mb-[0.75rem]">
               <div>
-                <h3 style={{ color: C.white, fontSize: '0.95rem', fontWeight: 600, margin: 0 }}>Scan a receipt</h3>
-                <p style={{ color: C.muted, fontSize: '0.72rem', margin: '4px 0 0' }}>
+                <h3 className="text-[#F4F5F8] text-[0.95rem] font-semibold m-0">Scan a receipt</h3>
+                <p className="text-[rgba(244,245,248,0.42)] text-[0.72rem] mt-[4px] mb-0">
                   Runs client-side. Nothing is uploaded.
                 </p>
               </div>
               <button onClick={close}
-                style={{ background: 'none', border: 'none', color: C.muted, cursor: busy ? 'not-allowed' : 'pointer' }}>
+                className={`bg-transparent border-none text-[rgba(244,245,248,0.42)] ${busy ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
                 <X size={16} />
               </button>
             </div>
 
             {!busy ? (
-              <label style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem',
-                border: `1px dashed ${C.border}`, borderRadius: '6px', padding: '2rem 1rem',
-                cursor: 'pointer', color: C.muted, fontSize: '0.8rem',
-              }}>
+              <label className="flex flex-col items-center gap-[0.5rem] border border-dashed border-[rgba(244,245,248,0.07)] rounded-[6px] p-[2rem_1rem] cursor-pointer text-[rgba(244,245,248,0.42)] text-[0.8rem]">
                 <Camera size={24} />
                 Tap to choose a photo or PDF of your receipt
                 <input
                   type="file"
                   accept="image/*,application/pdf"
                   capture="environment"
-                  style={{ display: 'none' }}
+                  className="hidden"
                   onChange={(e) => {
                     const f = e.target.files?.[0]
                     if (f) handleFile(f)
@@ -171,23 +153,21 @@ export default function ReceiptScanner({ onExtract }: Props) {
                 />
               </label>
             ) : (
-              <div style={{ padding: '1.5rem 0', textAlign: 'center' }}>
-                <Loader2 size={20} style={{ color: C.white, animation: 'spin 1s linear infinite' }} />
-                <div style={{ color: C.white, fontSize: '0.82rem', marginTop: '0.75rem' }}>{status}</div>
-                <div style={{ color: C.muted, fontSize: '0.72rem', marginTop: '4px', fontFamily: 'var(--font-geist-mono), monospace' }}>
+              <div className="py-[1.5rem] text-center">
+                <Loader2 size={20} className="text-[#F4F5F8] animate-spin mx-auto" />
+                <div className="text-[#F4F5F8] text-[0.82rem] mt-[0.75rem]">{status}</div>
+                <div className="text-[rgba(244,245,248,0.42)] text-[0.72rem] mt-[4px] font-mono">
                   {progress}%
                 </div>
-                <div style={{ background: C.gray, height: '3px', borderRadius: '2px', marginTop: '0.75rem', overflow: 'hidden' }}>
-                  <div style={{ background: C.green, height: '100%', width: `${progress}%`, transition: 'width 0.3s' }} />
+                <div className="bg-[#222326] h-[3px] rounded-[2px] mt-[0.75rem] overflow-hidden">
+                  <div className="bg-[#4ADE80] h-full transition-[width] duration-300" style={{ width: `${progress}%` }} />
                 </div>
               </div>
             )}
 
             {error && (
-              <div style={{ color: C.red, fontSize: '0.75rem', marginTop: '0.75rem' }}>{error}</div>
+              <div className="text-[#F87171] text-[0.75rem] mt-[0.75rem]">{error}</div>
             )}
-
-            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
         </div>
       )}

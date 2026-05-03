@@ -3,18 +3,8 @@
 import { motion } from 'framer-motion'
 import type { InvoiceFormState } from '@/lib/hooks/useInvoices'
 
-import { C } from '@/styles/palette'
-const inputS: React.CSSProperties = {
-  width: '100%', background: C.gray, border: `1px solid ${C.border}`,
-  borderRadius: '4px', padding: '9px 11px', color: C.white,
-  fontSize: '0.84rem', outline: 'none', boxSizing: 'border-box',
-}
-
-const labelS: React.CSSProperties = {
-  display: 'block', color: C.dim, fontSize: '0.6rem',
-  textTransform: 'uppercase', letterSpacing: '0.09em',
-  marginBottom: '4px', fontWeight: 600, fontFamily: 'var(--font-geist-mono), monospace',
-}
+const INPUT_BASE = 'w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[11px] py-[9px] text-[#F4F5F8] text-[0.84rem] outline-none'
+const LABEL_S = 'block text-[rgba(244,245,248,0.18)] text-[0.6rem] uppercase tracking-[0.09em] mb-[4px] font-semibold font-mono'
 
 export function InvoiceForm({
   form,
@@ -31,51 +21,51 @@ export function InvoiceForm({
 }) {
   return (
     <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-      style={{ marginBottom: '1.25rem' }}>
+      className="mb-5">
       <form onSubmit={onSubmit}
-        style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '1.25rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.85rem', alignItems: 'end' }}>
+        className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-5 grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-[0.85rem] items-end">
         <div>
-          <label style={labelS}>Client name</label>
+          <label className={LABEL_S}>Client name</label>
           <input value={form.client} onChange={e => setForm(f => ({ ...f, client: e.target.value }))}
-            placeholder="Acme Ltd" style={{ ...inputS, fontFamily: 'inherit' }} required />
+            placeholder="Acme Ltd" className={INPUT_BASE} required />
         </div>
         <div>
-          <label style={labelS}>Invoice #</label>
+          <label className={LABEL_S}>Invoice #</label>
           <input value={form.number} onChange={e => setForm(f => ({ ...f, number: e.target.value }))}
-            placeholder={nextNumber} style={inputS} />
+            placeholder={nextNumber} className={INPUT_BASE} />
         </div>
-        <div style={{ gridColumn: 'span 2' }}>
-          <label style={labelS}>Description / services</label>
+        <div className="col-span-2">
+          <label className={LABEL_S}>Description / services</label>
           <input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-            placeholder="Web development — April 2026" style={{ ...inputS, fontFamily: 'inherit' }} />
+            placeholder="Web development — April 2026" className={INPUT_BASE} />
         </div>
         <div>
-          <label style={labelS}>Invoice date</label>
-          <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} style={inputS} />
+          <label className={LABEL_S}>Invoice date</label>
+          <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} className={INPUT_BASE} />
         </div>
         <div>
-          <label style={labelS}>Due date</label>
-          <input type="date" value={form.dueDate} onChange={e => setForm(f => ({ ...f, dueDate: e.target.value }))} style={inputS} />
+          <label className={LABEL_S}>Due date</label>
+          <input type="date" value={form.dueDate} onChange={e => setForm(f => ({ ...f, dueDate: e.target.value }))} className={INPUT_BASE} />
         </div>
         <div>
-          <label style={labelS}>Net amount (£)</label>
+          <label className={LABEL_S}>Net amount (£)</label>
           <input type="number" min={0} step={0.01} value={form.amount} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))}
-            placeholder="0.00" style={inputS} required />
+            placeholder="0.00" className={INPUT_BASE} required />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <label style={labelS}>VAT</label>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+        <div className="flex flex-col gap-[6px]">
+          <label className={LABEL_S}>VAT</label>
+          <label className="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" checked={form.vat} onChange={e => setForm(f => ({ ...f, vat: e.target.checked }))}
-              style={{ width: '14px', height: '14px', accentColor: C.white, cursor: 'pointer' }} />
-            <span style={{ color: C.muted, fontSize: '0.82rem' }}>Add 20% VAT</span>
+              className="w-[14px] h-[14px] accent-[#F4F5F8] cursor-pointer" />
+            <span className="text-[rgba(244,245,248,0.42)] text-[0.82rem]">Add 20% VAT</span>
           </label>
         </div>
-        <div style={{ display: 'flex', gap: '0.4rem' }}>
-          <button type="submit" style={{ flex: 1, background: C.white, color: '#181818', border: 'none', borderRadius: '4px', padding: '9px', fontWeight: 600, cursor: 'pointer', fontSize: '0.8rem', minHeight: '40px', letterSpacing: '-0.01em' }}>
+        <div className="flex gap-[0.4rem]">
+          <button type="submit" className="flex-1 bg-[#F4F5F8] text-[#181818] border-0 rounded-[4px] p-[9px] font-semibold cursor-pointer text-[0.8rem] min-h-[40px] tracking-[-0.01em]">
             Create
           </button>
           <button type="button" onClick={onCancel}
-            style={{ background: 'transparent', color: C.muted, border: `1px solid ${C.border}`, borderRadius: '4px', padding: '9px 12px', cursor: 'pointer', fontSize: '0.8rem', minHeight: '40px' }}>
+            className="bg-transparent text-[rgba(244,245,248,0.42)] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-3 py-[9px] cursor-pointer text-[0.8rem] min-h-[40px]">
             Cancel
           </button>
         </div>

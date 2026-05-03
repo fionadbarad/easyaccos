@@ -17,7 +17,7 @@ type Props = {
 export function AsyncBoundary({ loading, error, fallback, children }: Props) {
   if (loading) {
     return (
-      <div style={{ padding: '1rem 0' }}>
+      <div className="py-4">
         {fallback ?? <SkeletonRows count={5} />}
       </div>
     )
@@ -26,14 +26,7 @@ export function AsyncBoundary({ loading, error, fallback, children }: Props) {
     return (
       <div
         role="alert"
-        style={{
-          padding: '12px 14px',
-          borderRadius: 6,
-          border: '1px solid rgba(248,113,113,0.3)',
-          background: 'rgba(248,113,113,0.08)',
-          color: '#F87171',
-          fontSize: '0.88rem',
-        }}
+        className="px-[14px] py-3 rounded-[6px] border border-[rgba(248,113,113,0.3)] bg-[rgba(248,113,113,0.08)] text-[#F87171] text-[0.88rem]"
       >
         {error}
       </div>

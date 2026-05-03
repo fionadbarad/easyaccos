@@ -4,18 +4,9 @@ import { Sparkles, Loader2 } from 'lucide-react'
 import type { ExpenseFormState } from '@/lib/hooks/useExpenses'
 import { CATEGORIES } from '@/lib/hooks/useExpenses'
 
-import { C } from '@/styles/palette'
-const inputS: React.CSSProperties = {
-  background: C.gray, border: `1px solid ${C.border}`, borderRadius: '4px',
-  padding: '9px 11px', color: C.white, fontSize: '0.84rem', outline: 'none',
-  boxSizing: 'border-box', width: '100%',
-  fontFamily: 'var(--font-geist-mono), monospace',
-}
-
-const labelS: React.CSSProperties = {
-  display: 'block', color: C.muted, fontSize: '0.62rem',
-  textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px', fontWeight: 600,
-}
+const INPUT_MONO = 'w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[11px] py-[9px] text-[#F4F5F8] text-[0.84rem] outline-none font-mono'
+const INPUT_BASE = 'w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[11px] py-[9px] text-[#F4F5F8] text-[0.84rem] outline-none'
+const LABEL_S = 'block text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.08em] mb-[4px] font-semibold'
 
 export function ExpenseForm({
   form,
@@ -34,42 +25,41 @@ export function ExpenseForm({
 }) {
   return (
     <form onSubmit={onSubmit}
-      style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '1.25rem', marginBottom: '1.25rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: '0.85rem', alignItems: 'end' }}>
+      className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-5 mb-5 grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-[0.85rem] items-end">
       <div>
-        <label style={labelS}>Date</label>
-        <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} style={inputS} />
+        <label className={LABEL_S}>Date</label>
+        <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} className={INPUT_MONO} />
       </div>
-      <div style={{ gridColumn: 'span 2' }}>
-        <label style={labelS}>Description</label>
+      <div className="col-span-2">
+        <label className={LABEL_S}>Description</label>
         <input type="text" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-          placeholder="e.g. Adobe CC subscription" style={{ ...inputS, fontFamily: 'inherit' }} required />
+          placeholder="e.g. Adobe CC subscription" className={INPUT_BASE} required />
       </div>
       <div>
-        <label style={labelS}>
+        <label className={LABEL_S}>
           Category
           <button type="button" onClick={onSuggestCategory} disabled={!form.description.trim() || suggesting}
-            style={{ marginLeft: 6, background: 'transparent', border: `1px solid ${C.border}`, color: suggesting ? C.muted : C.white, borderRadius: 3, padding: '1px 6px', fontSize: '0.58rem', cursor: form.description.trim() && !suggesting ? 'pointer' : 'default', display: 'inline-flex', alignItems: 'center', gap: 3, verticalAlign: 'middle' }}>
-            {suggesting ? <Loader2 size={9} style={{ animation: 'spin 1s linear infinite' }} /> : <Sparkles size={9} />}
+            className={`ml-[6px] bg-transparent border border-[rgba(244,245,248,0.07)] rounded-[3px] px-[6px] py-[1px] text-[0.58rem] inline-flex items-center gap-[3px] align-middle ${suggesting ? 'text-[rgba(244,245,248,0.42)] cursor-default' : 'text-[#F4F5F8] cursor-pointer'}`}>
+            {suggesting ? <Loader2 size={9} className="animate-spin" /> : <Sparkles size={9} />}
             {suggesting ? 'thinking' : 'suggest'}
           </button>
         </label>
-        <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} style={{ ...inputS, cursor: 'pointer' }}>
+        <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} className={`${INPUT_MONO} cursor-pointer`}>
           {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
       </div>
       <div>
-        <label style={labelS}>Amount (£)</label>
-        <input type="number" min={0} step={0.01} value={form.amount} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} placeholder="0.00" style={inputS} required />
+        <label className={LABEL_S}>Amount (£)</label>
+        <input type="number" min={0} step={0.01} value={form.amount} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} placeholder="0.00" className={INPUT_MONO} required />
       </div>
-      <div style={{ display: 'flex', gap: '0.4rem' }}>
-        <button type="submit" style={{ flex: 1, background: C.white, color: '#181818', border: 'none', borderRadius: '4px', padding: '9px', fontWeight: 600, cursor: 'pointer', fontSize: '0.8rem', minHeight: '40px', letterSpacing: '-0.01em' }}>
+      <div className="flex gap-[0.4rem]">
+        <button type="submit" className="flex-1 bg-[#F4F5F8] text-[#181818] border-0 rounded-[4px] p-[9px] font-semibold cursor-pointer text-[0.8rem] min-h-[40px] tracking-[-0.01em]">
           Save
         </button>
-        <button type="button" onClick={onCancel} style={{ background: 'transparent', color: C.muted, border: `1px solid ${C.border}`, borderRadius: '4px', padding: '9px 12px', cursor: 'pointer', fontSize: '0.8rem', minHeight: '40px' }}>
+        <button type="button" onClick={onCancel} className="bg-transparent text-[rgba(244,245,248,0.42)] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-3 py-[9px] cursor-pointer text-[0.8rem] min-h-[40px]">
           Cancel
         </button>
       </div>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </form>
   )
 }

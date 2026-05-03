@@ -4,7 +4,6 @@ import { useState, useMemo } from 'react'
 import { Plus, Trash2, ArrowUpCircle, ArrowDownCircle, Calendar, Cloud, CloudOff } from 'lucide-react'
 import { useUserData } from '@/lib/use-user-data'
 
-import { C } from '@/styles/palette'
 type TxType    = 'income' | 'expense'
 type DateFilter = 'all' | 'today' | 'month' | 'custom'
 
@@ -13,16 +12,9 @@ interface Transaction {
   type: TxType; amount: number; reference: string
 }
 
-const inputStyle: React.CSSProperties = {
-  background: C.gray, border: `1px solid ${C.border}`, borderRadius: '4px',
-  padding: '9px 11px', color: C.white, fontSize: '0.84rem', outline: 'none',
-  boxSizing: 'border-box', width: '100%', minHeight: '40px',
-  fontFamily: 'var(--font-geist-mono), monospace', fontVariantNumeric: 'tabular-nums',
-}
-const labelStyle: React.CSSProperties = {
-  display: 'block', color: C.muted, fontSize: '0.62rem',
-  textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px', fontWeight: 600,
-}
+const INPUT_S = 'w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[11px] py-[9px] text-[#F4F5F8] text-[0.84rem] outline-none font-mono tabular-nums min-h-[40px]'
+const LABEL_S = 'block text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.08em] mb-[4px] font-semibold'
+
 const SEED: Transaction[] = [
   { id: '1', date: '2026-04-01', description: 'Client Project — Acme Corp', type: 'income',  amount: 2400,  reference: 'INV-001' },
   { id: '2', date: '2026-04-02', description: 'Adobe Creative Cloud',       type: 'expense', amount: 54.99, reference: 'SUB-001' },
@@ -44,6 +36,9 @@ function isThisMonth(dateStr: string) {
 const DATE_LABELS: Record<DateFilter, string> = {
   all: 'All time', today: 'Today', month: 'This month', custom: 'Custom',
 }
+
+const chipCls = (active: boolean) =>
+  `px-[11px] py-[5px] rounded-[3px] text-[0.75rem] min-h-[32px] transition-all duration-100 cursor-pointer border ${active ? 'border-[rgba(244,245,248,0.2)] bg-[rgba(244,245,248,0.07)] text-[#F4F5F8] font-medium' : 'border-[rgba(244,245,248,0.07)] bg-transparent text-[rgba(244,245,248,0.42)] font-normal'}`
 
 export default function TransactionsPage() {
   const { items: txs, persist, loading, isAuthenticated } = useUserData<Transaction>(
@@ -85,33 +80,28 @@ export default function TransactionsPage() {
   const net      = totalIn - totalOut
   const fmt      = (n: number) => `£${Math.abs(n).toLocaleString('en-GB', { minimumFractionDigits: 2 })}`
 
-  const chipStyle = (active: boolean): React.CSSProperties => ({
-    padding: '5px 11px', borderRadius: '3px', border: `1px solid ${active ? 'rgba(244,245,248,0.2)' : C.border}`,
-    background: active ? 'rgba(244,245,248,0.07)' : 'transparent', color: active ? C.white : C.muted,
-    cursor: 'pointer', fontSize: '0.75rem', fontWeight: active ? 500 : 400, minHeight: '32px', transition: 'all 0.1s',
-  })
-
   return (
-    <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)', maxWidth: '960px' }}>
+    <div className="p-[clamp(1.5rem,4vw,2.5rem)] max-w-[960px]">
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div className="flex items-start justify-between flex-wrap gap-[1rem] mb-[1.5rem]">
         <div>
-          <div style={{ color: C.muted, fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '5px', fontFamily: 'var(--font-geist-mono), monospace' }}>ledger</div>
-          <h1 style={{ color: C.white, fontSize: 'clamp(1.4rem,3vw,1.9rem)', fontWeight: 600, letterSpacing: '-0.03em', margin: 0 }}>
+          <div className="text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.12em] mb-[5px] font-mono">ledger</div>
+          <h1 className="text-[#F4F5F8] text-[clamp(1.4rem,3vw,1.9rem)] font-semibold tracking-[-0.03em] m-0">
             Transaction Ledger
           </h1>
-          <p style={{ color: C.muted, fontSize: '0.78rem', marginTop: '4px', fontFamily: 'var(--font-geist-mono), monospace' }}>
-            {visible.length} records · net: <span style={{ color: net >= 0 ? C.green : C.red }}>{net >= 0 ? '+' : '-'}{fmt(net)}</span>
+          <p className="text-[rgba(244,245,248,0.42)] text-[0.78rem] mt-[4px] font-mono">
+            {visible.length} records · net:{' '}
+            <span className={net >= 0 ? 'text-[#4ADE80]' : 'text-[#F87171]'}>{net >= 0 ? '+' : '-'}{fmt(net)}</span>
           </p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: C.muted, fontSize: '0.68rem', fontFamily: 'var(--font-geist-mono), monospace', padding: '6px 10px', border: `1px solid ${C.border}`, borderRadius: '4px' }}>
+        <div className="flex items-center gap-[0.5rem]">
+          <div className="flex items-center gap-[5px] text-[rgba(244,245,248,0.42)] text-[0.68rem] font-mono px-[10px] py-[6px] border border-[rgba(244,245,248,0.07)] rounded-[4px]">
             {isAuthenticated
-              ? <><Cloud size={11} style={{ color: '#4ADE80' }} /> synced</>
+              ? <><Cloud size={11} className="text-[#4ADE80]" /> synced</>
               : <><CloudOff size={11} /> local only</>}
           </div>
           <button onClick={() => setShowForm(!showForm)}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', background: C.white, color: C.bg, border: 'none', borderRadius: '4px', padding: '8px 16px', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', minHeight: '36px', letterSpacing: '-0.01em' }}>
+            className="flex items-center gap-[6px] bg-[#F4F5F8] text-[#181818] border-none rounded-[4px] px-[16px] py-[8px] text-[0.8rem] font-semibold cursor-pointer min-h-[36px] tracking-[-0.01em]">
             <Plus size={14} strokeWidth={2.5} /> Add Entry
           </button>
         </div>
@@ -119,22 +109,22 @@ export default function TransactionsPage() {
 
       {/* Guest sync nudge */}
       {!loading && !isAuthenticated && txs.length > 0 && (
-        <div style={{ background: 'rgba(251,191,36,0.05)', border: '1px solid rgba(251,191,36,0.18)', borderRadius: '4px', padding: '0.7rem 1rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
-          <span style={{ color: '#FBBF24', fontSize: '0.75rem' }}>Data is saved in this browser only — sign in to sync across devices.</span>
-          <a href="/auth/login" style={{ color: '#FBBF24', fontSize: '0.72rem', fontWeight: 600, textDecoration: 'none', borderBottom: '1px solid rgba(251,191,36,0.4)' }}>Sign in →</a>
+        <div className="bg-[rgba(251,191,36,0.05)] border border-[rgba(251,191,36,0.18)] rounded-[4px] px-[1rem] py-[0.7rem] mb-[1.25rem] flex items-center justify-between flex-wrap gap-[0.5rem]">
+          <span className="text-[#FBBF24] text-[0.75rem]">Data is saved in this browser only — sign in to sync across devices.</span>
+          <a href="/auth/login" className="text-[#FBBF24] text-[0.72rem] font-semibold no-underline border-b border-[rgba(251,191,36,0.4)]">Sign in →</a>
         </div>
       )}
 
       {/* Summary tiles */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', border: `1px solid ${C.border}`, borderRadius: '6px', overflow: 'hidden', background: C.border, marginBottom: '1.5rem' }}>
+      <div className="grid grid-cols-3 gap-[1px] border border-[rgba(244,245,248,0.07)] rounded-[6px] overflow-hidden bg-[rgba(244,245,248,0.07)] mb-[1.5rem]">
         {[
-          { label: 'Income',   value: fmt(totalIn),  color: C.green },
-          { label: 'Expenses', value: fmt(totalOut), color: C.red   },
-          { label: 'Net',      value: `${net >= 0 ? '+' : '-'}${fmt(net)}`, color: net >= 0 ? C.green : C.red },
+          { label: 'Income',   value: fmt(totalIn),  color: 'text-[#4ADE80]' },
+          { label: 'Expenses', value: fmt(totalOut), color: 'text-[#F87171]' },
+          { label: 'Net',      value: `${net >= 0 ? '+' : '-'}${fmt(net)}`, color: net >= 0 ? 'text-[#4ADE80]' : 'text-[#F87171]' },
         ].map((s) => (
-          <div key={s.label} style={{ background: C.surface, padding: '0.9rem 1.1rem' }}>
-            <div style={{ color: C.muted, fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: 600, marginBottom: '4px' }}>{s.label}</div>
-            <div style={{ color: s.color, fontWeight: 600, fontSize: '1.05rem', fontFamily: 'var(--font-geist-mono), monospace', fontVariantNumeric: 'tabular-nums' }}>{s.value}</div>
+          <div key={s.label} className="bg-[#1C1D20] p-[0.9rem_1.1rem]">
+            <div className="text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.07em] font-semibold mb-[4px]">{s.label}</div>
+            <div className={`${s.color} font-semibold text-[1.05rem] font-mono tabular-nums`}>{s.value}</div>
           </div>
         ))}
       </div>
@@ -142,48 +132,50 @@ export default function TransactionsPage() {
       {/* Add form */}
       {showForm && (
         <form onSubmit={add}
-          style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '1.25rem', marginBottom: '1.25rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: '0.85rem', alignItems: 'end' }}>
+          className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[1.25rem] mb-[1.25rem] grid gap-[0.85rem] items-end"
+          style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))' }}>
           <div>
-            <label style={labelStyle}>Date</label>
-            <input type="date" value={form.date} onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))} style={inputStyle} />
+            <label className={LABEL_S}>Date</label>
+            <input type="date" value={form.date} onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))} className={INPUT_S} />
           </div>
-          <div style={{ gridColumn: 'span 2' }}>
-            <label style={labelStyle}>Description</label>
-            <input type="text" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="e.g. Client Invoice" style={{ ...inputStyle, fontFamily: 'inherit' }} required />
+          <div className="col-span-2">
+            <label className={LABEL_S}>Description</label>
+            <input type="text" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="e.g. Client Invoice"
+              className="w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[11px] py-[9px] text-[#F4F5F8] text-[0.84rem] outline-none min-h-[40px]" required />
           </div>
           <div>
-            <label style={labelStyle}>Type</label>
-            <select value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value as TxType }))} style={{ ...inputStyle, cursor: 'pointer' }}>
+            <label className={LABEL_S}>Type</label>
+            <select value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value as TxType }))} className={`${INPUT_S} cursor-pointer`}>
               <option value="income">Income</option>
               <option value="expense">Expense</option>
             </select>
           </div>
           <div>
-            <label style={labelStyle}>Amount (£)</label>
-            <input type="number" min={0} step={0.01} value={form.amount} onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))} placeholder="0.00" style={inputStyle} required />
+            <label className={LABEL_S}>Amount (£)</label>
+            <input type="number" min={0} step={0.01} value={form.amount} onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))} placeholder="0.00" className={INPUT_S} required />
           </div>
           <div>
-            <label style={labelStyle}>Reference</label>
-            <input type="text" value={form.reference} onChange={(e) => setForm((f) => ({ ...f, reference: e.target.value }))} placeholder="INV-001" style={inputStyle} />
+            <label className={LABEL_S}>Reference</label>
+            <input type="text" value={form.reference} onChange={(e) => setForm((f) => ({ ...f, reference: e.target.value }))} placeholder="INV-001" className={INPUT_S} />
           </div>
-          <div style={{ display: 'flex', gap: '0.4rem' }}>
-            <button type="submit" style={{ flex: 1, background: C.white, color: C.bg, border: 'none', borderRadius: '4px', padding: '9px', fontWeight: 600, cursor: 'pointer', fontSize: '0.8rem', minHeight: '40px', letterSpacing: '-0.01em' }}>Save</button>
-            <button type="button" onClick={() => setShowForm(false)} style={{ background: 'transparent', color: C.muted, border: `1px solid ${C.border}`, borderRadius: '4px', padding: '9px 12px', cursor: 'pointer', fontSize: '0.8rem', minHeight: '40px' }}>Cancel</button>
+          <div className="flex gap-[0.4rem]">
+            <button type="submit" className="flex-1 bg-[#F4F5F8] text-[#181818] border-none rounded-[4px] p-[9px] font-semibold cursor-pointer text-[0.8rem] min-h-[40px] tracking-[-0.01em]">Save</button>
+            <button type="button" onClick={() => setShowForm(false)} className="bg-transparent text-[rgba(244,245,248,0.42)] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[12px] py-[9px] cursor-pointer text-[0.8rem] min-h-[40px]">Cancel</button>
           </div>
         </form>
       )}
 
       {/* Filters */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '1rem', alignItems: 'center' }}>
+      <div className="flex flex-wrap gap-[0.4rem] mb-[1rem] items-center">
         {(['all', 'income', 'expense'] as const).map((f) => (
-          <button key={f} onClick={() => setType(f)} style={chipStyle(typeFilter === f)}>
+          <button key={f} onClick={() => setType(f)} className={chipCls(typeFilter === f)}>
             {f === 'all' ? 'All types' : f.charAt(0).toUpperCase() + f.slice(1)}
           </button>
         ))}
-        <div style={{ width: '1px', height: '20px', background: C.border, margin: '0 2px' }} />
-        <Calendar size={12} style={{ color: C.muted }} />
+        <div className="w-[1px] h-[20px] bg-[rgba(244,245,248,0.07)] mx-[2px]" />
+        <Calendar size={12} className="text-[rgba(244,245,248,0.42)]" />
         {(['all', 'today', 'month', 'custom'] as DateFilter[]).map((f) => (
-          <button key={f} onClick={() => setDate(f)} style={chipStyle(dateFilter === f)}>
+          <button key={f} onClick={() => setDate(f)} className={chipCls(dateFilter === f)}>
             {DATE_LABELS[f]}
           </button>
         ))}
@@ -191,50 +183,53 @@ export default function TransactionsPage() {
 
       {/* Custom date range */}
       {dateFilter === 'custom' && (
-        <div style={{ display: 'flex', gap: '0.65rem', marginBottom: '1rem', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+        <div className="flex gap-[0.65rem] mb-[1rem] flex-wrap items-end">
           <div>
-            <label style={labelStyle}>From</label>
-            <input type="date" value={customFrom} onChange={(e) => setFrom(e.target.value)} style={{ ...inputStyle, width: 'auto' }} />
+            <label className={LABEL_S}>From</label>
+            <input type="date" value={customFrom} onChange={(e) => setFrom(e.target.value)}
+              className="bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[11px] py-[9px] text-[#F4F5F8] text-[0.84rem] outline-none font-mono min-h-[40px]" />
           </div>
           <div>
-            <label style={labelStyle}>To</label>
-            <input type="date" value={customTo} onChange={(e) => setTo(e.target.value)} style={{ ...inputStyle, width: 'auto' }} />
+            <label className={LABEL_S}>To</label>
+            <input type="date" value={customTo} onChange={(e) => setTo(e.target.value)}
+              className="bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[11px] py-[9px] text-[#F4F5F8] text-[0.84rem] outline-none font-mono min-h-[40px]" />
           </div>
-          <span style={{ color: C.muted, fontSize: '0.72rem', fontFamily: 'var(--font-geist-mono), monospace', paddingBottom: '9px' }}>{visible.length} results</span>
+          <span className="text-[rgba(244,245,248,0.42)] text-[0.72rem] font-mono pb-[9px]">{visible.length} results</span>
         </div>
       )}
 
       {/* Table */}
-      <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', overflow: 'hidden' }}>
+      <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] overflow-hidden">
         {visible.length === 0 ? (
-          <div style={{ padding: '3rem', textAlign: 'center', color: C.muted, fontSize: '0.84rem' }}>No entries for this period.</div>
+          <div className="p-[3rem] text-center text-[rgba(244,245,248,0.42)] text-[0.84rem]">No entries for this period.</div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-[0.82rem]">
               <thead>
-                <tr style={{ borderBottom: `1px solid ${C.border}` }}>
+                <tr className="border-b border-[rgba(244,245,248,0.07)]">
                   {['', 'Date', 'Description', 'Reference', 'Amount', ''].map((h, i) => (
-                    <th key={i} style={{ padding: '10px 13px', textAlign: h === 'Amount' ? 'right' : 'left', color: C.muted, fontWeight: 600, fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.07em', whiteSpace: 'nowrap' }}>{h}</th>
+                    <th key={i} className={`p-[10px_13px] text-[rgba(244,245,248,0.42)] font-semibold text-[0.62rem] uppercase tracking-[0.07em] whitespace-nowrap ${h === 'Amount' ? 'text-right' : 'text-left'}`}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {visible.map((tx, idx) => (
-                  <tr key={tx.id} style={{ borderBottom: idx < visible.length - 1 ? `1px solid rgba(244,245,248,0.04)` : 'none' }}>
-                    <td style={{ padding: '9px 13px', width: '32px' }}>
+                  <tr key={tx.id} className={idx < visible.length - 1 ? 'border-b border-[rgba(244,245,248,0.04)]' : ''}>
+                    <td className="p-[9px_13px] w-[32px]">
                       {tx.type === 'income'
-                        ? <ArrowUpCircle   size={14} style={{ color: C.green }} strokeWidth={1.5} />
-                        : <ArrowDownCircle size={14} style={{ color: C.red   }} strokeWidth={1.5} />}
+                        ? <ArrowUpCircle   size={14} className="text-[#4ADE80]" strokeWidth={1.5} />
+                        : <ArrowDownCircle size={14} className="text-[#F87171]" strokeWidth={1.5} />}
                     </td>
-                    <td style={{ padding: '9px 13px', color: C.muted, whiteSpace: 'nowrap', fontFamily: 'var(--font-geist-mono), monospace', fontSize: '0.75rem' }}>{tx.date}</td>
-                    <td style={{ padding: '9px 13px', color: C.white }}>{tx.description}</td>
-                    <td style={{ padding: '9px 13px', color: C.muted, fontSize: '0.72rem', fontFamily: 'var(--font-geist-mono), monospace' }}>{tx.reference}</td>
-                    <td style={{ padding: '9px 13px', textAlign: 'right', fontWeight: 500, color: tx.type === 'income' ? C.green : C.red, whiteSpace: 'nowrap', fontFamily: 'var(--font-geist-mono), monospace', fontVariantNumeric: 'tabular-nums' }}>
+                    <td className="p-[9px_13px] text-[rgba(244,245,248,0.42)] whitespace-nowrap font-mono text-[0.75rem]">{tx.date}</td>
+                    <td className="p-[9px_13px] text-[#F4F5F8]">{tx.description}</td>
+                    <td className="p-[9px_13px] text-[rgba(244,245,248,0.42)] text-[0.72rem] font-mono">{tx.reference}</td>
+                    <td className={`p-[9px_13px] text-right font-medium whitespace-nowrap font-mono tabular-nums ${tx.type === 'income' ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
                       {tx.type === 'income' ? '+' : '-'}£{tx.amount.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
                     </td>
-                    <td style={{ padding: '9px 13px', width: '32px' }}>
-                      <button onClick={() => remove(tx.id)} style={{ background: 'none', border: 'none', color: 'rgba(248,113,113,0.35)', cursor: 'pointer', padding: '2px', display: 'flex', transition: 'color 0.1s' }}
-                        onMouseEnter={(e) => (e.currentTarget as HTMLButtonElement).style.color = C.red}
+                    <td className="p-[9px_13px] w-[32px]">
+                      <button onClick={() => remove(tx.id)}
+                        className="bg-transparent border-none text-[rgba(248,113,113,0.35)] cursor-pointer p-[2px] flex transition-colors duration-100"
+                        onMouseEnter={(e) => (e.currentTarget as HTMLButtonElement).style.color = '#F87171'}
                         onMouseLeave={(e) => (e.currentTarget as HTMLButtonElement).style.color = 'rgba(248,113,113,0.35)'}>
                         <Trash2 size={13} strokeWidth={1.5} />
                       </button>
@@ -247,7 +242,7 @@ export default function TransactionsPage() {
         )}
       </div>
 
-      <p style={{ color: C.muted, fontSize: '0.62rem', textAlign: 'right', marginTop: '0.75rem', fontFamily: 'var(--font-geist-mono), monospace' }}>
+      <p className="text-[rgba(244,245,248,0.42)] text-[0.62rem] text-right mt-[0.75rem] font-mono">
         2026/27 HMRC compliant · digitally linked records
       </p>
     </div>

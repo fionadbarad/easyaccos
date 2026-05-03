@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react'
 import { ArrowDown, ArrowUp, ChevronsUpDown } from 'lucide-react'
 
-import { C } from '@/styles/palette'
 export type ColumnDef<T> = {
   key: string
   header: string
@@ -55,21 +54,18 @@ export function SortableTable<T extends { id: string }>({
 
   if (rows.length === 0) {
     return (
-      <div style={{
-        background: C.surface, border: `1px solid ${C.border}`, borderRadius: 6,
-        padding: '3rem', textAlign: 'center', color: C.muted, fontSize: '0.85rem',
-      }}>
+      <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-12 text-center text-[rgba(244,245,248,0.42)] text-[0.85rem]">
         {empty ?? 'No results.'}
       </div>
     )
   }
 
   return (
-    <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 6, overflow: 'hidden' }}>
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+    <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-[0.82rem]">
           <thead>
-            <tr style={{ borderBottom: `1px solid ${C.border}` }}>
+            <tr className="border-b border-[rgba(244,245,248,0.07)]">
               {columns.map(col => {
                 const active = sort?.key === col.key
                 const Icon = !col.sortable
@@ -81,24 +77,12 @@ export function SortableTable<T extends { id: string }>({
                   <th
                     key={col.key}
                     onClick={col.sortable ? () => toggleSort(col.key) : undefined}
-                    style={{
-                      padding: '10px 13px',
-                      textAlign: col.align ?? 'left',
-                      color: active ? C.white : C.muted,
-                      fontWeight: 600, fontSize: '0.62rem',
-                      textTransform: 'uppercase', letterSpacing: '0.07em',
-                      whiteSpace: 'nowrap',
-                      cursor: col.sortable ? 'pointer' : 'default',
-                      userSelect: 'none',
-                      width: col.width,
-                    }}
+                    className={`px-[13px] py-[10px] font-semibold text-[0.62rem] uppercase tracking-[0.07em] whitespace-nowrap select-none ${active ? 'text-[#F4F5F8]' : 'text-[rgba(244,245,248,0.42)]'} ${col.sortable ? 'cursor-pointer' : 'cursor-default'}`}
+                    style={{ textAlign: col.align ?? 'left', width: col.width }}
                   >
-                    <span style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 5,
-                      flexDirection: col.align === 'right' ? 'row-reverse' : 'row',
-                    }}>
+                    <span className={`inline-flex items-center gap-[5px] ${col.align === 'right' ? 'flex-row-reverse' : 'flex-row'}`}>
                       {col.header}
-                      {Icon && <Icon size={10} style={{ color: active ? C.white : C.dim }} />}
+                      {Icon && <Icon size={10} className={active ? 'text-[#F4F5F8]' : 'text-[rgba(244,245,248,0.18)]'} />}
                     </span>
                   </th>
                 )
@@ -109,17 +93,13 @@ export function SortableTable<T extends { id: string }>({
             {sorted.map((row, idx) => (
               <tr
                 key={row.id}
-                style={{ borderBottom: idx < sorted.length - 1 ? `1px solid rgba(244,245,248,0.04)` : 'none' }}
+                className={idx < sorted.length - 1 ? 'border-b border-[rgba(244,245,248,0.04)]' : ''}
               >
                 {columns.map(col => (
                   <td
                     key={col.key}
-                    style={{
-                      padding: '9px 13px',
-                      textAlign: col.align ?? 'left',
-                      color: C.white,
-                      whiteSpace: col.align === 'right' ? 'nowrap' : undefined,
-                    }}
+                    className="px-[13px] py-[9px] text-[#F4F5F8]"
+                    style={{ textAlign: col.align ?? 'left', whiteSpace: col.align === 'right' ? 'nowrap' : undefined }}
                   >
                     {col.render ? col.render(row) : String(col.accessor(row))}
                   </td>

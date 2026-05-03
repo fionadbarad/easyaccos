@@ -8,7 +8,6 @@ import {
 import { useUserData } from '@/lib/use-user-data'
 import { fmtGBP } from '@/lib/tax-engine'
 
-import { C } from '@/styles/palette'
 // HMRC 2026/27 approved mileage rates
 const RATE_CAR_FIRST   = 0.45   // First 10,000 miles
 const RATE_CAR_EXCESS  = 0.25   // Above 10,000 miles
@@ -57,17 +56,17 @@ function Stat({ label, value, sub, accent }: {
   label: string; value: string; sub?: string; accent?: string
 }) {
   return (
-    <div style={{
-      background: C.surface, border: `1px solid ${C.border}`,
-      borderRadius: '6px', padding: '1rem 1.25rem',
-    }}>
-      <div style={{ color: C.muted, fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px', fontFamily: 'var(--font-geist-mono, monospace)' }}>
+    <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[1rem_1.25rem]">
+      <div className="text-[rgba(244,245,248,0.42)] text-[0.68rem] uppercase tracking-[0.08em] mb-[6px] font-mono">
         {label}
       </div>
-      <div style={{ color: accent ?? C.white, fontSize: '1.4rem', fontWeight: 700, letterSpacing: '-0.03em', fontFamily: 'var(--font-geist-mono, monospace)' }}>
+      <div
+        className="text-[1.4rem] font-bold tracking-[-0.03em] font-mono"
+        style={{ color: accent ?? '#F4F5F8' }}
+      >
         {value}
       </div>
-      {sub && <div style={{ color: C.muted, fontSize: '0.68rem', marginTop: '4px' }}>{sub}</div>}
+      {sub && <div className="text-[rgba(244,245,248,0.42)] text-[0.68rem] mt-[4px]">{sub}</div>}
     </div>
   )
 }
@@ -75,27 +74,23 @@ function Stat({ label, value, sub, accent }: {
 // ── Rate info panel ───────────────────────────────────────────────────────────
 function RatePanel({ open, onToggle }: { open: boolean; onToggle: () => void }) {
   return (
-    <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', overflow: 'hidden' }}>
+    <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] overflow-hidden">
       <button
         onClick={onToggle}
-        style={{
-          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '0.75rem 1rem', background: 'none', border: 'none', color: C.white,
-          cursor: 'pointer', fontSize: '0.78rem', fontWeight: 500,
-        }}>
-        <span style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-          <Info size={13} style={{ color: C.muted }} />
+        className="w-full flex items-center justify-between p-[0.75rem_1rem] bg-transparent border-none text-[#F4F5F8] cursor-pointer text-[0.78rem] font-medium">
+        <span className="flex items-center gap-[7px]">
+          <Info size={13} className="text-[rgba(244,245,248,0.42)]" />
           HMRC Approved Mileage Rates 2026/27
         </span>
-        {open ? <ChevronUp size={13} color={C.muted} /> : <ChevronDown size={13} color={C.muted} />}
+        {open ? <ChevronUp size={13} color="rgba(244,245,248,0.42)" /> : <ChevronDown size={13} color="rgba(244,245,248,0.42)" />}
       </button>
       {open && (
-        <div style={{ padding: '0 1rem 1rem', borderTop: `1px solid ${C.border}` }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem', marginTop: '0.75rem' }}>
+        <div className="p-[0_1rem_1rem] border-t border-[rgba(244,245,248,0.07)]">
+          <table className="w-full border-collapse text-[0.78rem] mt-[0.75rem]">
             <thead>
               <tr>
                 {['Vehicle', 'First 10,000 mi', 'Above 10,000 mi'].map(h => (
-                  <th key={h} style={{ textAlign: 'left', color: C.muted, fontWeight: 500, padding: '4px 8px 8px 0', fontSize: '0.68rem', letterSpacing: '0.04em' }}>{h}</th>
+                  <th key={h} className="text-left text-[rgba(244,245,248,0.42)] font-medium p-[4px_8px_8px_0] text-[0.68rem] tracking-[0.04em]">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -105,15 +100,15 @@ function RatePanel({ open, onToggle }: { open: boolean; onToggle: () => void }) 
                 ['Motorcycle',   '24p per mile', '24p per mile'],
                 ['Bicycle',      '20p per mile', '20p per mile'],
               ].map(([v, r1, r2]) => (
-                <tr key={v} style={{ borderTop: `1px solid ${C.border}` }}>
-                  <td style={{ padding: '6px 8px 6px 0', color: C.white }}>{v}</td>
-                  <td style={{ padding: '6px 8px 6px 0', color: C.green, fontFamily: 'var(--font-geist-mono, monospace)' }}>{r1}</td>
-                  <td style={{ padding: '6px 8px 6px 0', color: C.muted, fontFamily: 'var(--font-geist-mono, monospace)' }}>{r2}</td>
+                <tr key={v} className="border-t border-[rgba(244,245,248,0.07)]">
+                  <td className="p-[6px_8px_6px_0] text-[#F4F5F8]">{v}</td>
+                  <td className="p-[6px_8px_6px_0] text-[#4ADE80] font-mono">{r1}</td>
+                  <td className="p-[6px_8px_6px_0] text-[rgba(244,245,248,0.42)] font-mono">{r2}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <p style={{ color: C.muted, fontSize: '0.68rem', marginTop: '10px', lineHeight: 1.5 }}>
+          <p className="text-[rgba(244,245,248,0.42)] text-[0.68rem] mt-[10px] leading-[1.5]">
             Use these HMRC-approved rates instead of claiming actual vehicle costs. The car threshold resets each tax year (6 April). Only business journeys qualify — commuting to a regular workplace does not.
           </p>
         </div>
@@ -127,31 +122,27 @@ function EntryRow({ entry, claimAmount, onDelete }: {
   entry: MileageEntry; claimAmount: number; onDelete: () => void
 }) {
   return (
-    <div style={{
-      display: 'grid', gridTemplateColumns: '100px 1fr 90px 70px 80px 36px',
-      alignItems: 'center', gap: '8px',
-      padding: '10px 12px', borderBottom: `1px solid ${C.border}`,
-      fontSize: '0.78rem',
-    }}>
-      <span style={{ color: C.muted, fontFamily: 'var(--font-geist-mono, monospace)', fontSize: '0.7rem' }}>
+    <div className="grid gap-[8px] p-[10px_12px] border-b border-[rgba(244,245,248,0.07)] text-[0.78rem]"
+      style={{ gridTemplateColumns: '100px 1fr 90px 70px 80px 36px' }}>
+      <span className="text-[rgba(244,245,248,0.42)] font-mono text-[0.7rem]">
         {entry.date}
       </span>
-      <span style={{ color: C.white, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+      <span className="text-[#F4F5F8] overflow-hidden text-ellipsis whitespace-nowrap">
         {entry.description}
       </span>
-      <span style={{ color: C.muted, fontSize: '0.7rem' }}>
+      <span className="text-[rgba(244,245,248,0.42)] text-[0.7rem]">
         {VEHICLE_LABELS[entry.vehicle]}
       </span>
-      <span style={{ color: C.white, textAlign: 'right', fontFamily: 'var(--font-geist-mono, monospace)' }}>
+      <span className="text-[#F4F5F8] text-right font-mono">
         {formatMiles(entry.miles)} mi
       </span>
-      <span style={{ color: C.green, textAlign: 'right', fontFamily: 'var(--font-geist-mono, monospace)', fontWeight: 600 }}>
+      <span className="text-[#4ADE80] text-right font-mono font-semibold">
         {fmtGBP(claimAmount)}
       </span>
       <button onClick={onDelete}
-        style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.dim, padding: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-        onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = C.red}
-        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = C.dim}>
+        className="bg-transparent border-none cursor-pointer text-[rgba(244,245,248,0.18)] p-[2px] flex items-center justify-center"
+        onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#F87171'}
+        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'rgba(244,245,248,0.18)'}>
         <Trash2 size={13} />
       </button>
     </div>
@@ -222,79 +213,77 @@ export default function MileagePage() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ color: C.muted, fontSize: '0.8rem', fontFamily: 'var(--font-geist-mono, monospace)' }}>loading…</span>
+      <div className="min-h-screen bg-[#181818] flex items-center justify-center">
+        <span className="text-[rgba(244,245,248,0.42)] text-[0.8rem] font-mono">loading…</span>
       </div>
     )
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: C.bg, padding: '2rem 1.5rem 4rem', maxWidth: '820px', margin: '0 auto' }}>
+    <div className="min-h-screen bg-[#181818] p-[2rem_1.5rem_4rem] max-w-[820px] mx-auto">
 
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1.75rem', flexWrap: 'wrap', gap: '1rem' }}>
+      <div className="flex items-start justify-between mb-[1.75rem] flex-wrap gap-[1rem]">
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-            <Car size={18} style={{ color: C.white }} />
-            <h1 style={{ color: C.white, fontSize: '1.1rem', fontWeight: 600, letterSpacing: '-0.03em', margin: 0 }}>
+          <div className="flex items-center gap-[10px] mb-[4px]">
+            <Car size={18} className="text-[#F4F5F8]" />
+            <h1 className="text-[#F4F5F8] text-[1.1rem] font-semibold tracking-[-0.03em] m-0">
               Mileage Tracker
             </h1>
           </div>
-          <p style={{ color: C.muted, fontSize: '0.75rem', margin: 0 }}>
+          <p className="text-[rgba(244,245,248,0.42)] text-[0.75rem] m-0">
             HMRC approved mileage — 2026/27 tax year
           </p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: C.muted, fontSize: '0.68rem' }}>
+        <div className="flex items-center gap-[10px]">
+          <div className="flex items-center gap-[5px] text-[rgba(244,245,248,0.42)] text-[0.68rem]">
             {isAuthenticated
-              ? <><Cloud size={11} style={{ color: C.green }} /> synced</>
+              ? <><Cloud size={11} className="text-[#4ADE80]" /> synced</>
               : <><CloudOff size={11} /> guest</>}
           </div>
           <button
             onClick={() => setShowForm(f => !f)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '6px',
-              background: C.white, color: C.bg, border: 'none', borderRadius: '4px',
-              padding: '7px 14px', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer',
-            }}>
+            className="flex items-center gap-[6px] bg-[#F4F5F8] text-[#181818] border-none rounded-[4px] p-[7px_14px] text-[0.78rem] font-semibold cursor-pointer">
             <Plus size={13} /> Log Journey
           </button>
         </div>
       </div>
 
       {/* Stat cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '1.25rem' }}>
+      <div className="grid gap-[12px] mb-[1.25rem]" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))' }}>
         <Stat label="Total Miles" value={`${formatMiles(totalMiles)} mi`} sub={`${entries.length} journeys`} />
-        <Stat label="Total Claim" value={fmtGBP(totalClaim)} sub="tax deductible" accent={C.green} />
+        <Stat label="Total Claim" value={fmtGBP(totalClaim)} sub="tax deductible" accent="#4ADE80" />
         <Stat label="Car Miles" value={`${formatMiles(carMiles)} mi`} sub={`of ${CAR_THRESHOLD.toLocaleString()} threshold`} />
         <Stat
           label="Rate"
           value={carMiles >= CAR_THRESHOLD ? '25p/mi' : '45p/mi'}
           sub={carMiles >= CAR_THRESHOLD ? 'excess rate active' : `${formatMiles(CAR_THRESHOLD - carMiles)} mi until drop`}
-          accent={carMiles >= CAR_THRESHOLD ? C.amber : C.white}
+          accent={carMiles >= CAR_THRESHOLD ? '#FBBF24' : '#F4F5F8'}
         />
       </div>
 
       {/* 10k threshold progress */}
       {entries.some(e => e.vehicle === 'car') && (
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '0.875rem 1rem', marginBottom: '1.25rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-            <span style={{ color: C.muted, fontSize: '0.7rem', letterSpacing: '0.04em', textTransform: 'uppercase', fontFamily: 'var(--font-geist-mono, monospace)' }}>
+        <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[0.875rem_1rem] mb-[1.25rem]">
+          <div className="flex justify-between mb-[8px]">
+            <span className="text-[rgba(244,245,248,0.42)] text-[0.7rem] tracking-[0.04em] uppercase font-mono">
               Car mileage threshold (45p → 25p)
             </span>
-            <span style={{ color: C.white, fontSize: '0.7rem', fontFamily: 'var(--font-geist-mono, monospace)' }}>
+            <span className="text-[#F4F5F8] text-[0.7rem] font-mono">
               {formatMiles(carMiles)} / {CAR_THRESHOLD.toLocaleString()} mi
             </span>
           </div>
-          <div style={{ height: '6px', background: C.gray, borderRadius: '99px', overflow: 'hidden' }}>
-            <div style={{
-              height: '100%', borderRadius: '99px', transition: 'width 0.4s ease',
-              width: `${thresholdPct}%`,
-              background: thresholdPct >= 100 ? C.amber : C.green,
-            }} />
+          <div className="h-[6px] bg-[#222326] rounded-[99px] overflow-hidden">
+            <div
+              className="h-full rounded-[99px] transition-[width] duration-[400ms] ease-[ease]"
+              style={{
+                width: `${thresholdPct}%`,
+                background: thresholdPct >= 100 ? '#FBBF24' : '#4ADE80',
+              }}
+            />
           </div>
           {thresholdPct >= 100 && (
-            <p style={{ color: C.amber, fontSize: '0.68rem', marginTop: '6px' }}>
+            <p className="text-[#FBBF24] text-[0.68rem] mt-[6px]">
               10,000 mile threshold reached — remaining car journeys claim at 25p/mile.
             </p>
           )}
@@ -302,28 +291,28 @@ export default function MileagePage() {
       )}
 
       {/* HMRC rates info */}
-      <div style={{ marginBottom: '1.25rem' }}>
+      <div className="mb-[1.25rem]">
         <RatePanel open={ratesOpen} onToggle={() => setRatesOpen(o => !o)} />
       </div>
 
       {/* Add journey form */}
       {showForm && (
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '1.25rem', marginBottom: '1.25rem' }}>
-          <h3 style={{ color: C.white, fontSize: '0.85rem', fontWeight: 600, margin: '0 0 1rem' }}>Log Journey</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+        <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[1.25rem] mb-[1.25rem]">
+          <h3 className="text-[#F4F5F8] text-[0.85rem] font-semibold m-[0_0_1rem]">Log Journey</h3>
+          <div className="grid gap-[12px] mb-[12px]" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))' }}>
 
             {/* Date */}
             <div>
-              <label style={{ display: 'block', color: C.muted, fontSize: '0.68rem', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Date</label>
+              <label className="block text-[rgba(244,245,248,0.42)] text-[0.68rem] mb-[4px] uppercase tracking-[0.06em]">Date</label>
               <input type="date" value={date} onChange={e => setDate(e.target.value)}
-                style={{ width: '100%', background: C.gray, border: `1px solid ${C.border}`, borderRadius: '4px', color: C.white, padding: '7px 10px', fontSize: '0.78rem', boxSizing: 'border-box' }} />
+                className="w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] text-[#F4F5F8] p-[7px_10px] text-[0.78rem]" />
             </div>
 
             {/* Vehicle */}
             <div>
-              <label style={{ display: 'block', color: C.muted, fontSize: '0.68rem', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Vehicle</label>
+              <label className="block text-[rgba(244,245,248,0.42)] text-[0.68rem] mb-[4px] uppercase tracking-[0.06em]">Vehicle</label>
               <select value={vehicle} onChange={e => setVehicle(e.target.value as VehicleType)}
-                style={{ width: '100%', background: C.gray, border: `1px solid ${C.border}`, borderRadius: '4px', color: C.white, padding: '7px 10px', fontSize: '0.78rem', boxSizing: 'border-box' }}>
+                className="w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] text-[#F4F5F8] p-[7px_10px] text-[0.78rem]">
                 <option value="car">Car / Van</option>
                 <option value="motorcycle">Motorcycle</option>
                 <option value="bike">Bicycle</option>
@@ -332,42 +321,38 @@ export default function MileagePage() {
 
             {/* Miles */}
             <div>
-              <label style={{ display: 'block', color: C.muted, fontSize: '0.68rem', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Miles</label>
+              <label className="block text-[rgba(244,245,248,0.42)] text-[0.68rem] mb-[4px] uppercase tracking-[0.06em]">Miles</label>
               <input type="number" min="0.1" step="0.1" placeholder="0.0" value={miles} onChange={e => setMiles(e.target.value)}
-                style={{ width: '100%', background: C.gray, border: `1px solid ${C.border}`, borderRadius: '4px', color: C.white, padding: '7px 10px', fontSize: '0.78rem', boxSizing: 'border-box' }} />
+                className="w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] text-[#F4F5F8] p-[7px_10px] text-[0.78rem]" />
             </div>
           </div>
 
           {/* Description */}
-          <div style={{ marginBottom: '12px' }}>
-            <label style={{ display: 'block', color: C.muted, fontSize: '0.68rem', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Business Purpose</label>
+          <div className="mb-[12px]">
+            <label className="block text-[rgba(244,245,248,0.42)] text-[0.68rem] mb-[4px] uppercase tracking-[0.06em]">Business Purpose</label>
             <input type="text" placeholder="e.g. Client meeting — Manchester" value={description} onChange={e => setDescription(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && addEntry()}
-              style={{ width: '100%', background: C.gray, border: `1px solid ${C.border}`, borderRadius: '4px', color: C.white, padding: '7px 10px', fontSize: '0.78rem', boxSizing: 'border-box' }} />
+              className="w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] text-[#F4F5F8] p-[7px_10px] text-[0.78rem]" />
           </div>
 
           {/* Preview claim */}
           {miles && parseFloat(miles) > 0 && (
-            <div style={{ background: C.gray, borderRadius: '4px', padding: '8px 12px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: C.muted, fontSize: '0.72rem' }}>Estimated claim for this journey</span>
-              <span style={{ color: C.green, fontFamily: 'var(--font-geist-mono, monospace)', fontWeight: 700 }}>
+            <div className="bg-[#222326] rounded-[4px] p-[8px_12px] mb-[12px] flex justify-between items-center">
+              <span className="text-[rgba(244,245,248,0.42)] text-[0.72rem]">Estimated claim for this journey</span>
+              <span className="text-[#4ADE80] font-mono font-bold">
                 {fmtGBP(calcRate(vehicle, vehicle === 'car' ? carMiles : 0, parseFloat(miles) || 0))}
               </span>
             </div>
           )}
 
-          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+          <div className="flex gap-[8px] justify-end">
             <button onClick={() => setShowForm(false)}
-              style={{ background: 'none', border: `1px solid ${C.border}`, borderRadius: '4px', color: C.muted, padding: '7px 14px', fontSize: '0.78rem', cursor: 'pointer' }}>
+              className="bg-transparent border border-[rgba(244,245,248,0.07)] rounded-[4px] text-[rgba(244,245,248,0.42)] p-[7px_14px] text-[0.78rem] cursor-pointer">
               Cancel
             </button>
             <button onClick={addEntry}
               disabled={!description.trim() || !miles || parseFloat(miles) <= 0}
-              style={{
-                background: C.white, color: C.bg, border: 'none', borderRadius: '4px',
-                padding: '7px 14px', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer',
-                opacity: (!description.trim() || !miles || parseFloat(miles) <= 0) ? 0.4 : 1,
-              }}>
+              className="bg-[#F4F5F8] text-[#181818] border-none rounded-[4px] p-[7px_14px] text-[0.78rem] font-semibold cursor-pointer disabled:opacity-40">
               Add Journey
             </button>
           </div>
@@ -375,26 +360,23 @@ export default function MileagePage() {
       )}
 
       {/* Journey list */}
-      <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', overflow: 'hidden' }}>
+      <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] overflow-hidden">
         {/* Column headers */}
-        <div style={{
-          display: 'grid', gridTemplateColumns: '100px 1fr 90px 70px 80px 36px',
-          gap: '8px', padding: '8px 12px',
-          borderBottom: `1px solid ${C.border}`,
-          background: C.gray,
-        }}>
+        <div
+          className="grid gap-[8px] p-[8px_12px] border-b border-[rgba(244,245,248,0.07)] bg-[#222326]"
+          style={{ gridTemplateColumns: '100px 1fr 90px 70px 80px 36px' }}>
           {['Date', 'Purpose', 'Vehicle', 'Miles', 'Claim', ''].map((h, i) => (
-            <span key={i} style={{ color: C.muted, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.08em', textAlign: i >= 3 ? 'right' : 'left' }}>
+            <span key={i} className={`text-[rgba(244,245,248,0.42)] text-[0.65rem] uppercase tracking-[0.08em] ${i >= 3 ? 'text-right' : 'text-left'}`}>
               {h}
             </span>
           ))}
         </div>
 
         {enriched.length === 0 ? (
-          <div style={{ padding: '3rem', textAlign: 'center' }}>
-            <MapPin size={28} style={{ color: C.dim, marginBottom: '12px' }} />
-            <p style={{ color: C.muted, fontSize: '0.8rem', margin: 0 }}>No journeys logged yet.</p>
-            <p style={{ color: C.dim, fontSize: '0.72rem', marginTop: '4px' }}>Log your first business trip to start tracking your HMRC mileage claim.</p>
+          <div className="p-[3rem] text-center">
+            <MapPin size={28} className="text-[rgba(244,245,248,0.18)] mb-[12px]" />
+            <p className="text-[rgba(244,245,248,0.42)] text-[0.8rem] m-0">No journeys logged yet.</p>
+            <p className="text-[rgba(244,245,248,0.18)] text-[0.72rem] mt-[4px]">Log your first business trip to start tracking your HMRC mileage claim.</p>
           </div>
         ) : (
           enriched.map(({ entry, claimAmount }) => (
@@ -409,19 +391,16 @@ export default function MileagePage() {
 
         {/* Total footer */}
         {enriched.length > 0 && (
-          <div style={{
-            display: 'grid', gridTemplateColumns: '100px 1fr 90px 70px 80px 36px',
-            gap: '8px', padding: '10px 12px',
-            borderTop: `1px solid ${C.border}`,
-            background: C.gray,
-          }}>
+          <div
+            className="grid gap-[8px] p-[10px_12px] border-t border-[rgba(244,245,248,0.07)] bg-[#222326]"
+            style={{ gridTemplateColumns: '100px 1fr 90px 70px 80px 36px' }}>
             <span />
-            <span style={{ color: C.muted, fontSize: '0.7rem' }}>Total claim</span>
+            <span className="text-[rgba(244,245,248,0.42)] text-[0.7rem]">Total claim</span>
             <span />
-            <span style={{ color: C.white, textAlign: 'right', fontFamily: 'var(--font-geist-mono, monospace)', fontSize: '0.78rem', fontWeight: 600 }}>
+            <span className="text-[#F4F5F8] text-right font-mono text-[0.78rem] font-semibold">
               {formatMiles(totalMiles)} mi
             </span>
-            <span style={{ color: C.green, textAlign: 'right', fontFamily: 'var(--font-geist-mono, monospace)', fontSize: '0.78rem', fontWeight: 700 }}>
+            <span className="text-[#4ADE80] text-right font-mono text-[0.78rem] font-bold">
               {fmtGBP(totalClaim)}
             </span>
             <span />
@@ -431,17 +410,13 @@ export default function MileagePage() {
 
       {/* Tax tip */}
       {totalClaim > 0 && (
-        <div style={{
-          marginTop: '1.25rem', background: C.surface, border: `1px solid ${C.border}`,
-          borderRadius: '6px', padding: '0.875rem 1rem',
-          display: 'flex', alignItems: 'flex-start', gap: '10px',
-        }}>
-          <TrendingUp size={14} style={{ color: C.green, flexShrink: 0, marginTop: '2px' }} />
+        <div className="mt-[1.25rem] bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[0.875rem_1rem] flex items-start gap-[10px]">
+          <TrendingUp size={14} className="text-[#4ADE80] shrink-0 mt-[2px]" />
           <div>
-            <p style={{ color: C.white, fontSize: '0.75rem', fontWeight: 500, margin: '0 0 3px' }}>
+            <p className="text-[#F4F5F8] text-[0.75rem] font-medium m-[0_0_3px]">
               Tax saving: approx. {fmtGBP(totalClaim * 0.20)}–{fmtGBP(totalClaim * 0.40)}
             </p>
-            <p style={{ color: C.muted, fontSize: '0.7rem', margin: 0 }}>
+            <p className="text-[rgba(244,245,248,0.42)] text-[0.7rem] m-0">
               Add {fmtGBP(totalClaim)} to your allowable expenses on your Self Assessment. At 20% basic rate this saves {fmtGBP(totalClaim * 0.20)}, at 40% higher rate {fmtGBP(totalClaim * 0.40)}.
             </p>
           </div>

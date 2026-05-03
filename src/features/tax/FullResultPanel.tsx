@@ -7,10 +7,9 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, ChevronUp, AlertTriangle, Info, Lightbulb, TrendingDown } from 'lucide-react'
-import { C } from '@/styles/palette'
 import type { TaxResult } from '@/lib/tax-logic'
 import { round2 } from '@/lib/TaxBible2026'
-import { cardStyle, toggleStyle, fmt, pct } from './tokens'
+import { fmt, pct } from './tokens'
 
 export default function FullResultPanel({ result, showMonthly, setShowMonthly }: {
   result: TaxResult; showMonthly: boolean; setShowMonthly: (v: boolean) => void
@@ -22,11 +21,11 @@ export default function FullResultPanel({ result, showMonthly, setShowMonthly }:
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
       {result.sixtyPercentTrap && (
-        <div style={{ background: 'rgba(251,146,60,0.08)', border: '1px solid rgba(251,146,60,0.4)', borderRadius: '8px', padding: '0.85rem 1.1rem', marginBottom: '1.25rem', display: 'flex', gap: '0.6rem' }}>
-          <AlertTriangle size={16} style={{ color: '#FB923C', flexShrink: 0, marginTop: '2px' }} />
+        <div className="bg-[rgba(251,146,60,0.08)] border border-[rgba(251,146,60,0.4)] rounded-[8px] p-[0.85rem_1.1rem] mb-[1.25rem] flex gap-[0.6rem]">
+          <AlertTriangle size={16} className="text-[#FB923C] shrink-0 mt-[2px]" />
           <div>
-            <div style={{ color: '#FB923C', fontWeight: 700, fontSize: '0.85rem' }}>60% Tax Trap Active</div>
-            <div style={{ color: C.text, fontSize: '0.8rem', marginTop: '2px', lineHeight: 1.5 }}>
+            <div className="text-[#FB923C] font-bold text-[0.85rem]">60% Tax Trap Active</div>
+            <div className="text-[#F4F5F8] text-[0.8rem] mt-[2px] leading-[1.5]">
               Income between £100k–£125,140. Each £2 earned = £1 of PA lost. Pension contributions are the escape route.
             </div>
           </div>
@@ -34,38 +33,38 @@ export default function FullResultPanel({ result, showMonthly, setShowMonthly }:
       )}
 
       {result.mtdWarning && (
-        <div style={{ background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.3)', borderRadius: '8px', padding: '0.75rem 1rem', marginBottom: '1.25rem', display: 'flex', gap: '0.6rem' }}>
-          <Info size={14} style={{ color: C.blue, flexShrink: 0, marginTop: '2px' }} />
-          <div style={{ color: C.text, fontSize: '0.8rem', lineHeight: 1.5 }}>
-            <strong style={{ color: C.blue }}>MTD for Income Tax</strong> — Gross revenue over £50k means you must file quarterly via Making Tax Digital from April 2026.
+        <div className="bg-[rgba(96,165,250,0.08)] border border-[rgba(96,165,250,0.3)] rounded-[8px] p-[0.75rem_1rem] mb-[1.25rem] flex gap-[0.6rem]">
+          <Info size={14} className="text-[#93C5FD] shrink-0 mt-[2px]" />
+          <div className="text-[#F4F5F8] text-[0.8rem] leading-[1.5]">
+            <strong className="text-[#93C5FD]">MTD for Income Tax</strong> — Gross revenue over £50k means you must file quarterly via Making Tax Digital from April 2026.
           </div>
         </div>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.75rem', gap: '0.35rem' }}>
-        <button onClick={() => setShowMonthly(false)} style={toggleStyle(!showMonthly)}>Annual</button>
-        <button onClick={() => setShowMonthly(true)} style={toggleStyle(showMonthly)}>Monthly</button>
+      <div className="flex justify-end mb-[0.75rem] gap-[0.35rem]">
+        <button onClick={() => setShowMonthly(false)} className={`p-[6px_14px] rounded-[6px] cursor-pointer text-[0.78rem] font-semibold min-h-[36px] transition-all duration-150 ease-in-out ${!showMonthly ? 'bg-[rgba(244,245,248,0.1)] border border-[#F4F5F8] text-[#F4F5F8]' : 'bg-transparent border border-[rgba(244,245,248,0.07)] text-[rgba(244,245,248,0.42)]'}`}>Annual</button>
+        <button onClick={() => setShowMonthly(true)} className={`p-[6px_14px] rounded-[6px] cursor-pointer text-[0.78rem] font-semibold min-h-[36px] transition-all duration-150 ease-in-out ${showMonthly ? 'bg-[rgba(244,245,248,0.1)] border border-[#F4F5F8] text-[#F4F5F8]' : 'bg-transparent border border-[rgba(244,245,248,0.07)] text-[rgba(244,245,248,0.42)]'}`}>Monthly</button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: '0.75rem', marginBottom: '1.25rem' }}>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-[0.75rem] mb-[1.25rem]">
         {[
-          { label: 'Net Take-Home', value: fmt(showMonthly ? m.netTakeHome : result.netTakeHome), color: C.white },
-          { label: 'Total Deductions', value: fmt(showMonthly ? m.totalDeductions : result.totalDeductions), color: C.red },
-          { label: 'Effective Rate', value: pct(result.effectiveTaxRate), color: C.blue },
-          { label: 'Income Tax', value: fmt(showMonthly ? m.incomeTax : result.incomeTax), color: C.text },
+          { label: 'Net Take-Home', value: fmt(showMonthly ? m.netTakeHome : result.netTakeHome), color: '#F4F5F8' },
+          { label: 'Total Deductions', value: fmt(showMonthly ? m.totalDeductions : result.totalDeductions), color: '#F87171' },
+          { label: 'Effective Rate', value: pct(result.effectiveTaxRate), color: '#93C5FD' },
+          { label: 'Income Tax', value: fmt(showMonthly ? m.incomeTax : result.incomeTax), color: '#F4F5F8' },
         ].map((s) => (
-          <div key={s.label} style={{ background: C.deep, border: `1px solid ${C.border}`, borderRadius: '8px', padding: '1rem' }}>
-            <div style={{ color: C.muted, fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>{s.label}</div>
-            <div style={{ color: s.color, fontWeight: 700, fontSize: '1.1rem' }}>{s.value}</div>
+          <div key={s.label} className="bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[8px] p-[1rem]">
+            <div className="text-[rgba(244,245,248,0.42)] text-[0.68rem] uppercase tracking-[0.08em] mb-[4px]">{s.label}</div>
+            <div style={{ color: s.color }} className="font-bold text-[1.1rem]">{s.value}</div>
           </div>
         ))}
       </div>
 
-      <div style={cardStyle}>
+      <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[10px] p-[1.5rem]">
         <button onClick={() => setExpanded(v => !v)}
-          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: expanded ? '1rem' : 0 }}>
-          <span style={{ color: C.muted, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Full Breakdown {showMonthly ? '(Monthly)' : '(Annual)'}</span>
-          {expanded ? <ChevronUp size={16} style={{ color: C.muted }} /> : <ChevronDown size={16} style={{ color: C.muted }} />}
+          className={`flex justify-between items-center w-full bg-transparent border-none cursor-pointer p-0 ${expanded ? 'mb-[1rem]' : 'mb-0'}`}>
+          <span className="text-[rgba(244,245,248,0.42)] text-[0.78rem] uppercase tracking-[0.08em]">Full Breakdown {showMonthly ? '(Monthly)' : '(Annual)'}</span>
+          {expanded ? <ChevronUp size={16} className="text-[rgba(244,245,248,0.42)]" /> : <ChevronDown size={16} className="text-[rgba(244,245,248,0.42)]" />}
         </button>
         <AnimatePresence>
           {expanded && (
@@ -94,18 +93,11 @@ export default function FullResultPanel({ result, showMonthly, setShowMonthly }:
                   { label: 'Net Take-Home',         value: result.netTakeHome / d,         bold: true,  negative: false, indent: false },
                 ]
                 return lines.map((line, i) => (
-                  <div key={i} style={{
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    padding: '7px 0', paddingLeft: line.indent ? '16px' : 0,
-                    borderBottom: `1px solid rgba(244,245,248,0.06)`,
-                  }}>
-                    <span style={{ color: line.bold ? C.text : C.muted, fontSize: line.bold ? '0.87rem' : '0.82rem', fontWeight: line.bold ? 700 : 400 }}>
+                  <div key={i} className={`flex justify-between items-center py-[7px] border-b border-[rgba(244,245,248,0.06)] ${line.indent ? 'pl-[16px]' : 'pl-0'}`}>
+                    <span className={`${line.bold ? 'text-[#F4F5F8] text-[0.87rem] font-bold' : 'text-[rgba(244,245,248,0.42)] text-[0.82rem] font-normal'}`}>
                       {line.label}
                     </span>
-                    <span style={{
-                      color: line.bold && !line.negative ? C.white : line.negative ? C.red : C.text,
-                      fontWeight: line.bold ? 700 : 500, fontSize: line.bold ? '1rem' : '0.85rem',
-                    }}>
+                    <span className={`${line.bold ? 'font-bold text-[1rem]' : 'font-medium text-[0.85rem]'} ${line.bold && !line.negative ? 'text-[#F4F5F8]' : line.negative ? 'text-[#F87171]' : 'text-[#F4F5F8]'}`}>
                       {line.negative && line.value > 0 ? '-' : ''}{fmt(round2(line.value))}
                     </span>
                   </div>
@@ -117,32 +109,29 @@ export default function FullResultPanel({ result, showMonthly, setShowMonthly }:
       </div>
 
       {result.optimizationTips.length > 0 && (
-        <div style={{ ...cardStyle, marginTop: '1rem' }}>
+        <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[10px] p-[1.5rem] mt-[1rem]">
           <button onClick={() => setTipsOpen(v => !v)}
-            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: tipsOpen ? '1rem' : 0 }}>
-            <span style={{ color: C.green, fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            className={`flex justify-between items-center w-full bg-transparent border-none cursor-pointer p-0 ${tipsOpen ? 'mb-[1rem]' : 'mb-0'}`}>
+            <span className="text-[#4ADE80] text-[0.78rem] uppercase tracking-[0.08em] flex items-center gap-[6px]">
               <Lightbulb size={14} /> Optimization Tips ({result.optimizationTips.length})
             </span>
-            {tipsOpen ? <ChevronUp size={16} style={{ color: C.muted }} /> : <ChevronDown size={16} style={{ color: C.muted }} />}
+            {tipsOpen ? <ChevronUp size={16} className="text-[rgba(244,245,248,0.42)]" /> : <ChevronDown size={16} className="text-[rgba(244,245,248,0.42)]" />}
           </button>
           <AnimatePresence>
             {tipsOpen && (
               <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-                style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                className="flex flex-col gap-[0.75rem]">
                 {result.optimizationTips.map((tip) => (
-                  <div key={tip.id} style={{
-                    background: 'rgba(74,222,128,0.05)', border: '1px solid rgba(74,222,128,0.15)',
-                    borderRadius: '8px', padding: '0.85rem 1rem',
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                      <span style={{ color: C.green, fontWeight: 700, fontSize: '0.85rem' }}>{tip.title}</span>
+                  <div key={tip.id} className="bg-[rgba(74,222,128,0.05)] border border-[rgba(74,222,128,0.15)] rounded-[8px] p-[0.85rem_1rem]">
+                    <div className="flex justify-between items-center mb-[4px]">
+                      <span className="text-[#4ADE80] font-bold text-[0.85rem]">{tip.title}</span>
                       {tip.saving > 0 && (
-                        <span style={{ color: C.green, fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                        <span className="text-[#4ADE80] text-[0.78rem] flex items-center gap-[3px]">
                           <TrendingDown size={12} /> Save {fmt(tip.saving)}
                         </span>
                       )}
                     </div>
-                    <p style={{ color: C.text, fontSize: '0.8rem', lineHeight: 1.55, margin: 0 }}>{tip.description}</p>
+                    <p className="text-[#F4F5F8] text-[0.8rem] leading-[1.55] m-0">{tip.description}</p>
                   </div>
                 ))}
               </motion.div>
@@ -151,7 +140,7 @@ export default function FullResultPanel({ result, showMonthly, setShowMonthly }:
         </div>
       )}
 
-      <p style={{ color: C.muted, fontSize: '0.68rem', textAlign: 'center', marginTop: '1rem' }}>
+      <p className="text-[rgba(244,245,248,0.42)] text-[0.68rem] text-center mt-[1rem]">
         2026/27 HMRC Compliant | Encrypted via Supabase
       </p>
     </motion.div>

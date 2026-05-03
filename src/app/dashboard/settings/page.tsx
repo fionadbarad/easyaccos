@@ -6,14 +6,13 @@ import { Loader2, CheckCircle } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 import { BackupRestore } from '@/components/BackupRestore'
 
-import { C } from '@/styles/palette'
-const inputStyle = { width: '100%', background: C.deep, border: `1px solid ${C.border}`, borderRadius: '4px', padding: '9px 13px', color: C.text, fontSize: '0.9rem', outline: 'none', boxSizing: 'border-box' as const }
-const labelStyle = { display: 'block', color: C.muted, fontSize: '0.75rem', textTransform: 'uppercase' as const, letterSpacing: '0.07em', marginBottom: '0.35rem' }
+const inputCls = 'w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] p-[9px_13px] text-[#F4F5F8] text-[0.9rem] outline-none'
+const labelCls = 'block text-[rgba(244,245,248,0.42)] text-[0.75rem] uppercase tracking-[0.07em] mb-[0.35rem]'
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: '8px', padding: '1.75rem', marginBottom: '1.25rem' }}>
-      <h2 style={{ color: C.white, fontSize: '1.05rem', fontWeight: 700, marginBottom: '1.4rem' }}>{title}</h2>
+    <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[8px] p-[1.75rem] mb-[1.25rem]">
+      <h2 className="text-[#F4F5F8] text-[1.05rem] font-bold mb-[1.4rem]">{title}</h2>
       {children}
     </div>
   )
@@ -63,63 +62,63 @@ export default function SettingsPage() {
   const initial = user?.email?.[0]?.toUpperCase() ?? '…'
 
   return (
-    <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)', maxWidth: '680px' }}>
-      <h1 style={{ color: C.text, fontSize: 'clamp(1.5rem,3vw,2rem)', fontWeight: 700, marginBottom: '0.3rem' }}>
+    <div className="p-[clamp(1.5rem,4vw,2.5rem)] max-w-[680px]">
+      <h1 className="text-[#F4F5F8] text-[clamp(1.5rem,3vw,2rem)] font-bold mb-[0.3rem]">
         Settings
       </h1>
-      <p style={{ color: C.muted, fontSize: '0.875rem', marginBottom: '2rem' }}>Manage your profile and account preferences</p>
+      <p className="text-[rgba(244,245,248,0.42)] text-[0.875rem] mb-[2rem]">Manage your profile and account preferences</p>
 
       {/* Avatar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-        <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(244,245,248,0.06)', border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.white, fontSize: '1.3rem', fontWeight: 700 }}>
+      <div className="flex items-center gap-[1rem] mb-[2rem]">
+        <div className="w-[56px] h-[56px] rounded-[50%] bg-[rgba(244,245,248,0.06)] border border-[rgba(244,245,248,0.07)] flex items-center justify-center text-[#F4F5F8] text-[1.3rem] font-bold">
           {initial}
         </div>
         <div>
-          <div style={{ color: C.text, fontWeight: 600 }}>{name || user?.email}</div>
-          <div style={{ color: C.muted, fontSize: '0.82rem' }}>{user?.email}</div>
+          <div className="text-[#F4F5F8] font-semibold">{name || user?.email}</div>
+          <div className="text-[rgba(244,245,248,0.42)] text-[0.82rem]">{user?.email}</div>
         </div>
       </div>
 
       {/* Profile */}
       <Section title="Profile">
-        <form onSubmit={saveProfile} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+        <form onSubmit={saveProfile} className="flex flex-col gap-[1.1rem]">
           <div>
-            <label style={labelStyle}>Display Name</label>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" style={inputStyle} />
+            <label className={labelCls}>Display Name</label>
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" className={inputCls} />
           </div>
           <div>
-            <label style={labelStyle}>Email</label>
-            <input type="email" value={user?.email ?? ''} disabled style={{ ...inputStyle, opacity: 0.5, cursor: 'not-allowed' }} />
+            <label className={labelCls}>Email</label>
+            <input type="email" value={user?.email ?? ''} disabled className={`${inputCls} opacity-50 cursor-not-allowed`} />
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div className="flex items-center gap-[0.75rem]">
             <button type="submit" disabled={saving}
-              style={{ background: C.white, color: '#181818', border: 'none', borderRadius: '4px', padding: '9px 22px', fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              className={`bg-[#F4F5F8] text-[#181818] border-none rounded-[4px] p-[9px_22px] font-bold text-[0.875rem] flex items-center gap-[6px] ${saving ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
               {saving ? <Loader2 size={15} className="animate-spin" /> : null}
               {saving ? 'Saving…' : 'Save Profile'}
             </button>
-            {saved && <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#4ADE80', fontSize: '0.85rem' }}><CheckCircle size={15} /> Saved</span>}
+            {saved && <span className="flex items-center gap-[5px] text-[#4ADE80] text-[0.85rem]"><CheckCircle size={15} /> Saved</span>}
           </div>
         </form>
       </Section>
 
       {/* Password */}
       <Section title="Change Password">
-        <form onSubmit={changePassword} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+        <form onSubmit={changePassword} className="flex flex-col gap-[1.1rem]">
           <div>
-            <label style={labelStyle}>New Password</label>
-            <input type="password" value={pwForm.next} onChange={(e) => setPwForm((f) => ({ ...f, next: e.target.value }))} placeholder="Min. 6 characters" style={inputStyle} minLength={6} required />
+            <label className={labelCls}>New Password</label>
+            <input type="password" value={pwForm.next} onChange={(e) => setPwForm((f) => ({ ...f, next: e.target.value }))} placeholder="Min. 6 characters" className={inputCls} minLength={6} required />
           </div>
           <div>
-            <label style={labelStyle}>Confirm New Password</label>
-            <input type="password" value={pwForm.confirm} onChange={(e) => setPwForm((f) => ({ ...f, confirm: e.target.value }))} placeholder="Repeat password" style={inputStyle} minLength={6} required />
+            <label className={labelCls}>Confirm New Password</label>
+            <input type="password" value={pwForm.confirm} onChange={(e) => setPwForm((f) => ({ ...f, confirm: e.target.value }))} placeholder="Repeat password" className={inputCls} minLength={6} required />
           </div>
           {pwMsg && (
-            <div style={{ padding: '9px 13px', borderRadius: '4px', background: pwMsg.includes('success') ? 'rgba(74,222,128,0.1)' : 'rgba(248,113,113,0.1)', border: `1px solid ${pwMsg.includes('success') ? 'rgba(74,222,128,0.3)' : 'rgba(248,113,113,0.3)'}`, color: pwMsg.includes('success') ? '#4ADE80' : '#F87171', fontSize: '0.85rem' }}>
+            <div className={`p-[9px_13px] rounded-[4px] text-[0.85rem] ${pwMsg.includes('success') ? 'bg-[rgba(74,222,128,0.1)] border border-[rgba(74,222,128,0.3)] text-[#4ADE80]' : 'bg-[rgba(248,113,113,0.1)] border border-[rgba(248,113,113,0.3)] text-[#F87171]'}`}>
               {pwMsg}
             </div>
           )}
           <button type="submit" disabled={pwSaving}
-            style={{ background: C.white, color: '#181818', border: 'none', borderRadius: '4px', padding: '9px 22px', fontWeight: 700, cursor: pwSaving ? 'not-allowed' : 'pointer', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '6px', width: 'fit-content' }}>
+            className={`bg-[#F4F5F8] text-[#181818] border-none rounded-[4px] p-[9px_22px] font-bold text-[0.875rem] flex items-center gap-[6px] w-fit ${pwSaving ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
             {pwSaving ? <Loader2 size={15} className="animate-spin" /> : null}
             {pwSaving ? 'Updating…' : 'Update Password'}
           </button>
@@ -133,15 +132,15 @@ export default function SettingsPage() {
 
       {/* Account info */}
       <Section title="Account Info">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <div className="flex flex-col gap-[0.75rem]">
           {[
             { label: 'User ID', value: user?.id ?? '—' },
             { label: 'Account Created', value: user?.created_at ? new Date(user.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '—' },
             { label: 'Plan', value: 'Free Forever' },
           ].map(({ label, value }) => (
-            <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 0', borderBottom: `1px solid rgba(244,245,248,0.06)` }}>
-              <span style={{ color: C.muted, fontSize: '0.875rem' }}>{label}</span>
-              <span style={{ color: label === 'Plan' ? C.white : C.text, fontSize: '0.875rem', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{value}</span>
+            <div key={label} className="flex justify-between p-[9px_0] border-b border-[rgba(244,245,248,0.06)]">
+              <span className="text-[rgba(244,245,248,0.42)] text-[0.875rem]">{label}</span>
+              <span className={`text-[0.875rem] max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap ${label === 'Plan' ? 'text-[#F4F5F8]' : 'text-[#F4F5F8]'}`}>{value}</span>
             </div>
           ))}
         </div>

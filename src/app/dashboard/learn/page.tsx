@@ -4,7 +4,6 @@ import { useState } from 'react'
 import cards from '@/content/learning-cards.json'
 import { ChevronLeft, ChevronRight, BookOpen, X } from 'lucide-react'
 
-import { C } from '@/styles/palette'
 const CATEGORIES = ['All', ...Array.from(new Set((cards as Card[]).map((c) => c.category)))]
 
 interface Card { id: string; title: string; summary: string; deepDive: string; category: string; icon: string }
@@ -29,19 +28,19 @@ export default function LearnPage() {
   }
 
   return (
-    <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)', maxWidth: '760px' }}>
-      <h1 style={{ color: C.text, fontSize: 'clamp(1.5rem,3vw,2rem)', fontWeight: 700, marginBottom: '0.3rem' }}>
+    <div className="p-[clamp(1.5rem,4vw,2.5rem)] max-w-[760px]">
+      <h1 className="text-[#F4F5F8] text-[clamp(1.5rem,3vw,2rem)] font-bold mb-[0.3rem]">
         Learn
       </h1>
-      <p style={{ color: C.muted, fontSize: '0.875rem', marginBottom: '2rem' }}>
+      <p className="text-[rgba(244,245,248,0.42)] text-[0.875rem] mb-[2rem]">
         UK tax literacy cards · {filtered.length} cards · Tap a card to reveal the deep dive
       </p>
 
       {/* Category filter */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '2rem' }}>
+      <div className="flex flex-wrap gap-[0.5rem] mb-[2rem]">
         {CATEGORIES.map((cat) => (
           <button key={cat} onClick={() => changeCategory(cat)}
-            style={{ padding: '6px 16px', borderRadius: '999px', border: `1px solid ${category === cat ? C.white : C.border}`, background: category === cat ? 'rgba(244,245,248,0.08)' : 'transparent', color: category === cat ? C.white : C.muted, cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, transition: 'all 0.15s' }}>
+            className={`p-[6px_16px] rounded-[999px] cursor-pointer text-[0.8rem] font-semibold transition-all duration-150 ease-in-out ${category === cat ? 'border border-[#F4F5F8] bg-[rgba(244,245,248,0.08)] text-[#F4F5F8]' : 'border border-[rgba(244,245,248,0.07)] bg-transparent text-[rgba(244,245,248,0.42)]'}`}>
             {cat}
           </button>
         ))}
@@ -50,62 +49,55 @@ export default function LearnPage() {
       {card ? (
         <>
           {/* Progress bar */}
-          <div style={{ marginBottom: '1.25rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-              <span style={{ color: C.muted, fontSize: '0.78rem' }}>{idx + 1} of {filtered.length}</span>
-              <span style={{ color: C.muted, fontSize: '0.78rem' }}>{Math.round(progress)}%</span>
+          <div className="mb-[1.25rem]">
+            <div className="flex justify-between mb-[5px]">
+              <span className="text-[rgba(244,245,248,0.42)] text-[0.78rem]">{idx + 1} of {filtered.length}</span>
+              <span className="text-[rgba(244,245,248,0.42)] text-[0.78rem]">{Math.round(progress)}%</span>
             </div>
-            <div style={{ height: '4px', background: 'rgba(255,255,255,0.07)', borderRadius: '2px', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${progress}%`, background: C.white, borderRadius: '2px', transition: 'width 0.3s ease' }} />
+            <div className="h-[4px] bg-[rgba(255,255,255,0.07)] rounded-[2px] overflow-hidden">
+              <div className="h-full bg-[#F4F5F8] rounded-[2px] transition-[width] duration-300 ease-in-out" style={{ width: `${progress}%` }} />
             </div>
           </div>
 
           {/* Flashcard */}
           <div onClick={() => setFlipped((f) => !f)}
-            style={{
-              background: C.card, border: `1px solid ${flipped ? 'rgba(244,245,248,0.3)' : C.border}`,
-              borderRadius: '10px', padding: '2.5rem 2rem',
-              minHeight: '220px', cursor: 'pointer',
-              transition: 'border-color 0.2s',
-              marginBottom: '1.25rem',
-              display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-            }}>
+            className={`bg-[#1C1D20] rounded-[10px] p-[2.5rem_2rem] min-h-[220px] cursor-pointer transition-[border-color] duration-200 mb-[1.25rem] flex flex-col justify-between ${flipped ? 'border border-[rgba(244,245,248,0.3)]' : 'border border-[rgba(244,245,248,0.07)]'}`}>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1rem' }}>
-                <span style={{ padding: '3px 10px', background: 'rgba(244,245,248,0.05)', border: `1px solid ${C.border}`, borderRadius: '999px', color: C.muted, fontSize: '0.7rem', letterSpacing: '0.08em' }}>
+              <div className="flex items-center gap-[8px] mb-[1rem]">
+                <span className="p-[3px_10px] bg-[rgba(244,245,248,0.05)] border border-[rgba(244,245,248,0.07)] rounded-[999px] text-[rgba(244,245,248,0.42)] text-[0.7rem] tracking-[0.08em]">
                   {card.category}
                 </span>
               </div>
-              <h2 style={{ color: C.text, fontSize: '1.35rem', fontWeight: 700, marginBottom: '1rem' }}>
+              <h2 className="text-[#F4F5F8] text-[1.35rem] font-bold mb-[1rem]">
                 {card.title}
               </h2>
-              <p style={{ color: flipped ? C.muted : C.text, fontSize: '0.9rem', lineHeight: 1.7, transition: 'color 0.2s' }}>
+              <p className={`text-[0.9rem] leading-[1.7] transition-[color] duration-200 ${flipped ? 'text-[rgba(244,245,248,0.42)]' : 'text-[#F4F5F8]'}`}>
                 {flipped ? card.deepDive : card.summary}
               </p>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem' }}>
-              <span style={{ color: C.muted, fontSize: '0.72rem' }}>{flipped ? 'Tap to see summary' : 'Tap for deep dive →'}</span>
+            <div className="flex justify-between items-center mt-[1.5rem]">
+              <span className="text-[rgba(244,245,248,0.42)] text-[0.72rem]">{flipped ? 'Tap to see summary' : 'Tap for deep dive →'}</span>
               <button onClick={(e) => { e.stopPropagation(); setExpanded(card) }}
-                style={{ display: 'flex', alignItems: 'center', gap: '5px', color: C.muted, background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 500 }}>
+                className="flex items-center gap-[5px] text-[rgba(244,245,248,0.42)] bg-none border-none cursor-pointer text-[0.78rem] font-medium">
                 <BookOpen size={13} /> Full Article
               </button>
             </div>
           </div>
 
           {/* Navigation */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
+          <div className="flex justify-center gap-[1rem]">
             <button onClick={prev} disabled={idx === 0}
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 20px', background: idx === 0 ? 'transparent' : 'rgba(244,245,248,0.06)', border: `1px solid ${idx === 0 ? C.border : C.white}`, borderRadius: '5px', color: idx === 0 ? C.muted : C.white, cursor: idx === 0 ? 'default' : 'pointer', fontSize: '0.875rem', fontWeight: 600 }}>
+              className={`flex items-center gap-[6px] p-[9px_20px] border rounded-[5px] text-[0.875rem] font-semibold ${idx === 0 ? 'bg-transparent border-[rgba(244,245,248,0.07)] text-[rgba(244,245,248,0.42)] cursor-default' : 'bg-[rgba(244,245,248,0.06)] border-[#F4F5F8] text-[#F4F5F8] cursor-pointer'}`}>
               <ChevronLeft size={16} /> Previous
             </button>
             <button onClick={next} disabled={idx === filtered.length - 1}
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 20px', background: idx === filtered.length - 1 ? 'transparent' : C.white, border: `1px solid ${idx === filtered.length - 1 ? C.border : C.white}`, borderRadius: '5px', color: idx === filtered.length - 1 ? C.muted : '#181818', cursor: idx === filtered.length - 1 ? 'default' : 'pointer', fontSize: '0.875rem', fontWeight: 700 }}>
+              className={`flex items-center gap-[6px] p-[9px_20px] border rounded-[5px] text-[0.875rem] font-bold ${idx === filtered.length - 1 ? 'bg-transparent border-[rgba(244,245,248,0.07)] text-[rgba(244,245,248,0.42)] cursor-default' : 'bg-[#F4F5F8] border-[#F4F5F8] text-[#181818] cursor-pointer'}`}>
               Next <ChevronRight size={16} />
             </button>
           </div>
         </>
       ) : (
-        <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: '8px', padding: '3rem', textAlign: 'center', color: C.muted }}>
+        <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[8px] p-[3rem] text-center text-[rgba(244,245,248,0.42)]">
           No cards in this category.
         </div>
       )}
@@ -113,15 +105,15 @@ export default function LearnPage() {
       {/* Full article modal */}
       {expanded && (
         <div onClick={() => setExpanded(null)}
-          style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+          className="fixed inset-0 z-[100] bg-[rgba(0,0,0,0.7)] flex items-center justify-center p-[1.5rem]">
           <div onClick={(e) => e.stopPropagation()}
-            style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: '10px', padding: '2rem', maxWidth: '600px', width: '100%', maxHeight: '80vh', overflowY: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
-              <span style={{ padding: '3px 10px', background: 'rgba(244,245,248,0.05)', border: `1px solid ${C.border}`, borderRadius: '999px', color: C.muted, fontSize: '0.7rem' }}>{expanded.category}</span>
-              <button onClick={() => setExpanded(null)} style={{ background: 'none', border: 'none', color: C.muted, cursor: 'pointer', padding: '2px', display: 'flex' }}><X size={18} /></button>
+            className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[10px] p-[2rem] max-w-[600px] w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-start mb-[1.25rem]">
+              <span className="p-[3px_10px] bg-[rgba(244,245,248,0.05)] border border-[rgba(244,245,248,0.07)] rounded-[999px] text-[rgba(244,245,248,0.42)] text-[0.7rem]">{expanded.category}</span>
+              <button onClick={() => setExpanded(null)} className="bg-none border-none text-[rgba(244,245,248,0.42)] cursor-pointer p-[2px] flex"><X size={18} /></button>
             </div>
-            <h2 style={{ color: C.text, fontSize: '1.4rem', fontWeight: 700, marginBottom: '1rem' }}>{expanded.title}</h2>
-            <p style={{ color: C.muted, fontSize: '0.9rem', lineHeight: 1.75 }}>{expanded.deepDive}</p>
+            <h2 className="text-[#F4F5F8] text-[1.4rem] font-bold mb-[1rem]">{expanded.title}</h2>
+            <p className="text-[rgba(244,245,248,0.42)] text-[0.9rem] leading-[1.75]">{expanded.deepDive}</p>
           </div>
         </div>
       )}

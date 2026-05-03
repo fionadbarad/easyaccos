@@ -7,7 +7,6 @@
 import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PiggyBank, AlertTriangle, ChevronDown } from 'lucide-react'
-import { C } from '@/styles/palette'
 import { calculateTax } from '@/lib/tax-engine'
 import type { EmploymentType, StudentLoanPlan, TaxRegion } from '@/lib/tax-engine'
 import { fmt } from './shared'
@@ -50,18 +49,18 @@ export default function TaxPotCalculator() {
   const hasResult        = result !== null
 
   return (
-    <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', overflow: 'hidden' }}>
-      <div style={{ padding: '1.25rem 1.5rem', borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px' }}>
-          <PiggyBank size={14} style={{ color: C.muted }} />
-          <span style={{ color: C.white, fontSize: '0.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}>Tax Pot Calculator</span>
+    <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] overflow-hidden">
+      <div className="px-6 py-5 border-b border-[rgba(244,245,248,0.07)]">
+        <div className="flex items-center gap-[8px] mb-[3px]">
+          <PiggyBank size={14} className="text-[rgba(244,245,248,0.42)]" />
+          <span className="text-[#F4F5F8] text-[0.9rem] font-semibold tracking-[-0.02em]">Tax Pot Calculator</span>
         </div>
-        <div style={{ color: C.muted, fontSize: '0.72rem' }}>How much to set aside from this month&apos;s earnings</div>
+        <div className="text-[rgba(244,245,248,0.42)] text-[0.72rem]">How much to set aside from this month&apos;s earnings</div>
       </div>
 
-      <div style={{ padding: '1.5rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+      <div className="p-6 grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-[2rem]">
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div className="flex flex-col gap-[1rem]">
           <div>
             <Label>This month&apos;s gross income</Label>
             <input
@@ -69,7 +68,7 @@ export default function TaxPotCalculator() {
               value={income} onChange={e => setIncome(e.target.value)}
               style={inputStyle}
               onFocus={e => (e.target as HTMLInputElement).style.borderColor = 'rgba(244,245,248,0.3)'}
-              onBlur={e  => (e.target as HTMLInputElement).style.borderColor = C.border}
+              onBlur={e  => (e.target as HTMLInputElement).style.borderColor = 'rgba(244,245,248,0.07)'}
             />
           </div>
           <div>
@@ -79,15 +78,15 @@ export default function TaxPotCalculator() {
               value={expenses} onChange={e => setExpenses(e.target.value)}
               style={inputStyle}
               onFocus={e => (e.target as HTMLInputElement).style.borderColor = 'rgba(244,245,248,0.3)'}
-              onBlur={e  => (e.target as HTMLInputElement).style.borderColor = C.border}
+              onBlur={e  => (e.target as HTMLInputElement).style.borderColor = 'rgba(244,245,248,0.07)'}
             />
           </div>
 
           <button
             onClick={() => setShowOptions(o => !o)}
-            style={{ background: 'none', border: 'none', padding: '0', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', color: C.dim, fontSize: '0.72rem', fontFamily: 'var(--font-geist-mono), monospace', textTransform: 'uppercase', letterSpacing: '0.08em', width: 'fit-content' }}
+            className="bg-transparent border-none p-0 cursor-pointer flex items-center gap-[5px] text-[rgba(244,245,248,0.18)] text-[0.72rem] font-mono uppercase tracking-[0.08em] w-fit"
           >
-            <ChevronDown size={11} style={{ transform: showOptions ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+            <ChevronDown size={11} className={`transition-transform duration-200 ${showOptions ? 'rotate-180' : ''}`} />
             {showOptions ? 'Hide' : 'Customise'} (employment, region, student loan, pension)
           </button>
 
@@ -98,7 +97,7 @@ export default function TaxPotCalculator() {
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}
+                className="overflow-hidden flex flex-col gap-[0.85rem]"
               >
                 <div>
                   <Label>Employment type</Label>
@@ -133,7 +132,7 @@ export default function TaxPotCalculator() {
                     value={pension} onChange={e => setPension(e.target.value)}
                     style={inputStyle}
                     onFocus={e => (e.target as HTMLInputElement).style.borderColor = 'rgba(244,245,248,0.3)'}
-                    onBlur={e  => (e.target as HTMLInputElement).style.borderColor = C.border}
+                    onBlur={e  => (e.target as HTMLInputElement).style.borderColor = 'rgba(244,245,248,0.07)'}
                   />
                 </div>
               </motion.div>
@@ -145,47 +144,48 @@ export default function TaxPotCalculator() {
           <AnimatePresence mode="wait">
             {!hasResult ? (
               <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '180px' }}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ color: C.dim, fontSize: '0.78rem' }}>Enter this month&apos;s income</div>
-                  <div style={{ color: 'rgba(244,245,248,0.08)', fontSize: '0.65rem', marginTop: '4px', fontFamily: 'var(--font-geist-mono), monospace' }}>to calculate your tax pot</div>
+                className="h-full flex items-center justify-center min-h-[180px]">
+                <div className="text-center">
+                  <div className="text-[rgba(244,245,248,0.18)] text-[0.78rem]">Enter this month&apos;s income</div>
+                  <div className="text-[rgba(244,245,248,0.08)] text-[0.65rem] mt-[4px] font-mono">to calculate your tax pot</div>
                 </div>
               </motion.div>
             ) : (
               <motion.div key="result" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <div style={{ background: C.gray, borderRadius: '6px', padding: '1.25rem', marginBottom: '1rem', border: `1px solid ${C.border}` }}>
-                  <div style={{ color: C.dim, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, marginBottom: '6px', fontFamily: 'var(--font-geist-mono), monospace' }}>
+                <div className="bg-[#222326] rounded-[6px] p-5 mb-[1rem] border border-[rgba(244,245,248,0.07)]">
+                  <div className="text-[rgba(244,245,248,0.18)] text-[0.6rem] uppercase tracking-[0.1em] font-semibold mb-[6px] font-mono">
                     Set aside this month
                   </div>
                   <motion.div
                     key={monthlyPot}
                     initial={{ scale: 0.97 }}
                     animate={{ scale: 1 }}
-                    style={{ color: monthlyPot > 0 ? C.amber : C.white, fontSize: '2.4rem', fontWeight: 600, letterSpacing: '-0.04em', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}
+                    className="text-[2.4rem] font-semibold tracking-[-0.04em] leading-none tabular-nums"
+                    style={{ color: monthlyPot > 0 ? '#FBBF24' : '#F4F5F8' }}
                   >
                     {fmt(monthlyPot)}
                   </motion.div>
-                  <div style={{ color: C.muted, fontSize: '0.7rem', marginTop: '6px' }}>
+                  <div className="text-[rgba(244,245,248,0.42)] text-[0.7rem] mt-[6px]">
                     {result?.effectiveTaxRate.toFixed(1)}% effective rate · {fmt(monthlyTakeHome)}/mo take-home
                   </div>
                 </div>
 
-                <div style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '0 1rem' }}>
+                <div className="bg-[#181818] border border-[rgba(244,245,248,0.07)] rounded-[6px] px-[1rem] py-0">
                   <Row label="Income Tax"   value={monthlyIncomeTax > 0 ? `${fmt(monthlyIncomeTax)}/mo` : '—'} />
                   {result && result.niClass4 > 0 && <Row label="NI Class 4 (SE)"  value={`${fmt(Math.round(result.niClass4 / 12))}/mo`} />}
                   {result && result.niClass1 > 0 && <Row label="NI Class 1 (PAYE)" value={`${fmt(Math.round(result.niClass1 / 12))}/mo`} />}
                   {result && result.niClass2 > 0 && <Row label="NI Class 2"        value={`${fmt(Math.round(result.niClass2 / 12))}/mo`} />}
                   {result && result.studentLoanRepayment > 0 && <Row label="Student Loan" value={`${fmt(monthlySL)}/mo`} />}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0' }}>
-                    <span style={{ color: C.white, fontSize: '0.82rem', fontWeight: 600 }}>Monthly pot total</span>
-                    <span style={{ color: C.white, fontSize: '0.82rem', fontWeight: 600, fontFamily: 'var(--font-geist-mono), monospace' }}>{fmt(monthlyPot)}</span>
+                  <div className="flex justify-between items-center py-[10px]">
+                    <span className="text-[#F4F5F8] text-[0.82rem] font-semibold">Monthly pot total</span>
+                    <span className="text-[#F4F5F8] text-[0.82rem] font-semibold font-mono">{fmt(monthlyPot)}</span>
                   </div>
                 </div>
 
                 {result?.sixtyPercentTrap && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ marginTop: '0.75rem', padding: '10px 12px', background: 'rgba(251,191,36,0.06)', border: `1px solid rgba(251,191,36,0.2)`, borderRadius: '4px', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-                    <AlertTriangle size={13} style={{ color: C.amber, flexShrink: 0, marginTop: '1px' }} />
-                    <div style={{ color: C.amber, fontSize: '0.75rem', lineHeight: 1.5 }}>
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-[0.75rem] px-[12px] py-[10px] bg-[rgba(251,191,36,0.06)] border border-[rgba(251,191,36,0.2)] rounded-[4px] flex gap-[8px] items-start">
+                    <AlertTriangle size={13} className="text-[#FBBF24] shrink-0 mt-[1px]" />
+                    <div className="text-[#FBBF24] text-[0.75rem] leading-[1.5]">
                       <strong>60% trap detected.</strong> At this income level your Personal Allowance tapers, creating ~60% effective marginal rate. A pension contribution can eliminate this.
                     </div>
                   </motion.div>

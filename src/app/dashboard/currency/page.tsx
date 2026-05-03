@@ -37,17 +37,7 @@ function saveCache(rates: Record<string, number>) {
   }
 }
 
-const inputStyle: React.CSSProperties = {
-  background:  'var(--sa-gray)',
-  border:      '1px solid var(--sa-border)',
-  borderRadius: '4px',
-  padding:     '9px 12px',
-  color:       'var(--sa-white)',
-  fontSize:    '0.9rem',
-  outline:     'none',
-  width:       '100%',
-  boxSizing:   'border-box',
-}
+const inputCls = 'bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] p-[9px_12px] text-[var(--sa-white)] text-[0.9rem] outline-none w-full'
 
 export default function CurrencyPage() {
   const [rates,       setRates]       = useState<Record<string, number>>({})
@@ -148,18 +138,18 @@ export default function CurrencyPage() {
   const currencies = Object.keys(rates).length > 0 ? Object.keys(rates).sort() : POPULAR
 
   return (
-    <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)', maxWidth: '800px' }}>
+    <div className="p-[clamp(1.5rem,4vw,2.5rem)] max-w-[800px]">
 
       {/* ── Header ── */}
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
+      <div className="flex items-end justify-between flex-wrap gap-[1rem] mb-[2rem]">
         <div>
-          <h1 style={{ color: 'var(--sa-white)', fontSize: 'clamp(1.5rem,3vw,2rem)', fontWeight: 700, marginBottom: '0.3rem' }}>
+          <h1 className="text-[var(--sa-white)] text-[clamp(1.5rem,3vw,2rem)] font-bold mb-[0.3rem]">
             Currency Converter
           </h1>
-          <p style={{ color: 'var(--sa-muted)', fontSize: '0.875rem' }}>
+          <p className="text-[var(--sa-muted)] text-[0.875rem]">
             Live exchange rates · 170+ currencies · Updates every 60s
             {isStale && (
-              <span style={{ marginLeft: '0.5rem', color: 'rgba(253,186,116,0.85)' }}>(cached)</span>
+              <span className="ml-[0.5rem] text-[rgba(253,186,116,0.85)]">(cached)</span>
             )}
           </p>
         </div>
@@ -167,18 +157,7 @@ export default function CurrencyPage() {
           onClick={fetchRates}
           disabled={loading}
           aria-label="Refresh exchange rates"
-          style={{
-            display:    'flex',
-            alignItems: 'center',
-            gap:        '6px',
-            background: 'rgba(244,245,248,0.05)',
-            border:     '1px solid var(--sa-border)',
-            borderRadius: '4px',
-            color:      'var(--sa-white)',
-            fontSize:   '0.8rem',
-            padding:    '7px 14px',
-            cursor:     loading ? 'default' : 'pointer',
-          }}
+          className={`flex items-center gap-[6px] bg-[rgba(244,245,248,0.05)] border border-[var(--sa-border)] rounded-[4px] text-[var(--sa-white)] text-[0.8rem] p-[7px_14px] ${loading ? 'cursor-default' : 'cursor-pointer'}`}
         >
           <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
           {loading ? 'Updating…' : 'Refresh'}
@@ -186,26 +165,18 @@ export default function CurrencyPage() {
       </div>
 
       {error && (
-        <div role="alert" style={{
-          background:    'rgba(248,113,113,0.1)',
-          border:        '1px solid rgba(248,113,113,0.3)',
-          borderRadius:  '4px',
-          padding:       '10px 14px',
-          color:         '#F87171',
-          fontSize:      '0.85rem',
-          marginBottom:  '1.5rem',
-        }}>
+        <div role="alert" className="bg-[rgba(248,113,113,0.1)] border border-[rgba(248,113,113,0.3)] rounded-[4px] p-[10px_14px] text-[#F87171] text-[0.85rem] mb-[1.5rem]">
           {error}
         </div>
       )}
 
       {/* ── Converter ── */}
-      <div style={{ background: 'var(--sa-surface)', border: '1px solid var(--sa-border)', borderRadius: '8px', padding: '2rem', marginBottom: '1.5rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'end', gap: '1rem' }}>
+      <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[8px] p-[2rem] mb-[1.5rem]">
+        <div className="grid items-end gap-[1rem]" style={{ gridTemplateColumns: '1fr auto 1fr' }}>
 
           {/* From */}
           <div>
-            <label style={{ display: 'block', color: 'var(--sa-muted)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>
+            <label className="block text-[var(--sa-muted)] text-[0.75rem] uppercase tracking-[0.08em] mb-[0.4rem]">
               Amount
             </label>
             <input
@@ -214,16 +185,16 @@ export default function CurrencyPage() {
               value={amount}
               aria-label="Amount to convert"
               onChange={(e) => setAmount(e.target.value)}
-              style={inputStyle}
+              className={inputCls}
             />
-            <div style={{ marginTop: '0.5rem' }}>
-              <label style={{ display: 'block', color: 'var(--sa-muted)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>
+            <div className="mt-[0.5rem]">
+              <label className="block text-[var(--sa-muted)] text-[0.75rem] uppercase tracking-[0.08em] mb-[0.4rem]">
                 From
               </label>
               <select
                 value={from}
                 onChange={(e) => setFrom(e.target.value)}
-                style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}
+                className={`${inputCls} appearance-none cursor-pointer`}
               >
                 {currencies.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -234,32 +205,20 @@ export default function CurrencyPage() {
           <button
             onClick={swap}
             aria-label="Swap currencies"
-            style={{
-              display:        'flex',
-              alignItems:     'center',
-              justifyContent: 'center',
-              width:          '40px',
-              height:         '40px',
-              borderRadius:   '50%',
-              background:     'rgba(244,245,248,0.06)',
-              border:         '1px solid var(--sa-border)',
-              cursor:         'pointer',
-              color:          'var(--sa-white)',
-              flexShrink:     0,
-            }}
+            className="flex items-center justify-center w-[40px] h-[40px] rounded-[50%] bg-[rgba(244,245,248,0.06)] border border-[var(--sa-border)] cursor-pointer text-[var(--sa-white)] shrink-0"
           >
             <ArrowLeftRight size={18} />
           </button>
 
           {/* To */}
           <div>
-            <label style={{ display: 'block', color: 'var(--sa-muted)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>
+            <label className="block text-[var(--sa-muted)] text-[0.75rem] uppercase tracking-[0.08em] mb-[0.4rem]">
               Converted
             </label>
             <div
               aria-live="polite"
               aria-label="Converted amount"
-              style={{ ...inputStyle, background: 'rgba(244,245,248,0.04)', fontWeight: 700, fontSize: '1.1rem' }}
+              className={`${inputCls} bg-[rgba(244,245,248,0.04)] font-bold text-[1.1rem]`}
             >
               {loading && Object.keys(rates).length === 0
                 ? '…'
@@ -267,14 +226,14 @@ export default function CurrencyPage() {
                   ? converted.toLocaleString('en-GB', { maximumFractionDigits: 4 })
                   : '—'}
             </div>
-            <div style={{ marginTop: '0.5rem' }}>
-              <label style={{ display: 'block', color: 'var(--sa-muted)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>
+            <div className="mt-[0.5rem]">
+              <label className="block text-[var(--sa-muted)] text-[0.75rem] uppercase tracking-[0.08em] mb-[0.4rem]">
                 To
               </label>
               <select
                 value={to}
                 onChange={(e) => setTo(e.target.value)}
-                style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}
+                className={`${inputCls} appearance-none cursor-pointer`}
               >
                 {currencies.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -283,10 +242,10 @@ export default function CurrencyPage() {
         </div>
 
         {rate !== null && (
-          <p style={{ marginTop: '1.25rem', color: 'var(--sa-muted)', fontSize: '0.8rem' }}>
-            1 {from} = <strong style={{ color: 'var(--sa-white)' }}>{rate.toFixed(6)}</strong> {to}
+          <p className="mt-[1.25rem] text-[var(--sa-muted)] text-[0.8rem]">
+            1 {from} = <strong className="text-[var(--sa-white)]">{rate.toFixed(6)}</strong> {to}
             {lastUpdated && (
-              <span style={{ marginLeft: '1rem' }}>
+              <span className="ml-[1rem]">
                 {isStale ? 'Cached' : 'Updated'} {lastUpdated.toLocaleTimeString('en-GB')}
               </span>
             )}
@@ -295,10 +254,10 @@ export default function CurrencyPage() {
       </div>
 
       {/* ── GBP cross-rate tiles ── */}
-      <h2 style={{ color: 'var(--sa-white)', fontSize: '1.1rem', fontWeight: 700, marginBottom: '1rem' }}>
+      <h2 className="text-[var(--sa-white)] text-[1.1rem] font-bold mb-[1rem]">
         GBP Cross Rates
       </h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(140px,1fr))', gap: '0.75rem' }}>
+      <div className="grid gap-[0.75rem]" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(140px,1fr))' }}>
         {POPULAR.filter((c) => c !== 'GBP').map((cur) => {
           const r = rates[cur]
           return (
@@ -306,20 +265,12 @@ export default function CurrencyPage() {
               key={cur}
               onClick={() => { setFrom('GBP'); setTo(cur) }}
               aria-label={`Set converter to GBP/${cur}`}
-              style={{
-                background:   'var(--sa-surface)',
-                border:       '1px solid var(--sa-border)',
-                borderRadius: '6px',
-                padding:      '0.9rem 1rem',
-                cursor:       'pointer',
-                textAlign:    'left',
-                color:        'inherit',
-              }}
+              className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-[0.9rem_1rem] cursor-pointer text-left text-inherit"
             >
-              <div style={{ color: 'var(--sa-muted)', fontSize: '0.72rem', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '4px' }}>
+              <div className="text-[var(--sa-muted)] text-[0.72rem] tracking-[0.08em] uppercase mb-[4px]">
                 GBP/{cur}
               </div>
-              <div style={{ color: 'var(--sa-white)', fontWeight: 700, fontSize: '1.1rem' }}>
+              <div className="text-[var(--sa-white)] font-bold text-[1.1rem]">
                 {r ? r.toFixed(4) : '—'}
               </div>
             </button>

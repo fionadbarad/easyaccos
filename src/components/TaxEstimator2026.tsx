@@ -25,15 +25,6 @@ const gbp = new Intl.NumberFormat('en-GB', {
   maximumFractionDigits: 0,
 })
 
-const labelStyle: React.CSSProperties = {
-  display: 'block',
-  color: 'var(--sa-muted)',
-  fontSize: '0.72rem',
-  textTransform: 'uppercase',
-  letterSpacing: '0.08em',
-  marginBottom: '0.3rem',
-}
-
 interface ResultRowProps {
   label:   string
   value:   number
@@ -44,16 +35,11 @@ interface ResultRowProps {
 function ResultRow({ label, value, indent, bold }: ResultRowProps) {
   if (!value && !bold) return null
   return (
-    <div style={{
-      display:        'flex',
-      justifyContent: 'space-between',
-      padding:        '6px 0',
-      paddingLeft:    indent ? 16 : 0,
-    }}>
-      <span style={{ color: bold ? 'var(--sa-white)' : 'var(--sa-muted)', fontSize: '0.875rem' }}>
+    <div className={`flex justify-between py-[6px] ${indent ? 'pl-[16px]' : ''}`}>
+      <span className={`text-[0.875rem] ${bold ? 'text-[var(--sa-white)]' : 'text-[var(--sa-muted)]'}`}>
         {label}
       </span>
-      <span style={{ color: 'var(--sa-white)', fontSize: bold ? '1.05rem' : '0.875rem', fontWeight: bold ? 700 : 500 }}>
+      <span className={`text-[var(--sa-white)] ${bold ? 'text-[1.05rem] font-bold' : 'text-[0.875rem] font-medium'}`}>
         {gbp.format(value)}
       </span>
     </div>
@@ -80,26 +66,25 @@ export default function TaxEstimator2026() {
   })
 
   return (
-    <div className="ui-card" style={{ maxWidth: 540, margin: '0 auto' }}>
-      <h2 className="ui-card-title" style={{ fontSize: '1.1rem', marginBottom: '1.25rem' }}>
+    <div className="ui-card max-w-[540px] mx-auto">
+      <h2 className="ui-card-title text-[1.1rem] mb-[1.25rem]">
         Tax Estimator 2026/27
       </h2>
 
-      <label style={labelStyle}>Region</label>
+      <label className="block text-[var(--sa-muted)] text-[0.72rem] uppercase tracking-[0.08em] mb-[0.3rem]">Region</label>
       <select
-        className="ui-input"
+        className="ui-input mb-[1rem] cursor-pointer appearance-none"
         value={region}
         onChange={(e) => setRegion(e.target.value as TaxRegion)}
-        style={{ marginBottom: '1rem', appearance: 'none', cursor: 'pointer' }}
       >
         {(Object.entries(REGION_OPTIONS) as [TaxRegion, string][]).map(([k, label]) => (
           <option key={k} value={k}>{label}</option>
         ))}
       </select>
 
-      <label style={labelStyle}>
+      <label className="block text-[var(--sa-muted)] text-[0.72rem] uppercase tracking-[0.08em] mb-[0.3rem]">
         Annual Income —{' '}
-        <strong style={{ color: 'var(--sa-white)', fontWeight: 600 }}>{gbp.format(income)}</strong>
+        <strong className="text-[var(--sa-white)] font-semibold">{gbp.format(income)}</strong>
       </label>
       <input
         type="range"
@@ -109,24 +94,22 @@ export default function TaxEstimator2026() {
         value={income}
         aria-label="Annual income slider"
         onChange={(e) => setIncome(Number(e.target.value))}
-        style={{ width: '100%', accentColor: 'var(--sa-white)', marginBottom: '0.5rem' }}
+        className="w-full mb-[0.5rem] accent-[#F4F5F8]"
       />
       <input
         type="number"
-        className="ui-input"
+        className="ui-input mb-[1rem]"
         value={income}
         min={0}
         aria-label="Annual income"
         onChange={(e) => setIncome(Math.max(0, Number(e.target.value)))}
-        style={{ marginBottom: '1rem' }}
       />
 
-      <label style={labelStyle}>Student Loan</label>
+      <label className="block text-[var(--sa-muted)] text-[0.72rem] uppercase tracking-[0.08em] mb-[0.3rem]">Student Loan</label>
       <select
-        className="ui-input"
+        className="ui-input mb-[1.5rem] cursor-pointer appearance-none"
         value={loan}
         onChange={(e) => setLoan(e.target.value as StudentLoanPlan)}
-        style={{ marginBottom: '1.5rem', appearance: 'none', cursor: 'pointer' }}
       >
         {(Object.entries(LOAN_OPTIONS) as [StudentLoanPlan, string][]).map(([k, label]) => (
           <option key={k} value={k}>{label}</option>
@@ -141,7 +124,7 @@ export default function TaxEstimator2026() {
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.2 }}
         >
-          <div style={{ borderTop: '1px solid var(--sa-border)', paddingTop: '1rem' }}>
+          <div className="border-t border-[var(--sa-border)] pt-[1rem]">
             <ResultRow label="Personal Allowance"   value={result.personalAllowance} />
             <ResultRow label="Taxable Income"        value={result.taxableIncome} />
 
@@ -161,7 +144,7 @@ export default function TaxEstimator2026() {
               <ResultRow label="Student Loan Repayment"  value={result.studentLoanRepayment} />
             )}
 
-            <div style={{ borderTop: '1px solid var(--sa-border)', marginTop: '0.75rem', paddingTop: '1rem' }}>
+            <div className="border-t border-[var(--sa-border)] mt-[0.75rem] pt-[1rem]">
               <ResultRow
                 label={`Net Take-Home (${result.effectiveTaxRate.toFixed(1)}% effective rate)`}
                 value={result.netTakeHome}

@@ -9,7 +9,6 @@ import type { Expense } from '@/lib/validators'
 import { ReceiptVerifyModal } from '@/features/expenses/ReceiptVerifyModal'
 import { ExpenseForm } from '@/features/expenses/ExpenseForm'
 
-import { C } from '@/styles/palette'
 export default function ExpensesPage() {
   const {
     expenses, filtered, loading, isAuthenticated,
@@ -27,10 +26,10 @@ export default function ExpensesPage() {
       key: 'date', header: 'Date', sortable: true,
       accessor: e => e.date,
       render: e => (
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-          <span style={{ color: C.muted, fontFamily: 'var(--font-geist-mono), monospace', fontSize: '0.75rem' }}>{e.date}</span>
+        <span className="inline-flex items-center gap-[5px]">
+          <span className="text-[rgba(244,245,248,0.42)] font-mono text-[0.75rem]">{e.date}</span>
           {e.ocrScanned && (
-            <span title="Scanned via OCR" style={{ display: 'inline-flex', alignItems: 'center', color: C.blue, opacity: 0.8 }}>
+            <span title="Scanned via OCR" className="inline-flex items-center text-[#93C5FD] opacity-80">
               <Camera size={10} strokeWidth={1.5} />
             </span>
           )}
@@ -41,13 +40,13 @@ export default function ExpensesPage() {
     {
       key: 'category', header: 'Category', sortable: true,
       accessor: e => e.category,
-      render: e => <span style={{ color: C.muted, fontSize: '0.75rem' }}>{e.category}</span>,
+      render: e => <span className="text-[rgba(244,245,248,0.42)] text-[0.75rem]">{e.category}</span>,
     },
     {
       key: 'amount', header: 'Amount', sortable: true, align: 'right',
       accessor: e => e.amount,
       render: e => (
-        <span style={{ color: C.red, fontWeight: 500, fontFamily: 'var(--font-geist-mono), monospace', fontVariantNumeric: 'tabular-nums' }}>
+        <span className="text-[#F87171] font-medium font-mono tabular-nums">
           -£{e.amount.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
         </span>
       ),
@@ -57,7 +56,7 @@ export default function ExpensesPage() {
       accessor: () => '',
       render: e => (
         <button onClick={() => remove(e.id)} aria-label="Delete expense"
-          style={{ background: 'none', border: 'none', color: 'rgba(248,113,113,0.4)', cursor: 'pointer', padding: 2, display: 'inline-flex' }}>
+          className="bg-transparent border-none text-[rgba(248,113,113,0.4)] cursor-pointer p-[2px] inline-flex">
           <Trash2 size={13} strokeWidth={1.5} />
         </button>
       ),
@@ -65,42 +64,42 @@ export default function ExpensesPage() {
   ]
 
   return (
-    <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)', maxWidth: '900px' }}>
+    <div className="p-[clamp(1.5rem,4vw,2.5rem)] max-w-[900px]">
       {pendingScan && (
         <ReceiptVerifyModal scan={pendingScan} onConfirm={confirmScan} onCancel={cancelScan} />
       )}
 
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.75rem' }}>
+      <div className="flex items-start justify-between flex-wrap gap-[1rem] mb-[1.75rem]">
         <div>
-          <div style={{ color: C.muted, fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '5px', fontFamily: 'var(--font-geist-mono), monospace' }}>
+          <div className="text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.12em] mb-[5px] font-mono">
             expenses
           </div>
-          <h1 style={{ color: C.white, fontSize: 'clamp(1.4rem,3vw,1.9rem)', fontWeight: 600, letterSpacing: '-0.03em', margin: 0 }}>
+          <h1 className="text-[#F4F5F8] text-[clamp(1.4rem,3vw,1.9rem)] font-semibold tracking-[-0.03em] m-0">
             Expense Tracker
           </h1>
-          <p style={{ color: C.muted, fontSize: '0.75rem', marginTop: '4px', fontFamily: 'var(--font-geist-mono), monospace' }}>
+          <p className="text-[rgba(244,245,248,0.42)] text-[0.75rem] mt-[4px] mb-0 font-mono">
             {loading
               ? '—'
               : `${filtered.length}${filtered.length !== expenses.length ? ` of ${expenses.length}` : ''} records · total `}
-            {!loading && <span style={{ color: C.white }}>£{total.toLocaleString('en-GB', { minimumFractionDigits: 2 })}</span>}
+            {!loading && <span className="text-[#F4F5F8]">£{total.toLocaleString('en-GB', { minimumFractionDigits: 2 })}</span>}
           </p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: C.muted, fontSize: '0.68rem', fontFamily: 'var(--font-geist-mono), monospace', padding: '6px 10px', border: `1px solid ${C.border}`, borderRadius: '4px' }}>
-            {isAuthenticated ? <><Cloud size={11} style={{ color: C.green }} /> synced</> : <><CloudOff size={11} /> local only</>}
+        <div className="flex items-center gap-[0.5rem]">
+          <div className="flex items-center gap-[5px] text-[rgba(244,245,248,0.42)] text-[0.68rem] font-mono px-[10px] py-[6px] border border-[rgba(244,245,248,0.07)] rounded-[4px]">
+            {isAuthenticated ? <><Cloud size={11} className="text-[#4ADE80]" /> synced</> : <><CloudOff size={11} /> local only</>}
           </div>
           <ReceiptScanner onExtract={onReceiptExtract} />
           <button onClick={() => setShowForm(!showForm)}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', background: C.white, color: C.bg, border: 'none', borderRadius: '4px', padding: '8px 16px', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', minHeight: '36px', letterSpacing: '-0.01em' }}>
+            className="flex items-center gap-[6px] bg-[#F4F5F8] text-[#181818] border-none rounded-[4px] px-[16px] py-[8px] text-[0.8rem] font-semibold cursor-pointer min-h-[36px] tracking-[-0.01em]">
             <Plus size={14} strokeWidth={2.5} /> Add Expense
           </button>
         </div>
       </div>
 
       {!loading && !isAuthenticated && expenses.length > 0 && (
-        <div style={{ background: 'rgba(251,191,36,0.05)', border: '1px solid rgba(251,191,36,0.18)', borderRadius: '4px', padding: '0.7rem 1rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
-          <span style={{ color: C.amber, fontSize: '0.75rem' }}>Data is saved in this browser only — sign in to sync across devices.</span>
-          <a href="/auth/login" style={{ color: C.amber, fontSize: '0.72rem', fontWeight: 600, textDecoration: 'none', borderBottom: '1px solid rgba(251,191,36,0.4)' }}>Sign in →</a>
+        <div className="bg-[rgba(251,191,36,0.05)] border border-[rgba(251,191,36,0.18)] rounded-[4px] px-[1rem] py-[0.7rem] mb-[1.25rem] flex items-center justify-between flex-wrap gap-[0.5rem]">
+          <span className="text-[#FBBF24] text-[0.75rem]">Data is saved in this browser only — sign in to sync across devices.</span>
+          <a href="/auth/login" className="text-[#FBBF24] text-[0.72rem] font-semibold no-underline border-b border-[rgba(251,191,36,0.4)]">Sign in →</a>
         </div>
       )}
 
@@ -114,9 +113,9 @@ export default function ExpensesPage() {
       )}
 
       {byCategory.length > 0 && (
-        <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+        <div className="flex gap-[0.35rem] flex-wrap mb-[1.25rem]">
           {byCategory.map(({ cat, total: t }) => (
-            <div key={cat} style={{ padding: '5px 12px', borderRadius: '3px', border: `1px solid ${C.border}`, background: 'transparent', color: C.muted, fontSize: '0.72rem', fontFamily: 'var(--font-geist-mono), monospace' }}>
+            <div key={cat} className="px-[12px] py-[5px] rounded-[3px] border border-[rgba(244,245,248,0.07)] bg-transparent text-[rgba(244,245,248,0.42)] text-[0.72rem] font-mono">
               {cat} · £{t.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
             </div>
           ))}
@@ -128,13 +127,13 @@ export default function ExpensesPage() {
       )}
 
       {loading ? (
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '3rem', textAlign: 'center', color: C.muted, fontSize: '0.84rem' }}>
+        <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[3rem] text-center text-[rgba(244,245,248,0.42)] text-[0.84rem]">
           Loading…
         </div>
       ) : expenses.length === 0 ? (
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '3rem', textAlign: 'center' }}>
-          <p style={{ color: C.muted, fontSize: '0.84rem', margin: 0 }}>No expenses yet. Add your first one above.</p>
-          <p style={{ color: 'rgba(244,245,248,0.2)', fontSize: '0.72rem', marginTop: '6px', fontFamily: 'var(--font-geist-mono), monospace' }}>
+        <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[3rem] text-center">
+          <p className="text-[rgba(244,245,248,0.42)] text-[0.84rem] m-0">No expenses yet. Add your first one above.</p>
+          <p className="text-[rgba(244,245,248,0.2)] text-[0.72rem] mt-[6px] mb-0 font-mono">
             HMRC &quot;wholly and exclusively&quot; rule applies
           </p>
         </div>
@@ -143,12 +142,12 @@ export default function ExpensesPage() {
       )}
 
       {expenses.some(e => e.ocrScanned) && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '0.6rem', color: 'rgba(147,197,253,0.5)', fontSize: '0.62rem', fontFamily: 'var(--font-geist-mono), monospace' }}>
+        <div className="flex items-center gap-[5px] mt-[0.6rem] text-[rgba(147,197,253,0.5)] text-[0.62rem] font-mono">
           <Camera size={9} /> = scanned via OCR
         </div>
       )}
 
-      <p style={{ color: 'rgba(244,245,248,0.18)', fontSize: '0.62rem', marginTop: '0.75rem', textAlign: 'right', fontFamily: 'var(--font-geist-mono), monospace' }}>
+      <p className="text-[rgba(244,245,248,0.18)] text-[0.62rem] mt-[0.75rem] text-right font-mono">
         HMRC &quot;wholly and exclusively&quot; rule · 2026/27
       </p>
     </div>

@@ -5,7 +5,6 @@ import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import type { User } from '@supabase/supabase-js'
 import { Menu } from 'lucide-react'
-import { C } from '@/styles/palette'
 import Sidebar from '@/features/shell/Sidebar'
 import MobileTopBar from '@/features/shell/MobileTopBar'
 import OfflineChip from '@/features/shell/OfflineChip'
@@ -49,42 +48,25 @@ export default function DashboardShell({
   const sidebarProps = { user, pathname, onSignOut: handleSignOut }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: C.bg }}>
+    <div className="flex min-h-screen bg-[#181818]">
       <button
-        className="hidden md:flex"
+        className={`hidden md:flex fixed top-4 left-3 z-[51] bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[4px] text-[rgba(244,245,248,0.42)] hover:text-[#F4F5F8] cursor-pointer p-[6px_8px] items-center justify-center transition-[opacity,color] duration-200 ${desktopOpen ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}
         onClick={() => setDesktopOpen(true)}
         title="Open sidebar"
-        style={{
-          position: 'fixed', top: '1rem', left: '0.75rem',
-          zIndex: 51, background: C.surface, border: `1px solid ${C.border}`,
-          borderRadius: '4px', color: C.muted, cursor: 'pointer',
-          padding: '6px 8px', alignItems: 'center', justifyContent: 'center',
-          opacity: desktopOpen ? 0 : 1,
-          pointerEvents: desktopOpen ? 'none' : 'auto',
-          transition: 'opacity 0.2s ease, color 0.1s',
-        }}
-        onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = C.white}
-        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = C.muted}>
+      >
         <Menu size={14} />
       </button>
 
       <div
-        className="hidden md:block"
+        className={`hidden md:block fixed inset-0 z-[45] bg-[rgba(0,0,0,0.55)] transition-opacity duration-200 ${desktopOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         onClick={closeDesktop}
-        style={{
-          position: 'fixed', inset: 0, zIndex: 45,
-          background: 'rgba(0,0,0,0.55)',
-          opacity: desktopOpen ? 1 : 0,
-          pointerEvents: desktopOpen ? 'auto' : 'none',
-          transition: 'opacity 0.2s ease',
-        }}
       />
 
       <aside
         className="hidden md:flex"
         style={{
           width: `${SIDEBAR_W}px`, flexShrink: 0, flexDirection: 'column',
-          background: C.bg, borderRight: `1px solid ${C.border}`,
+          background: '#181818', borderRight: '1px solid rgba(244,245,248,0.07)',
           position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 50,
           transform: desktopOpen ? 'translateX(0)' : `translateX(-${SIDEBAR_W}px)`,
           transition: 'transform 0.25s cubic-bezier(0.4,0,0.2,1)',
@@ -95,15 +77,8 @@ export default function DashboardShell({
       <MobileTopBar open={mobileOpen} onToggle={() => setMobileOpen(o => !o)} />
 
       <div
-        className="md:hidden"
+        className={`md:hidden fixed inset-0 z-[45] bg-[rgba(0,0,0,0.7)] transition-opacity duration-200 ${mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         onClick={closeMobile}
-        style={{
-          position: 'fixed', inset: 0, zIndex: 45,
-          background: 'rgba(0,0,0,0.7)',
-          opacity: mobileOpen ? 1 : 0,
-          pointerEvents: mobileOpen ? 'auto' : 'none',
-          transition: 'opacity 0.2s ease',
-        }}
       />
 
       <aside
@@ -111,7 +86,7 @@ export default function DashboardShell({
         style={{
           position: 'fixed', top: 0, left: 0, bottom: 0,
           width: `${SIDEBAR_W}px`, zIndex: 50,
-          background: C.bg, borderRight: `1px solid ${C.border}`,
+          background: '#181818', borderRight: '1px solid rgba(244,245,248,0.07)',
           transform: mobileOpen ? 'translateX(0)' : `translateX(-${SIDEBAR_W}px)`,
           transition: 'transform 0.25s cubic-bezier(0.4,0,0.2,1)',
           overflowY: 'auto',
@@ -119,9 +94,7 @@ export default function DashboardShell({
         <Sidebar {...sidebarProps} onNavClick={closeMobile} />
       </aside>
 
-      <main
-        className="mt-[52px] md:mt-0"
-        style={{ flex: 1, minHeight: '100vh', background: C.bg, overflow: 'auto' }}>
+      <main className="mt-[52px] md:mt-0 flex-1 min-h-screen bg-[#181818] overflow-auto">
         {children}
       </main>
 

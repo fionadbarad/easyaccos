@@ -6,7 +6,6 @@
 
 import { useEffect, useState } from 'react'
 import { WifiOff } from 'lucide-react'
-import { C } from '@/styles/palette'
 
 export default function OfflineChip() {
   const [offline, setOffline] = useState(false)
@@ -29,15 +28,10 @@ export default function OfflineChip() {
     <div
       role="status"
       aria-live="polite"
-      style={{
-        position: 'fixed', bottom: '1rem', right: '1rem', zIndex: 55,
-        background: C.card, border: `1px solid ${C.border}`, borderRadius: '999px',
-        padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '0.5rem',
-        boxShadow: '0 6px 20px rgba(0,0,0,0.4)',
-      }}
+      className="fixed bottom-4 right-4 z-[55] bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-full px-[14px] py-2 flex items-center gap-2 shadow-[0_6px_20px_rgba(0,0,0,0.4)]"
     >
-      <WifiOff size={14} style={{ color: C.white }} />
-      <span style={{ color: C.text, fontSize: '0.78rem', fontWeight: 500 }}>
+      <WifiOff size={14} className="text-[#F4F5F8]" />
+      <span className="text-[#F4F5F8] text-[0.78rem] font-medium">
         Offline — changes save locally and sync when you reconnect
       </span>
     </div>

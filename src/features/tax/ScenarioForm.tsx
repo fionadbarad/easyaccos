@@ -7,13 +7,12 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { Info } from 'lucide-react'
-import { C } from '@/styles/palette'
 import {
   STUDENT_LOAN_LABELS,
   type StudentLoanPlan,
 } from '@/lib/tax-logic'
 import type { S3Input, S4Input } from '@/lib/TaxBible2026'
-import { cardStyle, selectStyle, fmt } from './tokens'
+import { fmt } from './tokens'
 import { Field, NumInput, Toggle } from './primitives'
 import { SCENARIOS, type ScenarioKey, isFullEngineScenario } from './scenarios'
 
@@ -46,20 +45,20 @@ export default function ScenarioForm(p: ScenarioFormProps) {
         <motion.div key={p.scenario}
           initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}
           transition={{ duration: 0.2 }}
-          style={{ ...cardStyle, marginBottom: '1.5rem' }}>
+          className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[10px] p-[1.5rem] mb-[1.5rem]">
 
-          <h3 style={{ color: C.text, fontSize: '1.1rem', fontWeight: 700, marginBottom: '1.25rem' }}>
+          <h3 className="text-[#F4F5F8] text-[1.1rem] font-bold mb-[1.25rem]">
             {meta?.icon}{' '}{meta?.label} Details
           </h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '1rem' }}>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-[1rem]">
 
             {p.scenario === 'employed' && <>
               <Field label="Gross Salary (£)">
                 <NumInput value={p.grossRevenue} onChange={p.setGrossRevenue} />
               </Field>
               <Field label="Pension Contribution (£)"
-                hint={<p style={{ color: C.blue, fontSize: '0.71rem' }}><Info size={11} style={{ display: 'inline', marginRight: '3px' }} />Reduces taxable income at your marginal rate</p>}>
+                hint={<p className="text-[#93C5FD] text-[0.71rem]"><Info size={11} className="inline mr-[3px]" />Reduces taxable income at your marginal rate</p>}>
                 <NumInput value={p.pensionContribution} onChange={p.setPensionContribution} max={60_000} />
               </Field>
             </>}
@@ -78,7 +77,7 @@ export default function ScenarioForm(p: ScenarioFormProps) {
 
             {p.scenario === 'director' && <>
               <Field label="Director Salary (£)"
-                hint={<p style={{ color: p.dirSalary === 12_570 ? C.green : C.blue, fontSize: '0.71rem' }}>
+                hint={<p className={`text-[0.71rem] ${p.dirSalary === 12_570 ? 'text-[#4ADE80]' : 'text-[#93C5FD]'}`}>
                   {p.dirSalary === 12_570 ? '✓ Optimal — no NI, full State Pension credit' : `Recommended: ${fmt(12_570)}`}
                 </p>}>
                 <NumInput value={p.dirSalary} onChange={p.setDirSalary} />
@@ -93,7 +92,7 @@ export default function ScenarioForm(p: ScenarioFormProps) {
 
             {p.scenario === 'welfare' && <>
               <Field label="Universal Credit / month (£)"
-                hint={<p style={{ color: C.green, fontSize: '0.71rem' }}>✓ Tax-free — won&apos;t affect allowance</p>}>
+                hint={<p className="text-[#4ADE80] text-[0.71rem]">✓ Tax-free — won&apos;t affect allowance</p>}>
                 <NumInput value={p.s3.universalCredit} onChange={(v) => p.setS3(prev => ({ ...prev, universalCredit: v }))} />
               </Field>
               <Field label="JSA (annual, taxable £)">
@@ -114,11 +113,11 @@ export default function ScenarioForm(p: ScenarioFormProps) {
               <Field label="Months Worked This Year">
                 <input type="range" min={1} max={12} step={1} value={p.s4.monthsWorked}
                   onChange={(e) => p.setS4(prev => ({ ...prev, monthsWorked: Number(e.target.value) }))}
-                  style={{ width: '100%', accentColor: C.white, minHeight: '44px' }} />
-                <div style={{ color: C.white, fontSize: '0.85rem', textAlign: 'center' }}>{p.s4.monthsWorked} months</div>
+                  className="w-full accent-[#F4F5F8] min-h-[44px]" />
+                <div className="text-[#F4F5F8] text-[0.85rem] text-center">{p.s4.monthsWorked} months</div>
               </Field>
               <Field label="Total Redundancy Payment (£)"
-                hint={<p style={{ color: C.green, fontSize: '0.71rem' }}>✓ First £30,000 is tax-free</p>}>
+                hint={<p className="text-[#4ADE80] text-[0.71rem]">✓ First £30,000 is tax-free</p>}>
                 <NumInput value={p.s4.redundancyPayment} onChange={(v) => p.setS4(prev => ({ ...prev, redundancyPayment: v }))} />
               </Field>
               <Field label="PAYE Tax Already Paid (£)">
@@ -130,20 +129,26 @@ export default function ScenarioForm(p: ScenarioFormProps) {
       </AnimatePresence>
 
       {fullEngine && (
-        <div style={{ ...cardStyle, marginBottom: '1.5rem' }}>
-          <h3 style={{ color: C.text, fontSize: '1rem', fontWeight: 700, marginBottom: '1rem' }}>
+        <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[10px] p-[1.5rem] mb-[1.5rem]">
+          <h3 className="text-[#F4F5F8] text-[1rem] font-bold mb-[1rem]">
             Additional Options
           </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: '1rem' }}>
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-[1rem]">
             <Field label="Student Loan Plan">
-              <select value={p.studentLoanPlan} onChange={(e) => p.setStudentLoanPlan(e.target.value as StudentLoanPlan)} style={selectStyle}>
+              <select value={p.studentLoanPlan} onChange={(e) => p.setStudentLoanPlan(e.target.value as StudentLoanPlan)}
+                className="w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[10px_32px_10px_13px] text-[#F4F5F8] text-[0.9rem] outline-none min-h-[44px] appearance-none cursor-pointer"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' stroke='%23F4F5F8' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'right 12px center',
+                }}>
                 {Object.entries(STUDENT_LOAN_LABELS).map(([key, label]) => (
-                  <option key={key} value={key} style={{ background: C.deep, color: C.text }}>{label}</option>
+                  <option key={key} value={key} className="bg-[#222326] text-[#F4F5F8]">{label}</option>
                 ))}
               </select>
             </Field>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div className="flex flex-col gap-[0.5rem]">
               <Toggle label="Marriage Allowance (−£1,260 PA)" active={p.marriageAllowance} onChange={p.setMarriageAllowance} />
               <Toggle label="Blind Person&apos;s Allowance (+£3,250)" active={p.blindPersonsAllowance} onChange={p.setBlindPersonsAllowance} />
               {p.scenario === 'self-employed' && (

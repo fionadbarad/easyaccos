@@ -49,18 +49,18 @@ export default function TaxPotCalculator() {
   const hasResult        = result !== null
 
   return (
-    <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] overflow-hidden">
+    <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-md overflow-hidden">
       <div className="px-6 py-5 border-b border-[var(--sa-border)]">
-        <div className="flex items-center gap-[8px] mb-[3px]">
+        <div className="flex items-center gap-2 mb-[3px]">
           <PiggyBank size={14} className="text-[rgba(244,245,248,0.42)]" />
           <span className="text-[var(--sa-white)] text-[0.9rem] font-semibold tracking-[-0.02em]">Tax Pot Calculator</span>
         </div>
         <div className="text-[rgba(244,245,248,0.42)] text-[0.72rem]">How much to set aside from this month&apos;s earnings</div>
       </div>
 
-      <div className="p-6 grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-[2rem]">
+      <div className="p-6 grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-8">
 
-        <div className="flex flex-col gap-[1rem]">
+        <div className="flex flex-col gap-4">
           <div>
             <Label>This month&apos;s gross income</Label>
             <input
@@ -147,13 +147,13 @@ export default function TaxPotCalculator() {
                 className="h-full flex items-center justify-center min-h-[180px]">
                 <div className="text-center">
                   <div className="text-[rgba(244,245,248,0.18)] text-[0.78rem]">Enter this month&apos;s income</div>
-                  <div className="text-[rgba(244,245,248,0.08)] text-[0.65rem] mt-[4px] font-mono">to calculate your tax pot</div>
+                  <div className="text-[rgba(244,245,248,0.08)] text-[0.65rem] mt-1 font-mono">to calculate your tax pot</div>
                 </div>
               </motion.div>
             ) : (
               <motion.div key="result" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <div className="bg-[var(--sa-gray)] rounded-[6px] p-5 mb-[1rem] border border-[var(--sa-border)]">
-                  <div className="text-[rgba(244,245,248,0.18)] text-[0.6rem] uppercase tracking-[0.1em] font-semibold mb-[6px] font-mono">
+                <div className="bg-[var(--sa-gray)] rounded-md p-5 mb-4 border border-[var(--sa-border)]">
+                  <div className="text-[rgba(244,245,248,0.18)] text-[0.6rem] uppercase tracking-[0.1em] font-semibold mb-1.5 font-mono">
                     Set aside this month
                   </div>
                   <motion.div
@@ -165,12 +165,12 @@ export default function TaxPotCalculator() {
                   >
                     {fmt(monthlyPot)}
                   </motion.div>
-                  <div className="text-[rgba(244,245,248,0.42)] text-[0.7rem] mt-[6px]">
+                  <div className="text-[rgba(244,245,248,0.42)] text-[0.7rem] mt-1.5">
                     {result?.effectiveTaxRate.toFixed(1)}% effective rate · {fmt(monthlyTakeHome)}/mo take-home
                   </div>
                 </div>
 
-                <div className="bg-[var(--sa-black)] border border-[var(--sa-border)] rounded-[6px] px-[1rem] py-0">
+                <div className="bg-[var(--sa-black)] border border-[var(--sa-border)] rounded-md px-[1rem] py-0">
                   <Row label="Income Tax"   value={monthlyIncomeTax > 0 ? `${fmt(monthlyIncomeTax)}/mo` : '—'} />
                   {result && result.niClass4 > 0 && <Row label="NI Class 4 (SE)"  value={`${fmt(Math.round(result.niClass4 / 12))}/mo`} />}
                   {result && result.niClass1 > 0 && <Row label="NI Class 1 (PAYE)" value={`${fmt(Math.round(result.niClass1 / 12))}/mo`} />}
@@ -183,9 +183,9 @@ export default function TaxPotCalculator() {
                 </div>
 
                 {result?.sixtyPercentTrap && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-[0.75rem] px-[12px] py-[10px] bg-[rgba(251,191,36,0.06)] border border-[rgba(251,191,36,0.2)] rounded-[4px] flex gap-[8px] items-start">
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 px-[12px] py-[10px] bg-[rgba(251,191,36,0.06)] border border-[rgba(251,191,36,0.2)] rounded flex gap-2 items-start">
                     <AlertTriangle size={13} className="text-[#FBBF24] shrink-0 mt-[1px]" />
-                    <div className="text-[#FBBF24] text-[0.75rem] leading-[1.5]">
+                    <div className="text-[#FBBF24] text-xs leading-[1.5]">
                       <strong>60% trap detected.</strong> At this income level your Personal Allowance tapers, creating ~60% effective marginal rate. A pension contribution can eliminate this.
                     </div>
                   </motion.div>

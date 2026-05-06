@@ -80,7 +80,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-[6px] bg-[var(--sa-white)] text-[var(--sa-black)] px-5 py-2 text-[0.82rem] font-semibold no-underline rounded-[4px] tracking-[-0.01em]"
+              className="inline-flex items-center gap-1.5 bg-[var(--sa-white)] text-[var(--sa-black)] px-5 py-2 text-[0.82rem] font-semibold no-underline rounded tracking-[-0.01em]"
             >
               Open Dashboard <ArrowRight size={13} />
             </Link>
@@ -98,7 +98,7 @@ export default function LandingPage() {
         <div className="relative z-10 max-w-[800px] mx-auto w-full">
           <motion.div initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} suppressHydrationWarning>
 
-            <div className="inline-flex items-center gap-[6px] px-3 py-1 border border-[var(--sa-border)] rounded-[3px] text-[rgba(244,245,248,0.35)] text-[0.62rem] tracking-[0.15em] uppercase mb-8 font-mono">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 border border-[var(--sa-border)] rounded-[3px] text-[rgba(244,245,248,0.35)] text-[0.62rem] tracking-[0.15em] uppercase mb-8 font-mono">
               UK Tax Platform · 2026/27 · HMRC-Accurate · Free
             </div>
 
@@ -118,7 +118,7 @@ export default function LandingPage() {
             <div className="flex flex-wrap gap-3 items-center mb-10">
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-[9px] px-8 py-[13px] bg-[var(--sa-white)] text-[var(--sa-black)] font-semibold text-[0.9rem] no-underline rounded-[4px] tracking-[-0.01em]"
+                className="inline-flex items-center gap-[9px] px-8 py-[13px] bg-[var(--sa-white)] text-[var(--sa-black)] font-semibold text-[0.9rem] no-underline rounded tracking-[-0.01em]"
               >
                 Open Free Dashboard <ArrowRight size={16} />
               </Link>
@@ -130,8 +130,8 @@ export default function LandingPage() {
             {/* Trust points */}
             <div className="flex flex-col gap-[0.45rem]">
               {TRUST_POINTS.map((pt) => (
-                <div key={pt} className="flex items-start gap-[8px]">
-                  <CheckCircle2 size={13} className="text-[rgba(74,222,128,0.7)] mt-[2px] flex-shrink-0" />
+                <div key={pt} className="flex items-start gap-2">
+                  <CheckCircle2 size={13} className="text-[rgba(74,222,128,0.7)] mt-0.5 flex-shrink-0" />
                   <span className="text-[rgba(244,245,248,0.45)] text-[0.78rem] leading-[1.5] font-mono">{pt}</span>
                 </div>
               ))}
@@ -175,7 +175,7 @@ export default function LandingPage() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-px border border-[var(--sa-border)] rounded-[6px] overflow-hidden bg-[var(--sa-border)]">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-px border border-[var(--sa-border)] rounded-md overflow-hidden bg-[var(--sa-border)]">
             {MODULES.map(({ icon: Icon, label, desc }, i) => (
               <motion.div
                 key={label}
@@ -209,7 +209,7 @@ export default function LandingPage() {
           <div className="flex flex-wrap gap-3 items-center">
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-[9px] px-8 py-[13px] bg-[var(--sa-white)] text-[var(--sa-black)] font-semibold text-[0.9rem] no-underline rounded-[4px] tracking-[-0.01em]"
+              className="inline-flex items-center gap-[9px] px-8 py-[13px] bg-[var(--sa-white)] text-[var(--sa-black)] font-semibold text-[0.9rem] no-underline rounded tracking-[-0.01em]"
             >
               Open Dashboard — Free <ArrowRight size={16} />
             </Link>

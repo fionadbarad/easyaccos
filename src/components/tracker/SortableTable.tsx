@@ -54,14 +54,14 @@ export function SortableTable<T extends { id: string }>({
 
   if (rows.length === 0) {
     return (
-      <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-12 text-center text-[rgba(244,245,248,0.42)] text-[0.85rem]">
+      <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-md p-12 text-center text-[rgba(244,245,248,0.42)] text-[0.85rem]">
         {empty ?? 'No results.'}
       </div>
     )
   }
 
   return (
-    <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] overflow-hidden">
+    <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-md overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-[0.82rem]">
           <thead>

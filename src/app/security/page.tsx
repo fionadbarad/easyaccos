@@ -3,11 +3,11 @@ import Link from 'next/link'
 
 function Pillar({ icon: Icon, title, body }: { icon: React.ElementType; title: string; body: string }) {
   return (
-    <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[10px] p-[1.5rem] flex flex-col gap-[0.65rem]">
-      <div className="w-[40px] h-[40px] rounded-[8px] bg-[rgba(244,245,248,0.06)] border border-[rgba(244,245,248,0.1)] flex items-center justify-center">
+    <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[10px] p-6 flex flex-col gap-[0.65rem]">
+      <div className="w-[40px] h-[40px] rounded-lg bg-[rgba(244,245,248,0.06)] border border-[rgba(244,245,248,0.1)] flex items-center justify-center">
         <Icon size={20} className="text-[var(--sa-white)]" />
       </div>
-      <h3 className="text-[var(--sa-white)] text-[1rem] font-bold m-0">{title}</h3>
+      <h3 className="text-[var(--sa-white)] text-base font-bold m-0">{title}</h3>
       <p className="text-[rgba(244,245,248,0.42)] text-[0.85rem] leading-[1.65] m-0">{body}</p>
     </div>
   )
@@ -19,29 +19,29 @@ export default function SecurityPage() {
       <div className="max-w-[820px] mx-auto">
 
         {/* Header */}
-        <div className="flex items-center gap-[1rem] mb-[1rem]">
-          <div className="w-[52px] h-[52px] rounded-[12px] bg-[rgba(244,245,248,0.06)] border border-[rgba(244,245,248,0.1)] flex items-center justify-center">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="w-[52px] h-[52px] rounded-xl bg-[rgba(244,245,248,0.06)] border border-[rgba(244,245,248,0.1)] flex items-center justify-center">
             <Shield size={26} className="text-[var(--sa-white)]" />
           </div>
           <div>
             <h1 className="text-[var(--sa-white)] text-[clamp(1.6rem,3.5vw,2.2rem)] font-bold m-0">
               Security &amp; Privacy
             </h1>
-            <p className="text-[rgba(244,245,248,0.42)] text-[0.875rem] mt-[4px] mb-0">
+            <p className="text-[rgba(244,245,248,0.42)] text-sm mt-1 mb-0">
               How EasyAcco handles your financial data
             </p>
           </div>
         </div>
 
         {/* Hero statement */}
-        <div className="bg-[rgba(244,245,248,0.04)] border border-[rgba(244,245,248,0.1)] rounded-[10px] p-[1.5rem] mb-[2.5rem]">
-          <p className="text-[var(--sa-white)] text-[1rem] leading-[1.7] m-0">
+        <div className="bg-[rgba(244,245,248,0.04)] border border-[rgba(244,245,248,0.1)] rounded-[10px] p-6 mb-[2.5rem]">
+          <p className="text-[var(--sa-white)] text-base leading-[1.7] m-0">
             <strong className="text-[var(--sa-white)]">EasyAcco processes all tax calculations at the edge</strong> — your financial numbers never touch our servers. All estimations run entirely in your browser. We only store data when you explicitly choose to save it, and only after you authenticate with Google.
           </p>
         </div>
 
         {/* Security pillars */}
-        <div className="grid gap-[1rem] mb-[2.5rem]" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))' }}>
+        <div className="grid gap-4 mb-[2.5rem]" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))' }}>
           <Pillar icon={Zap} title="Edge-First Calculations"
             body="Every tax calculation runs client-side in your browser or at the Vercel edge. No calculation data is transmitted to or stored on our servers." />
           <Pillar icon={Eye} title="Zero Storage by Default"
@@ -57,8 +57,8 @@ export default function SecurityPage() {
         </div>
 
         {/* Local-first encryption */}
-        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[10px] p-[1.5rem] mb-[2rem]">
-          <h2 className="text-[var(--sa-white)] text-[1.1rem] font-bold mb-[0.75rem]">
+        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[10px] p-6 mb-8">
+          <h2 className="text-[var(--sa-white)] text-[1.1rem] font-bold mb-3">
             Your Device, Your Keys
           </h2>
           <p className="text-[rgba(244,245,248,0.42)] text-[0.85rem] leading-[1.7] m-[0_0_0.75rem]">
@@ -78,8 +78,8 @@ export default function SecurityPage() {
         </div>
 
         {/* What we store */}
-        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[10px] p-[1.5rem] mb-[2rem]">
-          <h2 className="text-[var(--sa-white)] text-[1.1rem] font-bold mb-[1rem]">
+        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[10px] p-6 mb-8">
+          <h2 className="text-[var(--sa-white)] text-[1.1rem] font-bold mb-4">
             What We Store (Only After Sign-In)
           </h2>
           {[
@@ -87,16 +87,16 @@ export default function SecurityPage() {
             ['Saved transactions', 'Only if you use the Save feature — encrypted at rest'],
             ['Display name', 'Optional, editable in Settings at any time'],
           ].map(([field, desc]) => (
-            <div key={field} className="flex justify-between p-[10px_0] border-b border-[rgba(244,245,248,0.06)] gap-[1rem]">
-              <span className="text-[var(--sa-white)] text-[0.875rem] font-medium shrink-0">{field}</span>
+            <div key={field} className="flex justify-between p-[10px_0] border-b border-[rgba(244,245,248,0.06)] gap-4">
+              <span className="text-[var(--sa-white)] text-sm font-medium shrink-0">{field}</span>
               <span className="text-[rgba(244,245,248,0.42)] text-[0.82rem] text-right">{desc}</span>
             </div>
           ))}
         </div>
 
         {/* AI disclosure */}
-        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[10px] p-[1.5rem] mb-[2rem]">
-          <h2 className="text-[var(--sa-white)] text-[1.1rem] font-bold mb-[0.75rem]">
+        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[10px] p-6 mb-8">
+          <h2 className="text-[var(--sa-white)] text-[1.1rem] font-bold mb-3">
             AI Features &amp; Third-Party Processing
           </h2>
           <p className="text-[rgba(244,245,248,0.42)] text-[0.85rem] leading-[1.7] m-0">

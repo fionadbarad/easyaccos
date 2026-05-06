@@ -4,9 +4,9 @@ import { Sparkles, Loader2 } from 'lucide-react'
 import type { ExpenseFormState } from '@/lib/hooks/useExpenses'
 import { CATEGORIES } from '@/lib/hooks/useExpenses'
 
-const INPUT_MONO = 'w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none font-mono'
-const INPUT_BASE = 'w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none'
-const LABEL_S = 'block text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.08em] mb-[4px] font-semibold'
+const INPUT_MONO = 'w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none font-mono'
+const INPUT_BASE = 'w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none'
+const LABEL_S = 'block text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.08em] mb-1 font-semibold'
 
 export function ExpenseForm({
   form,
@@ -25,7 +25,7 @@ export function ExpenseForm({
 }) {
   return (
     <form onSubmit={onSubmit}
-      className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-5 mb-5 grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-[0.85rem] items-end">
+      className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-md p-5 mb-5 grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-[0.85rem] items-end">
       <div>
         <label className={LABEL_S}>Date</label>
         <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} className={INPUT_MONO} />
@@ -53,10 +53,10 @@ export function ExpenseForm({
         <input type="number" min={0} step={0.01} value={form.amount} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} placeholder="0.00" className={INPUT_MONO} required />
       </div>
       <div className="flex gap-[0.4rem]">
-        <button type="submit" className="flex-1 bg-[var(--sa-white)] text-[var(--sa-black)] border-0 rounded-[4px] p-[9px] font-semibold cursor-pointer text-[0.8rem] min-h-[40px] tracking-[-0.01em]">
+        <button type="submit" className="flex-1 bg-[var(--sa-white)] text-[var(--sa-black)] border-0 rounded p-[9px] font-semibold cursor-pointer text-[0.8rem] min-h-[40px] tracking-[-0.01em]">
           Save
         </button>
-        <button type="button" onClick={onCancel} className="bg-transparent text-[rgba(244,245,248,0.42)] border border-[var(--sa-border)] rounded-[4px] px-3 py-[9px] cursor-pointer text-[0.8rem] min-h-[40px]">
+        <button type="button" onClick={onCancel} className="bg-transparent text-[rgba(244,245,248,0.42)] border border-[var(--sa-border)] rounded px-3 py-[9px] cursor-pointer text-[0.8rem] min-h-[40px]">
           Cancel
         </button>
       </div>

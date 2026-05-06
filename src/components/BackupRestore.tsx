@@ -80,17 +80,17 @@ export function BackupRestore() {
 
       {/* ── Export ─────────────────────────────────────────── */}
       <div>
-        <label className="block text-[rgba(244,245,248,0.42)] text-[0.75rem] uppercase tracking-[0.07em] mb-[0.35rem]">Backup passphrase (optional)</label>
+        <label className="block text-[rgba(244,245,248,0.42)] text-xs uppercase tracking-[0.07em] mb-[0.35rem]">Backup passphrase (optional)</label>
         <input
           type="password"
           placeholder="Leave blank for unencrypted backup"
           value={exportPw}
           onChange={(e) => setExportPw(e.target.value)}
-          className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] px-[13px] py-[9px] text-[var(--sa-white)] text-[0.9rem] outline-none"
+          className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded px-[13px] py-[9px] text-[var(--sa-white)] text-[0.9rem] outline-none"
           autoComplete="new-password"
         />
         <div className="mt-[10px]">
-          <button onClick={onExport} className="bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded-[4px] px-[22px] py-[9px] font-bold text-[0.875rem] inline-flex items-center gap-[8px] cursor-pointer transition-opacity duration-[140ms] ease-in-out">
+          <button onClick={onExport} className="bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded px-[22px] py-[9px] font-bold text-sm inline-flex items-center gap-2 cursor-pointer transition-opacity duration-[140ms] ease-in-out">
             <Download size={15} /> Download backup
           </button>
         </div>
@@ -100,7 +100,7 @@ export function BackupRestore() {
 
       {/* ── Import ─────────────────────────────────────────── */}
       <div>
-        <label className="block text-[rgba(244,245,248,0.42)] text-[0.75rem] uppercase tracking-[0.07em] mb-[0.35rem]">Restore from backup file</label>
+        <label className="block text-[rgba(244,245,248,0.42)] text-xs uppercase tracking-[0.07em] mb-[0.35rem]">Restore from backup file</label>
         <input
           ref={fileRef}
           type="file"
@@ -108,12 +108,12 @@ export function BackupRestore() {
           onChange={onPickFile}
           className="hidden"
         />
-        <button onClick={() => fileRef.current?.click()} className="bg-transparent text-[var(--sa-white)] border border-[var(--sa-border)] rounded-[4px] px-[22px] py-[9px] font-bold text-[0.875rem] inline-flex items-center gap-[8px] cursor-pointer transition-opacity duration-[140ms] ease-in-out">
+        <button onClick={() => fileRef.current?.click()} className="bg-transparent text-[var(--sa-white)] border border-[var(--sa-border)] rounded px-[22px] py-[9px] font-bold text-sm inline-flex items-center gap-2 cursor-pointer transition-opacity duration-[140ms] ease-in-out">
           <Upload size={15} /> Choose file…
         </button>
 
         {pending && (
-          <div className="mt-[14px] p-[14px] border border-[var(--sa-border)] rounded-[6px] bg-[var(--sa-gray)] flex flex-col gap-[12px]">
+          <div className="mt-[14px] p-[14px] border border-[var(--sa-border)] rounded-md bg-[var(--sa-gray)] flex flex-col gap-3">
             <div className="text-[var(--sa-white)] text-[0.88rem]">
               Backup from{' '}
               <strong>{new Date(pending.createdAt).toLocaleString('en-GB')}</strong>
@@ -123,21 +123,21 @@ export function BackupRestore() {
 
             {pending.encrypted && (
               <div>
-                <label className="block text-[rgba(244,245,248,0.42)] text-[0.75rem] uppercase tracking-[0.07em] mb-[0.35rem]">Passphrase</label>
+                <label className="block text-[rgba(244,245,248,0.42)] text-xs uppercase tracking-[0.07em] mb-[0.35rem]">Passphrase</label>
                 <input
                   type="password"
                   value={restorePw}
                   onChange={(e) => setRestorePw(e.target.value)}
-                  className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] px-[13px] py-[9px] text-[var(--sa-white)] text-[0.9rem] outline-none"
+                  className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded px-[13px] py-[9px] text-[var(--sa-white)] text-[0.9rem] outline-none"
                   autoComplete="off"
                 />
               </div>
             )}
 
             <div>
-              <label className="block text-[rgba(244,245,248,0.42)] text-[0.75rem] uppercase tracking-[0.07em] mb-[0.35rem]">Mode</label>
-              <div className="flex gap-[14px] text-[var(--sa-white)] text-[0.85rem]">
-                <label className="inline-flex items-center gap-[6px]">
+              <label className="block text-[rgba(244,245,248,0.42)] text-xs uppercase tracking-[0.07em] mb-[0.35rem]">Mode</label>
+              <div className="flex gap-3.5 text-[var(--sa-white)] text-[0.85rem]">
+                <label className="inline-flex items-center gap-1.5">
                   <input
                     type="radio"
                     checked={restoreMode === 'merge'}
@@ -145,7 +145,7 @@ export function BackupRestore() {
                   />
                   Merge into current data
                 </label>
-                <label className="inline-flex items-center gap-[6px]">
+                <label className="inline-flex items-center gap-1.5">
                   <input
                     type="radio"
                     checked={restoreMode === 'replace'}
@@ -156,13 +156,13 @@ export function BackupRestore() {
               </div>
             </div>
 
-            <div className="flex gap-[10px]">
-              <button onClick={onConfirmRestore} className="bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded-[4px] px-[22px] py-[9px] font-bold text-[0.875rem] inline-flex items-center gap-[8px] cursor-pointer transition-opacity duration-[140ms] ease-in-out">
+            <div className="flex gap-2.5">
+              <button onClick={onConfirmRestore} className="bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded px-[22px] py-[9px] font-bold text-sm inline-flex items-center gap-2 cursor-pointer transition-opacity duration-[140ms] ease-in-out">
                 Restore
               </button>
               <button
                 onClick={() => { setPending(null); setRestorePw('') }}
-                className="bg-transparent text-[var(--sa-white)] border border-[var(--sa-border)] rounded-[4px] px-[22px] py-[9px] font-bold text-[0.875rem] inline-flex items-center gap-[8px] cursor-pointer transition-opacity duration-[140ms] ease-in-out"
+                className="bg-transparent text-[var(--sa-white)] border border-[var(--sa-border)] rounded px-[22px] py-[9px] font-bold text-sm inline-flex items-center gap-2 cursor-pointer transition-opacity duration-[140ms] ease-in-out"
               >
                 Cancel
               </button>
@@ -175,7 +175,7 @@ export function BackupRestore() {
       {status.kind !== 'idle' && (
         <div
           role="status"
-          className={`inline-flex items-center gap-[8px] text-[0.85rem] ${
+          className={`inline-flex items-center gap-2 text-[0.85rem] ${
             status.kind === 'ok'    ? 'text-[#4ADE80]'
             : status.kind === 'error' ? 'text-[#F87171]'
             : 'text-[rgba(244,245,248,0.42)]'

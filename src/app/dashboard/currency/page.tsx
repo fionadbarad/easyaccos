@@ -37,7 +37,7 @@ function saveCache(rates: Record<string, number>) {
   }
 }
 
-const inputCls = 'bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] p-[9px_12px] text-[var(--sa-white)] text-[0.9rem] outline-none w-full'
+const inputCls = 'bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded p-[9px_12px] text-[var(--sa-white)] text-[0.9rem] outline-none w-full'
 
 export default function CurrencyPage() {
   const [rates,       setRates]       = useState<Record<string, number>>({})
@@ -145,15 +145,15 @@ export default function CurrencyPage() {
     <div className="p-[clamp(1.5rem,4vw,2.5rem)] max-w-[800px]">
 
       {/* ── Header ── */}
-      <div className="flex items-end justify-between flex-wrap gap-[1rem] mb-[2rem]">
+      <div className="flex items-end justify-between flex-wrap gap-4 mb-8">
         <div>
           <h1 className="text-[var(--sa-white)] text-[clamp(1.5rem,3vw,2rem)] font-bold mb-[0.3rem]">
             Currency Converter
           </h1>
-          <p className="text-[var(--sa-muted)] text-[0.875rem]">
+          <p className="text-[var(--sa-muted)] text-sm">
             Live exchange rates · 170+ currencies · Updates every 60s
             {isStale && (
-              <span className="ml-[0.5rem] text-[rgba(253,186,116,0.85)]">(cached)</span>
+              <span className="ml-2 text-[rgba(253,186,116,0.85)]">(cached)</span>
             )}
           </p>
         </div>
@@ -161,7 +161,7 @@ export default function CurrencyPage() {
           onClick={fetchRates}
           disabled={loading}
           aria-label="Refresh exchange rates"
-          className={`flex items-center gap-[6px] bg-[rgba(244,245,248,0.05)] border border-[var(--sa-border)] rounded-[4px] text-[var(--sa-white)] text-[0.8rem] p-[7px_14px] ${loading ? 'cursor-default' : 'cursor-pointer'}`}
+          className={`flex items-center gap-1.5 bg-[rgba(244,245,248,0.05)] border border-[var(--sa-border)] rounded text-[var(--sa-white)] text-[0.8rem] p-[7px_14px] ${loading ? 'cursor-default' : 'cursor-pointer'}`}
         >
           <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
           {loading ? 'Updating…' : 'Refresh'}
@@ -169,18 +169,18 @@ export default function CurrencyPage() {
       </div>
 
       {error && (
-        <div role="alert" className="bg-[rgba(248,113,113,0.1)] border border-[rgba(248,113,113,0.3)] rounded-[4px] p-[10px_14px] text-[#F87171] text-[0.85rem] mb-[1.5rem]">
+        <div role="alert" className="bg-[rgba(248,113,113,0.1)] border border-[rgba(248,113,113,0.3)] rounded p-[10px_14px] text-[#F87171] text-[0.85rem] mb-6">
           {error}
         </div>
       )}
 
       {/* ── Converter ── */}
-      <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[8px] p-[2rem] mb-[1.5rem]">
-        <div className="grid items-end gap-[1rem]" style={{ gridTemplateColumns: '1fr auto 1fr' }}>
+      <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-lg p-8 mb-6">
+        <div className="grid items-end gap-4" style={{ gridTemplateColumns: '1fr auto 1fr' }}>
 
           {/* From */}
           <div>
-            <label className="block text-[var(--sa-muted)] text-[0.75rem] uppercase tracking-[0.08em] mb-[0.4rem]">
+            <label className="block text-[var(--sa-muted)] text-xs uppercase tracking-[0.08em] mb-[0.4rem]">
               Amount
             </label>
             <input
@@ -191,8 +191,8 @@ export default function CurrencyPage() {
               onChange={(e) => setAmount(e.target.value)}
               className={inputCls}
             />
-            <div className="mt-[0.5rem]">
-              <label className="block text-[var(--sa-muted)] text-[0.75rem] uppercase tracking-[0.08em] mb-[0.4rem]">
+            <div className="mt-2">
+              <label className="block text-[var(--sa-muted)] text-xs uppercase tracking-[0.08em] mb-[0.4rem]">
                 From
               </label>
               <select
@@ -209,14 +209,14 @@ export default function CurrencyPage() {
           <button
             onClick={swap}
             aria-label="Swap currencies"
-            className="flex items-center justify-center w-[40px] h-[40px] rounded-[50%] bg-[rgba(244,245,248,0.06)] border border-[var(--sa-border)] cursor-pointer text-[var(--sa-white)] shrink-0"
+            className="flex items-center justify-center w-[40px] h-[40px] rounded-full bg-[rgba(244,245,248,0.06)] border border-[var(--sa-border)] cursor-pointer text-[var(--sa-white)] shrink-0"
           >
             <ArrowLeftRight size={18} />
           </button>
 
           {/* To */}
           <div>
-            <label className="block text-[var(--sa-muted)] text-[0.75rem] uppercase tracking-[0.08em] mb-[0.4rem]">
+            <label className="block text-[var(--sa-muted)] text-xs uppercase tracking-[0.08em] mb-[0.4rem]">
               Converted
             </label>
             <div
@@ -230,8 +230,8 @@ export default function CurrencyPage() {
                   ? converted.toLocaleString('en-GB', { maximumFractionDigits: 4 })
                   : '—'}
             </div>
-            <div className="mt-[0.5rem]">
-              <label className="block text-[var(--sa-muted)] text-[0.75rem] uppercase tracking-[0.08em] mb-[0.4rem]">
+            <div className="mt-2">
+              <label className="block text-[var(--sa-muted)] text-xs uppercase tracking-[0.08em] mb-[0.4rem]">
                 To
               </label>
               <select
@@ -246,10 +246,10 @@ export default function CurrencyPage() {
         </div>
 
         {rate !== null && (
-          <p className="mt-[1.25rem] text-[var(--sa-muted)] text-[0.8rem]">
+          <p className="mt-5 text-[var(--sa-muted)] text-[0.8rem]">
             1 {from} = <strong className="text-[var(--sa-white)]">{rate.toFixed(6)}</strong> {to}
             {lastUpdated && (
-              <span className="ml-[1rem]">
+              <span className="ml-4">
                 {isStale ? 'Cached' : 'Updated'} {lastUpdated.toLocaleTimeString('en-GB')}
               </span>
             )}
@@ -258,10 +258,10 @@ export default function CurrencyPage() {
       </div>
 
       {/* ── GBP cross-rate tiles ── */}
-      <h2 className="text-[var(--sa-white)] text-[1.1rem] font-bold mb-[1rem]">
+      <h2 className="text-[var(--sa-white)] text-[1.1rem] font-bold mb-4">
         GBP Cross Rates
       </h2>
-      <div className="grid gap-[0.75rem]" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(140px,1fr))' }}>
+      <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(140px,1fr))' }}>
         {POPULAR.filter((c) => c !== 'GBP').map((cur) => {
           const r = rates[cur]
           return (
@@ -269,9 +269,9 @@ export default function CurrencyPage() {
               key={cur}
               onClick={() => { setFrom('GBP'); setTo(cur) }}
               aria-label={`Set converter to GBP/${cur}`}
-              className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-[0.9rem_1rem] cursor-pointer text-left text-inherit"
+              className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-md p-[0.9rem_1rem] cursor-pointer text-left text-inherit"
             >
-              <div className="text-[var(--sa-muted)] text-[0.72rem] tracking-[0.08em] uppercase mb-[4px]">
+              <div className="text-[var(--sa-muted)] text-[0.72rem] tracking-[0.08em] uppercase mb-1">
                 GBP/{cur}
               </div>
               <div className="text-[var(--sa-white)] font-bold text-[1.1rem]">

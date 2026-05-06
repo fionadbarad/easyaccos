@@ -50,7 +50,7 @@ export default function DashboardShell({
   return (
     <div className="flex min-h-screen bg-[var(--sa-black)]">
       <button
-        className={`hidden md:flex fixed top-4 left-3 z-[51] bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[4px] text-[rgba(244,245,248,0.42)] hover:text-[var(--sa-white)] cursor-pointer p-[6px_8px] items-center justify-center transition-[opacity,color] duration-200 ${desktopOpen ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}
+        className={`hidden md:flex fixed top-4 left-3 z-[51] bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded text-[rgba(244,245,248,0.42)] hover:text-[var(--sa-white)] cursor-pointer p-[6px_8px] items-center justify-center transition-[opacity,color] duration-200 ${desktopOpen ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}
         onClick={() => setDesktopOpen(true)}
         title="Open sidebar"
       >

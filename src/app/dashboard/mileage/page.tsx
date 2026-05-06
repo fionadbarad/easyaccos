@@ -56,8 +56,8 @@ function Stat({ label, value, sub, accent }: {
   label: string; value: string; sub?: string; accent?: string
 }) {
   return (
-    <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-[1rem_1.25rem]">
-      <div className="text-[rgba(244,245,248,0.42)] text-[0.68rem] uppercase tracking-[0.08em] mb-[6px] font-mono">
+    <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-md p-[1rem_1.25rem]">
+      <div className="text-[rgba(244,245,248,0.42)] text-[0.68rem] uppercase tracking-[0.08em] mb-1.5 font-mono">
         {label}
       </div>
       <div
@@ -66,7 +66,7 @@ function Stat({ label, value, sub, accent }: {
       >
         {value}
       </div>
-      {sub && <div className="text-[rgba(244,245,248,0.42)] text-[0.68rem] mt-[4px]">{sub}</div>}
+      {sub && <div className="text-[rgba(244,245,248,0.42)] text-[0.68rem] mt-1">{sub}</div>}
     </div>
   )
 }
@@ -74,7 +74,7 @@ function Stat({ label, value, sub, accent }: {
 // ── Rate info panel ───────────────────────────────────────────────────────────
 function RatePanel({ open, onToggle }: { open: boolean; onToggle: () => void }) {
   return (
-    <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] overflow-hidden">
+    <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-md overflow-hidden">
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between p-[0.75rem_1rem] bg-transparent border-none text-[var(--sa-white)] cursor-pointer text-[0.78rem] font-medium">
@@ -86,7 +86,7 @@ function RatePanel({ open, onToggle }: { open: boolean; onToggle: () => void }) 
       </button>
       {open && (
         <div className="p-[0_1rem_1rem] border-t border-[var(--sa-border)]">
-          <table className="w-full border-collapse text-[0.78rem] mt-[0.75rem]">
+          <table className="w-full border-collapse text-[0.78rem] mt-3">
             <thead>
               <tr>
                 {['Vehicle', 'First 10,000 mi', 'Above 10,000 mi'].map(h => (
@@ -122,7 +122,7 @@ function EntryRow({ entry, claimAmount, onDelete }: {
   entry: MileageEntry; claimAmount: number; onDelete: () => void
 }) {
   return (
-    <div className="grid gap-[8px] p-[10px_12px] border-b border-[var(--sa-border)] text-[0.78rem]"
+    <div className="grid gap-2 p-[10px_12px] border-b border-[var(--sa-border)] text-[0.78rem]"
       style={{ gridTemplateColumns: '100px 1fr 90px 70px 80px 36px' }}>
       <span className="text-[rgba(244,245,248,0.42)] font-mono text-[0.7rem]">
         {entry.date}
@@ -223,19 +223,19 @@ export default function MileagePage() {
     <div className="min-h-screen bg-[var(--sa-black)] p-[2rem_1.5rem_4rem] max-w-[820px] mx-auto">
 
       {/* Header */}
-      <div className="flex items-start justify-between mb-[1.75rem] flex-wrap gap-[1rem]">
+      <div className="flex items-start justify-between mb-7 flex-wrap gap-4">
         <div>
-          <div className="flex items-center gap-[10px] mb-[4px]">
+          <div className="flex items-center gap-2.5 mb-1">
             <Car size={18} className="text-[var(--sa-white)]" />
             <h1 className="text-[var(--sa-white)] text-[1.1rem] font-semibold tracking-[-0.03em] m-0">
               Mileage Tracker
             </h1>
           </div>
-          <p className="text-[rgba(244,245,248,0.42)] text-[0.75rem] m-0">
+          <p className="text-[rgba(244,245,248,0.42)] text-xs m-0">
             HMRC approved mileage — 2026/27 tax year
           </p>
         </div>
-        <div className="flex items-center gap-[10px]">
+        <div className="flex items-center gap-2.5">
           <div className="flex items-center gap-[5px] text-[rgba(244,245,248,0.42)] text-[0.68rem]">
             {isAuthenticated
               ? <><Cloud size={11} className="text-[#4ADE80]" /> synced</>
@@ -243,14 +243,14 @@ export default function MileagePage() {
           </div>
           <button
             onClick={() => setShowForm(f => !f)}
-            className="flex items-center gap-[6px] bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded-[4px] p-[7px_14px] text-[0.78rem] font-semibold cursor-pointer">
+            className="flex items-center gap-1.5 bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded p-[7px_14px] text-[0.78rem] font-semibold cursor-pointer">
             <Plus size={13} /> Log Journey
           </button>
         </div>
       </div>
 
       {/* Stat cards */}
-      <div className="grid gap-[12px] mb-[1.25rem]" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))' }}>
+      <div className="grid gap-3 mb-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))' }}>
         <Stat label="Total Miles" value={`${formatMiles(totalMiles)} mi`} sub={`${entries.length} journeys`} />
         <Stat label="Total Claim" value={fmtGBP(totalClaim)} sub="tax deductible" accent="#4ADE80" />
         <Stat label="Car Miles" value={`${formatMiles(carMiles)} mi`} sub={`of ${CAR_THRESHOLD.toLocaleString()} threshold`} />
@@ -264,8 +264,8 @@ export default function MileagePage() {
 
       {/* 10k threshold progress */}
       {entries.some(e => e.vehicle === 'car') && (
-        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-[0.875rem_1rem] mb-[1.25rem]">
-          <div className="flex justify-between mb-[8px]">
+        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-md p-[0.875rem_1rem] mb-5">
+          <div className="flex justify-between mb-2">
             <span className="text-[rgba(244,245,248,0.42)] text-[0.7rem] tracking-[0.04em] uppercase font-mono">
               Car mileage threshold (45p → 25p)
             </span>
@@ -283,7 +283,7 @@ export default function MileagePage() {
             />
           </div>
           {thresholdPct >= 100 && (
-            <p className="text-[#FBBF24] text-[0.68rem] mt-[6px]">
+            <p className="text-[#FBBF24] text-[0.68rem] mt-1.5">
               10,000 mile threshold reached — remaining car journeys claim at 25p/mile.
             </p>
           )}
@@ -291,28 +291,28 @@ export default function MileagePage() {
       )}
 
       {/* HMRC rates info */}
-      <div className="mb-[1.25rem]">
+      <div className="mb-5">
         <RatePanel open={ratesOpen} onToggle={() => setRatesOpen(o => !o)} />
       </div>
 
       {/* Add journey form */}
       {showForm && (
-        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-[1.25rem] mb-[1.25rem]">
+        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-md p-5 mb-5">
           <h3 className="text-[var(--sa-white)] text-[0.85rem] font-semibold m-[0_0_1rem]">Log Journey</h3>
-          <div className="grid gap-[12px] mb-[12px]" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))' }}>
+          <div className="grid gap-3 mb-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))' }}>
 
             {/* Date */}
             <div>
-              <label className="block text-[rgba(244,245,248,0.42)] text-[0.68rem] mb-[4px] uppercase tracking-[0.06em]">Date</label>
+              <label className="block text-[rgba(244,245,248,0.42)] text-[0.68rem] mb-1 uppercase tracking-[0.06em]">Date</label>
               <input type="date" value={date} onChange={e => setDate(e.target.value)}
-                className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] text-[var(--sa-white)] p-[7px_10px] text-[0.78rem]" />
+                className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded text-[var(--sa-white)] p-[7px_10px] text-[0.78rem]" />
             </div>
 
             {/* Vehicle */}
             <div>
-              <label className="block text-[rgba(244,245,248,0.42)] text-[0.68rem] mb-[4px] uppercase tracking-[0.06em]">Vehicle</label>
+              <label className="block text-[rgba(244,245,248,0.42)] text-[0.68rem] mb-1 uppercase tracking-[0.06em]">Vehicle</label>
               <select value={vehicle} onChange={e => setVehicle(e.target.value as VehicleType)}
-                className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] text-[var(--sa-white)] p-[7px_10px] text-[0.78rem]">
+                className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded text-[var(--sa-white)] p-[7px_10px] text-[0.78rem]">
                 <option value="car">Car / Van</option>
                 <option value="motorcycle">Motorcycle</option>
                 <option value="bike">Bicycle</option>
@@ -321,23 +321,23 @@ export default function MileagePage() {
 
             {/* Miles */}
             <div>
-              <label className="block text-[rgba(244,245,248,0.42)] text-[0.68rem] mb-[4px] uppercase tracking-[0.06em]">Miles</label>
+              <label className="block text-[rgba(244,245,248,0.42)] text-[0.68rem] mb-1 uppercase tracking-[0.06em]">Miles</label>
               <input type="number" min="0.1" step="0.1" placeholder="0.0" value={miles} onChange={e => setMiles(e.target.value)}
-                className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] text-[var(--sa-white)] p-[7px_10px] text-[0.78rem]" />
+                className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded text-[var(--sa-white)] p-[7px_10px] text-[0.78rem]" />
             </div>
           </div>
 
           {/* Description */}
-          <div className="mb-[12px]">
-            <label className="block text-[rgba(244,245,248,0.42)] text-[0.68rem] mb-[4px] uppercase tracking-[0.06em]">Business Purpose</label>
+          <div className="mb-3">
+            <label className="block text-[rgba(244,245,248,0.42)] text-[0.68rem] mb-1 uppercase tracking-[0.06em]">Business Purpose</label>
             <input type="text" placeholder="e.g. Client meeting — Manchester" value={description} onChange={e => setDescription(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && addEntry()}
-              className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] text-[var(--sa-white)] p-[7px_10px] text-[0.78rem]" />
+              className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded text-[var(--sa-white)] p-[7px_10px] text-[0.78rem]" />
           </div>
 
           {/* Preview claim */}
           {miles && parseFloat(miles) > 0 && (
-            <div className="bg-[var(--sa-gray)] rounded-[4px] p-[8px_12px] mb-[12px] flex justify-between items-center">
+            <div className="bg-[var(--sa-gray)] rounded p-[8px_12px] mb-3 flex justify-between items-center">
               <span className="text-[rgba(244,245,248,0.42)] text-[0.72rem]">Estimated claim for this journey</span>
               <span className="text-[#4ADE80] font-mono font-bold">
                 {fmtGBP(calcRate(vehicle, vehicle === 'car' ? carMiles : 0, parseFloat(miles) || 0))}
@@ -345,14 +345,14 @@ export default function MileagePage() {
             </div>
           )}
 
-          <div className="flex gap-[8px] justify-end">
+          <div className="flex gap-2 justify-end">
             <button onClick={() => setShowForm(false)}
-              className="bg-transparent border border-[var(--sa-border)] rounded-[4px] text-[rgba(244,245,248,0.42)] p-[7px_14px] text-[0.78rem] cursor-pointer">
+              className="bg-transparent border border-[var(--sa-border)] rounded text-[rgba(244,245,248,0.42)] p-[7px_14px] text-[0.78rem] cursor-pointer">
               Cancel
             </button>
             <button onClick={addEntry}
               disabled={!description.trim() || !miles || parseFloat(miles) <= 0}
-              className="bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded-[4px] p-[7px_14px] text-[0.78rem] font-semibold cursor-pointer disabled:opacity-40">
+              className="bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded p-[7px_14px] text-[0.78rem] font-semibold cursor-pointer disabled:opacity-40">
               Add Journey
             </button>
           </div>
@@ -360,10 +360,10 @@ export default function MileagePage() {
       )}
 
       {/* Journey list */}
-      <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] overflow-hidden">
+      <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-md overflow-hidden">
         {/* Column headers */}
         <div
-          className="grid gap-[8px] p-[8px_12px] border-b border-[var(--sa-border)] bg-[var(--sa-gray)]"
+          className="grid gap-2 p-[8px_12px] border-b border-[var(--sa-border)] bg-[var(--sa-gray)]"
           style={{ gridTemplateColumns: '100px 1fr 90px 70px 80px 36px' }}>
           {['Date', 'Purpose', 'Vehicle', 'Miles', 'Claim', ''].map((h, i) => (
             <span key={i} className={`text-[rgba(244,245,248,0.42)] text-[0.65rem] uppercase tracking-[0.08em] ${i >= 3 ? 'text-right' : 'text-left'}`}>
@@ -374,9 +374,9 @@ export default function MileagePage() {
 
         {enriched.length === 0 ? (
           <div className="p-[3rem] text-center">
-            <MapPin size={28} className="text-[rgba(244,245,248,0.18)] mb-[12px]" />
+            <MapPin size={28} className="text-[rgba(244,245,248,0.18)] mb-3" />
             <p className="text-[rgba(244,245,248,0.42)] text-[0.8rem] m-0">No journeys logged yet.</p>
-            <p className="text-[rgba(244,245,248,0.18)] text-[0.72rem] mt-[4px]">Log your first business trip to start tracking your HMRC mileage claim.</p>
+            <p className="text-[rgba(244,245,248,0.18)] text-[0.72rem] mt-1">Log your first business trip to start tracking your HMRC mileage claim.</p>
           </div>
         ) : (
           enriched.map(({ entry, claimAmount }) => (
@@ -392,7 +392,7 @@ export default function MileagePage() {
         {/* Total footer */}
         {enriched.length > 0 && (
           <div
-            className="grid gap-[8px] p-[10px_12px] border-t border-[var(--sa-border)] bg-[var(--sa-gray)]"
+            className="grid gap-2 p-[10px_12px] border-t border-[var(--sa-border)] bg-[var(--sa-gray)]"
             style={{ gridTemplateColumns: '100px 1fr 90px 70px 80px 36px' }}>
             <span />
             <span className="text-[rgba(244,245,248,0.42)] text-[0.7rem]">Total claim</span>
@@ -410,10 +410,10 @@ export default function MileagePage() {
 
       {/* Tax tip */}
       {totalClaim > 0 && (
-        <div className="mt-[1.25rem] bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-[0.875rem_1rem] flex items-start gap-[10px]">
-          <TrendingUp size={14} className="text-[#4ADE80] shrink-0 mt-[2px]" />
+        <div className="mt-5 bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-md p-[0.875rem_1rem] flex items-start gap-2.5">
+          <TrendingUp size={14} className="text-[#4ADE80] shrink-0 mt-0.5" />
           <div>
-            <p className="text-[var(--sa-white)] text-[0.75rem] font-medium m-[0_0_3px]">
+            <p className="text-[var(--sa-white)] text-xs font-medium m-[0_0_3px]">
               Tax saving: approx. {fmtGBP(totalClaim * 0.20)}–{fmtGBP(totalClaim * 0.40)}
             </p>
             <p className="text-[rgba(244,245,248,0.42)] text-[0.7rem] m-0">

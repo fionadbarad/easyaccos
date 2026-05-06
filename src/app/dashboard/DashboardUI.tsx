@@ -34,11 +34,11 @@ function getQuarterStatus(deadlineStr: string, today: Date) {
 function MTDCalendar() {
   const today = new Date()
   return (
-    <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] overflow-hidden mb-[2rem]">
+    <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-md overflow-hidden mb-8">
       <div className="px-[1.25rem] py-[1rem] border-b border-[var(--sa-border)] flex items-center justify-between">
         <div>
           <div className="text-[var(--sa-white)] text-[0.85rem] font-semibold tracking-[-0.01em]">MTD Filing Calendar</div>
-          <div className="text-[rgba(244,245,248,0.42)] text-[0.7rem] mt-[2px] font-mono">Making Tax Digital · ITSA 2026/27</div>
+          <div className="text-[rgba(244,245,248,0.42)] text-[0.7rem] mt-0.5 font-mono">Making Tax Digital · ITSA 2026/27</div>
         </div>
         <span className="bg-[var(--sa-gray)] text-[var(--sa-white)] text-[0.6rem] font-semibold px-[8px] py-[3px] rounded-[3px] tracking-[0.07em] font-mono">ACTIVE</span>
       </div>
@@ -48,7 +48,7 @@ function MTDCalendar() {
           const isActive = status === 'upcoming' || status === 'urgent'
           return (
             <div key={q.label} className={`px-[1.25rem] py-[1rem]${i < MTD_QUARTERS.length - 1 ? ' border-r border-[var(--sa-border)]' : ''}${isActive ? ' bg-[rgba(244,245,248,0.025)]' : ' bg-transparent'}`}>
-              <div className="flex items-center gap-[6px] mb-[6px]">
+              <div className="flex items-center gap-1.5 mb-1.5">
                 <Icon size={12} style={{ color }} />
                 <span className="text-[0.6rem] font-bold tracking-[0.08em] font-mono uppercase" style={{ color }}>{q.label}</span>
               </div>
@@ -97,28 +97,28 @@ function QuickEstimator() {
   const display = result ?? preview
 
   return (
-    <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-[1.25rem] mb-[2rem]">
-      <div className="text-[var(--sa-white)] text-[0.85rem] font-semibold tracking-[-0.01em] mb-[1rem]">Quick Estimator</div>
-      <div className="grid grid-cols-[1fr_1fr] gap-[0.75rem] mb-[0.75rem]">
+    <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-md p-5 mb-8">
+      <div className="text-[var(--sa-white)] text-[0.85rem] font-semibold tracking-[-0.01em] mb-4">Quick Estimator</div>
+      <div className="grid grid-cols-[1fr_1fr] gap-3 mb-3">
         <label className="flex flex-col gap-[5px]">
           <span className="text-[rgba(244,245,248,0.42)] text-[0.65rem] uppercase tracking-[0.08em] font-semibold">Annual Revenue</span>
           <input value={income} onChange={(e) => setIncome(e.target.value)} type="number" min={0} placeholder="50000"
-            className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none font-mono tabular-nums" />
+            className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none font-mono tabular-nums" />
         </label>
         <label className="flex flex-col gap-[5px]">
           <span className="text-[rgba(244,245,248,0.42)] text-[0.65rem] uppercase tracking-[0.08em] font-semibold">Allowable Expenses</span>
           <input value={expenses} onChange={(e) => setExpenses(e.target.value)} type="number" min={0} placeholder="8000"
-            className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none font-mono tabular-nums" />
+            className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none font-mono tabular-nums" />
         </label>
       </div>
-      <div className="flex items-center gap-[0.75rem] flex-wrap">
+      <div className="flex items-center gap-3 flex-wrap">
         <button onClick={calculate}
-          className="bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded-[4px] px-[18px] py-[8px] cursor-pointer font-semibold text-[0.8rem] tracking-[-0.01em]">
+          className="bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded px-[18px] py-[8px] cursor-pointer font-semibold text-[0.8rem] tracking-[-0.01em]">
           Calculate
         </button>
         {error && <span className="text-[#F87171] text-[0.78rem]">{error}</span>}
         {display && !error && (
-          <div className="flex gap-[1.5rem] font-mono text-[0.78rem]">
+          <div className="flex gap-6 font-mono text-[0.78rem]">
             <span className="text-[rgba(244,245,248,0.42)]">Tax due: <span className="text-[var(--sa-white)] font-semibold">£{display.incomeTax.toLocaleString('en-GB')}</span></span>
             <span className="text-[rgba(244,245,248,0.42)]">Effective rate: <span className="text-[var(--sa-white)] font-semibold">{display.effectiveTaxRate}%</span></span>
           </div>
@@ -152,7 +152,7 @@ export default function DashboardUI({ displayName }: DashboardUIProps) {
   return (
     <div className="dashboard-page">
       {/* Header */}
-      <div className="mb-[2rem]">
+      <div className="mb-8">
         <div className="text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.12em] mb-[5px] font-mono">
           overview
         </div>
@@ -168,8 +168,8 @@ export default function DashboardUI({ displayName }: DashboardUIProps) {
       <QuickEstimator />
 
       {/* Navigation tiles */}
-      <div className="mb-[0.75rem]">
-        <div className="text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.12em] mb-[0.75rem] font-mono">modules</div>
+      <div className="mb-3">
+        <div className="text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.12em] mb-3 font-mono">modules</div>
       </div>
       <div className="dashboard-grid">
         {TILES.map(({ href, label, Icon, desc }) => (
@@ -184,7 +184,7 @@ export default function DashboardUI({ displayName }: DashboardUIProps) {
       </div>
 
       {/* Footer note */}
-      <p className="text-[rgba(244,245,248,0.42)] text-[0.65rem] mt-[2rem] font-mono">
+      <p className="text-[rgba(244,245,248,0.42)] text-[0.65rem] mt-8 font-mono">
         HMRC-compliant · 2026/27 fiscal year · Tax calculations run client-side
       </p>
     </div>

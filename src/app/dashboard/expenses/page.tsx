@@ -27,7 +27,7 @@ export default function ExpensesPage() {
       accessor: e => e.date,
       render: e => (
         <span className="inline-flex items-center gap-[5px]">
-          <span className="text-[rgba(244,245,248,0.42)] font-mono text-[0.75rem]">{e.date}</span>
+          <span className="text-[rgba(244,245,248,0.42)] font-mono text-xs">{e.date}</span>
           {e.ocrScanned && (
             <span title="Scanned via OCR" className="inline-flex items-center text-[#93C5FD] opacity-80">
               <Camera size={10} strokeWidth={1.5} />
@@ -40,7 +40,7 @@ export default function ExpensesPage() {
     {
       key: 'category', header: 'Category', sortable: true,
       accessor: e => e.category,
-      render: e => <span className="text-[rgba(244,245,248,0.42)] text-[0.75rem]">{e.category}</span>,
+      render: e => <span className="text-[rgba(244,245,248,0.42)] text-xs">{e.category}</span>,
     },
     {
       key: 'amount', header: 'Amount', sortable: true, align: 'right',
@@ -69,7 +69,7 @@ export default function ExpensesPage() {
         <ReceiptVerifyModal scan={pendingScan} onConfirm={confirmScan} onCancel={cancelScan} />
       )}
 
-      <div className="flex items-start justify-between flex-wrap gap-[1rem] mb-[1.75rem]">
+      <div className="flex items-start justify-between flex-wrap gap-4 mb-7">
         <div>
           <div className="text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.12em] mb-[5px] font-mono">
             expenses
@@ -77,28 +77,28 @@ export default function ExpensesPage() {
           <h1 className="text-[var(--sa-white)] text-[clamp(1.4rem,3vw,1.9rem)] font-semibold tracking-[-0.03em] m-0">
             Expense Tracker
           </h1>
-          <p className="text-[rgba(244,245,248,0.42)] text-[0.75rem] mt-[4px] mb-0 font-mono">
+          <p className="text-[rgba(244,245,248,0.42)] text-xs mt-1 mb-0 font-mono">
             {loading
               ? '—'
               : `${filtered.length}${filtered.length !== expenses.length ? ` of ${expenses.length}` : ''} records · total `}
             {!loading && <span className="text-[var(--sa-white)]">£{total.toLocaleString('en-GB', { minimumFractionDigits: 2 })}</span>}
           </p>
         </div>
-        <div className="flex items-center gap-[0.5rem]">
-          <div className="flex items-center gap-[5px] text-[rgba(244,245,248,0.42)] text-[0.68rem] font-mono px-[10px] py-[6px] border border-[var(--sa-border)] rounded-[4px]">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-[5px] text-[rgba(244,245,248,0.42)] text-[0.68rem] font-mono px-[10px] py-[6px] border border-[var(--sa-border)] rounded">
             {isAuthenticated ? <><Cloud size={11} className="text-[#4ADE80]" /> synced</> : <><CloudOff size={11} /> local only</>}
           </div>
           <ReceiptScanner onExtract={onReceiptExtract} />
           <button onClick={() => setShowForm(!showForm)}
-            className="flex items-center gap-[6px] bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded-[4px] px-[16px] py-[8px] text-[0.8rem] font-semibold cursor-pointer min-h-[36px] tracking-[-0.01em]">
+            className="flex items-center gap-1.5 bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded px-[16px] py-[8px] text-[0.8rem] font-semibold cursor-pointer min-h-[36px] tracking-[-0.01em]">
             <Plus size={14} strokeWidth={2.5} /> Add Expense
           </button>
         </div>
       </div>
 
       {!loading && !isAuthenticated && expenses.length > 0 && (
-        <div className="bg-[rgba(251,191,36,0.05)] border border-[rgba(251,191,36,0.18)] rounded-[4px] px-[1rem] py-[0.7rem] mb-[1.25rem] flex items-center justify-between flex-wrap gap-[0.5rem]">
-          <span className="text-[#FBBF24] text-[0.75rem]">Data is saved in this browser only — sign in to sync across devices.</span>
+        <div className="bg-[rgba(251,191,36,0.05)] border border-[rgba(251,191,36,0.18)] rounded px-[1rem] py-[0.7rem] mb-5 flex items-center justify-between flex-wrap gap-2">
+          <span className="text-[#FBBF24] text-xs">Data is saved in this browser only — sign in to sync across devices.</span>
           <a href="/auth/login" className="text-[#FBBF24] text-[0.72rem] font-semibold no-underline border-b border-[rgba(251,191,36,0.4)]">Sign in →</a>
         </div>
       )}
@@ -113,7 +113,7 @@ export default function ExpensesPage() {
       )}
 
       {byCategory.length > 0 && (
-        <div className="flex gap-[0.35rem] flex-wrap mb-[1.25rem]">
+        <div className="flex gap-[0.35rem] flex-wrap mb-5">
           {byCategory.map(({ cat, total: t }) => (
             <div key={cat} className="px-[12px] py-[5px] rounded-[3px] border border-[var(--sa-border)] bg-transparent text-[rgba(244,245,248,0.42)] text-[0.72rem] font-mono">
               {cat} · £{t.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
@@ -127,13 +127,13 @@ export default function ExpensesPage() {
       )}
 
       {loading ? (
-        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-[3rem] text-center text-[rgba(244,245,248,0.42)] text-[0.84rem]">
+        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-md p-[3rem] text-center text-[rgba(244,245,248,0.42)] text-[0.84rem]">
           Loading…
         </div>
       ) : expenses.length === 0 ? (
-        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-[3rem] text-center">
+        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-md p-[3rem] text-center">
           <p className="text-[rgba(244,245,248,0.42)] text-[0.84rem] m-0">No expenses yet. Add your first one above.</p>
-          <p className="text-[rgba(244,245,248,0.2)] text-[0.72rem] mt-[6px] mb-0 font-mono">
+          <p className="text-[rgba(244,245,248,0.2)] text-[0.72rem] mt-1.5 mb-0 font-mono">
             HMRC &quot;wholly and exclusively&quot; rule applies
           </p>
         </div>
@@ -147,7 +147,7 @@ export default function ExpensesPage() {
         </div>
       )}
 
-      <p className="text-[rgba(244,245,248,0.18)] text-[0.62rem] mt-[0.75rem] text-right font-mono">
+      <p className="text-[rgba(244,245,248,0.18)] text-[0.62rem] mt-3 text-right font-mono">
         HMRC &quot;wholly and exclusively&quot; rule · 2026/27
       </p>
     </div>

@@ -45,13 +45,13 @@ export default function ScenarioForm(p: ScenarioFormProps) {
         <motion.div key={p.scenario}
           initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}
           transition={{ duration: 0.2 }}
-          className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[10px] p-[1.5rem] mb-[1.5rem]">
+          className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[10px] p-6 mb-6">
 
-          <h3 className="text-[var(--sa-white)] text-[1.1rem] font-bold mb-[1.25rem]">
+          <h3 className="text-[var(--sa-white)] text-[1.1rem] font-bold mb-5">
             {meta?.icon}{' '}{meta?.label} Details
           </h3>
 
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-[1rem]">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
 
             {p.scenario === 'employed' && <>
               <Field label="Gross Salary (£)">
@@ -129,14 +129,14 @@ export default function ScenarioForm(p: ScenarioFormProps) {
       </AnimatePresence>
 
       {fullEngine && (
-        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[10px] p-[1.5rem] mb-[1.5rem]">
-          <h3 className="text-[var(--sa-white)] text-[1rem] font-bold mb-[1rem]">
+        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[10px] p-6 mb-6">
+          <h3 className="text-[var(--sa-white)] text-base font-bold mb-4">
             Additional Options
           </h3>
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-[1rem]">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
             <Field label="Student Loan Plan">
               <select value={p.studentLoanPlan} onChange={(e) => p.setStudentLoanPlan(e.target.value as StudentLoanPlan)}
-                className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[6px] p-[10px_32px_10px_13px] text-[var(--sa-white)] text-[0.9rem] outline-none min-h-[44px] appearance-none cursor-pointer"
+                className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-md p-[10px_32px_10px_13px] text-[var(--sa-white)] text-[0.9rem] outline-none min-h-[44px] appearance-none cursor-pointer"
                 style={{
                   backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' stroke='%23F4F5F8' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")`,
                   backgroundRepeat: 'no-repeat',
@@ -148,7 +148,7 @@ export default function ScenarioForm(p: ScenarioFormProps) {
               </select>
             </Field>
 
-            <div className="flex flex-col gap-[0.5rem]">
+            <div className="flex flex-col gap-2">
               <Toggle label="Marriage Allowance (−£1,260 PA)" active={p.marriageAllowance} onChange={p.setMarriageAllowance} />
               <Toggle label="Blind Person&apos;s Allowance (+£3,250)" active={p.blindPersonsAllowance} onChange={p.setBlindPersonsAllowance} />
               {p.scenario === 'self-employed' && (

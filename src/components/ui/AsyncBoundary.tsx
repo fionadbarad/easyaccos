@@ -26,7 +26,7 @@ export function AsyncBoundary({ loading, error, fallback, children }: Props) {
     return (
       <div
         role="alert"
-        className="px-[14px] py-3 rounded-[6px] border border-[rgba(248,113,113,0.3)] bg-[rgba(248,113,113,0.08)] text-[#F87171] text-[0.88rem]"
+        className="px-[14px] py-3 rounded-md border border-[rgba(248,113,113,0.3)] bg-[rgba(248,113,113,0.08)] text-[#F87171] text-[0.88rem]"
       >
         {error}
       </div>

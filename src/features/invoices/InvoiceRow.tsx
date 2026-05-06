@@ -40,7 +40,7 @@ function CopyBtn({ text }: { text: string }) {
   return (
     <button
       onClick={copy}
-      className={`flex items-center gap-[5px] bg-transparent border border-[var(--sa-border)] rounded-[4px] px-[10px] py-[6px] text-[0.72rem] cursor-pointer transition-all duration-150 font-mono ${copied ? 'text-[#4ADE80]' : 'text-[rgba(244,245,248,0.42)]'}`}
+      className={`flex items-center gap-[5px] bg-transparent border border-[var(--sa-border)] rounded px-[10px] py-[6px] text-[0.72rem] cursor-pointer transition-all duration-150 font-mono ${copied ? 'text-[#4ADE80]' : 'text-[rgba(244,245,248,0.42)]'}`}
     >
       {copied ? <Check size={11} /> : <Copy size={11} />}
       {copied ? 'Copied' : 'Copy email'}
@@ -70,7 +70,7 @@ export function InvoiceRow({ inv, onUpdate, onDelete }: {
             <span className="text-[rgba(244,245,248,0.18)] text-[0.72rem] font-mono">#{inv.number}</span>
             <StatusBadge status={inv.status} />
           </div>
-          <div className="text-[rgba(244,245,248,0.42)] text-[0.75rem]">
+          <div className="text-[rgba(244,245,248,0.42)] text-xs">
             {inv.description}
             {inv.status === 'sent' && !overdue && (
               <span className={`font-mono ml-2 ${daysLeft <= 7 ? 'text-[#FBBF24]' : 'text-[rgba(244,245,248,0.18)]'}`}>
@@ -112,7 +112,7 @@ export function InvoiceRow({ inv, onUpdate, onDelete }: {
             className="overflow-hidden"
           >
             <div className="px-[1.1rem] pb-[1.1rem] flex flex-col gap-[0.85rem]">
-              <div className="bg-[var(--sa-gray)] rounded-[4px] px-4 py-3 grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-3">
+              <div className="bg-[var(--sa-gray)] rounded px-4 py-3 grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-3">
                 <div>
                   <div className="text-[rgba(244,245,248,0.18)] text-[0.58rem] uppercase tracking-[0.08em] font-mono mb-[3px]">Net</div>
                   <div className="text-[var(--sa-white)] font-mono tabular-nums">{fmtDec(inv.amount)}</div>
@@ -137,7 +137,7 @@ export function InvoiceRow({ inv, onUpdate, onDelete }: {
                 {inv.status === 'draft' && (
                   <button
                     onClick={() => onUpdate(inv.id, { status: 'sent', sentDate: today() })}
-                    className="bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded-[4px] px-[14px] py-[7px] text-[0.78rem] font-semibold cursor-pointer tracking-[-0.01em]"
+                    className="bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded px-[14px] py-[7px] text-[0.78rem] font-semibold cursor-pointer tracking-[-0.01em]"
                   >
                     Mark as Sent
                   </button>
@@ -145,7 +145,7 @@ export function InvoiceRow({ inv, onUpdate, onDelete }: {
                 {(inv.status === 'sent' || overdue) && (
                   <button
                     onClick={() => onUpdate(inv.id, { status: 'paid', paidDate: today() })}
-                    className="bg-[#4ADE80] text-[var(--sa-black)] border-none rounded-[4px] px-[14px] py-[7px] text-[0.78rem] font-semibold cursor-pointer tracking-[-0.01em]"
+                    className="bg-[#4ADE80] text-[var(--sa-black)] border-none rounded px-[14px] py-[7px] text-[0.78rem] font-semibold cursor-pointer tracking-[-0.01em]"
                   >
                     Mark as Paid
                   </button>
@@ -153,7 +153,7 @@ export function InvoiceRow({ inv, onUpdate, onDelete }: {
                 {inv.status === 'sent' && (
                   <button
                     onClick={() => onUpdate(inv.id, { status: 'overdue' })}
-                    className="bg-transparent text-[#F87171] border border-[rgba(248,113,113,0.3)] rounded-[4px] px-3 py-[6px] text-[0.75rem] cursor-pointer inline-flex items-center gap-[5px]"
+                    className="bg-transparent text-[#F87171] border border-[rgba(248,113,113,0.3)] rounded px-3 py-[6px] text-xs cursor-pointer inline-flex items-center gap-[5px]"
                   >
                     <AlertTriangle size={11} /> Mark Overdue
                   </button>
@@ -161,7 +161,7 @@ export function InvoiceRow({ inv, onUpdate, onDelete }: {
                 {overdue && (
                   <button
                     onClick={() => onUpdate(inv.id, { status: 'sent' })}
-                    className="bg-transparent text-[rgba(244,245,248,0.42)] border border-[var(--sa-border)] rounded-[4px] px-3 py-[6px] text-[0.75rem] cursor-pointer inline-flex items-center gap-[5px]"
+                    className="bg-transparent text-[rgba(244,245,248,0.42)] border border-[var(--sa-border)] rounded px-3 py-[6px] text-xs cursor-pointer inline-flex items-center gap-[5px]"
                   >
                     <Undo2 size={11} /> Revert to Sent
                   </button>
@@ -174,7 +174,7 @@ export function InvoiceRow({ inv, onUpdate, onDelete }: {
                 {overdue && <CopyBtn text={chaseEmail(inv)} />}
                 <button
                   onClick={() => onDelete(inv.id)}
-                  className="ml-auto bg-transparent border border-[var(--sa-border)] rounded-[4px] px-[10px] py-[6px] text-[rgba(248,113,113,0.5)] text-[0.72rem] cursor-pointer flex items-center gap-1 transition-all duration-150 hover:text-[#F87171] hover:border-[rgba(248,113,113,0.3)]"
+                  className="ml-auto bg-transparent border border-[var(--sa-border)] rounded px-[10px] py-[6px] text-[rgba(248,113,113,0.5)] text-[0.72rem] cursor-pointer flex items-center gap-1 transition-all duration-150 hover:text-[#F87171] hover:border-[rgba(248,113,113,0.3)]"
                 >
                   <Trash2 size={11} /> Delete
                 </button>

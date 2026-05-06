@@ -38,7 +38,7 @@ export function Select({ value, onChange, options }: {
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] text-[var(--sa-white)] px-3 py-[10px] text-[0.875rem] outline-none font-mono tabular-nums transition-[border-color] duration-150 appearance-none pr-8 cursor-pointer"
+        className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded text-[var(--sa-white)] px-3 py-[10px] text-sm outline-none font-mono tabular-nums transition-[border-color] duration-150 appearance-none pr-8 cursor-pointer"
       >
         {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
@@ -63,7 +63,7 @@ export function BigStat({ label, value, color = 'var(--sa-white)', sub }: {
 }) {
   return (
     <div>
-      <div className="text-[rgba(244,245,248,0.18)] text-[0.6rem] uppercase tracking-[0.1em] font-semibold mb-[4px] font-mono">
+      <div className="text-[rgba(244,245,248,0.18)] text-[0.6rem] uppercase tracking-[0.1em] font-semibold mb-1 font-mono">
         {label}
       </div>
       <motion.div
@@ -76,7 +76,7 @@ export function BigStat({ label, value, color = 'var(--sa-white)', sub }: {
       >
         {value}
       </motion.div>
-      {sub && <div className="text-[rgba(244,245,248,0.42)] text-[0.7rem] mt-[4px]">{sub}</div>}
+      {sub && <div className="text-[rgba(244,245,248,0.42)] text-[0.7rem] mt-1">{sub}</div>}
     </div>
   )
 }

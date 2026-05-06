@@ -67,15 +67,15 @@ export default function DemoDashboard() {
       </div>
 
       <div className="max-w-[1100px] mx-auto px-[1.5rem] py-[2rem]">
-        <h1 className="text-[1.5rem] font-bold mb-[0.25rem] text-[var(--sa-white)]">
+        <h1 className="text-2xl font-bold mb-1 text-[var(--sa-white)]">
           Overview
         </h1>
-        <p className="text-[var(--sa-muted)] text-[0.875rem] mb-[2rem]">
+        <p className="text-[var(--sa-muted)] text-sm mb-8">
           Demo data — Tax Year 6 April 2026 – 5 April 2027
         </p>
 
         {/* Stats */}
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-[1rem] mb-[1.75rem]">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 mb-7">
           {STATS.map((stat, i) => (
             <motion.div
               key={stat.label}
@@ -84,7 +84,7 @@ export default function DemoDashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08 }}
             >
-              <div className="text-[var(--sa-muted)] text-[0.72rem] uppercase tracking-[0.08em] mb-[0.5rem]">
+              <div className="text-[var(--sa-muted)] text-[0.72rem] uppercase tracking-[0.08em] mb-2">
                 {stat.label}
               </div>
               <div className="text-[1.4rem] font-bold" style={{ color: stat.color }}>
@@ -95,7 +95,7 @@ export default function DemoDashboard() {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-[0.75rem] mb-[2.25rem] flex-wrap">
+        <div className="flex gap-3 mb-[2.25rem] flex-wrap">
           <button className="ui-btn-primary"    onClick={() => openModal('save your data')}>Save Data</button>
           <button className="ui-btn-secondary"  onClick={() => openModal('connect your bank')}>Connect Bank</button>
         </div>
@@ -107,7 +107,7 @@ export default function DemoDashboard() {
 
         {/* Expenses */}
         <div className="ui-card">
-          <h2 className="ui-card-title text-[1.05rem] mb-[1rem]">Recent Expenses</h2>
+          <h2 className="ui-card-title text-[1.05rem] mb-4">Recent Expenses</h2>
           {EXPENSES.map((expense, i) => (
             <motion.div
               key={expense.id}
@@ -117,15 +117,15 @@ export default function DemoDashboard() {
               className={`flex justify-between items-center py-[0.75rem] ${i < EXPENSES.length - 1 ? 'border-b border-[var(--sa-border)]' : ''}`}
             >
               <div>
-                <div className="text-[0.875rem] text-[var(--sa-white)] mb-[2px]">
+                <div className="text-sm text-[var(--sa-white)] mb-0.5">
                   {expense.description}
                 </div>
-                <div className="text-[0.75rem] text-[var(--sa-muted)]">
+                <div className="text-xs text-[var(--sa-muted)]">
                   {expense.category} · {expense.date}
                 </div>
               </div>
               <div className="text-right">
-                <div className="font-semibold text-[var(--sa-white)] mb-[2px]">
+                <div className="font-semibold text-[var(--sa-white)] mb-0.5">
                   {gbp.format(expense.amount)}
                 </div>
                 {expense.hmrcAllowable && (
@@ -147,7 +147,7 @@ export default function DemoDashboard() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setShowModal(false)}
-            className="fixed inset-0 bg-[rgba(0,0,0,0.75)] flex items-center justify-center z-[1000] p-[1.5rem]"
+            className="fixed inset-0 bg-[rgba(0,0,0,0.75)] flex items-center justify-center z-[1000] p-6"
           >
             <motion.div
               initial={{ scale: 0.93, y: 16 }}
@@ -157,14 +157,14 @@ export default function DemoDashboard() {
               className="ui-card max-w-[420px] w-full text-center p-[2.25rem]"
               onClick={(e) => e.stopPropagation()}
             >
-              <h2 className="text-[1.25rem] font-semibold mb-[0.75rem] text-[var(--sa-white)]">
+              <h2 className="text-xl font-semibold mb-3 text-[var(--sa-white)]">
                 Want to {promptAction}?
               </h2>
-              <p className="text-[var(--sa-muted)] text-[0.875rem] leading-[1.7] mb-[1.75rem]">
+              <p className="text-[var(--sa-muted)] text-sm leading-[1.7] mb-7">
                 Sign in to create your free EasyAcco account and save your numbers, track expenses,
                 and get your personalised 2026/27 tax estimate.
               </p>
-              <div className="flex gap-[0.75rem] justify-center flex-wrap mb-[1rem]">
+              <div className="flex gap-3 justify-center flex-wrap mb-4">
                 <Link href="/auth/signup" className="no-underline">
                   <button className="ui-btn-primary">Create Free Account</button>
                 </Link>

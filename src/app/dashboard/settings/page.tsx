@@ -6,12 +6,12 @@ import { Loader2, CheckCircle } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 import { BackupRestore } from '@/components/BackupRestore'
 
-const inputCls = 'w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] p-[9px_13px] text-[var(--sa-white)] text-[0.9rem] outline-none'
-const labelCls = 'block text-[rgba(244,245,248,0.42)] text-[0.75rem] uppercase tracking-[0.07em] mb-[0.35rem]'
+const inputCls = 'w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded p-[9px_13px] text-[var(--sa-white)] text-[0.9rem] outline-none'
+const labelCls = 'block text-[rgba(244,245,248,0.42)] text-xs uppercase tracking-[0.07em] mb-[0.35rem]'
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[8px] p-[1.75rem] mb-[1.25rem]">
+    <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-lg p-7 mb-5">
       <h2 className="text-[var(--sa-white)] text-[1.05rem] font-bold mb-[1.4rem]">{title}</h2>
       {children}
     </div>
@@ -73,11 +73,11 @@ export default function SettingsPage() {
       <h1 className="text-[var(--sa-white)] text-[clamp(1.5rem,3vw,2rem)] font-bold mb-[0.3rem]">
         Settings
       </h1>
-      <p className="text-[rgba(244,245,248,0.42)] text-[0.875rem] mb-[2rem]">Manage your profile and account preferences</p>
+      <p className="text-[rgba(244,245,248,0.42)] text-sm mb-8">Manage your profile and account preferences</p>
 
       {/* Avatar */}
-      <div className="flex items-center gap-[1rem] mb-[2rem]">
-        <div className="w-[56px] h-[56px] rounded-[50%] bg-[rgba(244,245,248,0.06)] border border-[var(--sa-border)] flex items-center justify-center text-[var(--sa-white)] text-[1.3rem] font-bold">
+      <div className="flex items-center gap-4 mb-8">
+        <div className="w-[56px] h-[56px] rounded-full bg-[rgba(244,245,248,0.06)] border border-[var(--sa-border)] flex items-center justify-center text-[var(--sa-white)] text-[1.3rem] font-bold">
           {initial}
         </div>
         <div>
@@ -97,9 +97,9 @@ export default function SettingsPage() {
             <label className={labelCls}>Email</label>
             <input type="email" value={user?.email ?? ''} disabled className={`${inputCls} opacity-50 cursor-not-allowed`} />
           </div>
-          <div className="flex items-center gap-[0.75rem]">
+          <div className="flex items-center gap-3">
             <button type="submit" disabled={saving}
-              className={`bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded-[4px] p-[9px_22px] font-bold text-[0.875rem] flex items-center gap-[6px] ${saving ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+              className={`bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded p-[9px_22px] font-bold text-sm flex items-center gap-1.5 ${saving ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
               {saving ? <Loader2 size={15} className="animate-spin" /> : null}
               {saving ? 'Saving…' : 'Save Profile'}
             </button>
@@ -120,12 +120,12 @@ export default function SettingsPage() {
             <input type="password" value={pwForm.confirm} onChange={(e) => setPwForm((f) => ({ ...f, confirm: e.target.value }))} placeholder="Repeat password" className={inputCls} minLength={6} required />
           </div>
           {pwMsg && (
-            <div className={`p-[9px_13px] rounded-[4px] text-[0.85rem] ${pwMsg.includes('success') ? 'bg-[rgba(74,222,128,0.1)] border border-[rgba(74,222,128,0.3)] text-[#4ADE80]' : 'bg-[rgba(248,113,113,0.1)] border border-[rgba(248,113,113,0.3)] text-[#F87171]'}`}>
+            <div className={`p-[9px_13px] rounded text-[0.85rem] ${pwMsg.includes('success') ? 'bg-[rgba(74,222,128,0.1)] border border-[rgba(74,222,128,0.3)] text-[#4ADE80]' : 'bg-[rgba(248,113,113,0.1)] border border-[rgba(248,113,113,0.3)] text-[#F87171]'}`}>
               {pwMsg}
             </div>
           )}
           <button type="submit" disabled={pwSaving}
-            className={`bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded-[4px] p-[9px_22px] font-bold text-[0.875rem] flex items-center gap-[6px] w-fit ${pwSaving ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+            className={`bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded p-[9px_22px] font-bold text-sm flex items-center gap-1.5 w-fit ${pwSaving ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
             {pwSaving ? <Loader2 size={15} className="animate-spin" /> : null}
             {pwSaving ? 'Updating…' : 'Update Password'}
           </button>
@@ -139,15 +139,15 @@ export default function SettingsPage() {
 
       {/* Account info */}
       <Section title="Account Info">
-        <div className="flex flex-col gap-[0.75rem]">
+        <div className="flex flex-col gap-3">
           {[
             { label: 'User ID', value: user?.id ?? '—' },
             { label: 'Account Created', value: user?.created_at ? new Date(user.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '—' },
             { label: 'Plan', value: 'Free Forever' },
           ].map(({ label, value }) => (
             <div key={label} className="flex justify-between p-[9px_0] border-b border-[rgba(244,245,248,0.06)]">
-              <span className="text-[rgba(244,245,248,0.42)] text-[0.875rem]">{label}</span>
-              <span className={`text-[0.875rem] max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap ${label === 'Plan' ? 'text-[var(--sa-white)]' : 'text-[var(--sa-white)]'}`}>{value}</span>
+              <span className="text-[rgba(244,245,248,0.42)] text-sm">{label}</span>
+              <span className={`text-sm max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap ${label === 'Plan' ? 'text-[var(--sa-white)]' : 'text-[var(--sa-white)]'}`}>{value}</span>
             </div>
           ))}
         </div>

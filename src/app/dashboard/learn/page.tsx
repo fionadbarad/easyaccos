@@ -32,12 +32,12 @@ export default function LearnPage() {
       <h1 className="text-[var(--sa-white)] text-[clamp(1.5rem,3vw,2rem)] font-bold mb-[0.3rem]">
         Learn
       </h1>
-      <p className="text-[rgba(244,245,248,0.42)] text-[0.875rem] mb-[2rem]">
+      <p className="text-[rgba(244,245,248,0.42)] text-sm mb-8">
         UK tax literacy cards · {filtered.length} cards · Tap a card to reveal the deep dive
       </p>
 
       {/* Category filter */}
-      <div className="flex flex-wrap gap-[0.5rem] mb-[2rem]">
+      <div className="flex flex-wrap gap-2 mb-8">
         {CATEGORIES.map((cat) => (
           <button key={cat} onClick={() => changeCategory(cat)}
             className={`p-[6px_16px] rounded-[999px] cursor-pointer text-[0.8rem] font-semibold transition-all duration-150 ease-in-out ${category === cat ? 'border border-[var(--sa-white)] bg-[rgba(244,245,248,0.08)] text-[var(--sa-white)]' : 'border border-[var(--sa-border)] bg-transparent text-[rgba(244,245,248,0.42)]'}`}>
@@ -49,7 +49,7 @@ export default function LearnPage() {
       {card ? (
         <>
           {/* Progress bar */}
-          <div className="mb-[1.25rem]">
+          <div className="mb-5">
             <div className="flex justify-between mb-[5px]">
               <span className="text-[rgba(244,245,248,0.42)] text-[0.78rem]">{idx + 1} of {filtered.length}</span>
               <span className="text-[rgba(244,245,248,0.42)] text-[0.78rem]">{Math.round(progress)}%</span>
@@ -61,21 +61,21 @@ export default function LearnPage() {
 
           {/* Flashcard */}
           <div onClick={() => setFlipped((f) => !f)}
-            className={`bg-[var(--sa-surface)] rounded-[10px] p-[2.5rem_2rem] min-h-[220px] cursor-pointer transition-[border-color] duration-200 mb-[1.25rem] flex flex-col justify-between ${flipped ? 'border border-[rgba(244,245,248,0.3)]' : 'border border-[var(--sa-border)]'}`}>
+            className={`bg-[var(--sa-surface)] rounded-[10px] p-[2.5rem_2rem] min-h-[220px] cursor-pointer transition-[border-color] duration-200 mb-5 flex flex-col justify-between ${flipped ? 'border border-[rgba(244,245,248,0.3)]' : 'border border-[var(--sa-border)]'}`}>
             <div>
-              <div className="flex items-center gap-[8px] mb-[1rem]">
+              <div className="flex items-center gap-2 mb-4">
                 <span className="p-[3px_10px] bg-[rgba(244,245,248,0.05)] border border-[var(--sa-border)] rounded-[999px] text-[rgba(244,245,248,0.42)] text-[0.7rem] tracking-[0.08em]">
                   {card.category}
                 </span>
               </div>
-              <h2 className="text-[var(--sa-white)] text-[1.35rem] font-bold mb-[1rem]">
+              <h2 className="text-[var(--sa-white)] text-[1.35rem] font-bold mb-4">
                 {card.title}
               </h2>
               <p className={`text-[0.9rem] leading-[1.7] transition-[color] duration-200 ${flipped ? 'text-[rgba(244,245,248,0.42)]' : 'text-[var(--sa-white)]'}`}>
                 {flipped ? card.deepDive : card.summary}
               </p>
             </div>
-            <div className="flex justify-between items-center mt-[1.5rem]">
+            <div className="flex justify-between items-center mt-6">
               <span className="text-[rgba(244,245,248,0.42)] text-[0.72rem]">{flipped ? 'Tap to see summary' : 'Tap for deep dive →'}</span>
               <button onClick={(e) => { e.stopPropagation(); setExpanded(card) }}
                 className="flex items-center gap-[5px] text-[rgba(244,245,248,0.42)] bg-none border-none cursor-pointer text-[0.78rem] font-medium">
@@ -85,19 +85,19 @@ export default function LearnPage() {
           </div>
 
           {/* Navigation */}
-          <div className="flex justify-center gap-[1rem]">
+          <div className="flex justify-center gap-4">
             <button onClick={prev} disabled={idx === 0}
-              className={`flex items-center gap-[6px] p-[9px_20px] border rounded-[5px] text-[0.875rem] font-semibold ${idx === 0 ? 'bg-transparent border-[var(--sa-border)] text-[rgba(244,245,248,0.42)] cursor-default' : 'bg-[rgba(244,245,248,0.06)] border-[var(--sa-white)] text-[var(--sa-white)] cursor-pointer'}`}>
+              className={`flex items-center gap-1.5 p-[9px_20px] border rounded-[5px] text-sm font-semibold ${idx === 0 ? 'bg-transparent border-[var(--sa-border)] text-[rgba(244,245,248,0.42)] cursor-default' : 'bg-[rgba(244,245,248,0.06)] border-[var(--sa-white)] text-[var(--sa-white)] cursor-pointer'}`}>
               <ChevronLeft size={16} /> Previous
             </button>
             <button onClick={next} disabled={idx === filtered.length - 1}
-              className={`flex items-center gap-[6px] p-[9px_20px] border rounded-[5px] text-[0.875rem] font-bold ${idx === filtered.length - 1 ? 'bg-transparent border-[var(--sa-border)] text-[rgba(244,245,248,0.42)] cursor-default' : 'bg-[var(--sa-white)] border-[var(--sa-white)] text-[var(--sa-black)] cursor-pointer'}`}>
+              className={`flex items-center gap-1.5 p-[9px_20px] border rounded-[5px] text-sm font-bold ${idx === filtered.length - 1 ? 'bg-transparent border-[var(--sa-border)] text-[rgba(244,245,248,0.42)] cursor-default' : 'bg-[var(--sa-white)] border-[var(--sa-white)] text-[var(--sa-black)] cursor-pointer'}`}>
               Next <ChevronRight size={16} />
             </button>
           </div>
         </>
       ) : (
-        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[8px] p-[3rem] text-center text-[rgba(244,245,248,0.42)]">
+        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-lg p-[3rem] text-center text-[rgba(244,245,248,0.42)]">
           No cards in this category.
         </div>
       )}
@@ -105,14 +105,14 @@ export default function LearnPage() {
       {/* Full article modal */}
       {expanded && (
         <div onClick={() => setExpanded(null)}
-          className="fixed inset-0 z-[100] bg-[rgba(0,0,0,0.7)] flex items-center justify-center p-[1.5rem]">
+          className="fixed inset-0 z-[100] bg-[rgba(0,0,0,0.7)] flex items-center justify-center p-6">
           <div onClick={(e) => e.stopPropagation()}
-            className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[10px] p-[2rem] max-w-[600px] w-full max-h-[80vh] overflow-y-auto">
-            <div className="flex justify-between items-start mb-[1.25rem]">
+            className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[10px] p-8 max-w-[600px] w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-start mb-5">
               <span className="p-[3px_10px] bg-[rgba(244,245,248,0.05)] border border-[var(--sa-border)] rounded-[999px] text-[rgba(244,245,248,0.42)] text-[0.7rem]">{expanded.category}</span>
               <button onClick={() => setExpanded(null)} className="bg-none border-none text-[rgba(244,245,248,0.42)] cursor-pointer p-[2px] flex"><X size={18} /></button>
             </div>
-            <h2 className="text-[var(--sa-white)] text-[1.4rem] font-bold mb-[1rem]">{expanded.title}</h2>
+            <h2 className="text-[var(--sa-white)] text-[1.4rem] font-bold mb-4">{expanded.title}</h2>
             <p className="text-[rgba(244,245,248,0.42)] text-[0.9rem] leading-[1.75]">{expanded.deepDive}</p>
           </div>
         </div>

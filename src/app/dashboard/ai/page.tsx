@@ -58,7 +58,7 @@ function MarkdownBlock({ text }: { text: string }) {
     nodes.push(
       <ul key={nodes.length} className="my-[0.35rem] pl-[1.1rem] list-none">
         {listItems.map((item, i) => (
-          <li key={i} className="text-[var(--sa-white)] text-[0.875rem] leading-[1.75] relative pl-[0.75rem]">
+          <li key={i} className="text-[var(--sa-white)] text-sm leading-[1.75] relative pl-[0.75rem]">
             <span className="absolute left-0 text-[rgba(244,245,248,0.35)]">·</span>
             {renderInline(item)}
           </li>
@@ -89,7 +89,7 @@ function MarkdownBlock({ text }: { text: string }) {
         )
       } else if (line.trim()) {
         nodes.push(
-          <p key={nodes.length} className="text-[var(--sa-white)] text-[0.875rem] leading-[1.75] my-[0.2rem]">
+          <p key={nodes.length} className="text-[var(--sa-white)] text-sm leading-[1.75] my-[0.2rem]">
             {renderInline(line)}
           </p>,
         )
@@ -105,12 +105,12 @@ function MarkdownBlock({ text }: { text: string }) {
 // ── Message components ────────────────────────────────────────────────────────
 function UserMessage({ msg }: { msg: KittaxMessage }) {
   return (
-    <div className="flex justify-end mb-[1.5rem]">
+    <div className="flex justify-end mb-6">
       <div className="max-w-[68%]">
-        <div className="bg-[rgba(244,245,248,0.12)] border border-[var(--sa-border)] rounded-[6px_6px_2px_6px] px-[14px] py-[10px] text-[var(--sa-white)] text-[0.875rem] leading-[1.65]">
+        <div className="bg-[rgba(244,245,248,0.12)] border border-[var(--sa-border)] rounded-[6px_6px_2px_6px] px-[14px] py-[10px] text-[var(--sa-white)] text-sm leading-[1.65]">
           {msg.content}
         </div>
-        <div className="text-right mt-[4px] text-[rgba(244,245,248,0.2)] text-[0.65rem] font-mono">
+        <div className="text-right mt-1 text-[rgba(244,245,248,0.2)] text-[0.65rem] font-mono">
           {formatTime(msg.ts)}
         </div>
       </div>
@@ -128,12 +128,12 @@ function AssistantMessage({
   onAction: (q: string) => void
 }) {
   return (
-    <div className="flex gap-[12px] mb-[1.5rem]">
+    <div className="flex gap-3 mb-6">
       <div className="shrink-0 pt-[2px]">
         <div className="w-[1px] min-h-[20px] bg-[rgba(244,245,248,0.15)] ml-[6px]" />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-[rgba(244,245,248,0.3)] text-[0.62rem] font-mono tracking-[0.08em] mb-[6px]">
+        <div className="text-[rgba(244,245,248,0.3)] text-[0.62rem] font-mono tracking-[0.08em] mb-1.5">
           ADVISORY · {formatTime(msg.ts)}
         </div>
         <MarkdownBlock text={msg.content} />
@@ -168,12 +168,12 @@ function AssistantMessage({
 
 function ThinkingIndicator() {
   return (
-    <div className="flex gap-[12px] mb-[1.5rem]">
+    <div className="flex gap-3 mb-6">
       <div className="shrink-0 pt-[2px]">
         <div className="w-[1px] min-h-[20px] bg-[rgba(244,245,248,0.15)] ml-[6px]" />
       </div>
       <div className="flex-1">
-        <div className="text-[rgba(244,245,248,0.3)] text-[0.62rem] font-mono tracking-[0.08em] mb-[8px]">
+        <div className="text-[rgba(244,245,248,0.3)] text-[0.62rem] font-mono tracking-[0.08em] mb-2">
           ADVISORY
         </div>
         <div className="flex gap-[5px] items-center">
@@ -328,7 +328,7 @@ export default function AIPage() {
     <div className="p-[clamp(1.5rem,3vw,2.5rem)] max-w-[720px] flex flex-col h-[calc(100vh-52px)] md:h-screen">
 
       {/* Header */}
-      <div className="flex items-start justify-between mb-[2rem] flex-wrap gap-[0.5rem] shrink-0">
+      <div className="flex items-start justify-between mb-8 flex-wrap gap-2 shrink-0">
         <div>
           <h1 className="text-[var(--sa-white)] text-[clamp(1.2rem,2.5vw,1.5rem)] font-semibold tracking-[-0.03em] m-0">
             Tax Advisory
@@ -338,13 +338,13 @@ export default function AIPage() {
           </p>
         </div>
         <button onClick={reset}
-          className="flex items-center gap-[6px] bg-transparent border border-[var(--sa-border)] rounded-[4px] text-[rgba(244,245,248,0.42)] text-[0.72rem] px-[11px] py-[6px] cursor-pointer tracking-[-0.01em]">
+          className="flex items-center gap-1.5 bg-transparent border border-[var(--sa-border)] rounded text-[rgba(244,245,248,0.42)] text-[0.72rem] px-[11px] py-[6px] cursor-pointer tracking-[-0.01em]">
           <RefreshCw size={11} /> New session
         </button>
       </div>
 
       {/* Conversation */}
-      <div className="flex-1 overflow-y-auto pr-[4px] mb-[1rem]">
+      <div className="flex-1 overflow-y-auto pr-[4px] mb-4">
         {messages.map((m) =>
           m.role === 'user'
             ? <UserMessage key={m.id} msg={m} />
@@ -352,7 +352,7 @@ export default function AIPage() {
         )}
         {loading && <ThinkingIndicator />}
         {error && (
-          <div role="alert" className="bg-[rgba(248,113,113,0.06)] border border-[rgba(248,113,113,0.18)] rounded-[4px] px-[14px] py-[10px] text-[#F87171] text-[0.78rem] mb-[1.5rem]">
+          <div role="alert" className="bg-[rgba(248,113,113,0.06)] border border-[rgba(248,113,113,0.18)] rounded px-[14px] py-[10px] text-[#F87171] text-[0.78rem] mb-6">
             {error}
           </div>
         )}
@@ -361,8 +361,8 @@ export default function AIPage() {
 
       {/* Suggested topics */}
       {showSuggested && (
-        <div className="shrink-0 mb-[1rem]">
-          <div className="text-[rgba(244,245,248,0.2)] text-[0.6rem] uppercase tracking-[0.1em] font-mono mb-[0.5rem]">
+        <div className="shrink-0 mb-4">
+          <div className="text-[rgba(244,245,248,0.2)] text-[0.6rem] uppercase tracking-[0.1em] font-mono mb-2">
             Common topics
           </div>
           <div className="grid gap-[0.35rem]" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(180px,1fr))' }}>
@@ -377,7 +377,7 @@ export default function AIPage() {
       )}
 
       {/* Input */}
-      <div className="shrink-0 bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] overflow-hidden">
+      <div className="shrink-0 bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-md overflow-hidden">
         <textarea
           ref={textareaRef}
           value={input}
@@ -386,14 +386,14 @@ export default function AIPage() {
           placeholder="Ask a question…   (Enter to send, Shift+Enter for new line)"
           rows={2}
           aria-label="Tax question"
-          className="block w-full bg-transparent border-none p-[12px_14px_4px] text-[var(--sa-white)] text-[0.875rem] outline-none resize-none leading-[1.6] box-border"
+          className="block w-full bg-transparent border-none p-[12px_14px_4px] text-[var(--sa-white)] text-sm outline-none resize-none leading-[1.6] box-border"
         />
-        <div className="flex items-center justify-end px-[8px] pb-[8px] pt-[4px] gap-[6px]">
+        <div className="flex items-center justify-end px-[8px] pb-[8px] pt-[4px] gap-1.5">
           <span className="text-[rgba(244,245,248,0.15)] text-[0.62rem] font-mono mr-auto">
             {input.length > 0 ? `${input.length} chars` : ''}
           </span>
           <button onClick={() => send()} disabled={!canSend}
-            className={`flex items-center gap-[5px] rounded-[4px] px-[12px] py-[6px] text-[0.75rem] font-semibold tracking-[-0.01em] transition-all duration-100 border ${canSend ? 'bg-[var(--sa-white)] text-[var(--sa-black)] border-[var(--sa-white)] cursor-pointer' : 'bg-transparent text-[rgba(244,245,248,0.42)] border-[var(--sa-border)] cursor-default'}`}>
+            className={`flex items-center gap-[5px] rounded px-[12px] py-[6px] text-xs font-semibold tracking-[-0.01em] transition-all duration-100 border ${canSend ? 'bg-[var(--sa-white)] text-[var(--sa-black)] border-[var(--sa-white)] cursor-pointer' : 'bg-transparent text-[rgba(244,245,248,0.42)] border-[var(--sa-border)] cursor-default'}`}>
             <Send size={12} strokeWidth={2} /> Send
           </button>
         </div>

@@ -36,7 +36,7 @@ export default function EncryptionOnboardingDialog() {
       aria-labelledby="ea-crypto-onboard-title"
       className="fixed inset-0 z-[60] bg-[rgba(0,0,0,0.7)] flex items-center justify-center p-4"
     >
-      <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[12px] p-7 max-w-[480px] w-full shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+      <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-xl p-7 max-w-[480px] w-full shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
         <div className="flex justify-between items-start gap-4 mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-[10px] bg-[rgba(244,245,248,0.06)] border border-[rgba(244,245,248,0.1)] flex items-center justify-center">
@@ -49,7 +49,7 @@ export default function EncryptionOnboardingDialog() {
           <button
             onClick={dismiss}
             aria-label="Close"
-            className="bg-transparent border-0 text-[rgba(244,245,248,0.42)] cursor-pointer p-1 rounded-[6px]"
+            className="bg-transparent border-0 text-[rgba(244,245,248,0.42)] cursor-pointer p-1 rounded-md"
           >
             <X size={18} />
           </button>
@@ -68,14 +68,14 @@ export default function EncryptionOnboardingDialog() {
         <div className="flex gap-[0.6rem] justify-end flex-wrap">
           <button
             onClick={dismiss}
-            className="bg-transparent border border-[var(--sa-border)] text-[rgba(244,245,248,0.42)] px-[14px] py-2 rounded-[8px] cursor-pointer text-[0.85rem]"
+            className="bg-transparent border border-[var(--sa-border)] text-[rgba(244,245,248,0.42)] px-[14px] py-2 rounded-lg cursor-pointer text-[0.85rem]"
           >
             Got it
           </button>
           <Link
             href="/dashboard/settings#backup"
             onClick={dismiss}
-            className="bg-[var(--sa-white)] text-[var(--sa-black)] px-[14px] py-2 rounded-[8px] text-[0.85rem] font-semibold no-underline"
+            className="bg-[var(--sa-white)] text-[var(--sa-black)] px-[14px] py-2 rounded-lg text-[0.85rem] font-semibold no-underline"
           >
             Create backup
           </Link>

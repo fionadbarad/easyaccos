@@ -36,10 +36,10 @@ function ResultRow({ label, value, indent, bold }: ResultRowProps) {
   if (!value && !bold) return null
   return (
     <div className={`flex justify-between py-[6px] ${indent ? 'pl-[16px]' : ''}`}>
-      <span className={`text-[0.875rem] ${bold ? 'text-[var(--sa-white)]' : 'text-[var(--sa-muted)]'}`}>
+      <span className={`text-sm ${bold ? 'text-[var(--sa-white)]' : 'text-[var(--sa-muted)]'}`}>
         {label}
       </span>
-      <span className={`text-[var(--sa-white)] ${bold ? 'text-[1.05rem] font-bold' : 'text-[0.875rem] font-medium'}`}>
+      <span className={`text-[var(--sa-white)] ${bold ? 'text-[1.05rem] font-bold' : 'text-sm font-medium'}`}>
         {gbp.format(value)}
       </span>
     </div>
@@ -67,13 +67,13 @@ export default function TaxEstimator2026() {
 
   return (
     <div className="ui-card max-w-[540px] mx-auto">
-      <h2 className="ui-card-title text-[1.1rem] mb-[1.25rem]">
+      <h2 className="ui-card-title text-[1.1rem] mb-5">
         Tax Estimator 2026/27
       </h2>
 
       <label className="block text-[var(--sa-muted)] text-[0.72rem] uppercase tracking-[0.08em] mb-[0.3rem]">Region</label>
       <select
-        className="ui-input mb-[1rem] cursor-pointer appearance-none"
+        className="ui-input mb-4 cursor-pointer appearance-none"
         value={region}
         onChange={(e) => setRegion(e.target.value as TaxRegion)}
       >
@@ -94,11 +94,11 @@ export default function TaxEstimator2026() {
         value={income}
         aria-label="Annual income slider"
         onChange={(e) => setIncome(Number(e.target.value))}
-        className="w-full mb-[0.5rem] accent-[var(--sa-white)]"
+        className="w-full mb-2 accent-[var(--sa-white)]"
       />
       <input
         type="number"
-        className="ui-input mb-[1rem]"
+        className="ui-input mb-4"
         value={income}
         min={0}
         aria-label="Annual income"
@@ -107,7 +107,7 @@ export default function TaxEstimator2026() {
 
       <label className="block text-[var(--sa-muted)] text-[0.72rem] uppercase tracking-[0.08em] mb-[0.3rem]">Student Loan</label>
       <select
-        className="ui-input mb-[1.5rem] cursor-pointer appearance-none"
+        className="ui-input mb-6 cursor-pointer appearance-none"
         value={loan}
         onChange={(e) => setLoan(e.target.value as StudentLoanPlan)}
       >
@@ -144,7 +144,7 @@ export default function TaxEstimator2026() {
               <ResultRow label="Student Loan Repayment"  value={result.studentLoanRepayment} />
             )}
 
-            <div className="border-t border-[var(--sa-border)] mt-[0.75rem] pt-[1rem]">
+            <div className="border-t border-[var(--sa-border)] mt-3 pt-[1rem]">
               <ResultRow
                 label={`Net Take-Home (${result.effectiveTaxRate.toFixed(1)}% effective rate)`}
                 value={result.netTakeHome}

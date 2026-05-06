@@ -12,8 +12,8 @@ interface Transaction {
   type: TxType; amount: number; reference: string
 }
 
-const INPUT_S = 'w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none font-mono tabular-nums min-h-[40px]'
-const LABEL_S = 'block text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.08em] mb-[4px] font-semibold'
+const INPUT_S = 'w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none font-mono tabular-nums min-h-[40px]'
+const LABEL_S = 'block text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.08em] mb-1 font-semibold'
 
 const SEED: Transaction[] = [
   { id: '1', date: '2026-04-01', description: 'Client Project — Acme Corp', type: 'income',  amount: 2400,  reference: 'INV-001' },
@@ -38,7 +38,7 @@ const DATE_LABELS: Record<DateFilter, string> = {
 }
 
 const chipCls = (active: boolean) =>
-  `px-[11px] py-[5px] rounded-[3px] text-[0.75rem] min-h-[32px] transition-all duration-100 cursor-pointer border ${active ? 'border-[rgba(244,245,248,0.2)] bg-[var(--sa-border)] text-[var(--sa-white)] font-medium' : 'border-[var(--sa-border)] bg-transparent text-[rgba(244,245,248,0.42)] font-normal'}`
+  `px-[11px] py-[5px] rounded-[3px] text-xs min-h-[32px] transition-all duration-100 cursor-pointer border ${active ? 'border-[rgba(244,245,248,0.2)] bg-[var(--sa-border)] text-[var(--sa-white)] font-medium' : 'border-[var(--sa-border)] bg-transparent text-[rgba(244,245,248,0.42)] font-normal'}`
 
 export default function TransactionsPage() {
   const { items: txs, persist, loading, isAuthenticated } = useUserData<Transaction>(
@@ -83,25 +83,25 @@ export default function TransactionsPage() {
   return (
     <div className="p-[clamp(1.5rem,4vw,2.5rem)] max-w-[960px]">
       {/* Header */}
-      <div className="flex items-start justify-between flex-wrap gap-[1rem] mb-[1.5rem]">
+      <div className="flex items-start justify-between flex-wrap gap-4 mb-6">
         <div>
           <div className="text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.12em] mb-[5px] font-mono">ledger</div>
           <h1 className="text-[var(--sa-white)] text-[clamp(1.4rem,3vw,1.9rem)] font-semibold tracking-[-0.03em] m-0">
             Transaction Ledger
           </h1>
-          <p className="text-[rgba(244,245,248,0.42)] text-[0.78rem] mt-[4px] font-mono">
+          <p className="text-[rgba(244,245,248,0.42)] text-[0.78rem] mt-1 font-mono">
             {visible.length} records · net:{' '}
             <span className={net >= 0 ? 'text-[#4ADE80]' : 'text-[#F87171]'}>{net >= 0 ? '+' : '-'}{fmt(net)}</span>
           </p>
         </div>
-        <div className="flex items-center gap-[0.5rem]">
-          <div className="flex items-center gap-[5px] text-[rgba(244,245,248,0.42)] text-[0.68rem] font-mono px-[10px] py-[6px] border border-[var(--sa-border)] rounded-[4px]">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-[5px] text-[rgba(244,245,248,0.42)] text-[0.68rem] font-mono px-[10px] py-[6px] border border-[var(--sa-border)] rounded">
             {isAuthenticated
               ? <><Cloud size={11} className="text-[#4ADE80]" /> synced</>
               : <><CloudOff size={11} /> local only</>}
           </div>
           <button onClick={() => setShowForm(!showForm)}
-            className="flex items-center gap-[6px] bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded-[4px] px-[16px] py-[8px] text-[0.8rem] font-semibold cursor-pointer min-h-[36px] tracking-[-0.01em]">
+            className="flex items-center gap-1.5 bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded px-[16px] py-[8px] text-[0.8rem] font-semibold cursor-pointer min-h-[36px] tracking-[-0.01em]">
             <Plus size={14} strokeWidth={2.5} /> Add Entry
           </button>
         </div>
@@ -109,21 +109,21 @@ export default function TransactionsPage() {
 
       {/* Guest sync nudge */}
       {!loading && !isAuthenticated && txs.length > 0 && (
-        <div className="bg-[rgba(251,191,36,0.05)] border border-[rgba(251,191,36,0.18)] rounded-[4px] px-[1rem] py-[0.7rem] mb-[1.25rem] flex items-center justify-between flex-wrap gap-[0.5rem]">
-          <span className="text-[#FBBF24] text-[0.75rem]">Data is saved in this browser only — sign in to sync across devices.</span>
+        <div className="bg-[rgba(251,191,36,0.05)] border border-[rgba(251,191,36,0.18)] rounded px-[1rem] py-[0.7rem] mb-5 flex items-center justify-between flex-wrap gap-2">
+          <span className="text-[#FBBF24] text-xs">Data is saved in this browser only — sign in to sync across devices.</span>
           <a href="/auth/login" className="text-[#FBBF24] text-[0.72rem] font-semibold no-underline border-b border-[rgba(251,191,36,0.4)]">Sign in →</a>
         </div>
       )}
 
       {/* Summary tiles */}
-      <div className="grid grid-cols-3 gap-[1px] border border-[var(--sa-border)] rounded-[6px] overflow-hidden bg-[var(--sa-border)] mb-[1.5rem]">
+      <div className="grid grid-cols-3 gap-[1px] border border-[var(--sa-border)] rounded-md overflow-hidden bg-[var(--sa-border)] mb-6">
         {[
           { label: 'Income',   value: fmt(totalIn),  color: 'text-[#4ADE80]' },
           { label: 'Expenses', value: fmt(totalOut), color: 'text-[#F87171]' },
           { label: 'Net',      value: `${net >= 0 ? '+' : '-'}${fmt(net)}`, color: net >= 0 ? 'text-[#4ADE80]' : 'text-[#F87171]' },
         ].map((s) => (
           <div key={s.label} className="bg-[var(--sa-surface)] p-[0.9rem_1.1rem]">
-            <div className="text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.07em] font-semibold mb-[4px]">{s.label}</div>
+            <div className="text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.07em] font-semibold mb-1">{s.label}</div>
             <div className={`${s.color} font-semibold text-[1.05rem] font-mono tabular-nums`}>{s.value}</div>
           </div>
         ))}
@@ -132,7 +132,7 @@ export default function TransactionsPage() {
       {/* Add form */}
       {showForm && (
         <form onSubmit={add}
-          className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-[1.25rem] mb-[1.25rem] grid gap-[0.85rem] items-end"
+          className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-md p-5 mb-5 grid gap-[0.85rem] items-end"
           style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))' }}>
           <div>
             <label className={LABEL_S}>Date</label>
@@ -141,7 +141,7 @@ export default function TransactionsPage() {
           <div className="col-span-2">
             <label className={LABEL_S}>Description</label>
             <input type="text" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="e.g. Client Invoice"
-              className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none min-h-[40px]" required />
+              className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none min-h-[40px]" required />
           </div>
           <div>
             <label className={LABEL_S}>Type</label>
@@ -159,14 +159,14 @@ export default function TransactionsPage() {
             <input type="text" value={form.reference} onChange={(e) => setForm((f) => ({ ...f, reference: e.target.value }))} placeholder="INV-001" className={INPUT_S} />
           </div>
           <div className="flex gap-[0.4rem]">
-            <button type="submit" className="flex-1 bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded-[4px] p-[9px] font-semibold cursor-pointer text-[0.8rem] min-h-[40px] tracking-[-0.01em]">Save</button>
-            <button type="button" onClick={() => setShowForm(false)} className="bg-transparent text-[rgba(244,245,248,0.42)] border border-[var(--sa-border)] rounded-[4px] px-[12px] py-[9px] cursor-pointer text-[0.8rem] min-h-[40px]">Cancel</button>
+            <button type="submit" className="flex-1 bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded p-[9px] font-semibold cursor-pointer text-[0.8rem] min-h-[40px] tracking-[-0.01em]">Save</button>
+            <button type="button" onClick={() => setShowForm(false)} className="bg-transparent text-[rgba(244,245,248,0.42)] border border-[var(--sa-border)] rounded px-[12px] py-[9px] cursor-pointer text-[0.8rem] min-h-[40px]">Cancel</button>
           </div>
         </form>
       )}
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-[0.4rem] mb-[1rem] items-center">
+      <div className="flex flex-wrap gap-[0.4rem] mb-4 items-center">
         {(['all', 'income', 'expense'] as const).map((f) => (
           <button key={f} onClick={() => setType(f)} className={chipCls(typeFilter === f)}>
             {f === 'all' ? 'All types' : f.charAt(0).toUpperCase() + f.slice(1)}
@@ -183,23 +183,23 @@ export default function TransactionsPage() {
 
       {/* Custom date range */}
       {dateFilter === 'custom' && (
-        <div className="flex gap-[0.65rem] mb-[1rem] flex-wrap items-end">
+        <div className="flex gap-[0.65rem] mb-4 flex-wrap items-end">
           <div>
             <label className={LABEL_S}>From</label>
             <input type="date" value={customFrom} onChange={(e) => setFrom(e.target.value)}
-              className="bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none font-mono min-h-[40px]" />
+              className="bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none font-mono min-h-[40px]" />
           </div>
           <div>
             <label className={LABEL_S}>To</label>
             <input type="date" value={customTo} onChange={(e) => setTo(e.target.value)}
-              className="bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none font-mono min-h-[40px]" />
+              className="bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none font-mono min-h-[40px]" />
           </div>
           <span className="text-[rgba(244,245,248,0.42)] text-[0.72rem] font-mono pb-[9px]">{visible.length} results</span>
         </div>
       )}
 
       {/* Table */}
-      <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] overflow-hidden">
+      <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-md overflow-hidden">
         {visible.length === 0 ? (
           <div className="p-[3rem] text-center text-[rgba(244,245,248,0.42)] text-[0.84rem]">No entries for this period.</div>
         ) : (
@@ -220,7 +220,7 @@ export default function TransactionsPage() {
                         ? <ArrowUpCircle   size={14} className="text-[#4ADE80]" strokeWidth={1.5} />
                         : <ArrowDownCircle size={14} className="text-[#F87171]" strokeWidth={1.5} />}
                     </td>
-                    <td className="p-[9px_13px] text-[rgba(244,245,248,0.42)] whitespace-nowrap font-mono text-[0.75rem]">{tx.date}</td>
+                    <td className="p-[9px_13px] text-[rgba(244,245,248,0.42)] whitespace-nowrap font-mono text-xs">{tx.date}</td>
                     <td className="p-[9px_13px] text-[var(--sa-white)]">{tx.description}</td>
                     <td className="p-[9px_13px] text-[rgba(244,245,248,0.42)] text-[0.72rem] font-mono">{tx.reference}</td>
                     <td className={`p-[9px_13px] text-right font-medium whitespace-nowrap font-mono tabular-nums ${tx.type === 'income' ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
@@ -242,7 +242,7 @@ export default function TransactionsPage() {
         )}
       </div>
 
-      <p className="text-[rgba(244,245,248,0.42)] text-[0.62rem] text-right mt-[0.75rem] font-mono">
+      <p className="text-[rgba(244,245,248,0.42)] text-[0.62rem] text-right mt-3 font-mono">
         2026/27 HMRC compliant · digitally linked records
       </p>
     </div>

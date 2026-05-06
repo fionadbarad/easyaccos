@@ -79,7 +79,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
           <Link href="/" className="text-[var(--sa-white)] text-[1.7rem] font-bold no-underline">
             EasyAcco
           </Link>
-          <p className="text-[rgba(244,245,248,0.42)] text-[0.82rem] mt-[6px]">{copy.subtitle}</p>
+          <p className="text-[rgba(244,245,248,0.42)] text-[0.82rem] mt-1.5">{copy.subtitle}</p>
         </div>
 
         <div className="bg-[rgba(244,245,248,0.03)] border border-[rgba(244,245,248,0.12)] rounded-xl p-6 mb-5 text-center">
@@ -107,7 +107,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
           {sent ? (
             <div className="text-center">
               <CheckCircle size={40} className="text-[#4ADE80] mx-auto mb-4" />
-              <h3 className="text-[var(--sa-white)] font-bold text-[1rem] mb-2">
+              <h3 className="text-[var(--sa-white)] font-bold text-base mb-2">
                 Check your inbox
               </h3>
               <p className="text-[rgba(244,245,248,0.42)] text-[0.82rem] leading-[1.6]">

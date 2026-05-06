@@ -20,7 +20,7 @@ export default function UserMenu({ user, onSignOut, onNavClick }: UserMenuProps)
             {user.email?.[0]?.toUpperCase() ?? '?'}
           </div>
           <div className="overflow-hidden flex-1">
-            <div className="text-white text-[0.75rem] font-medium truncate">
+            <div className="text-white text-xs font-medium truncate">
               {user.email}
             </div>
             <div className="text-[rgba(244,245,248,0.55)] text-[0.6rem] font-mono">authenticated</div>
@@ -28,7 +28,7 @@ export default function UserMenu({ user, onSignOut, onNavClick }: UserMenuProps)
         </div>
         <button 
           onClick={onSignOut}
-          className="flex items-center gap-1.5 text-[rgba(244,245,248,0.55)] hover:text-white bg-transparent border-none cursor-pointer text-[0.75rem] py-0.5 transition-colors duration-100"
+          className="flex items-center gap-1.5 text-[rgba(244,245,248,0.55)] hover:text-white bg-transparent border-none cursor-pointer text-xs py-0.5 transition-colors duration-100"
         >
           <LogOut size={12} /> Sign out
         </button>

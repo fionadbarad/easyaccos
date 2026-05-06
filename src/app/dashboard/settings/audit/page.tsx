@@ -33,11 +33,11 @@ export default function AuditPage() {
 
   return (
     <div className="p-[clamp(1.5rem,4vw,2.5rem)] max-w-[960px]">
-      <div className="mb-[1.75rem]">
+      <div className="mb-7">
         <div className="text-[rgba(244,245,248,0.18)] text-[0.6rem] uppercase tracking-[0.12em] font-mono mb-[5px]">
           security
         </div>
-        <h1 className="text-[var(--sa-white)] text-[clamp(1.3rem,3vw,1.8rem)] font-semibold tracking-[-0.03em] m-0 mb-[4px]">
+        <h1 className="text-[var(--sa-white)] text-[clamp(1.3rem,3vw,1.8rem)] font-semibold tracking-[-0.03em] m-0 mb-1">
           Audit Trail
         </h1>
         <p className="text-[rgba(244,245,248,0.42)] text-[0.78rem] m-0 leading-[1.55]">
@@ -46,39 +46,39 @@ export default function AuditPage() {
       </div>
 
       {/* Controls */}
-      <div className="flex gap-[0.6rem] mb-[1.25rem] flex-wrap items-center">
+      <div className="flex gap-[0.6rem] mb-5 flex-wrap items-center">
         <button
           onClick={toggleFlag}
-          className={`inline-flex items-center gap-[8px] rounded-[4px] p-[7px_14px] text-[0.8rem] cursor-pointer font-medium ${enabled ? 'bg-[rgba(74,222,128,0.08)] border border-[rgba(74,222,128,0.25)] text-[#4ADE80]' : 'bg-[var(--sa-surface)] border border-[var(--sa-border)] text-[rgba(244,245,248,0.42)]'}`}
+          className={`inline-flex items-center gap-2 rounded p-[7px_14px] text-[0.8rem] cursor-pointer font-medium ${enabled ? 'bg-[rgba(74,222,128,0.08)] border border-[rgba(74,222,128,0.25)] text-[#4ADE80]' : 'bg-[var(--sa-surface)] border border-[var(--sa-border)] text-[rgba(244,245,248,0.42)]'}`}
         >
           {enabled ? <ToggleRight size={15} /> : <ToggleLeft size={15} />}
           Audit logging {enabled ? 'on' : 'off'}
         </button>
         <button
           onClick={load}
-          className="inline-flex items-center gap-[6px] bg-transparent border border-[var(--sa-border)] text-[rgba(244,245,248,0.42)] rounded-[4px] p-[7px_12px] text-[0.8rem] cursor-pointer"
+          className="inline-flex items-center gap-1.5 bg-transparent border border-[var(--sa-border)] text-[rgba(244,245,248,0.42)] rounded p-[7px_12px] text-[0.8rem] cursor-pointer"
         >
           <RefreshCw size={13} /> Refresh
         </button>
       </div>
 
       {!enabled && (
-        <div className="bg-[rgba(251,191,36,0.05)] border border-[rgba(251,191,36,0.2)] rounded-[6px] p-[0.85rem_1rem] mb-[1.25rem] flex items-center gap-[8px] text-[#FBBF24] text-[0.8rem]">
+        <div className="bg-[rgba(251,191,36,0.05)] border border-[rgba(251,191,36,0.2)] rounded-md p-[0.85rem_1rem] mb-5 flex items-center gap-2 text-[#FBBF24] text-[0.8rem]">
           <ShieldCheck size={14} />
           Audit logging is off — no events are being recorded. Toggle above to enable.
         </div>
       )}
 
       {loading ? (
-        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-[3rem] text-center text-[rgba(244,245,248,0.42)] text-[0.84rem]">
+        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-md p-[3rem] text-center text-[rgba(244,245,248,0.42)] text-[0.84rem]">
           Loading…
         </div>
       ) : entries.length === 0 ? (
-        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-[3rem] text-center text-[rgba(244,245,248,0.42)] text-[0.84rem]">
+        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-md p-[3rem] text-center text-[rgba(244,245,248,0.42)] text-[0.84rem]">
           No audit entries yet.{enabled ? ' Events will appear here after you create, edit, or delete data.' : ''}
         </div>
       ) : (
-        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] overflow-hidden">
+        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-md overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-[0.8rem]">
               <thead>
@@ -121,16 +121,16 @@ export default function AuditPage() {
                       {isOpen && (
                         <tr key={`${e.id}-detail`} className="border-b border-[rgba(244,245,248,0.04)]">
                           <td colSpan={6} className="p-[0_12px_12px]">
-                            <div className="grid grid-cols-2 gap-[0.75rem]">
+                            <div className="grid grid-cols-2 gap-3">
                               <div>
-                                <div className="text-[rgba(244,245,248,0.18)] text-[0.58rem] uppercase tracking-[0.07em] mb-[4px] font-mono">Before</div>
-                                <pre className="bg-[var(--sa-gray)] rounded-[4px] p-[8px_10px] text-[rgba(244,245,248,0.42)] text-[0.68rem] overflow-x-auto m-0 whitespace-pre-wrap break-all">
+                                <div className="text-[rgba(244,245,248,0.18)] text-[0.58rem] uppercase tracking-[0.07em] mb-1 font-mono">Before</div>
+                                <pre className="bg-[var(--sa-gray)] rounded p-[8px_10px] text-[rgba(244,245,248,0.42)] text-[0.68rem] overflow-x-auto m-0 whitespace-pre-wrap break-all">
                                   {e.before !== null ? JSON.stringify(e.before, null, 2) : 'null'}
                                 </pre>
                               </div>
                               <div>
-                                <div className="text-[rgba(244,245,248,0.18)] text-[0.58rem] uppercase tracking-[0.07em] mb-[4px] font-mono">After</div>
-                                <pre className="bg-[var(--sa-gray)] rounded-[4px] p-[8px_10px] text-[rgba(244,245,248,0.42)] text-[0.68rem] overflow-x-auto m-0 whitespace-pre-wrap break-all">
+                                <div className="text-[rgba(244,245,248,0.18)] text-[0.58rem] uppercase tracking-[0.07em] mb-1 font-mono">After</div>
+                                <pre className="bg-[var(--sa-gray)] rounded p-[8px_10px] text-[rgba(244,245,248,0.42)] text-[0.68rem] overflow-x-auto m-0 whitespace-pre-wrap break-all">
                                   {e.after !== null ? JSON.stringify(e.after, null, 2) : 'null'}
                                 </pre>
                               </div>

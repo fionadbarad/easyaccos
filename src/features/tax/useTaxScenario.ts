@@ -1,7 +1,7 @@
 'use client'
 
 // Owns all calculator state and derives results. The shell component is then
-// purely presentational — pass props through, render panels.
+// purely presentational - pass props through, render panels.
 
 import { useState, useMemo } from 'react'
 import {

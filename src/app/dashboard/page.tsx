@@ -13,7 +13,7 @@ export default async function DashboardPage() {
       displayName = user.user_metadata?.name ?? user.email ?? 'Freelancer'
     }
   } catch {
-    // Supabase not reachable — still show dashboard as guest
+    // Supabase not reachable - still show dashboard as guest
   }
 
   return <DashboardUI displayName={displayName} />

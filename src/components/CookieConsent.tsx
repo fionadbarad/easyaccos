@@ -13,7 +13,7 @@ export default function CookieConsent() {
       const stored = localStorage.getItem(STORAGE_KEY)
       if (!stored) setVisible(true)
     } catch {
-      // localStorage unavailable — don't show banner
+      // localStorage unavailable - don't show banner
     }
   }, [])
 

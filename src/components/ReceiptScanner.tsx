@@ -8,7 +8,7 @@ export interface ReceiptExtract {
   amount: number | null
   date: string | null
   raw: string
-  imageUrl: string   // blob URL — caller must revoke when done
+  imageUrl: string   // blob URL - caller must revoke when done
   fileType: string   // MIME type of the uploaded file
 }
 
@@ -98,7 +98,7 @@ export default function ReceiptScanner({ onExtract }: Props) {
       })
       const raw = result.data.text || ''
       const parsed = parseReceipt(raw)
-      // Pass imageUrl to parent — parent is responsible for revoking it
+      // Pass imageUrl to parent - parent is responsible for revoking it
       blobUrlRef.current = ''
       onExtract({ ...parsed, raw, imageUrl, fileType: file.type })
       setStatus('Done')

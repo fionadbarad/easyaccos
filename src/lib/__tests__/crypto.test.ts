@@ -7,7 +7,7 @@ import {
   decryptWithPassphrase,
 } from '@/lib/storage/crypto'
 
-describe('crypto — device key', () => {
+describe('crypto - device key', () => {
   it('round-trips JSON through AES-GCM', async () => {
     const key = await generateDeviceKey()
     const payload = JSON.stringify({ hello: 'world', n: 42, arr: [1, 2, 3] })
@@ -35,7 +35,7 @@ describe('crypto — device key', () => {
   })
 })
 
-describe('crypto — passphrase (backup)', () => {
+describe('crypto - passphrase (backup)', () => {
   // PBKDF2 at 310k iterations is deliberately slow; keep these tests lean.
   it('encrypts and decrypts with the correct passphrase', async () => {
     const env = await encryptWithPassphrase('correct horse battery staple', 'ledger')

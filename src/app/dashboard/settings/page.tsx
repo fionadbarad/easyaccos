@@ -141,8 +141,8 @@ export default function SettingsPage() {
       <Section title="Account Info">
         <div className="flex flex-col gap-3">
           {[
-            { label: 'User ID', value: user?.id ?? '—' },
-            { label: 'Account Created', value: user?.created_at ? new Date(user.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '—' },
+            { label: 'User ID', value: user?.id ?? '-' },
+            { label: 'Account Created', value: user?.created_at ? new Date(user.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '-' },
             { label: 'Plan', value: 'Free Forever' },
           ].map(({ label, value }) => (
             <div key={label} className="flex justify-between p-[9px_0] border-b border-[rgba(244,245,248,0.06)]">

@@ -1,4 +1,4 @@
-// Shared design tokens — mirrors the --sa-* CSS vars in globals.css.
+// Shared design tokens - mirrors the --sa-* CSS vars in globals.css.
 // Use this instead of redefining per-file `const C = {...}` blocks.
 export const C = {
   bg: 'var(--sa-black)',

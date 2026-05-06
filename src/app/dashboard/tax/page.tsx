@@ -13,7 +13,7 @@ export default function TaxPage() {
           Tax Calculator
         </h1>
         <p className="text-[rgba(244,245,248,0.42)] text-[0.84rem] leading-[1.65] max-w-[560px]">
-          Five HMRC-accurate scenarios. Hard-coded 2026/27 rates — no API latency.
+          Five HMRC-accurate scenarios. Hard-coded 2026/27 rates - no API latency.
           Use the <strong className="text-[var(--sa-white)] font-medium">What-If slider</strong> for real-time sensitivity analysis.
         </p>
         <div className="mt-3 p-[0.65rem_0.9rem] bg-[rgba(244,245,248,0.04)] border border-[var(--sa-border)] rounded text-[0.72rem] text-[rgba(244,245,248,0.42)] font-mono inline-flex gap-6">

@@ -1,5 +1,5 @@
 // Pure aggregation helpers for the year tracker. Everything here is a total
-// function over dated records — no React, no state — so it's trivially unit-
+// function over dated records - no React, no state - so it's trivially unit-
 // testable. The heavier tax arithmetic is delegated to calculateTax.
 
 import { TAX_YEAR_DAYS, TAX_YEAR_START, clamp, inTaxYear } from './shared'

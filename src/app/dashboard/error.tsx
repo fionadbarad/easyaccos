@@ -19,7 +19,7 @@ export default function DashboardError({
         Something went wrong rendering this view.
       </h1>
       <p className="text-[rgba(244,245,248,0.5)] text-[0.82rem] leading-[1.5] mb-5">
-        Your data is safe — nothing was written. You can retry, or navigate away.
+        Your data is safe - nothing was written. You can retry, or navigate away.
       </p>
       {error.message && (
         <pre className="text-[rgba(244,245,248,0.75)] text-[0.72rem] font-mono bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded p-[0.6rem_0.8rem] mb-[0.6rem] whitespace-pre-wrap break-words">

@@ -1,4 +1,4 @@
-// ── Kittax AI — shared types ─────────────────────────────────────────────────
+// ── Kittax AI - shared types ─────────────────────────────────────────────────
 
 export interface TaxBreakdown {
   income: number

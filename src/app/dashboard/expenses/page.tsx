@@ -79,7 +79,7 @@ export default function ExpensesPage() {
           </h1>
           <p className="text-[rgba(244,245,248,0.42)] text-xs mt-1 mb-0 font-mono">
             {loading
-              ? '—'
+              ? '-'
               : `${filtered.length}${filtered.length !== expenses.length ? ` of ${expenses.length}` : ''} records · total `}
             {!loading && <span className="text-[var(--sa-white)]">£{total.toLocaleString('en-GB', { minimumFractionDigits: 2 })}</span>}
           </p>
@@ -98,7 +98,7 @@ export default function ExpensesPage() {
 
       {!loading && !isAuthenticated && expenses.length > 0 && (
         <div className="bg-[rgba(251,191,36,0.05)] border border-[rgba(251,191,36,0.18)] rounded px-[1rem] py-[0.7rem] mb-5 flex items-center justify-between flex-wrap gap-2">
-          <span className="text-[#FBBF24] text-xs">Data is saved in this browser only — sign in to sync across devices.</span>
+          <span className="text-[#FBBF24] text-xs">Data is saved in this browser only - sign in to sync across devices.</span>
           <a href="/auth/login" className="text-[#FBBF24] text-[0.72rem] font-semibold no-underline border-b border-[rgba(251,191,36,0.4)]">Sign in →</a>
         </div>
       )}

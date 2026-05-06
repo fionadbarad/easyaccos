@@ -61,12 +61,12 @@ export async function restoreBackup(
 ): Promise<{ restored: number }> {
   let records: Record<string, unknown>
   if (file.encrypted) {
-    if (!passphrase) throw new Error('This backup is encrypted — passphrase required')
+    if (!passphrase) throw new Error('This backup is encrypted - passphrase required')
     const json = await decryptWithPassphrase(passphrase, file.envelope)
     try {
       records = JSON.parse(json)
     } catch {
-      throw new Error('Decrypted backup is corrupt — passphrase may be wrong')
+      throw new Error('Decrypted backup is corrupt - passphrase may be wrong')
     }
   } else {
     records = file.records

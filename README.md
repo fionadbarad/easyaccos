@@ -26,11 +26,11 @@ Records are encrypted in the browser with AES-GCM (256-bit, Web Crypto API) befo
 
 ## Layout
 
-- `src/lib/TaxBible2026.ts` — tax constants and scenario logic
-- `src/lib/tax-logic.ts` — calculation engine
-- `src/lib/storage/crypto.ts` — encryption layer
-- `src/features/` — feature modules (invoices, expenses, tax estimator)
-- `src/lib/__tests__/` — tests against HMRC worked examples
+- `src/lib/TaxBible2026.ts` - tax constants and scenario logic
+- `src/lib/tax-logic.ts` - calculation engine
+- `src/lib/storage/crypto.ts` - encryption layer
+- `src/features/` - feature modules (invoices, expenses, tax estimator)
+- `src/lib/__tests__/` - tests against HMRC worked examples
 
 ## Local dev
 

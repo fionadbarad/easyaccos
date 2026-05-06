@@ -2,7 +2,7 @@
 
 // Result renderer for welfare + job-loss scenarios. These flow through
 // calcScenario3/4 which produce ScenarioResult (pre-rendered line items),
-// not the calculateTax shape — hence a separate panel.
+// not the calculateTax shape - hence a separate panel.
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'

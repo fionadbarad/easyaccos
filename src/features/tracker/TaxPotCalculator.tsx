@@ -118,11 +118,11 @@ export default function TaxPotCalculator() {
                   <Label>Student loan plan</Label>
                   <Select value={slPlan} onChange={v => setSlPlan(v as StudentLoanPlan)} options={[
                     { value: 'none',         label: 'None' },
-                    { value: 'plan1',        label: 'Plan 1 — £26,900 threshold' },
-                    { value: 'plan2',        label: 'Plan 2 — £29,385 threshold' },
-                    { value: 'plan4',        label: 'Plan 4 — £33,795 (Scotland)' },
-                    { value: 'plan5',        label: 'Plan 5 — £25,000 threshold' },
-                    { value: 'postgraduate', label: 'Postgraduate — £21,000 (6%)' },
+                    { value: 'plan1',        label: 'Plan 1 - £26,900 threshold' },
+                    { value: 'plan2',        label: 'Plan 2 - £29,385 threshold' },
+                    { value: 'plan4',        label: 'Plan 4 - £33,795 (Scotland)' },
+                    { value: 'plan5',        label: 'Plan 5 - £25,000 threshold' },
+                    { value: 'postgraduate', label: 'Postgraduate - £21,000 (6%)' },
                   ]} />
                 </div>
                 <div>
@@ -171,7 +171,7 @@ export default function TaxPotCalculator() {
                 </div>
 
                 <div className="bg-[var(--sa-black)] border border-[var(--sa-border)] rounded-md px-[1rem] py-0">
-                  <Row label="Income Tax"   value={monthlyIncomeTax > 0 ? `${fmt(monthlyIncomeTax)}/mo` : '—'} />
+                  <Row label="Income Tax"   value={monthlyIncomeTax > 0 ? `${fmt(monthlyIncomeTax)}/mo` : '-'} />
                   {result && result.niClass4 > 0 && <Row label="NI Class 4 (SE)"  value={`${fmt(Math.round(result.niClass4 / 12))}/mo`} />}
                   {result && result.niClass1 > 0 && <Row label="NI Class 1 (PAYE)" value={`${fmt(Math.round(result.niClass1 / 12))}/mo`} />}
                   {result && result.niClass2 > 0 && <Row label="NI Class 2"        value={`${fmt(Math.round(result.niClass2 / 12))}/mo`} />}

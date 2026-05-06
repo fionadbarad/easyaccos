@@ -109,7 +109,7 @@ function RatePanel({ open, onToggle }: { open: boolean; onToggle: () => void }) 
             </tbody>
           </table>
           <p className="text-[rgba(244,245,248,0.42)] text-[0.68rem] mt-[10px] leading-[1.5]">
-            Use these HMRC-approved rates instead of claiming actual vehicle costs. The car threshold resets each tax year (6 April). Only business journeys qualify — commuting to a regular workplace does not.
+            Use these HMRC-approved rates instead of claiming actual vehicle costs. The car threshold resets each tax year (6 April). Only business journeys qualify - commuting to a regular workplace does not.
           </p>
         </div>
       )}
@@ -232,7 +232,7 @@ export default function MileagePage() {
             </h1>
           </div>
           <p className="text-[rgba(244,245,248,0.42)] text-xs m-0">
-            HMRC approved mileage — 2026/27 tax year
+            HMRC approved mileage - 2026/27 tax year
           </p>
         </div>
         <div className="flex items-center gap-2.5">
@@ -284,7 +284,7 @@ export default function MileagePage() {
           </div>
           {thresholdPct >= 100 && (
             <p className="text-[#FBBF24] text-[0.68rem] mt-1.5">
-              10,000 mile threshold reached — remaining car journeys claim at 25p/mile.
+              10,000 mile threshold reached - remaining car journeys claim at 25p/mile.
             </p>
           )}
         </div>
@@ -330,7 +330,7 @@ export default function MileagePage() {
           {/* Description */}
           <div className="mb-3">
             <label className="block text-[rgba(244,245,248,0.42)] text-[0.68rem] mb-1 uppercase tracking-[0.06em]">Business Purpose</label>
-            <input type="text" placeholder="e.g. Client meeting — Manchester" value={description} onChange={e => setDescription(e.target.value)}
+            <input type="text" placeholder="e.g. Client meeting - Manchester" value={description} onChange={e => setDescription(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && addEntry()}
               className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded text-[var(--sa-white)] p-[7px_10px] text-[0.78rem]" />
           </div>

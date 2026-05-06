@@ -1,27 +1,4 @@
-/**
- * Append-only audit log.
- *
- * Every write through the storage facade calls appendAuditLog(). Entries are
- * stored locally in IndexedDB (STORE_AUDIT) and mirrored best-effort to the
- * `audit_logs` Supabase table when the user is authenticated.
- *
- * Schema (Supabase — run once):
- *
- *   CREATE TABLE audit_logs (
- *     id         uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
- *     user_id    uuid        REFERENCES auth.users(id) ON DELETE CASCADE,
- *     entity     text        NOT NULL,
- *     entity_id  text        NOT NULL,
- *     op         text        NOT NULL CHECK (op IN ('create','update','delete')),
- *     before     jsonb,
- *     after      jsonb,
- *     ts         timestamptz NOT NULL DEFAULT now(),
- *     actor      text
- *   );
- *   ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
- *   CREATE POLICY "own_audit" ON audit_logs
- *     FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
- */
+// Append-only audit log. IDB is authoritative, Supabase mirror is best-effort.
 
 import { isFlagEnabled, FLAG_AUDIT } from './feature-flags'
 import { idbSet, STORE_AUDIT, isIDBAvailable, idbAuditRange } from './storage/idb'

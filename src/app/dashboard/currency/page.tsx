@@ -33,7 +33,7 @@ function saveCache(rates: Record<string, number>) {
   try {
     localStorage.setItem(CACHE_KEY, JSON.stringify({ rates, fetchedAt: Date.now() } satisfies RateCache))
   } catch {
-    // localStorage may be unavailable (e.g. private browsing with strict settings) — skip silently
+    // localStorage may be unavailable (e.g. private browsing with strict settings) - skip silently
   }
 }
 
@@ -228,7 +228,7 @@ export default function CurrencyPage() {
                 ? '…'
                 : converted !== null
                   ? converted.toLocaleString('en-GB', { maximumFractionDigits: 4 })
-                  : '—'}
+                  : '-'}
             </div>
             <div className="mt-2">
               <label className="block text-[var(--sa-muted)] text-xs uppercase tracking-[0.08em] mb-[0.4rem]">
@@ -275,7 +275,7 @@ export default function CurrencyPage() {
                 GBP/{cur}
               </div>
               <div className="text-[var(--sa-white)] font-bold text-[1.1rem]">
-                {r ? r.toFixed(4) : '—'}
+                {r ? r.toFixed(4) : '-'}
               </div>
             </button>
           )

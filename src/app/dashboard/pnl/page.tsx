@@ -12,13 +12,13 @@ interface Transaction { id: string; date: string; description: string; type: 'in
 const STORAGE_KEY = 'easyacco_transactions'
 
 const SEED: Transaction[] = [
-  { id: '1', date: '2026-01-01', description: 'Client A — Consulting',  type: 'income',  amount: 2400   },
+  { id: '1', date: '2026-01-01', description: 'Client A - Consulting',  type: 'income',  amount: 2400   },
   { id: '2', date: '2026-01-10', description: 'Subscriptions',          type: 'expense', amount: 120    },
-  { id: '3', date: '2026-02-01', description: 'Client B — Project',     type: 'income',  amount: 3100   },
+  { id: '3', date: '2026-02-01', description: 'Client B - Project',     type: 'income',  amount: 3100   },
   { id: '4', date: '2026-02-14', description: 'Travel',                 type: 'expense', amount: 230    },
-  { id: '5', date: '2026-03-01', description: 'Client A — Retainer',    type: 'income',  amount: 2800   },
+  { id: '5', date: '2026-03-01', description: 'Client A - Retainer',    type: 'income',  amount: 2800   },
   { id: '6', date: '2026-03-05', description: 'Software Licences',      type: 'expense', amount: 54.99  },
-  { id: '7', date: '2026-03-12', description: 'Client C — Design',      type: 'income',  amount: 1800   },
+  { id: '7', date: '2026-03-12', description: 'Client C - Design',      type: 'income',  amount: 1800   },
   { id: '8', date: '2026-03-20', description: 'Freelance Writing',       type: 'income',  amount: 750    },
 ]
 
@@ -131,7 +131,7 @@ export default function PnLPage() {
     e.preventDefault()
     const amt = parseFloat(cogsForm.amount)
     if (!amt || !cogsForm.description.trim()) return
-    const tag = isCogs(cogsForm.description) ? cogsForm.description.trim() : `COGS — ${cogsForm.description.trim()}`
+    const tag = isCogs(cogsForm.description) ? cogsForm.description.trim() : `COGS - ${cogsForm.description.trim()}`
     const next: Transaction[] = [
       { id: crypto.randomUUID(), date: cogsForm.date, description: tag, type: 'expense', amount: amt },
       ...txs,
@@ -144,7 +144,7 @@ export default function PnLPage() {
   function exportSA103CSV() {
     const expensesTotal = txs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
     const rows: Array<[string, string]> = [
-      ['SA103 Self-Employment (Short) — 2026/27', ''],
+      ['SA103 Self-Employment (Short) - 2026/27', ''],
       ['Generated', new Date().toISOString()],
       ['', ''],
       ['Box 9  Turnover (Total Revenue)', totalRevenue.toFixed(2)],
@@ -154,7 +154,7 @@ export default function PnLPage() {
       ['Box 20 Total allowable expenses', expensesTotal.toFixed(2)],
       ['Box 21 Net profit / (loss)', netProfit.toFixed(2)],
       ['', ''],
-      ['— Tax provision (indicative) —', ''],
+      ['- Tax provision (indicative) -', ''],
       ['Income Tax', taxCalc.incomeTax.toFixed(2)],
       ['National Insurance (Class 4)', taxCalc.nationalInsurance.toFixed(2)],
       ['Profit after tax', profitAfterTax.toFixed(2)],
@@ -215,7 +215,7 @@ export default function PnLPage() {
             </button>
           ))}
           <button onClick={exportJSON}
-            title={copyError ? 'Clipboard access denied — check browser permissions.' : undefined}
+            title={copyError ? 'Clipboard access denied - check browser permissions.' : undefined}
             className={`${btnBaseClass} flex items-center gap-1.5 border ${copied ? 'bg-[rgba(74,222,128,0.08)] border-[rgba(74,222,128,0.25)] text-[#4ADE80]' : copyError ? 'bg-[rgba(248,113,113,0.08)] border-[rgba(248,113,113,0.25)] text-[#F87171]' : 'bg-[var(--sa-surface)] border-[var(--sa-border)] text-[rgba(244,245,248,0.42)]'}`}>
             {copied ? <CheckCheck size={13} /> : <Copy size={13} />}
             {copied ? 'Copied' : copyError ? 'Clipboard blocked' : 'Export JSON'}
@@ -231,7 +231,7 @@ export default function PnLPage() {
         <div className="bg-[rgba(251,191,36,0.06)] border border-[rgba(251,191,36,0.2)] rounded p-[0.8rem_1rem] mb-6 flex gap-[0.65rem] items-start">
           <span className="text-[#FBBF24] text-xs font-bold font-mono shrink-0">MTD</span>
           <div>
-            <span className="text-[#FBBF24] font-semibold text-[0.82rem]">Making Tax Digital — registration required</span>
+            <span className="text-[#FBBF24] font-semibold text-[0.82rem]">Making Tax Digital - registration required</span>
             <p className="text-[rgba(244,245,248,0.42)] text-xs m-[2px_0_0] leading-[1.5]">
               Turnover exceeds <span className="text-[var(--sa-white)] font-mono">£50,000</span>. Register for MTD ITSA before <span className="text-[var(--sa-white)]">6 April 2026</span>.
             </p>
@@ -264,7 +264,7 @@ export default function PnLPage() {
           </div>
 
           <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-md p-5 mb-4">
-            <h2 className="text-[var(--sa-white)] text-[0.85rem] font-semibold tracking-[-0.01em] mb-[1.1rem]">Income vs Expenses — Monthly</h2>
+            <h2 className="text-[var(--sa-white)] text-[0.85rem] font-semibold tracking-[-0.01em] mb-[1.1rem]">Income vs Expenses - Monthly</h2>
             <ResponsiveContainer width="100%" height={200}>
               <AreaChart data={monthly} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                 <defs>
@@ -337,7 +337,7 @@ export default function PnLPage() {
             <input type="date" value={cogsForm.date}
               onChange={(e) => setCogsForm((f) => ({ ...f, date: e.target.value }))}
               className="bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[3px] p-[6px_8px] text-[var(--sa-white)] text-[0.72rem] font-mono outline-none" />
-            <input type="text" value={cogsForm.description} placeholder="e.g. Raw materials — steel"
+            <input type="text" value={cogsForm.description} placeholder="e.g. Raw materials - steel"
               onChange={(e) => setCogsForm((f) => ({ ...f, description: e.target.value }))}
               className="bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[3px] p-[6px_8px] text-[var(--sa-white)] text-xs outline-none" />
             <input type="number" min={0} step={0.01} value={cogsForm.amount} placeholder="0.00"

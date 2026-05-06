@@ -58,7 +58,7 @@ export async function secureRead<T>(recordKey: string, legacyLocalKey: string | 
       const json = await decryptWithKey(key, blob)
       return JSON.parse(json) as T
     }
-    // No IDB record — try to migrate from legacy localStorage
+    // No IDB record - try to migrate from legacy localStorage
     const legacy = readLegacy<T | undefined>(legacyLocalKey, undefined)
     if (legacy !== undefined) {
       await secureWrite(recordKey, legacy)

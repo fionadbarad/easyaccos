@@ -1,4 +1,4 @@
-// Pinpoint tests for buildTaxInput — the UI-state → calculateTax bridge.
+// Pinpoint tests for buildTaxInput - the UI-state → calculateTax bridge.
 // calculateTax is already diff-tested, so this layer's risk is purely
 // projection errors (wrong field copied, wrong zero, etc.).
 
@@ -34,7 +34,7 @@ describe('isFullEngineScenario', () => {
   })
 })
 
-describe('buildTaxInput — employed', () => {
+describe('buildTaxInput - employed', () => {
   test('copies gross salary; suppresses expenses and dividends', () => {
     const i = buildTaxInput(draft({ scenario: 'employed', grossRevenue: 60_000, allowableExpenses: 9_999 }))!
     expect(i.employmentType).toBe('employed')
@@ -49,7 +49,7 @@ describe('buildTaxInput — employed', () => {
   })
 })
 
-describe('buildTaxInput — self-employed', () => {
+describe('buildTaxInput - self-employed', () => {
   test('passes expenses through; no dividends', () => {
     const i = buildTaxInput(draft({ scenario: 'self-employed', grossRevenue: 80_000, allowableExpenses: 12_000 }))!
     expect(i.employmentType).toBe('self-employed')
@@ -58,7 +58,7 @@ describe('buildTaxInput — self-employed', () => {
   })
 })
 
-describe('buildTaxInput — director', () => {
+describe('buildTaxInput - director', () => {
   test('collapses salary + dividends into grossRevenue; sets dividendIncome; forces voluntaryClass2NI=false', () => {
     const i = buildTaxInput(draft({
       scenario: 'director',
@@ -74,7 +74,7 @@ describe('buildTaxInput — director', () => {
   })
 })
 
-describe('buildTaxInput — non-full-engine scenarios', () => {
+describe('buildTaxInput - non-full-engine scenarios', () => {
   test('welfare returns null', () => {
     expect(buildTaxInput(draft({ scenario: 'welfare' }))).toBeNull()
   })
@@ -83,7 +83,7 @@ describe('buildTaxInput — non-full-engine scenarios', () => {
   })
 })
 
-describe('buildTaxInput — allowances pass through', () => {
+describe('buildTaxInput - allowances pass through', () => {
   test('marriage + blind-persons + pension flow into output', () => {
     const i = buildTaxInput(draft({
       marriageAllowance: true,

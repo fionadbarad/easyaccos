@@ -1,5 +1,5 @@
 /**
- * useUserData — Supabase-backed persistence with encrypted IndexedDB
+ * useUserData - Supabase-backed persistence with encrypted IndexedDB
  * guest fallback.
  *
  * Public API is unchanged: { items, persist, loading, isAuthenticated }.

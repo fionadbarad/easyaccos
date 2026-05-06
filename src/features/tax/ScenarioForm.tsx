@@ -78,7 +78,7 @@ export default function ScenarioForm(p: ScenarioFormProps) {
             {p.scenario === 'director' && <>
               <Field label="Director Salary (£)"
                 hint={<p className={`text-[0.71rem] ${p.dirSalary === 12_570 ? 'text-[#4ADE80]' : 'text-[#93C5FD]'}`}>
-                  {p.dirSalary === 12_570 ? '✓ Optimal — no NI, full State Pension credit' : `Recommended: ${fmt(12_570)}`}
+                  {p.dirSalary === 12_570 ? '✓ Optimal - no NI, full State Pension credit' : `Recommended: ${fmt(12_570)}`}
                 </p>}>
                 <NumInput value={p.dirSalary} onChange={p.setDirSalary} />
               </Field>
@@ -92,7 +92,7 @@ export default function ScenarioForm(p: ScenarioFormProps) {
 
             {p.scenario === 'welfare' && <>
               <Field label="Universal Credit / month (£)"
-                hint={<p className="text-[#4ADE80] text-[0.71rem]">✓ Tax-free — won&apos;t affect allowance</p>}>
+                hint={<p className="text-[#4ADE80] text-[0.71rem]">✓ Tax-free - won&apos;t affect allowance</p>}>
                 <NumInput value={p.s3.universalCredit} onChange={(v) => p.setS3(prev => ({ ...prev, universalCredit: v }))} />
               </Field>
               <Field label="JSA (annual, taxable £)">

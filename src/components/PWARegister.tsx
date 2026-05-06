@@ -12,7 +12,7 @@ export default function PWARegister() {
       navigator.serviceWorker
         .register('/sw.js', { scope: '/' })
         .catch(() => {
-          // Silently ignore — SW registration is progressive enhancement.
+          // Silently ignore - SW registration is progressive enhancement.
         })
     }
 

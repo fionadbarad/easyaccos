@@ -1,7 +1,7 @@
 'use client'
 
 // Jurisdiction toggle (rUK / Scotland) + 5-scenario selector. Purely
-// presentational — parent owns state.
+// presentational - parent owns state.
 
 import type { TaxRegion } from '@/lib/tax-logic'
 import { SCENARIOS, type ScenarioKey } from './scenarios'

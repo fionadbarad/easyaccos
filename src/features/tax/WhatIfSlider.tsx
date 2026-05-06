@@ -39,7 +39,7 @@ export default function WhatIfSlider({ income, onChange }: { income: number; onC
       </div>
       {local > 100_000 && local < 125_140 && (
         <div className="mt-3 px-[0.9rem] py-[0.6rem] bg-[rgba(251,146,60,0.1)] border border-[rgba(251,146,60,0.4)] rounded-md text-[#FB923C] text-[0.78rem]">
-          60% Tax Trap active — every £2 over £100k costs £1 of Personal Allowance
+          60% Tax Trap active - every £2 over £100k costs £1 of Personal Allowance
         </div>
       )}
     </div>

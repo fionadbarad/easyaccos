@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 // Ghost-Auth: dashboard is fully accessible without login.
 // Auth is only required for "Save" or "Export PDF" actions (handled client-side).
-// This middleware only refreshes session cookies — it never redirects to login.
+// This middleware only refreshes session cookies - it never redirects to login.
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 

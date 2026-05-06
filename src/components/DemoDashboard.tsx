@@ -16,7 +16,7 @@ interface Expense {
 
 const EXPENSES: Expense[] = [
   { id: 1, category: 'Software',     description: 'Adobe Creative Suite',   amount: 599, date: '2026-03-01', hmrcAllowable: true  },
-  { id: 2, category: 'Travel',       description: 'Client meeting — London', amount: 84,  date: '2026-03-08', hmrcAllowable: true  },
+  { id: 2, category: 'Travel',       description: 'Client meeting - London', amount: 84,  date: '2026-03-08', hmrcAllowable: true  },
   { id: 3, category: 'Equipment',    description: 'Mechanical keyboard',     amount: 129, date: '2026-03-12', hmrcAllowable: true  },
   { id: 4, category: 'Professional', description: 'Accountant consultation', amount: 200, date: '2026-03-15', hmrcAllowable: true  },
   { id: 5, category: 'Marketing',    description: 'Instagram ads',           amount: 75,  date: '2026-03-20', hmrcAllowable: false },
@@ -57,7 +57,7 @@ export default function DemoDashboard() {
     >
       {/* Demo banner */}
       <div className="bg-[rgba(244,245,248,0.03)] border-b border-[var(--sa-border)] px-[24px] py-[10px] text-center text-[0.8rem] text-[var(--sa-muted)]">
-        Demo mode — no login required.{' '}
+        Demo mode - no login required.{' '}
         <button
           onClick={() => openModal('sign up')}
           className="bg-transparent border-none text-[var(--sa-white)] cursor-pointer underline text-[inherit]"
@@ -71,7 +71,7 @@ export default function DemoDashboard() {
           Overview
         </h1>
         <p className="text-[var(--sa-muted)] text-sm mb-8">
-          Demo data — Tax Year 6 April 2026 – 5 April 2027
+          Demo data - Tax Year 6 April 2026 – 5 April 2027
         </p>
 
         {/* Stats */}

@@ -65,7 +65,7 @@ export default function AuditPage() {
       {!enabled && (
         <div className="bg-[rgba(251,191,36,0.05)] border border-[rgba(251,191,36,0.2)] rounded-md p-[0.85rem_1rem] mb-5 flex items-center gap-2 text-[#FBBF24] text-[0.8rem]">
           <ShieldCheck size={14} />
-          Audit logging is off — no events are being recorded. Toggle above to enable.
+          Audit logging is off - no events are being recorded. Toggle above to enable.
         </div>
       )}
 
@@ -115,7 +115,7 @@ export default function AuditPage() {
                         <td className="p-[8px_12px] text-[rgba(244,245,248,0.18)] font-mono text-[0.68rem]">
                           {e.entityId.slice(0, 8)}…
                         </td>
-                        <td className="p-[8px_12px] text-[rgba(244,245,248,0.42)] text-[0.72rem]">{e.actor ?? '—'}</td>
+                        <td className="p-[8px_12px] text-[rgba(244,245,248,0.42)] text-[0.72rem]">{e.actor ?? '-'}</td>
                         <td className="p-[8px_12px] text-[rgba(244,245,248,0.18)] text-[0.7rem]">{isOpen ? '▲' : '▼'}</td>
                       </tr>
                       {isOpen && (

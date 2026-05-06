@@ -148,7 +148,7 @@ export default function YearTracker() {
         <div>
           <div className="flex justify-between mb-2">
             <span className="text-[rgba(244,245,248,0.18)] text-[0.65rem] font-mono uppercase tracking-[0.08em]">
-              Tax year progress — 6 Apr 2026 → 5 Apr 2027
+              Tax year progress - 6 Apr 2026 → 5 Apr 2027
             </span>
             <span className="text-[var(--sa-white)] text-[0.65rem] font-mono font-semibold">
               {Math.round(yearProgress * 100)}% · {daysElapsed}d elapsed
@@ -271,7 +271,7 @@ export default function YearTracker() {
                           <>
                             <div className="text-[#4ADE80] text-[0.82rem] font-semibold mb-0.5">You&apos;re covered</div>
                             <div className="text-[rgba(244,245,248,0.42)] text-[0.72rem] leading-[1.5]">
-                              Surplus of {fmt(Math.abs(gap))} — you have more than enough set aside.
+                              Surplus of {fmt(Math.abs(gap))} - you have more than enough set aside.
                             </div>
                           </>
                         ) : (
@@ -282,7 +282,7 @@ export default function YearTracker() {
                             <div className="text-[rgba(244,245,248,0.42)] text-[0.72rem] leading-[1.5]">
                               {monthsRemaining > 0
                                 ? <>Save <strong className="text-[var(--sa-white)]">{fmt(monthlyNeeded)}/month</strong> for the next {Math.round(monthsRemaining)} months to cover your bill.</>
-                                : 'Tax year has ended — ensure funds are ready for January 2028.'
+                                : 'Tax year has ended - ensure funds are ready for January 2028.'
                               }
                             </div>
                           </>

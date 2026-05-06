@@ -1,7 +1,7 @@
 'use client'
 
 // Small input primitives shared across the tax calculator. useDebounce lives
-// here too — only the slider uses it today, but it's a utility.
+// here too - only the slider uses it today, but it's a utility.
 
 import { useState, useEffect } from 'react'
 

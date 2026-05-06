@@ -1,15 +1,15 @@
 // HMRC 2026/27 single source of truth.
-// Update this file when 2027/28 figures are announced — all engines and
+// Update this file when 2027/28 figures are announced - all engines and
 // scenario calculators import from here, so there's only one place to change.
 
-// ── Income Tax — Personal Allowance ─────────────────────────────────────────
+// ── Income Tax - Personal Allowance ─────────────────────────────────────────
 export const PA_BASE                 = 12_570
 export const PA_TAPER_START          = 100_000
 export const PA_TAPER_END            = 125_140
 export const MARRIAGE_ALLOWANCE_XFER = 1_260
 export const BLIND_PERSONS_ALLOWANCE = 3_250
 
-// ── Income Tax — rUK bands ──────────────────────────────────────────────────
+// ── Income Tax - rUK bands ──────────────────────────────────────────────────
 export const RUK_BASIC_RATE       = 0.20
 export const RUK_HIGHER_RATE      = 0.40
 export const RUK_ADDITIONAL_RATE  = 0.45
@@ -21,7 +21,7 @@ export const RUK_HIGHER_LIMIT     = 125_140   // above this: 45%
 // Kept as a derived export for callers that work in taxable-income space.
 export const RUK_TAXABLE_ADDITIONAL_THRESHOLD = RUK_HIGHER_LIMIT - PA_BASE  // 112,570
 
-// ── Income Tax — Scotland band ceilings (absolute gross income) ─────────────
+// ── Income Tax - Scotland band ceilings (absolute gross income) ─────────────
 export const SCO_STARTER_END      = 16_537    // 19%
 export const SCO_BASIC_END        = 29_526    // 20%
 export const SCO_INTERMEDIATE_END = 43_662    // 21%
@@ -39,11 +39,11 @@ export const NI_C4_UPPER     = 0.02     // SE Class 4 above UEL
 export const NI_C2_WEEKLY    = 3.65     // Class 2 voluntary
 export const NI_CLASS2_SPT   = 7_105    // Class 2 Small Profits Threshold
 
-// Employer NI — effective 6 April 2026
+// Employer NI - effective 6 April 2026
 export const EMPLOYER_NI_RATE     = 0.15    // was 13.8%
 export const EMPLOYER_NI_THRESH   = 5_000   // Secondary Threshold
 
-// ── Dividends — 2026/27 hike (effective 6 April 2026) ──────────────────────
+// ── Dividends - 2026/27 hike (effective 6 April 2026) ──────────────────────
 export const DIV_ALLOWANCE = 500
 export const DIV_BASIC     = 0.1075   // 10.75% (was 8.75%)
 export const DIV_HIGHER    = 0.3575   // 35.75% (was 33.75%)

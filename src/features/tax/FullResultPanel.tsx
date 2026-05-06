@@ -36,7 +36,7 @@ export default function FullResultPanel({ result, showMonthly, setShowMonthly }:
         <div className="bg-[rgba(96,165,250,0.08)] border border-[rgba(96,165,250,0.3)] rounded-lg p-[0.75rem_1rem] mb-5 flex gap-[0.6rem]">
           <Info size={14} className="text-[#93C5FD] shrink-0 mt-0.5" />
           <div className="text-[var(--sa-white)] text-[0.8rem] leading-[1.5]">
-            <strong className="text-[#93C5FD]">MTD for Income Tax</strong> — Gross revenue over £50k means you must file quarterly via Making Tax Digital from April 2026.
+            <strong className="text-[#93C5FD]">MTD for Income Tax</strong> - Gross revenue over £50k means you must file quarterly via Making Tax Digital from April 2026.
           </div>
         </div>
       )}
@@ -86,7 +86,7 @@ export default function FullResultPanel({ result, showMonthly, setShowMonthly }:
                   ...(result.niClass1 > 0 ? [{ label: 'NI Class 1 (8%)',   value: result.niClass1 / d,  bold: false, negative: true, indent: true }] : []),
                   ...(result.niClass4 > 0 ? [{ label: 'NI Class 4 (6%)',   value: result.niClass4 / d,  bold: false, negative: true, indent: true }] : []),
                   ...(result.niClass2 > 0 ? [{ label: 'NI Class 2 (voluntary)', value: result.niClass2 / d, bold: false, negative: true, indent: true }] : []),
-                  ...(result.niClass2Deemed ? [{ label: 'NI Class 2 (deemed paid — £0)', value: 0, bold: false, negative: false, indent: true }] : []),
+                  ...(result.niClass2Deemed ? [{ label: 'NI Class 2 (deemed paid - £0)', value: 0, bold: false, negative: false, indent: true }] : []),
                   ...(result.dividendTax > 0 ? [{ label: 'Dividend Tax', value: result.dividendTax / d, bold: false, negative: true, indent: true }] : []),
                   ...(result.studentLoanRepayment > 0 ? [{ label: 'Student Loan Repayment', value: result.studentLoanRepayment / d, bold: false, negative: true, indent: true }] : []),
                   { label: 'Total Deductions',      value: result.totalDeductions / d,     bold: true,  negative: true,  indent: false },

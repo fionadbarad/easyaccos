@@ -15,7 +15,7 @@ export default function TrackerPage() {
           Tax Tracker
         </h1>
         <p className="text-[rgba(244,245,248,0.42)] text-sm leading-[1.6] m-0 max-w-[48ch]">
-          Know exactly what to set aside each month — and track your running tax bill across the full 2026/27 tax year.
+          Know exactly what to set aside each month - and track your running tax bill across the full 2026/27 tax year.
         </p>
       </div>
 

@@ -17,17 +17,17 @@
   },
   {
     "id": "payment-on-account",
-    "title": "July 31st — Payment on Account",
+    "title": "July 31st - Payment on Account",
     "summary": "If your tax bill exceeds £1,000, HMRC requires you to make advance payments towards the next year's bill. The second instalment is due 31 July.",
-    "deepDive": "Payments on account are advance payments towards your next tax bill. If your Self-Assessment tax bill exceeds £1,000, HMRC splits the next year's estimated tax into two equal instalments: 31 January (same deadline as your current year bill) and 31 July. Each instalment is 50% of the previous year's bill. This system can create a cash flow shock in your first year of self-employment — budget accordingly. You can apply to reduce payments on account if you expect lower income.",
+    "deepDive": "Payments on account are advance payments towards your next tax bill. If your Self-Assessment tax bill exceeds £1,000, HMRC splits the next year's estimated tax into two equal instalments: 31 January (same deadline as your current year bill) and 31 July. Each instalment is 50% of the previous year's bill. This system can create a cash flow shock in your first year of self-employment - budget accordingly. You can apply to reduce payments on account if you expect lower income.",
     "category": "Deadlines",
     "icon": "CreditCard"
   },
   {
     "id": "ni-class2-voluntary",
-    "title": "NI Class 2 — Voluntary Contributions",
+    "title": "NI Class 2 - Voluntary Contributions",
     "summary": "Class 2 NI contributions count towards your State Pension and benefit entitlements. If your profits are below £6,845, you can pay voluntarily at just £3.65/week.",
-    "deepDive": "National Insurance Class 2 contributions protect your entitlement to the State Pension, Maternity Allowance, and Employment and Support Allowance. Since 2024, Class 2 is voluntary for those earning below the Small Profits Threshold (£6,845 for 2026/27). If your profits are above this threshold, Class 2 is automatically included in your Self-Assessment. Paying £189.80/year (£3.65 × 52) can add significant future State Pension value — highly recommended for most self-employed people.",
+    "deepDive": "National Insurance Class 2 contributions protect your entitlement to the State Pension, Maternity Allowance, and Employment and Support Allowance. Since 2024, Class 2 is voluntary for those earning below the Small Profits Threshold (£6,845 for 2026/27). If your profits are above this threshold, Class 2 is automatically included in your Self-Assessment. Paying £189.80/year (£3.65 × 52) can add significant future State Pension value - highly recommended for most self-employed people.",
     "category": "National Insurance",
     "icon": "Shield"
   },
@@ -35,15 +35,15 @@
     "id": "ni-class4-rates",
     "title": "NI Class 4 Rates",
     "summary": "Self-employed people pay Class 4 NI at 6% on profits between £12,570 and £50,270, then 2% on profits above £50,270 for 2026/27.",
-    "deepDive": "Class 4 National Insurance is paid by self-employed individuals on their trading profits, calculated and paid through Self-Assessment. For 2026/27: 0% on the first £12,570 (same as the Personal Allowance), 6% on profits from £12,570 to £50,270 (the Basic Rate band), and 2% on profits above £50,270. Unlike employed NI (Class 1), Class 4 doesn't entitle you to the same benefits — it primarily funds general taxation. Always include Class 4 in your cash flow planning.",
+    "deepDive": "Class 4 National Insurance is paid by self-employed individuals on their trading profits, calculated and paid through Self-Assessment. For 2026/27: 0% on the first £12,570 (same as the Personal Allowance), 6% on profits from £12,570 to £50,270 (the Basic Rate band), and 2% on profits above £50,270. Unlike employed NI (Class 1), Class 4 doesn't entitle you to the same benefits - it primarily funds general taxation. Always include Class 4 in your cash flow planning.",
     "category": "National Insurance",
     "icon": "TrendingUp"
   },
   {
     "id": "personal-allowance",
     "title": "Personal Allowance",
-    "summary": "Everyone in the UK gets a Personal Allowance of £12,570 — income up to this amount is tax-free. It tapers away for earnings above £100,000.",
-    "deepDive": "The Personal Allowance is the amount you can earn before paying Income Tax. For 2026/27 it remains at £12,570. However, it tapers for high earners: you lose £1 of allowance for every £2 you earn above £100,000, meaning it reaches zero at £125,140. If you earn over £100,000, filing a tax return is essential to reclaim any overpaid tax or correctly pay additional amounts. The allowance applies to all income sources combined — employment, self-employment, savings, and dividends.",
+    "summary": "Everyone in the UK gets a Personal Allowance of £12,570 - income up to this amount is tax-free. It tapers away for earnings above £100,000.",
+    "deepDive": "The Personal Allowance is the amount you can earn before paying Income Tax. For 2026/27 it remains at £12,570. However, it tapers for high earners: you lose £1 of allowance for every £2 you earn above £100,000, meaning it reaches zero at £125,140. If you earn over £100,000, filing a tax return is essential to reclaim any overpaid tax or correctly pay additional amounts. The allowance applies to all income sources combined - employment, self-employment, savings, and dividends.",
     "category": "Income Tax",
     "icon": "Percent"
   },
@@ -51,7 +51,7 @@
     "id": "income-tax-bands",
     "title": "Income Tax Bands 2026/27",
     "summary": "UK Income Tax has three bands: Basic (20%), Higher (40%), and Additional (45%). You pay each rate only on income within that band.",
-    "deepDive": "UK Income Tax is progressive — you only pay each rate on the income within that specific band, not on your total income. For 2026/27: Personal Allowance £0–£12,570 (0%), Basic Rate £12,571–£50,270 (20%), Higher Rate £50,271–£125,140 (40%), Additional Rate above £125,140 (45%). Example: earning £60,000 means 0% on first £12,570, 20% on next £37,700, and 40% on the remaining £9,730 — not 40% on the whole £60,000. Scotland has different bands.",
+    "deepDive": "UK Income Tax is progressive - you only pay each rate on the income within that specific band, not on your total income. For 2026/27: Personal Allowance £0–£12,570 (0%), Basic Rate £12,571–£50,270 (20%), Higher Rate £50,271–£125,140 (40%), Additional Rate above £125,140 (45%). Example: earning £60,000 means 0% on first £12,570, 20% on next £37,700, and 40% on the remaining £9,730 - not 40% on the whole £60,000. Scotland has different bands.",
     "category": "Income Tax",
     "icon": "BarChart2"
   },
@@ -59,7 +59,7 @@
     "id": "trading-allowance",
     "title": "Trading Allowance £1,000",
     "summary": "The Trading Allowance lets you earn up to £1,000 from self-employment tax-free without needing to register or file a return for that income.",
-    "deepDive": "The Trading Allowance is a £1,000 tax-free allowance for income from self-employment, casual work, or selling goods. If your gross trading income is £1,000 or less in a tax year, you don't need to declare it. If it's more than £1,000, you can either (1) deduct the £1,000 allowance instead of actual expenses, or (2) deduct your actual allowable expenses — whichever gives a lower profit. Note: the Trading Allowance cannot create a loss; it simply reduces income to zero.",
+    "deepDive": "The Trading Allowance is a £1,000 tax-free allowance for income from self-employment, casual work, or selling goods. If your gross trading income is £1,000 or less in a tax year, you don't need to declare it. If it's more than £1,000, you can either (1) deduct the £1,000 allowance instead of actual expenses, or (2) deduct your actual allowable expenses - whichever gives a lower profit. Note: the Trading Allowance cannot create a loss; it simply reduces income to zero.",
     "category": "Allowances",
     "icon": "Tag"
   },
@@ -75,7 +75,7 @@
     "id": "vat-threshold",
     "title": "VAT Threshold £90,000",
     "summary": "You must register for VAT if your taxable turnover exceeds £90,000 in any rolling 12-month period. Voluntary registration is available below this threshold.",
-    "deepDive": "VAT (Value Added Tax) registration is mandatory once your VAT-taxable turnover exceeds £90,000 in any rolling 12-month period. Once registered, you must charge VAT (usually 20% standard rate) on your sales, file quarterly VAT returns, and pay the net VAT to HMRC. You can voluntarily register below the threshold — useful if your clients are VAT-registered businesses (they can reclaim VAT), and it allows you to reclaim VAT on your own purchases. The flat rate scheme simplifies VAT for small businesses.",
+    "deepDive": "VAT (Value Added Tax) registration is mandatory once your VAT-taxable turnover exceeds £90,000 in any rolling 12-month period. Once registered, you must charge VAT (usually 20% standard rate) on your sales, file quarterly VAT returns, and pay the net VAT to HMRC. You can voluntarily register below the threshold - useful if your clients are VAT-registered businesses (they can reclaim VAT), and it allows you to reclaim VAT on your own purchases. The flat rate scheme simplifies VAT for small businesses.",
     "category": "VAT",
     "icon": "Receipt"
   },
@@ -83,7 +83,7 @@
     "id": "allowable-expenses",
     "title": "HMRC Allowable Expenses",
     "summary": "You can deduct business expenses from your income before calculating tax, but only costs that are 'wholly and exclusively' for business purposes qualify.",
-    "deepDive": "HMRC's 'wholly and exclusively' rule means expenses must be incurred solely for your business — not partly personal, partly business (unless you can clearly separate them). Common allowable expenses: office costs (stationery, phone bills), travel (not commuting), clothing (protective or uniform only), staff costs, stock/materials, financial costs (bank charges, insurance), advertising, training (to improve existing skills, not gain new ones). Meals are generally not allowable unless involving overnight travel. Keep receipts for everything.",
+    "deepDive": "HMRC's 'wholly and exclusively' rule means expenses must be incurred solely for your business - not partly personal, partly business (unless you can clearly separate them). Common allowable expenses: office costs (stationery, phone bills), travel (not commuting), clothing (protective or uniform only), staff costs, stock/materials, financial costs (bank charges, insurance), advertising, training (to improve existing skills, not gain new ones). Meals are generally not allowable unless involving overnight travel. Keep receipts for everything.",
     "category": "Expenses",
     "icon": "Clipboard"
   },
@@ -99,14 +99,14 @@
     "id": "utr-number",
     "title": "UTR Number",
     "summary": "Your Unique Taxpayer Reference (UTR) is a 10-digit number that identifies you for Self-Assessment. You need it to file your tax return and communicate with HMRC.",
-    "deepDive": "Your UTR (Unique Taxpayer Reference) is a permanent 10-digit number assigned by HMRC when you register for Self-Assessment. It appears on all correspondence from HMRC and is required to file tax returns, set up a payment plan, and communicate with HMRC about your tax affairs. Keep it confidential — treat it like a password. If you lose it, you can find it on previous tax returns or SA302 forms, or request it from HMRC online. Your UTR doesn't change even if you stop and restart self-employment.",
+    "deepDive": "Your UTR (Unique Taxpayer Reference) is a permanent 10-digit number assigned by HMRC when you register for Self-Assessment. It appears on all correspondence from HMRC and is required to file tax returns, set up a payment plan, and communicate with HMRC about your tax affairs. Keep it confidential - treat it like a password. If you lose it, you can find it on previous tax returns or SA302 forms, or request it from HMRC online. Your UTR doesn't change even if you stop and restart self-employment.",
     "category": "Registration",
     "icon": "Hash"
   },
   {
     "id": "fiscal-year",
     "title": "UK Fiscal Year: April 6 – April 5",
-    "summary": "The UK tax year runs from 6 April to 5 April the following year — an unusual quirk of British history dating back to the adoption of the Gregorian calendar in 1752.",
+    "summary": "The UK tax year runs from 6 April to 5 April the following year - an unusual quirk of British history dating back to the adoption of the Gregorian calendar in 1752.",
     "deepDive": "The UK's fiscal year running from 6 April to 5 April is unique globally. When Britain adopted the Gregorian calendar in 1752 (from the Julian calendar), 11 days were 'lost'. The Treasury, not wanting to lose tax revenue, extended the tax year by 11 days, shifting the start from 25 March to 5 April, then later to 6 April. All your income, expenses, and tax calculations must align with this period. Tax year 2026/27 runs from 6 April 2026 to 5 April 2027.",
     "category": "Tax Basics",
     "icon": "BookOpen"
@@ -115,7 +115,7 @@
     "id": "side-hustle-tax",
     "title": "Side Hustle Tax Rules",
     "summary": "Income from side hustles (selling, tutoring, freelancing, etc.) above £1,000 per year must be declared to HMRC and is taxable alongside your other income.",
-    "deepDive": "Any income you earn outside of your main PAYE job is potentially taxable. The Trading Allowance gives you £1,000 tax-free per year from trading/self-employment income. Above that, you must register for Self-Assessment and declare it. Your side hustle profits are added to any employment income and taxed at your marginal rate. If you sell personal items occasionally, this may not be taxable — but if you're buying items to sell for profit, that's trading income. HMRC uses data from platforms like eBay, Etsy, and Airbnb to cross-reference declarations.",
+    "deepDive": "Any income you earn outside of your main PAYE job is potentially taxable. The Trading Allowance gives you £1,000 tax-free per year from trading/self-employment income. Above that, you must register for Self-Assessment and declare it. Your side hustle profits are added to any employment income and taxed at your marginal rate. If you sell personal items occasionally, this may not be taxable - but if you're buying items to sell for profit, that's trading income. HMRC uses data from platforms like eBay, Etsy, and Airbnb to cross-reference declarations.",
     "category": "Tax Basics",
     "icon": "Zap"
   },
@@ -123,7 +123,7 @@
     "id": "dividend-allowance",
     "title": "Dividend Allowance",
     "summary": "If you own shares in a company (including your own limited company), you can receive up to £500 in dividends tax-free each year. Above that, dividend tax rates apply.",
-    "deepDive": "The Dividend Allowance for 2026/27 is £500 — reduced from £2,000 in 2022 and £1,000 in 2023/24. Dividends above this allowance are taxed at: 10.75% (Basic Rate taxpayers), 35.75% (Higher Rate), or 39.35% (Additional Rate). Dividends are paid from a company's after-corporation-tax profits, so they're not subject to NI — making them tax-efficient for limited company directors. However, you must still declare dividend income on your Self-Assessment return.",
+    "deepDive": "The Dividend Allowance for 2026/27 is £500 - reduced from £2,000 in 2022 and £1,000 in 2023/24. Dividends above this allowance are taxed at: 10.75% (Basic Rate taxpayers), 35.75% (Higher Rate), or 39.35% (Additional Rate). Dividends are paid from a company's after-corporation-tax profits, so they're not subject to NI - making them tax-efficient for limited company directors. However, you must still declare dividend income on your Self-Assessment return.",
     "category": "Dividends",
     "icon": "DollarSign"
   },
@@ -131,15 +131,15 @@
     "id": "hmrc-penalties",
     "title": "HMRC Late Filing Penalties",
     "summary": "Missing HMRC deadlines triggers automatic penalties. A £100 fine kicks in immediately on 31 January, escalating to daily charges and percentage-based penalties.",
-    "deepDive": "HMRC's penalty regime for late Self-Assessment returns: Day 1 (1 February): automatic £100 penalty. After 3 months: £10 per day up to 90 days (maximum £900). After 6 months: 5% of tax owed or £300 (whichever is greater). After 12 months: another 5% or £300. For deliberate withholding, penalties can reach 100% of tax owed. Interest also accrues on unpaid tax. There's a 'reasonable excuse' appeal process, but this is strict. The message: file on time even if you can't pay — penalties for late filing are separate from interest on unpaid tax.",
+    "deepDive": "HMRC's penalty regime for late Self-Assessment returns: Day 1 (1 February): automatic £100 penalty. After 3 months: £10 per day up to 90 days (maximum £900). After 6 months: 5% of tax owed or £300 (whichever is greater). After 12 months: another 5% or £300. For deliberate withholding, penalties can reach 100% of tax owed. Interest also accrues on unpaid tax. There's a 'reasonable excuse' appeal process, but this is strict. The message: file on time even if you can't pay - penalties for late filing are separate from interest on unpaid tax.",
     "category": "Penalties",
     "icon": "AlertTriangle"
   },
   {
     "id": "isa-allowance",
     "title": "ISA Allowance £20,000",
-    "summary": "You can save or invest up to £20,000 per tax year in ISAs (Individual Savings Accounts) with all returns completely tax-free — no Income Tax, no Capital Gains Tax.",
-    "deepDive": "ISAs (Individual Savings Accounts) offer tax-free saving and investing. The annual ISA allowance for 2026/27 is £20,000 across all ISA types: Cash ISA (savings account), Stocks & Shares ISA (investments), Innovative Finance ISA (peer-to-peer lending), and Lifetime ISA (up to £4,000/year with 25% government bonus, for first home or retirement). Crucially, ISA returns — interest, dividends, and capital gains — are never taxed, not even when withdrawn. The Lifetime ISA has a 25% withdrawal penalty if used before age 60 for non-qualifying purposes.",
+    "summary": "You can save or invest up to £20,000 per tax year in ISAs (Individual Savings Accounts) with all returns completely tax-free - no Income Tax, no Capital Gains Tax.",
+    "deepDive": "ISAs (Individual Savings Accounts) offer tax-free saving and investing. The annual ISA allowance for 2026/27 is £20,000 across all ISA types: Cash ISA (savings account), Stocks & Shares ISA (investments), Innovative Finance ISA (peer-to-peer lending), and Lifetime ISA (up to £4,000/year with 25% government bonus, for first home or retirement). Crucially, ISA returns - interest, dividends, and capital gains - are never taxed, not even when withdrawn. The Lifetime ISA has a 25% withdrawal penalty if used before age 60 for non-qualifying purposes.",
     "category": "Savings",
     "icon": "PiggyBank"
   },
@@ -155,7 +155,7 @@
     "id": "capital-gains",
     "title": "Capital Gains Annual Exempt Amount",
     "summary": "When you sell assets for a profit, the first £3,000 of gains each tax year is tax-free. Above that, Capital Gains Tax applies at 18% or 24% depending on your income.",
-    "deepDive": "Capital Gains Tax (CGT) applies when you sell assets for more than you paid. The Annual Exempt Amount for 2026/27 is £3,000 — significantly reduced from £12,300 in 2022/23. CGT rates for residential property: 18% (Basic Rate) and 24% (Higher Rate). For other assets: 18% (Basic Rate) and 24% (Higher Rate) — rates were equalised in the Autumn 2024 Budget. CGT doesn't apply to ISA investments, your main home (principal private residence relief), cars, or lottery/prize winnings. Report and pay CGT via Self-Assessment or the 60-day CGT report for property.",
+    "deepDive": "Capital Gains Tax (CGT) applies when you sell assets for more than you paid. The Annual Exempt Amount for 2026/27 is £3,000 - significantly reduced from £12,300 in 2022/23. CGT rates for residential property: 18% (Basic Rate) and 24% (Higher Rate). For other assets: 18% (Basic Rate) and 24% (Higher Rate) - rates were equalised in the Autumn 2024 Budget. CGT doesn't apply to ISA investments, your main home (principal private residence relief), cars, or lottery/prize winnings. Report and pay CGT via Self-Assessment or the 60-day CGT report for property.",
     "category": "Capital Gains",
     "icon": "TrendingUp"
   }

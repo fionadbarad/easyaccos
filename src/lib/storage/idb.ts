@@ -1,5 +1,5 @@
 /**
- * Minimal, typed IndexedDB wrapper — no external deps.
+ * Minimal, typed IndexedDB wrapper - no external deps.
  *
  * Single database "easyacco" with two object stores:
  *   - "kv"      : arbitrary key/value (holds the device CryptoKey, settings)
@@ -70,7 +70,7 @@ export async function idbSet(store: StoreName, key: IDBValidKey, value: unknown)
   try {
     await tx<IDBValidKey>(store, 'readwrite', (s) => s.put(value, key) as IDBRequest<IDBValidKey>)
   } catch {
-    /* swallow — caller falls back */
+    /* swallow - caller falls back */
   }
 }
 

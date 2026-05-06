@@ -8,17 +8,17 @@ const MODULES = [
   { icon: Calculator, label: 'HMRC Tax Engine',    desc: '2026/27-accurate income tax, NI, dividends, and pension relief across all UK regions and employment types.' },
   { icon: Receipt,    label: 'Expense Tracker',     desc: 'Log allowable business expenses with AI categorisation and receipt OCR scanning. HMRC "wholly & exclusively" compliant.' },
   { icon: BarChart2,  label: 'P&L Reports',         desc: 'Instant profit & loss statements with monthly breakdowns. Export-ready for your accountant or Self Assessment return.' },
-  { icon: Bot,        label: 'Kittax AI Advisor',   desc: 'Ask any UK tax question and get structured, HMRC-accurate answers — sole trader income, dividends, MTD, and more.' },
-  { icon: BookOpen,   label: 'Double-Entry Ledger', desc: 'Maintain a clean transaction log with journal entries and a live net position — built for sole-trader bookkeeping.' },
+  { icon: Bot,        label: 'Kittax AI Advisor',   desc: 'Ask any UK tax question and get structured, HMRC-accurate answers - sole trader income, dividends, MTD, and more.' },
+  { icon: BookOpen,   label: 'Double-Entry Ledger', desc: 'Maintain a clean transaction log with journal entries and a live net position - built for sole-trader bookkeeping.' },
   { icon: Shield,     label: 'MTD Compliance',      desc: 'All 2026/27 quarterly Making Tax Digital deadlines tracked with urgency indicators and early-warning alerts.' },
 ]
 
 const TRUST_POINTS = [
-  'HMRC 2026/27 rules — verified against official guidance',
-  'No account required — open the dashboard and start immediately',
-  'Data encrypted in your browser with AES-256 — nothing leaves your device',
-  'Making Tax Digital ready — quarterly submission tracking',
-  'Free forever — no subscription, no paywalls, no credit card',
+  'HMRC 2026/27 rules - verified against official guidance',
+  'No account required - open the dashboard and start immediately',
+  'Data encrypted in your browser with AES-256 - nothing leaves your device',
+  'Making Tax Digital ready - quarterly submission tracking',
+  'Free forever - no subscription, no paywalls, no credit card',
 ]
 
 const JSON_LD = {
@@ -108,7 +108,7 @@ export default function LandingPage() {
             </h1>
 
             <p className="text-[var(--sa-muted)] text-[1.05rem] leading-[1.75] max-w-[38rem] mb-4">
-              Stop guessing your Self Assessment bill. EasyAcco gives you Big 4-grade tax accuracy — income tax, National Insurance, dividends, pension relief, MTD compliance — completely free, running in your browser.
+              Stop guessing your Self Assessment bill. EasyAcco gives you Big 4-grade tax accuracy - income tax, National Insurance, dividends, pension relief, MTD compliance - completely free, running in your browser.
             </p>
 
             <p className="text-[rgba(244,245,248,0.35)] text-[0.85rem] leading-[1.6] max-w-[36rem] mb-10">
@@ -151,10 +151,10 @@ export default function LandingPage() {
               UK sole traders overpay tax every year.
             </h2>
             <p className="text-[var(--sa-muted)] text-[0.95rem] leading-[1.8] mb-6">
-              The 60% personal allowance trap. Missed expense deductions. Dividend timing errors. Making Tax Digital deadlines. NI Class 4 miscalculations. The UK tax system is complex — and most tools built for sole traders either oversimplify or cost a fortune.
+              The 60% personal allowance trap. Missed expense deductions. Dividend timing errors. Making Tax Digital deadlines. NI Class 4 miscalculations. The UK tax system is complex - and most tools built for sole traders either oversimplify or cost a fortune.
             </p>
             <p className="text-[var(--sa-muted)] text-[0.95rem] leading-[1.8]">
-              EasyAcco changes that. Every calculation follows the exact HMRC rules for 2026/27 — the same rules your accountant uses, without the hourly rate.
+              EasyAcco changes that. Every calculation follows the exact HMRC rules for 2026/27 - the same rules your accountant uses, without the hourly rate.
             </p>
           </motion.div>
         </div>
@@ -171,7 +171,7 @@ export default function LandingPage() {
               Every tool a sole trader needs.
             </h2>
             <p className="text-[var(--sa-muted)] text-[0.88rem] mt-2 max-w-[32rem]">
-              Built to the same standard as Big 4 tax software — without the enterprise price tag.
+              Built to the same standard as Big 4 tax software - without the enterprise price tag.
             </p>
           </motion.div>
 
@@ -204,14 +204,14 @@ export default function LandingPage() {
             Know your tax bill before January.
           </h2>
           <p className="text-[var(--sa-muted)] text-[0.9rem] leading-[1.7] mb-8">
-            Open the dashboard in seconds — no account, no setup, no cost. Sign in only when you want your data to sync across devices.
+            Open the dashboard in seconds - no account, no setup, no cost. Sign in only when you want your data to sync across devices.
           </p>
           <div className="flex flex-wrap gap-3 items-center">
             <Link
               href="/dashboard"
               className="inline-flex items-center gap-[9px] px-8 py-[13px] bg-[var(--sa-white)] text-[var(--sa-black)] font-semibold text-[0.9rem] no-underline rounded tracking-[-0.01em]"
             >
-              Open Dashboard — Free <ArrowRight size={16} />
+              Open Dashboard - Free <ArrowRight size={16} />
             </Link>
             <Link href="/auth/login" className="text-[var(--sa-muted)] text-[0.82rem] no-underline">
               Sign in to sync →

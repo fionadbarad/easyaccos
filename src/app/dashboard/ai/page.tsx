@@ -199,7 +199,7 @@ interface ExpenseStub { id: string; amount: number; date: string }
 export default function AIPage() {
   const INITIAL_MESSAGE = useMemo(() => makeMessage(
     'assistant',
-    `${greetingByHour()} — I'm your personal tax advisor, aligned to HMRC rules for the 2026/27 fiscal year.\n\nI can walk through sole-trader income, director pay, dividends, MTD deadlines, allowable expenses, National Insurance, the 60% trap — whatever's on your mind. Tell me roughly what you earn and where the friction is, and I'll take it from there.\n\nWhat shall we look at first?`,
+    `${greetingByHour()} - I'm your personal tax advisor, aligned to HMRC rules for the 2026/27 fiscal year.\n\nI can walk through sole-trader income, director pay, dividends, MTD deadlines, allowable expenses, National Insurance, the 60% trap - whatever's on your mind. Tell me roughly what you earn and where the friction is, and I'll take it from there.\n\nWhat shall we look at first?`,
   ), [])
 
   const [messages, setMessages] = useState<KittaxMessage[]>([INITIAL_MESSAGE])

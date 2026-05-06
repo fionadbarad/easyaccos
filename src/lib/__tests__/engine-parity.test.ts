@@ -1,11 +1,11 @@
 // Diff-test: the two live tax engines must agree on the numbers they share.
 //
-//   tax-logic.ts         → calculateTax(TaxInput)         — general engine
-//   TaxBible2026.ts      → calcScenario1/2/5(ScenarioX)   — UX-shaped wrappers
+//   tax-logic.ts         → calculateTax(TaxInput)         - general engine
+//   TaxBible2026.ts      → calcScenario1/2/5(ScenarioX)   - UX-shaped wrappers
 //
 // Both consume the same HMRC 2026/27 bands (since Phase 2 bands extraction).
-// Their shared outputs — personalAllowance, taxableIncome, incomeTax, NI, net
-// — must match exactly across a wide input matrix. If they ever drift, this
+// Their shared outputs - personalAllowance, taxableIncome, incomeTax, NI, net
+// - must match exactly across a wide input matrix. If they ever drift, this
 // test fails and we know which engine is wrong.
 //
 // Scenarios 3 (welfare) and 4 (redundancy) cover concerns calculateTax does
@@ -100,14 +100,14 @@ describe('calcScenario2 vs calculateTax parity', () => {
 })
 
 // ─── Scenario 5 parity: canonical director (salary = £12,570 PT) + dividends ─
-// calcScenario5 applies PA to salary only and stacks dividends on top — correct
+// calcScenario5 applies PA to salary only and stacks dividends on top - correct
 // when salary >= PA (the optimal director pattern). Below-PA salary is outside
 // the scenario's intended use (HMRC lets unused PA cover dividends) and is not
 // diff-tested here.
 //
 // calcScenario5 also reports `incomeTax` as the combined salary+dividend tax,
 // so we compare against the SUM of calculateTax.incomeTax + .dividendTax.
-describe('calcScenario5 vs calculateTax — canonical director parity', () => {
+describe('calcScenario5 vs calculateTax - canonical director parity', () => {
   const salary = 12_570
   const dividends = [0, 500, 5_000, 10_000, 30_000, 50_000, 100_000]
 

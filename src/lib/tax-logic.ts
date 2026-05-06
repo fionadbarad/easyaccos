@@ -24,7 +24,7 @@ export interface TaxInput {
   voluntaryClass2NI: boolean   // only applies when profit < SPT (£7,105)
   marriageAllowance: boolean   // transfer £1,260 PA to partner
   blindPersonsAllowance: boolean   // additional £3,250 PA
-  pensionContribution: number    // annual SIPP — reduces adjusted net income
+  pensionContribution: number    // annual SIPP - reduces adjusted net income
 }
 
 export interface TaxBand {
@@ -140,7 +140,7 @@ export const RUK_TAXABLE_ADDITIONAL_THRESHOLD = RUK_HIGHER_LIMIT - PA_BASE  // 1
 export { PA_BASE, PA_TAPER_START, PA_TAPER_END, RUK_BASIC_RATE_WIDTH, RUK_BASIC_LIMIT, RUK_HIGHER_LIMIT }
 
 // ─── Utility ──────────────────────────────────────────────────────────────────
-/** Round to exactly 2 decimal places — eliminates floating point drift */
+/** Round to exactly 2 decimal places - eliminates floating point drift */
 export function round2(n: number): number {
   return Math.round(n * 100) / 100
 }
@@ -255,7 +255,7 @@ function calcClass1NI(earnings: number): number {
 }
 
 // ─── NI Class 4 (Self-Employed) ──────────────────────────────────────────────
-// Uses PROFIT (after expenses, before income tax — not taxable income)
+// Uses PROFIT (after expenses, before income tax - not taxable income)
 function calcClass4NI(profit: number): number {
   if (profit <= NI_PT) return 0
   if (profit <= NI_UEL) {
@@ -380,7 +380,7 @@ function buildTips(
       title: 'Use Your \u00a320,000 ISA Allowance',
       description:
         'Income, dividends, and capital gains inside a Stocks & Shares or Cash ISA are ' +
-        'completely free of tax. The allowance resets each April — unused allowance cannot be carried forward.',
+        'completely free of tax. The allowance resets each April - unused allowance cannot be carried forward.',
       saving: 0,
     })
   }
@@ -423,12 +423,12 @@ export function calculateTax(input: TaxInput): TaxResult {
   const incomeTax = round2(incomeTaxRaw)
 
   // ── 6. National Insurance ──────────────────────────────────────────────────
-  // Class 1: employed / director — on adjusted profit (salary)
+  // Class 1: employed / director - on adjusted profit (salary)
   const niClass1 = (employmentType === 'employed' || employmentType === 'director')
     ? calcClass1NI(adjustedProfit)
     : 0
 
-  // Class 4: self-employed — on PROFIT (correct base is adjustedProfit for NI)
+  // Class 4: self-employed - on PROFIT (correct base is adjustedProfit for NI)
   const niClass4 = employmentType === 'self-employed'
     ? calcClass4NI(adjustedProfit)
     : 0
@@ -496,12 +496,12 @@ export function calculateTax(input: TaxInput): TaxResult {
     {
       label: 'Allowable Expenses',
       value: -allowableExpenses,
-      note: 'Business costs deducted from revenue — tax is calculated on profit, not revenue',
+      note: 'Business costs deducted from revenue - tax is calculated on profit, not revenue',
     },
     {
       label: 'Gross Profit',
       value: grossProfit,
-      note: 'Revenue minus expenses — this is the base for NI Class 4 and student loan',
+      note: 'Revenue minus expenses - this is the base for NI Class 4 and student loan',
     },
     {
       label: 'Pension Contribution',

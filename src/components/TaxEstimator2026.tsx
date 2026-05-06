@@ -12,11 +12,11 @@ const REGION_OPTIONS: Record<TaxRegion, string> = {
 
 const LOAN_OPTIONS: Record<StudentLoanPlan, string> = {
   none: 'None',
-  plan1: 'Plan 1 — £26,900',
-  plan2: 'Plan 2 — £29,385',
-  plan4: 'Plan 4 (Scotland) — £33,795',
-  plan5: 'Plan 5 — £25,000',
-  postgraduate: 'Postgraduate — £21,000 (6%)',
+  plan1: 'Plan 1 - £26,900',
+  plan2: 'Plan 2 - £29,385',
+  plan4: 'Plan 4 (Scotland) - £33,795',
+  plan5: 'Plan 5 - £25,000',
+  postgraduate: 'Postgraduate - £21,000 (6%)',
 }
 
 const gbp = new Intl.NumberFormat('en-GB', {
@@ -51,7 +51,7 @@ export default function TaxEstimator2026() {
   const [region, setRegion] = useState<TaxRegion>('ruk')
   const [loan, setLoan] = useState<StudentLoanPlan>('none')
 
-  // Delegate all arithmetic to the canonical engine — no duplicated logic here.
+  // Delegate all arithmetic to the canonical engine - no duplicated logic here.
   const result = calculateTax({
     grossRevenue: income,
     allowableExpenses: 0,
@@ -83,7 +83,7 @@ export default function TaxEstimator2026() {
       </select>
 
       <label className="block text-[var(--sa-muted)] text-[0.72rem] uppercase tracking-[0.08em] mb-[0.3rem]">
-        Annual Income —{' '}
+        Annual Income -{' '}
         <strong className="text-[var(--sa-white)] font-semibold">{gbp.format(income)}</strong>
       </label>
       <input

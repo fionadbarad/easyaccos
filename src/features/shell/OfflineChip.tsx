@@ -32,7 +32,7 @@ export default function OfflineChip() {
     >
       <WifiOff size={14} className="text-[var(--sa-white)]" />
       <span className="text-[var(--sa-white)] text-[0.78rem] font-medium">
-        Offline — changes save locally and sync when you reconnect
+        Offline - changes save locally and sync when you reconnect
       </span>
     </div>
   )

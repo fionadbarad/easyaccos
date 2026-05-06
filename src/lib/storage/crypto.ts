@@ -4,7 +4,7 @@
  *
  * Device key is a non-extractable AES-GCM CryptoKey persisted in IndexedDB
  * via structured clone. It never leaves the origin. If the user clears site
- * data, the key (and therefore the data it protects) is gone — which is the
+ * data, the key (and therefore the data it protects) is gone - which is the
  * correct behaviour for local-first storage.
  */
 

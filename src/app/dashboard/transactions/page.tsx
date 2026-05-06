@@ -16,12 +16,12 @@ const INPUT_S = 'w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rou
 const LABEL_S = 'block text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.08em] mb-1 font-semibold'
 
 const SEED: Transaction[] = [
-  { id: '1', date: '2026-04-01', description: 'Client Project — Acme Corp', type: 'income',  amount: 2400,  reference: 'INV-001' },
+  { id: '1', date: '2026-04-01', description: 'Client Project - Acme Corp', type: 'income',  amount: 2400,  reference: 'INV-001' },
   { id: '2', date: '2026-04-02', description: 'Adobe Creative Cloud',       type: 'expense', amount: 54.99, reference: 'SUB-001' },
-  { id: '3', date: '2026-04-05', description: 'Consulting — Beta Ltd',       type: 'income',  amount: 1800,  reference: 'INV-002' },
+  { id: '3', date: '2026-04-05', description: 'Consulting - Beta Ltd',       type: 'income',  amount: 1800,  reference: 'INV-002' },
   { id: '4', date: '2026-04-07', description: 'Home Office Internet',        type: 'expense', amount: 45,    reference: 'UTIL-001' },
   { id: '5', date: '2026-03-20', description: 'Freelance Writing Project',   type: 'income',  amount: 750,   reference: 'INV-003' },
-  { id: '6', date: '2026-03-15', description: 'Travel — Client Visit',       type: 'expense', amount: 120,   reference: 'EXP-001' },
+  { id: '6', date: '2026-03-15', description: 'Travel - Client Visit',       type: 'expense', amount: 120,   reference: 'EXP-001' },
   { id: '7', date: '2026-02-28', description: 'Design Retainer',             type: 'income',  amount: 3200,  reference: 'INV-004' },
 ]
 
@@ -110,7 +110,7 @@ export default function TransactionsPage() {
       {/* Guest sync nudge */}
       {!loading && !isAuthenticated && txs.length > 0 && (
         <div className="bg-[rgba(251,191,36,0.05)] border border-[rgba(251,191,36,0.18)] rounded px-[1rem] py-[0.7rem] mb-5 flex items-center justify-between flex-wrap gap-2">
-          <span className="text-[#FBBF24] text-xs">Data is saved in this browser only — sign in to sync across devices.</span>
+          <span className="text-[#FBBF24] text-xs">Data is saved in this browser only - sign in to sync across devices.</span>
           <a href="/auth/login" className="text-[#FBBF24] text-[0.72rem] font-semibold no-underline border-b border-[rgba(251,191,36,0.4)]">Sign in →</a>
         </div>
       )}

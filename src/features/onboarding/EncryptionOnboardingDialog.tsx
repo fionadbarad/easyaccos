@@ -2,7 +2,7 @@
 
 // Shown on first authenticated dashboard load. Explains local-first encryption
 // and nudges the user to create a backup. The device key is non-extractable and
-// lives in IndexedDB — clearing site data or switching browsers = data gone
+// lives in IndexedDB - clearing site data or switching browsers = data gone
 // unless a backup was taken.
 
 import { useEffect, useState } from 'react'
@@ -57,7 +57,7 @@ export default function EncryptionOnboardingDialog() {
 
         <p className="text-[var(--sa-white)] text-[0.9rem] leading-[1.65] m-0 mb-3">
           EasyAcco encrypts your expenses, invoices, and mileage on this device with a key
-          that never leaves your browser. We can&apos;t read it — and neither can anyone else.
+          that never leaves your browser. We can&apos;t read it - and neither can anyone else.
         </p>
         <p className="text-[rgba(244,245,248,0.42)] text-[0.85rem] leading-[1.65] m-0 mb-5">
           <strong className="text-[var(--sa-white)]">The trade-off:</strong> if you clear site data or

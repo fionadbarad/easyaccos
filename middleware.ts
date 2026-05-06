@@ -25,7 +25,7 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Refresh the session — keeps auth tokens alive across pages
+  // Refresh the session - keeps auth tokens alive across pages
   // Without this, tokens expire mid-session silently
   await supabase.auth.getUser()
 

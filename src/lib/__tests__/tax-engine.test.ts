@@ -60,7 +60,7 @@ describe('calcPA', () => {
   })
 })
 
-// ── Income tax — rUK ──────────────────────────────────────────────────────────
+// ── Income tax - rUK ──────────────────────────────────────────────────────────
 describe('rUK income tax', () => {
   it('no tax at personal allowance', () => {
     const r = calculateTax(seInput(12_570))
@@ -70,7 +70,7 @@ describe('rUK income tax', () => {
 
   it('basic rate only at £30,000', () => {
     const r = calculateTax(seInput(30_000))
-    // taxable = 30,000 − 12,570 = 17,430 — all basic rate
+    // taxable = 30,000 − 12,570 = 17,430 - all basic rate
     expect(r.incomeTax).toBe(round2(17_430 * 0.20))
     expect(r.taxBands).toHaveLength(1)
     expect(r.taxBands[0].rate).toBe(20)
@@ -78,7 +78,7 @@ describe('rUK income tax', () => {
 
   it('basic rate band exhausted at £50,270', () => {
     const r = calculateTax(seInput(50_270))
-    // taxable = 37,700 — exactly fills basic band
+    // taxable = 37,700 - exactly fills basic band
     expect(r.taxBands).toHaveLength(1)
     expect(r.taxBands[0].rate).toBe(20)
     expect(r.taxBands[0].amount).toBe(37_700)

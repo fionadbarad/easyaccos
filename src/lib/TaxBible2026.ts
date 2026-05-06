@@ -1,4 +1,4 @@
-// ─── TaxBible2026.ts — EasyAcco Hard-coded HMRC 2026/27 Scenario Engine ────────
+// ─── TaxBible2026.ts - EasyAcco Hard-coded HMRC 2026/27 Scenario Engine ────────
 // All figures are hard-coded. No API calls. Zero runtime cost.
 // Five distinct user journeys with accurate HMRC 2026/27 logic.
 import { round2, fmtGBP, calcPA as calcPACore } from './tax-logic'
@@ -6,7 +6,7 @@ import * as B from './tax/bands-2026'
 export { round2, fmtGBP }
 
 // ─── Shared Constants ────────────────────────────────────────────────────────
-// All numbers sourced from lib/tax/bands-2026 — edit that file to update rates.
+// All numbers sourced from lib/tax/bands-2026 - edit that file to update rates.
 export const TB = {
   // Personal Allowance
   PA_BASE: B.PA_BASE,
@@ -15,7 +15,7 @@ export const TB = {
   MARRIAGE_ALLOWANCE: B.MARRIAGE_ALLOWANCE_XFER,
   BLIND_ALLOWANCE: B.BLIND_PERSONS_ALLOWANCE,
 
-  // Income Tax — rUK
+  // Income Tax - rUK
   BASIC_RATE: B.RUK_BASIC_RATE,
   HIGHER_RATE: B.RUK_HIGHER_RATE,
   ADDITIONAL_RATE: B.RUK_ADDITIONAL_RATE,
@@ -42,7 +42,7 @@ export const TB = {
   // Director optimal salary
   DIRECTOR_OPTIMAL_SALARY: B.DIRECTOR_OPTIMAL_SALARY,
 
-  // Employer NI — 2026 Spike
+  // Employer NI - 2026 Spike
   EMPLOYER_NI_RATE: B.EMPLOYER_NI_RATE,
   EMPLOYER_NI_THRESH: B.EMPLOYER_NI_THRESH,
 
@@ -66,10 +66,10 @@ export const TB = {
   SCO_HIGHER_END: B.SCO_HIGHER_END,
   SCO_ADVANCED_END: B.SCO_ADVANCED_END,
 
-  // Job Loss — Scenario 4
+  // Job Loss - Scenario 4
   REDUNDANCY_EXEMPTION: B.REDUNDANCY_EXEMPTION,
 
-  // Welfare — Scenario 3
+  // Welfare - Scenario 3
   UC_TAXABLE: false,     // Universal Credit is NOT taxable
   JSA_TAXABLE: true,
   CARERS_TAXABLE: true,
@@ -78,7 +78,7 @@ export const TB = {
 // ─── Utility ─────────────────────────────────────────────────────────────────
 // round2 and fmtGBP re-exported from tax-logic (single source of truth)
 
-// Personal Allowance taper — thin wrapper preserving TB constant references
+// Personal Allowance taper - thin wrapper preserving TB constant references
 export function calcPA(adjustedIncome: number): number {
   return calcPACore(adjustedIncome)
 }
@@ -278,7 +278,7 @@ export interface S3Input {
   otherIncome: number   // taxable (e.g. part-time earnings)
 }
 export function calcScenario3(inp: S3Input): ScenarioResult {
-  // UC is completely non-taxable — does NOT affect PA or tax bands
+  // UC is completely non-taxable - does NOT affect PA or tax bands
   const taxableIncome  = inp.jsaAmount + inp.carersAllowance + inp.otherIncome
   const pa             = calcPA(taxableIncome)
   const taxable        = Math.max(0, taxableIncome - pa)
@@ -344,7 +344,7 @@ export function calcScenario4(inp: S4Input): ScenarioResult {
     netTakeHome: takeHome, effectiveRate: effRate,
     taxProvision: total, sixtyTrap: false,
     catMessage: refund > 0
-      ? `I've applied your £30k redundancy exemption. You're keeping every penny you're entitled to. Plus you may be owed a PAYE refund of ${fmtGBP(refund)} — contact HMRC!`
+      ? `I've applied your £30k redundancy exemption. You're keeping every penny you're entitled to. Plus you may be owed a PAYE refund of ${fmtGBP(refund)} - contact HMRC!`
       : `I've applied your ${fmtGBP(taxFreeRedund)} tax-free redundancy exemption. The first £30k is always yours free!`,
     lines: [
       { label: `Salary Earned (${monthsWorked} months)`, value: earnedIncome },
@@ -375,7 +375,7 @@ export function calcScenario5(inp: S5Input): ScenarioResult {
   const pensionCap  = Math.min(inp.pension, salary, 60_000)
   const adjustedSal = Math.max(0, salary - pensionCap)
 
-  // NI only on salary (NOT dividends) — after pension (salary sacrifice reduces NI-able pay)
+  // NI only on salary (NOT dividends) - after pension (salary sacrifice reduces NI-able pay)
   const ni          = calcClass1NI(adjustedSal)
 
   // PA taper uses salary + dividends
@@ -403,7 +403,7 @@ export function calcScenario5(inp: S5Input): ScenarioResult {
     catMessage: `Brilliant move! By taking ${fmtGBP(divs)} in dividends, you're avoiding 8% NI on your top earnings. ${
       niSaving > 0 ? `Estimated NI saving vs self-employed: ${fmtGBP(niSaving)}.` : ''
     } ${
-      salary === TB.DIRECTOR_OPTIMAL_SALARY ? '✓ Optimal £12,570 salary — no NI, full State Pension credit.' : ''
+      salary === TB.DIRECTOR_OPTIMAL_SALARY ? '✓ Optimal £12,570 salary - no NI, full State Pension credit.' : ''
     }`,
     lines: [
       { label: 'Director Salary',            value: salary },

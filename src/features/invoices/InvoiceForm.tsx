@@ -37,7 +37,7 @@ export function InvoiceForm({
         <div className="col-span-2">
           <label className={LABEL_S}>Description / services</label>
           <input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-            placeholder="Web development — April 2026" className={INPUT_BASE} />
+            placeholder="Web development - April 2026" className={INPUT_BASE} />
         </div>
         <div>
           <label className={LABEL_S}>Invoice date</label>

@@ -42,7 +42,7 @@ export default function DemoDashboardPage() {
             <li>Instant calculations from your income and expenses</li>
             <li>HMRC-style tax bands (20/40/45%) with personal allowance</li>
             <li>Realistic growth scenario for freelancers in 2026 UK tax year</li>
-            <li>No auth, no data saved — but you can sign up anytime</li>
+            <li>No auth, no data saved - but you can sign up anytime</li>
           </ul>
         </section>
 

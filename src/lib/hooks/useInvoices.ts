@@ -40,7 +40,7 @@ export function fmt(n: number)    { return '£' + Math.round(n).toLocaleString('
 export function chaseEmail(inv: Invoice): string {
   const days  = daysOverdue(inv)
   const total = fmtDec(vatTotal(inv))
-  return `Subject: Payment Reminder — Invoice ${inv.number} (${days} days overdue)
+  return `Subject: Payment Reminder - Invoice ${inv.number} (${days} days overdue)
 
 Dear ${inv.client},
 

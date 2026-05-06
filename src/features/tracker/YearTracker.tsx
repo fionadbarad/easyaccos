@@ -33,15 +33,15 @@ export default function YearTracker() {
   const { items: transactions, loading: txLoading } = useUserData<Transaction>('user_transactions', 'ea_transactions', [])
   const { items: expenses,     loading: expLoading } = useUserData<Expense>('user_expenses', 'ea_expenses', [])
 
-  const [empType,   setEmpType]   = useState<EmploymentType>('self-employed')
-  const [region,    setRegion]    = useState<TaxRegion>('ruk')
-  const [slPlan,    setSlPlan]    = useState<StudentLoanPlan>('none')
-  const [pension,   setPension]   = useState('')
-  const [potSaved,  setPotSaved]  = useState('')
+  const [empType, setEmpType] = useState<EmploymentType>('self-employed')
+  const [region, setRegion] = useState<TaxRegion>('ruk')
+  const [slPlan, setSlPlan] = useState<StudentLoanPlan>('none')
+  const [pension, setPension] = useState('')
+  const [potSaved, setPotSaved] = useState('')
   const [showSetup, setShowSetup] = useState(false)
 
-  const yearIncome   = useMemo(() => yearlyIncome(transactions),   [transactions])
-  const yearExpenses = useMemo(() => yearlyExpenses(expenses),     [expenses])
+  const yearIncome = useMemo(() => yearlyIncome(transactions), [transactions])
+  const yearExpenses = useMemo(() => yearlyExpenses(expenses), [expenses])
 
   const projectedIncome   = projectAnnual(yearIncome,   monthsElapsed)
   const projectedExpenses = projectAnnual(yearExpenses, monthsElapsed)
@@ -50,16 +50,16 @@ export default function YearTracker() {
   const projectedTax = useMemo(() => {
     if (projectedIncome <= 0) return null
     return calculateTax({
-      grossRevenue:          projectedIncome,
-      allowableExpenses:     projectedExpenses,
-      dividendIncome:        0,
-      employmentType:        empType,
-      taxRegion:             region,
-      studentLoanPlan:       slPlan,
-      voluntaryClass2NI:     false,
-      marriageAllowance:     false,
+      grossRevenue: projectedIncome,
+      allowableExpenses: projectedExpenses,
+      dividendIncome: 0,
+      employmentType: empType,
+      taxRegion: region,
+      studentLoanPlan: slPlan,
+      voluntaryClass2NI: false,
+      marriageAllowance: false,
       blindPersonsAllowance: false,
-      pensionContribution:   monthlyPensionNum * 12,
+      pensionContribution: monthlyPensionNum * 12,
     })
   }, [projectedIncome, projectedExpenses, empType, region, slPlan, monthlyPensionNum])
 

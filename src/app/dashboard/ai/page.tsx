@@ -203,13 +203,13 @@ export default function AIPage() {
   ), [])
 
   const [messages, setMessages] = useState<KittaxMessage[]>([INITIAL_MESSAGE])
-  const [input,    setInput]    = useState('')
-  const [loading,  setLoading]  = useState(false)
-  const [error,    setError]    = useState('')
+  const [input, setInput] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  const bottomRef   = useRef<HTMLDivElement>(null)
+  const bottomRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const abortRef    = useRef<AbortController | null>(null)
+  const abortRef = useRef<AbortController | null>(null)
 
   const { items: expenses } = useUserData<ExpenseStub>('user_expenses', 'easyacco_expenses', [])
 
@@ -252,16 +252,16 @@ export default function AIPage() {
     const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT)
 
     const history = next.slice(1, -1).map((m) => ({
-      role:  m.role === 'user' ? 'user' : ('model' as const),
+      role: m.role === 'user' ? 'user' : ('model' as const),
       parts: [{ text: m.content }],
     }))
 
     try {
       const res = await fetch('/api/ai/chat', {
-        method:  'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ message: msg, history, context: taxContext }),
-        signal:  controller.signal,
+        body: JSON.stringify({ message: msg, history, context: taxContext }),
+        signal: controller.signal,
       })
 
       const isStreaming = res.headers.get('X-Streaming') === 'true'

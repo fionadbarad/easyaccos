@@ -14,9 +14,9 @@ import {
 function today() { return new Date().toISOString().slice(0, 10) }
 
 const STATUS_CLASSES: Record<InvoiceStatus, { label: string; className: string; Icon: React.ElementType }> = {
-  draft:   { label: 'Draft',   className: 'text-[rgba(244,245,248,0.42)] bg-[rgba(244,245,248,0.05)]', Icon: FileText      },
-  sent:    { label: 'Sent',    className: 'text-[#93C5FD] bg-[rgba(147,197,253,0.08)]',                 Icon: Clock         },
-  paid:    { label: 'Paid',    className: 'text-[#4ADE80] bg-[rgba(74,222,128,0.08)]',                  Icon: CheckCircle2  },
+  draft: { label: 'Draft',   className: 'text-[rgba(244,245,248,0.42)] bg-[rgba(244,245,248,0.05)]', Icon: FileText      },
+  sent: { label: 'Sent',    className: 'text-[#93C5FD] bg-[rgba(147,197,253,0.08)]',                 Icon: Clock         },
+  paid: { label: 'Paid',    className: 'text-[#4ADE80] bg-[rgba(74,222,128,0.08)]',                  Icon: CheckCircle2  },
   overdue: { label: 'Overdue', className: 'text-[#F87171] bg-[rgba(248,113,113,0.08)]',                 Icon: AlertTriangle },
 }
 

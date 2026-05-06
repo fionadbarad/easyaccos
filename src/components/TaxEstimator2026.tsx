@@ -6,16 +6,16 @@ import { calculateTax } from '@/lib/tax-logic'
 import type { TaxRegion, StudentLoanPlan } from '@/lib/tax-logic'
 
 const REGION_OPTIONS: Record<TaxRegion, string> = {
-  ruk:      'England, Wales & Northern Ireland',
+  ruk: 'England, Wales & Northern Ireland',
   scotland: 'Scotland',
 }
 
 const LOAN_OPTIONS: Record<StudentLoanPlan, string> = {
-  none:         'None',
-  plan1:        'Plan 1 — £26,900',
-  plan2:        'Plan 2 — £29,385',
-  plan4:        'Plan 4 (Scotland) — £33,795',
-  plan5:        'Plan 5 — £25,000',
+  none: 'None',
+  plan1: 'Plan 1 — £26,900',
+  plan2: 'Plan 2 — £29,385',
+  plan4: 'Plan 4 (Scotland) — £33,795',
+  plan5: 'Plan 5 — £25,000',
   postgraduate: 'Postgraduate — £21,000 (6%)',
 }
 
@@ -26,10 +26,10 @@ const gbp = new Intl.NumberFormat('en-GB', {
 })
 
 interface ResultRowProps {
-  label:   string
-  value:   number
+  label: string
+  value: number
   indent?: boolean
-  bold?:   boolean
+  bold?: boolean
 }
 
 function ResultRow({ label, value, indent, bold }: ResultRowProps) {
@@ -49,20 +49,20 @@ function ResultRow({ label, value, indent, bold }: ResultRowProps) {
 export default function TaxEstimator2026() {
   const [income, setIncome] = useState(45_000)
   const [region, setRegion] = useState<TaxRegion>('ruk')
-  const [loan,   setLoan]   = useState<StudentLoanPlan>('none')
+  const [loan, setLoan] = useState<StudentLoanPlan>('none')
 
   // Delegate all arithmetic to the canonical engine — no duplicated logic here.
   const result = calculateTax({
-    grossRevenue:          income,
-    allowableExpenses:     0,
-    dividendIncome:        0,
-    employmentType:        'self-employed',
-    taxRegion:             region,
-    studentLoanPlan:       loan,
-    voluntaryClass2NI:     false,
-    marriageAllowance:     false,
+    grossRevenue: income,
+    allowableExpenses: 0,
+    dividendIncome: 0,
+    employmentType: 'self-employed',
+    taxRegion: region,
+    studentLoanPlan: loan,
+    voluntaryClass2NI: false,
+    marriageAllowance: false,
     blindPersonsAllowance: false,
-    pensionContribution:   0,
+    pensionContribution: 0,
   })
 
   return (

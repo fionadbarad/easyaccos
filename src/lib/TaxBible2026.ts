@@ -9,70 +9,70 @@ export { round2, fmtGBP }
 // All numbers sourced from lib/tax/bands-2026 — edit that file to update rates.
 export const TB = {
   // Personal Allowance
-  PA_BASE:             B.PA_BASE,
-  PA_TAPER_START:      B.PA_TAPER_START,
-  PA_TAPER_END:        B.PA_TAPER_END,
-  MARRIAGE_ALLOWANCE:  B.MARRIAGE_ALLOWANCE_XFER,
-  BLIND_ALLOWANCE:     B.BLIND_PERSONS_ALLOWANCE,
+  PA_BASE: B.PA_BASE,
+  PA_TAPER_START: B.PA_TAPER_START,
+  PA_TAPER_END: B.PA_TAPER_END,
+  MARRIAGE_ALLOWANCE: B.MARRIAGE_ALLOWANCE_XFER,
+  BLIND_ALLOWANCE: B.BLIND_PERSONS_ALLOWANCE,
 
   // Income Tax — rUK
-  BASIC_RATE:          B.RUK_BASIC_RATE,
-  HIGHER_RATE:         B.RUK_HIGHER_RATE,
-  ADDITIONAL_RATE:     B.RUK_ADDITIONAL_RATE,
-  BASIC_BAND_WIDTH:    B.RUK_BASIC_RATE_WIDTH,
-  BASIC_LIMIT:         B.RUK_BASIC_LIMIT,
-  HIGHER_LIMIT:        B.RUK_HIGHER_LIMIT,
+  BASIC_RATE: B.RUK_BASIC_RATE,
+  HIGHER_RATE: B.RUK_HIGHER_RATE,
+  ADDITIONAL_RATE: B.RUK_ADDITIONAL_RATE,
+  BASIC_BAND_WIDTH: B.RUK_BASIC_RATE_WIDTH,
+  BASIC_LIMIT: B.RUK_BASIC_LIMIT,
+  HIGHER_LIMIT: B.RUK_HIGHER_LIMIT,
 
   // NI
-  NI_PT:               B.NI_PT,
-  NI_UEL:              B.NI_UEL,
-  NI_CLASS1_MAIN:      B.NI_C1_MAIN,
-  NI_CLASS1_UPPER:     B.NI_C1_UPPER,
-  NI_CLASS4_MAIN:      B.NI_C4_MAIN,
-  NI_CLASS4_UPPER:     B.NI_C4_UPPER,
-  NI_CLASS2_WEEKLY:    B.NI_C2_WEEKLY,
-  NI_CLASS2_SPT:       B.NI_CLASS2_SPT,
+  NI_PT: B.NI_PT,
+  NI_UEL: B.NI_UEL,
+  NI_CLASS1_MAIN: B.NI_C1_MAIN,
+  NI_CLASS1_UPPER: B.NI_C1_UPPER,
+  NI_CLASS4_MAIN: B.NI_C4_MAIN,
+  NI_CLASS4_UPPER: B.NI_C4_UPPER,
+  NI_CLASS2_WEEKLY: B.NI_C2_WEEKLY,
+  NI_CLASS2_SPT: B.NI_CLASS2_SPT,
 
   // Dividends
-  DIV_ALLOWANCE:       B.DIV_ALLOWANCE,
-  DIV_BASIC_RATE:      B.DIV_BASIC,
-  DIV_HIGHER_RATE:     B.DIV_HIGHER,
-  DIV_ADDL_RATE:       B.DIV_ADDL,
+  DIV_ALLOWANCE: B.DIV_ALLOWANCE,
+  DIV_BASIC_RATE: B.DIV_BASIC,
+  DIV_HIGHER_RATE: B.DIV_HIGHER,
+  DIV_ADDL_RATE: B.DIV_ADDL,
 
   // Director optimal salary
   DIRECTOR_OPTIMAL_SALARY: B.DIRECTOR_OPTIMAL_SALARY,
 
   // Employer NI — 2026 Spike
-  EMPLOYER_NI_RATE:    B.EMPLOYER_NI_RATE,
-  EMPLOYER_NI_THRESH:  B.EMPLOYER_NI_THRESH,
+  EMPLOYER_NI_RATE: B.EMPLOYER_NI_RATE,
+  EMPLOYER_NI_THRESH: B.EMPLOYER_NI_THRESH,
 
   // Student Loans 2026/27
-  SL_PLAN1_THRESH:     B.SL_PLAN1_THRESH,
-  SL_PLAN1_RATE:       B.SL_PLAN_RATE,
-  SL_PLAN2_THRESH:     B.SL_PLAN2_THRESH,
-  SL_PLAN2_RATE:       B.SL_PLAN_RATE,
-  SL_PLAN5_THRESH:     B.SL_PLAN5_THRESH,
-  SL_PLAN5_RATE:       B.SL_PLAN_RATE,
-  SL_POSTGRAD_THRESH:  B.SL_POSTGRAD_THRESH,
-  SL_POSTGRAD_RATE:    B.SL_POSTGRAD_RATE,
+  SL_PLAN1_THRESH: B.SL_PLAN1_THRESH,
+  SL_PLAN1_RATE: B.SL_PLAN_RATE,
+  SL_PLAN2_THRESH: B.SL_PLAN2_THRESH,
+  SL_PLAN2_RATE: B.SL_PLAN_RATE,
+  SL_PLAN5_THRESH: B.SL_PLAN5_THRESH,
+  SL_PLAN5_RATE: B.SL_PLAN_RATE,
+  SL_POSTGRAD_THRESH: B.SL_POSTGRAD_THRESH,
+  SL_POSTGRAD_RATE: B.SL_POSTGRAD_RATE,
 
   // National Living Wage
-  NLW_RATE:            B.NLW_RATE,
+  NLW_RATE: B.NLW_RATE,
 
   // Scotland Income Tax
-  SCO_STARTER_END:      B.SCO_STARTER_END,
-  SCO_BASIC_END:        B.SCO_BASIC_END,
+  SCO_STARTER_END: B.SCO_STARTER_END,
+  SCO_BASIC_END: B.SCO_BASIC_END,
   SCO_INTERMEDIATE_END: B.SCO_INTERMEDIATE_END,
-  SCO_HIGHER_END:       B.SCO_HIGHER_END,
-  SCO_ADVANCED_END:     B.SCO_ADVANCED_END,
+  SCO_HIGHER_END: B.SCO_HIGHER_END,
+  SCO_ADVANCED_END: B.SCO_ADVANCED_END,
 
   // Job Loss — Scenario 4
   REDUNDANCY_EXEMPTION: B.REDUNDANCY_EXEMPTION,
 
   // Welfare — Scenario 3
-  UC_TAXABLE:          false,     // Universal Credit is NOT taxable
-  JSA_TAXABLE:         true,
-  CARERS_TAXABLE:      true,
+  UC_TAXABLE: false,     // Universal Credit is NOT taxable
+  JSA_TAXABLE: true,
+  CARERS_TAXABLE: true,
 } as const
 
 // ─── Utility ─────────────────────────────────────────────────────────────────
@@ -170,28 +170,28 @@ export function calcDividendTax(dividends: number, taxableNonDivIncome: number):
 
 // ─── SCENARIO RESULT TYPE ────────────────────────────────────────────────────
 export interface ScenarioResult {
-  scenario:           string
-  grossIncome:        number
-  personalAllowance:  number
-  taxableIncome:      number
-  incomeTax:          number
-  nationalInsurance:  number
-  dividendTax:        number
-  totalDeductions:    number
-  netTakeHome:        number
-  effectiveRate:      number
-  taxProvision:       number   // for P&L: incomeTax + NI
-  sixtyTrap:          boolean
-  catMessage:         string
-  lines:              { label: string; value: number; indent?: boolean; bold?: boolean; negative?: boolean }[]
+  scenario: string
+  grossIncome: number
+  personalAllowance: number
+  taxableIncome: number
+  incomeTax: number
+  nationalInsurance: number
+  dividendTax: number
+  totalDeductions: number
+  netTakeHome: number
+  effectiveRate: number
+  taxProvision: number   // for P&L: incomeTax + NI
+  sixtyTrap: boolean
+  catMessage: string
+  lines: { label: string; value: number; indent?: boolean; bold?: boolean; negative?: boolean }[]
 }
 
 // ─── SCENARIO 1: Standard Employed / Self-Employed ──────────────────────────
 export interface S1Input {
-  grossIncome:     number
-  expenses:        number
-  employmentType:  'employed' | 'self-employed'
-  pension:         number
+  grossIncome: number
+  expenses: number
+  employmentType: 'employed' | 'self-employed'
+  pension: number
 }
 export function calcScenario1(inp: S1Input): ScenarioResult {
   const profit      = Math.max(0, inp.grossIncome - inp.expenses)
@@ -232,7 +232,7 @@ export function calcScenario1(inp: S1Input): ScenarioResult {
 // ─── SCENARIO 2: High Earner £100k+ (60% Trap) ───────────────────────────────
 export interface S2Input {
   grossIncome: number
-  pension:     number
+  pension: number
 }
 export function calcScenario2(inp: S2Input): ScenarioResult {
   const pensionCap  = Math.min(inp.pension, inp.grossIncome, 60_000)
@@ -272,10 +272,10 @@ export function calcScenario2(inp: S2Input): ScenarioResult {
 
 // ─── SCENARIO 3: Welfare & Support ────────────────────────────────────────────
 export interface S3Input {
-  universalCredit:  number   // tax-free
-  jsaAmount:        number   // taxable
-  carersAllowance:  number   // taxable
-  otherIncome:      number   // taxable (e.g. part-time earnings)
+  universalCredit: number   // tax-free
+  jsaAmount: number   // taxable
+  carersAllowance: number   // taxable
+  otherIncome: number   // taxable (e.g. part-time earnings)
 }
 export function calcScenario3(inp: S3Input): ScenarioResult {
   // UC is completely non-taxable — does NOT affect PA or tax bands
@@ -315,10 +315,10 @@ export function calcScenario3(inp: S3Input): ScenarioResult {
 // ─── SCENARIO 4: Job Loss & Redundancy ────────────────────────────────────────
 // The £30,000 Rule + PAYE Refund Logic
 export interface S4Input {
-  annualSalary:       number   // full-year salary
-  monthsWorked:       number   // 1–12 (stopped work mid-year)
-  redundancyPayment:  number   // total package received
-  paydeTaxPaid:       number   // PAYE tax actually deducted so far
+  annualSalary: number   // full-year salary
+  monthsWorked: number   // 1–12 (stopped work mid-year)
+  redundancyPayment: number   // total package received
+  paydeTaxPaid: number   // PAYE tax actually deducted so far
 }
 export function calcScenario4(inp: S4Input): ScenarioResult {
   const monthsWorked    = Math.max(1, Math.min(12, inp.monthsWorked))
@@ -365,9 +365,9 @@ export function calcScenario4(inp: S4Input): ScenarioResult {
 
 // ─── SCENARIO 5: The Director (Salary + Dividends) ───────────────────────────
 export interface S5Input {
-  salary:    number   // recommended: £12,570 to minimise NI
+  salary: number   // recommended: £12,570 to minimise NI
   dividends: number   // company profit paid as dividends
-  pension:   number   // director pension contribution
+  pension: number   // director pension contribution
 }
 export function calcScenario5(inp: S5Input): ScenarioResult {
   const salary      = inp.salary
@@ -424,9 +424,9 @@ export function calcScenario5(inp: S5Input): ScenarioResult {
 export type StudentLoanPlan = 'plan1' | 'plan2' | 'plan5' | 'postgrad'
 export function calcStudentLoan(grossIncome: number, plan: StudentLoanPlan): number {
   const cfg = {
-    plan1:    { threshold: TB.SL_PLAN1_THRESH,    rate: TB.SL_PLAN1_RATE },
-    plan2:    { threshold: TB.SL_PLAN2_THRESH,    rate: TB.SL_PLAN2_RATE },
-    plan5:    { threshold: TB.SL_PLAN5_THRESH,    rate: TB.SL_PLAN5_RATE },
+    plan1: { threshold: TB.SL_PLAN1_THRESH,    rate: TB.SL_PLAN1_RATE },
+    plan2: { threshold: TB.SL_PLAN2_THRESH,    rate: TB.SL_PLAN2_RATE },
+    plan5: { threshold: TB.SL_PLAN5_THRESH,    rate: TB.SL_PLAN5_RATE },
     postgrad: { threshold: TB.SL_POSTGRAD_THRESH, rate: TB.SL_POSTGRAD_RATE },
   }[plan]
   if (grossIncome <= cfg.threshold) return 0
@@ -441,10 +441,10 @@ export function calcEmployerNI(salary: number): number {
 
 // ─── Cat Messages by scenario type ────────────────────────────────────────────
 export const CAT_GREETINGS: Record<string, string> = {
-  employed:     'Ready to audit your 2026/27 finances?',
+  employed: 'Ready to audit your 2026/27 finances?',
   'self-employed': 'Let\'s make sure HMRC doesn\'t take a penny more than they should!',
-  welfare:      'Universal Credit is tax-free! It won\'t touch your £12,570 allowance.',
-  redundancy:   'I\'ve applied your £30k redundancy exemption. You\'re keeping every penny you\'re entitled to.',
-  director:     'Brilliant move! By taking dividends, you\'re avoiding the 8% NI on your top earnings.',
-  high_earner:  'You\'re in the 60% trap zone. A SIPP contribution could save you thousands!',
+  welfare: 'Universal Credit is tax-free! It won\'t touch your £12,570 allowance.',
+  redundancy: 'I\'ve applied your £30k redundancy exemption. You\'re keeping every penny you\'re entitled to.',
+  director: 'Brilliant move! By taking dividends, you\'re avoiding the 8% NI on your top earnings.',
+  high_earner: 'You\'re in the 60% trap zone. A SIPP contribution could save you thousands!',
 }

@@ -15,91 +15,91 @@ export type StudentLoanPlan = 'none' | 'plan1' | 'plan2' | 'plan4' | 'plan5' | '
 export type TaxRegion       = 'ruk' | 'scotland'
 
 export interface TaxInput {
-  grossRevenue:          number
-  allowableExpenses:     number
-  dividendIncome:        number
-  employmentType:        EmploymentType
-  taxRegion:             TaxRegion
-  studentLoanPlan:       StudentLoanPlan
-  voluntaryClass2NI:     boolean   // only applies when profit < SPT (£7,105)
-  marriageAllowance:     boolean   // transfer £1,260 PA to partner
+  grossRevenue: number
+  allowableExpenses: number
+  dividendIncome: number
+  employmentType: EmploymentType
+  taxRegion: TaxRegion
+  studentLoanPlan: StudentLoanPlan
+  voluntaryClass2NI: boolean   // only applies when profit < SPT (£7,105)
+  marriageAllowance: boolean   // transfer £1,260 PA to partner
   blindPersonsAllowance: boolean   // additional £3,250 PA
-  pensionContribution:   number    // annual SIPP — reduces adjusted net income
+  pensionContribution: number    // annual SIPP — reduces adjusted net income
 }
 
 export interface TaxBand {
-  label:  string
-  rate:   number   // integer percentage e.g. 20
+  label: string
+  rate: number   // integer percentage e.g. 20
   amount: number   // income in this band
-  tax:    number   // tax payable in this band (2dp)
+  tax: number   // tax payable in this band (2dp)
 }
 
 export interface OptimizationTip {
-  id:          string
-  title:       string
+  id: string
+  title: string
   description: string
-  saving:      number   // estimated annual saving £ (0 = informational)
+  saving: number   // estimated annual saving £ (0 = informational)
 }
 
 export interface BreakdownStep {
   label: string
   value: number   // positive = income/addition; negative = deduction
-  note:  string
+  note: string
 }
 
 export interface MonthlyBreakdown {
-  grossProfit:       number
-  incomeTax:         number
-  niClass1:          number
-  niClass4:          number
-  niClass2:          number
-  dividendTax:       number
-  studentLoan:       number
-  totalDeductions:   number
-  netTakeHome:       number
+  grossProfit: number
+  incomeTax: number
+  niClass1: number
+  niClass4: number
+  niClass2: number
+  dividendTax: number
+  studentLoan: number
+  totalDeductions: number
+  netTakeHome: number
 }
 
 export interface TaxResult {
   // ── Echo inputs ──────────────────────────────────────────────────────────
-  grossRevenue:          number
-  allowableExpenses:     number
-  pensionContribution:   number   // capped at grossProfit
+  grossRevenue: number
+  allowableExpenses: number
+  pensionContribution: number   // capped at grossProfit
 
   // ── Computed income chain ─────────────────────────────────────────────
-  grossProfit:           number   // revenue - expenses
-  adjustedProfit:        number   // grossProfit - pensionContribution
-  personalAllowance:     number   // after taper + marriage/blind adjustments (never < 0)
-  taxableIncome:         number   // max(0, adjustedProfit - personalAllowance)
+  grossProfit: number   // revenue - expenses
+  adjustedProfit: number   // grossProfit - pensionContribution
+  personalAllowance: number   // after taper + marriage/blind adjustments (never < 0)
+  taxableIncome: number   // max(0, adjustedProfit - personalAllowance)
 
   // ── Income tax ────────────────────────────────────────────────────────
-  incomeTax:             number
-  taxBands:              TaxBand[]
+  incomeTax: number
+  taxBands: TaxBand[]
 
   // ── National Insurance ───────────────────────────────────────────────
-  niClass1:              number   // employed / director
-  niClass4:              number   // self-employed
-  niClass2:              number   // voluntary only (deemed = £0)
-  niClass2Deemed:        boolean  // profit >= £7,105 SPT: record protected, no charge
+  niClass1: number   // employed / director
+  niClass4: number   // self-employed
+  niClass2: number   // voluntary only (deemed = £0)
+  niClass2Deemed: boolean  // profit >= £7,105 SPT: record protected, no charge
 
   // ── Other deductions ─────────────────────────────────────────────────
-  dividendTax:           number
-  studentLoanRepayment:  number   // based on grossProfit (before pension)
-  studentLoanBase:       number   // the base used for SL calculation (grossProfit)
+  dividendTax: number
+  studentLoanRepayment: number   // based on grossProfit (before pension)
+  studentLoanBase: number   // the base used for SL calculation (grossProfit)
 
   // ── Totals ────────────────────────────────────────────────────────────
-  totalDeductions:       number
-  netTakeHome:           number
-  effectiveTaxRate:      number   // % of total income taken as deductions
+  totalDeductions: number
+  netTakeHome: number
+  effectiveTaxRate: number   // % of total income taken as deductions
 
   // ── Flags ─────────────────────────────────────────────────────────────
-  sixtyPercentTrap:      boolean  // income £100k–£125,140
-  taperWarning:          boolean
-  mtdWarning:            boolean  // SE/director gross > £50k
+  sixtyPercentTrap: boolean  // income £100k–£125,140
+  taperWarning: boolean
+  mtdWarning: boolean  // SE/director gross > £50k
 
   // ── Extras ────────────────────────────────────────────────────────────
-  monthly:               MonthlyBreakdown
-  optimizationTips:      OptimizationTip[]
-  breakdown:             BreakdownStep[]
+  monthly: MonthlyBreakdown
+  optimizationTips: OptimizationTip[]
+  breakdown: BreakdownStep[]
 }
 
 // ─── 2026/27 Constants ────────────────────────────────────────────────────────
@@ -118,11 +118,11 @@ import {
 
 // Student Loan 2026/27
 const STUDENT_LOAN: Record<StudentLoanPlan, { threshold: number; rate: number; label: string }> = {
-  none:         { threshold: 0,      rate: 0,    label: 'None'                                       },
-  plan1:        { threshold: 26_900, rate: 0.09, label: 'Plan 1 \u2014 \u00a326,900 (pre-2012 England/Wales)' },
-  plan2:        { threshold: 29_385, rate: 0.09, label: 'Plan 2 \u2014 \u00a329,385 (2012\u20132023)'         },
-  plan4:        { threshold: 33_795, rate: 0.09, label: 'Plan 4 \u2014 \u00a333,795 (Scotland)'               },
-  plan5:        { threshold: 25_000, rate: 0.09, label: 'Plan 5 \u2014 \u00a325,000 (post-Aug 2023)'          },
+  none: { threshold: 0,      rate: 0,    label: 'None'                                       },
+  plan1: { threshold: 26_900, rate: 0.09, label: 'Plan 1 \u2014 \u00a326,900 (pre-2012 England/Wales)' },
+  plan2: { threshold: 29_385, rate: 0.09, label: 'Plan 2 \u2014 \u00a329,385 (2012\u20132023)'         },
+  plan4: { threshold: 33_795, rate: 0.09, label: 'Plan 4 \u2014 \u00a333,795 (Scotland)'               },
+  plan5: { threshold: 25_000, rate: 0.09, label: 'Plan 5 \u2014 \u00a325,000 (post-Aug 2023)'          },
   postgraduate: { threshold: 21_000, rate: 0.06, label: 'Postgraduate \u2014 \u00a321,000 (6%)'               },
 }
 
@@ -271,9 +271,9 @@ function calcClass4NI(profit: number): number {
 // Dividends are stacked on top of non-dividend income within the tax bands.
 // The first £500 (dividend allowance) is tax-free.
 function calcDividendTax(
-  dividends:           number,
+  dividends: number,
   taxableNonDivIncome: number,
-  region:              TaxRegion,
+  region: TaxRegion,
 ): number {
   if (dividends <= DIV_ALLOWANCE) return 0
 
@@ -324,8 +324,8 @@ function buildTips(
   adjustedProfit: number,
   dividendIncome: number,
   employmentType: EmploymentType,
-  in60pctTrap:    boolean,
-  incomeTax:      number,
+  in60pctTrap: boolean,
+  incomeTax: number,
 ): OptimizationTip[] {
   const tips: OptimizationTip[] = []
 
@@ -470,15 +470,15 @@ export function calculateTax(input: TaxInput): TaxResult {
 
   // ── 11. Monthly breakdown ──────────────────────────────────────────────────
   const monthly: MonthlyBreakdown = {
-    grossProfit:     round2(adjustedProfit / 12),
-    incomeTax:       round2(incomeTax / 12),
-    niClass1:        round2(niClass1 / 12),
-    niClass4:        round2(niClass4 / 12),
-    niClass2:        round2(niClass2 / 12),
-    dividendTax:     round2(dividendTax / 12),
-    studentLoan:     round2(studentLoanRepayment / 12),
+    grossProfit: round2(adjustedProfit / 12),
+    incomeTax: round2(incomeTax / 12),
+    niClass1: round2(niClass1 / 12),
+    niClass4: round2(niClass4 / 12),
+    niClass2: round2(niClass2 / 12),
+    dividendTax: round2(dividendTax / 12),
+    studentLoan: round2(studentLoanRepayment / 12),
     totalDeductions: round2(totalDeductions / 12),
-    netTakeHome:     round2(netTakeHome / 12),
+    netTakeHome: round2(netTakeHome / 12),
   }
 
   // ── 12. Optimization tips ──────────────────────────────────────────────────
@@ -491,39 +491,39 @@ export function calculateTax(input: TaxInput): TaxResult {
     {
       label: 'Gross Revenue',
       value: grossRevenue,
-      note:  'Total income or turnover before any deductions',
+      note: 'Total income or turnover before any deductions',
     },
     {
       label: 'Allowable Expenses',
       value: -allowableExpenses,
-      note:  'Business costs deducted from revenue — tax is calculated on profit, not revenue',
+      note: 'Business costs deducted from revenue — tax is calculated on profit, not revenue',
     },
     {
       label: 'Gross Profit',
       value: grossProfit,
-      note:  'Revenue minus expenses — this is the base for NI Class 4 and student loan',
+      note: 'Revenue minus expenses — this is the base for NI Class 4 and student loan',
     },
     {
       label: 'Pension Contribution',
       value: -pensionCapped,
-      note:  'SIPP/pension reduces adjusted net income, attracting full marginal rate relief',
+      note: 'SIPP/pension reduces adjusted net income, attracting full marginal rate relief',
     },
     {
       label: 'Adjusted Net Income',
       value: adjustedProfit,
-      note:  'Used for Personal Allowance taper check and income tax calculation',
+      note: 'Used for Personal Allowance taper check and income tax calculation',
     },
     {
       label: 'Personal Allowance',
       value: -personalAllowance,
-      note:  personalAllowance < PA_BASE
+      note: personalAllowance < PA_BASE
         ? `Tapered: \u00a3${PA_BASE.toLocaleString()} reduced by \u00a3${(PA_BASE - personalAllowance).toLocaleString()} because income > \u00a3100,000`
         : 'Standard 2026/27 allowance \u2014 income below taper threshold',
     },
     {
       label: 'Taxable Income',
       value: taxableIncome,
-      note:  'The amount subject to Income Tax rates (Personal Allowance is subtracted above)',
+      note: 'The amount subject to Income Tax rates (Personal Allowance is subtracted above)',
     },
   ]
 
@@ -558,9 +558,9 @@ export function calculateTax(input: TaxInput): TaxResult {
 
 // ─── Validation ───────────────────────────────────────────────────────────────
 export interface ValidationErrors {
-  grossRevenue?:       string
-  allowableExpenses?:  string
-  dividendIncome?:     string
+  grossRevenue?: string
+  allowableExpenses?: string
+  dividendIncome?: string
   pensionContribution?: string
 }
 
@@ -602,8 +602,8 @@ export function validateTaxInput(input: TaxInput): ValidationErrors {
 
 // ─── Legacy shim ─────────────────────────────────────────────────────────────
 export interface TaxInput_Legacy {
-  grossIncome:     number
-  employmentType:  'self-employed' | 'employed' | 'both'
+  grossIncome: number
+  employmentType: 'self-employed' | 'employed' | 'both'
   studentLoanPlan: StudentLoanPlan
   voluntaryClass2NI: boolean
 }

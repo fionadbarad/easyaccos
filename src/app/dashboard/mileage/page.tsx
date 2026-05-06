@@ -9,29 +9,29 @@ import { useUserData } from '@/lib/use-user-data'
 import { fmtGBP } from '@/lib/tax-engine'
 
 // HMRC 2026/27 approved mileage rates
-const RATE_CAR_FIRST   = 0.45   // First 10,000 miles
-const RATE_CAR_EXCESS  = 0.25   // Above 10,000 miles
-const RATE_BIKE        = 0.20
-const RATE_MOTORCYCLE  = 0.24
-const CAR_THRESHOLD    = 10_000
+const RATE_CAR_FIRST = 0.45   // First 10,000 miles
+const RATE_CAR_EXCESS = 0.25   // Above 10,000 miles
+const RATE_BIKE = 0.20
+const RATE_MOTORCYCLE = 0.24
+const CAR_THRESHOLD = 10_000
 
 type VehicleType = 'car' | 'motorcycle' | 'bike'
 
 interface MileageEntry {
-  id:          string
-  date:        string
+  id: string
+  date: string
   description: string
-  vehicle:     VehicleType
-  miles:       number
-  createdAt:   string
+  vehicle: VehicleType
+  miles: number
+  createdAt: string
 }
 
 const SEED: MileageEntry[] = []
 
 const VEHICLE_LABELS: Record<VehicleType, string> = {
-  car:         'Car / Van',
-  motorcycle:  'Motorcycle',
-  bike:        'Bicycle',
+  car: 'Car / Van',
+  motorcycle: 'Motorcycle',
+  bike: 'Bicycle',
 }
 
 function calcRate(vehicle: VehicleType, milesBefore: number, miles: number): number {
@@ -155,12 +155,12 @@ export default function MileagePage() {
     'user_mileage', 'easyacco_mileage', SEED,
   )
 
-  const [showForm,    setShowForm]    = useState(false)
-  const [ratesOpen,   setRatesOpen]   = useState(false)
-  const [date,        setDate]        = useState(today())
+  const [showForm, setShowForm] = useState(false)
+  const [ratesOpen, setRatesOpen] = useState(false)
+  const [date, setDate] = useState(today())
   const [description, setDescription] = useState('')
-  const [vehicle,     setVehicle]     = useState<VehicleType>('car')
-  const [miles,       setMiles]       = useState('')
+  const [vehicle, setVehicle] = useState<VehicleType>('car')
+  const [miles, setMiles] = useState('')
 
   // Sort entries chronologically
   const sorted = useMemo(() =>
@@ -193,12 +193,12 @@ export default function MileagePage() {
     const m = parseFloat(miles)
     if (!description.trim() || isNaN(m) || m <= 0) return
     const entry: MileageEntry = {
-      id:          crypto.randomUUID(),
+      id: crypto.randomUUID(),
       date,
       description: description.trim(),
       vehicle,
-      miles:       m,
-      createdAt:   new Date().toISOString(),
+      miles: m,
+      createdAt: new Date().toISOString(),
     }
     persist([entry, ...entries])
     setDescription('')

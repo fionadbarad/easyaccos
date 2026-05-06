@@ -1,28 +1,28 @@
 // Data boundary types and runtime guards for the two primary entities
 
 export interface Expense {
-  id:          string
-  date:        string
+  id: string
+  date: string
   description: string
-  category:    string
-  amount:      number
+  category: string
+  amount: number
   ocrScanned?: boolean
 }
 
 export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue'
 
 export interface Invoice {
-  id:          string
-  number:      string
-  client:      string
+  id: string
+  number: string
+  client: string
   description: string
-  date:        string
-  dueDate:     string
-  amount:      number
-  vat:         boolean
-  status:      InvoiceStatus
-  sentDate?:   string
-  paidDate?:   string
+  date: string
+  dueDate: string
+  amount: number
+  vat: boolean
+  status: InvoiceStatus
+  sentDate?: string
+  paidDate?: string
 }
 
 export function isValidExpense(e: unknown): e is Expense {

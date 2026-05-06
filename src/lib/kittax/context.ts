@@ -13,12 +13,12 @@ export function buildBaseContext(): KittaxContext {
   const now = new Date()
   const month = now.toLocaleString('en-GB', { month: 'long', year: 'numeric' })
   return {
-    currentMonth:     month,
-    taxYear:          '2026/27',
+    currentMonth: month,
+    taxYear: '2026/27',
     personalAllowance: 12_570,
-    basicRateLimit:    37_700,
-    higherRateTaper:  100_000,
-    topRateTaper:     125_140,
+    basicRateLimit: 37_700,
+    higherRateTaper: 100_000,
+    topRateTaper: 125_140,
   }
 }
 

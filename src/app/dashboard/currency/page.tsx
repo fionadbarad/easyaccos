@@ -8,12 +8,12 @@ const POPULAR: string[] = [
   'NOK','SEK','DKK','NZD','ZAR','MXN','BRL','PLN','CZK','HUF',
 ]
 
-const CACHE_KEY      = 'ea_fx_rates'
-const CACHE_TTL_MS   = 5 * 60 * 1000   // serve cached rates for up to 5 minutes
-const FETCH_TIMEOUT  = 8_000            // abort stalled requests after 8 s
+const CACHE_KEY = 'ea_fx_rates'
+const CACHE_TTL_MS = 5 * 60 * 1000   // serve cached rates for up to 5 minutes
+const FETCH_TIMEOUT = 8_000            // abort stalled requests after 8 s
 
 interface RateCache {
-  rates:     Record<string, number>
+  rates: Record<string, number>
   fetchedAt: number
 }
 
@@ -40,15 +40,15 @@ function saveCache(rates: Record<string, number>) {
 const inputCls = 'bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded p-[9px_12px] text-[var(--sa-white)] text-[0.9rem] outline-none w-full'
 
 export default function CurrencyPage() {
-  const [rates,       setRates]       = useState<Record<string, number>>({})
-  const [loading,     setLoading]     = useState(true)
-  const [error,       setError]       = useState('')
-  const [isStale,     setIsStale]     = useState(false)
+  const [rates, setRates] = useState<Record<string, number>>({})
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [isStale, setIsStale] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
 
   const [amount, setAmount] = useState('1000')
-  const [from,   setFrom]   = useState('GBP')
-  const [to,     setTo]     = useState('USD')
+  const [from, setFrom] = useState('GBP')
+  const [to, setTo] = useState('USD')
 
   const abortRef = useRef<AbortController | null>(null)
 

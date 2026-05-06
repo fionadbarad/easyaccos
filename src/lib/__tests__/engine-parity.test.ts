@@ -24,16 +24,16 @@ import {
 
 function baseInput(over: Partial<TaxInput> = {}): TaxInput {
   return {
-    grossRevenue:          0,
-    allowableExpenses:     0,
-    dividendIncome:        0,
-    employmentType:        'self-employed',
-    taxRegion:             'ruk',
-    studentLoanPlan:       'none',
-    voluntaryClass2NI:     false,
-    marriageAllowance:     false,
+    grossRevenue: 0,
+    allowableExpenses: 0,
+    dividendIncome: 0,
+    employmentType: 'self-employed',
+    taxRegion: 'ruk',
+    studentLoanPlan: 'none',
+    voluntaryClass2NI: false,
+    marriageAllowance: false,
     blindPersonsAllowance: false,
-    pensionContribution:   0,
+    pensionContribution: 0,
     ...over,
   }
 }
@@ -54,7 +54,7 @@ describe('calcScenario1 vs calculateTax parity', () => {
           cases.push({
             name: `£${income} ${empType} expenses=${expenses} pension=${pension}`,
             s1: { grossIncome: income, expenses, employmentType: empType, pension },
-            t:  baseInput({ grossRevenue: income, allowableExpenses: expenses, pensionContribution: pension, employmentType: empType }),
+            t: baseInput({ grossRevenue: income, allowableExpenses: expenses, pensionContribution: pension, employmentType: empType }),
           })
         }
       }
@@ -84,7 +84,7 @@ describe('calcScenario2 vs calculateTax parity', () => {
       cases.push({
         name: `£${income} pension=${pension}`,
         s2: { grossIncome: income, pension },
-        t:  baseInput({ grossRevenue: income, pensionContribution: pension, employmentType: 'employed' }),
+        t: baseInput({ grossRevenue: income, pensionContribution: pension, employmentType: 'employed' }),
       })
     }
   }

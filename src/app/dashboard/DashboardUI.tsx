@@ -64,10 +64,10 @@ function MTDCalendar() {
 
 // ── Quick Estimator ──────────────────────────────────────────────────────
 function QuickEstimator() {
-  const [income, setIncome]     = useState('')
+  const [income, setIncome] = useState('')
   const [expenses, setExpenses] = useState('')
-  const [result, setResult]     = useState<TaxResult | null>(null)
-  const [error, setError]       = useState('')
+  const [result, setResult] = useState<TaxResult | null>(null)
+  const [error, setError] = useState('')
 
   const preview = useMemo(() => {
     const inc = Number(income || 0)

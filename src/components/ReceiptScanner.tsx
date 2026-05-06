@@ -58,11 +58,11 @@ function parseReceipt(raw: string): Omit<ReceiptExtract, 'raw' | 'imageUrl' | 'f
 }
 
 export default function ReceiptScanner({ onExtract }: Props) {
-  const [open, setOpen]         = useState(false)
+  const [open, setOpen] = useState(false)
   const [progress, setProgress] = useState(0)
-  const [status, setStatus]     = useState('')
-  const [error, setError]       = useState('')
-  const [busy, setBusy]         = useState(false)
+  const [status, setStatus] = useState('')
+  const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
 
   // Holds the blob URL of the current file; revoked if we close without extracting
   const blobUrlRef = useRef<string>('')

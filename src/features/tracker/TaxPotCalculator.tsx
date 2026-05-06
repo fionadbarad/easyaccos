@@ -13,12 +13,12 @@ import { fmt } from './shared'
 import { Label, Select, Row, inputStyle } from './controls'
 
 export default function TaxPotCalculator() {
-  const [income,      setIncome]      = useState('')
-  const [expenses,    setExpenses]    = useState('')
-  const [empType,     setEmpType]     = useState<EmploymentType>('self-employed')
-  const [region,      setRegion]      = useState<TaxRegion>('ruk')
-  const [slPlan,      setSlPlan]      = useState<StudentLoanPlan>('none')
-  const [pension,     setPension]     = useState('')
+  const [income, setIncome] = useState('')
+  const [expenses, setExpenses] = useState('')
+  const [empType, setEmpType] = useState<EmploymentType>('self-employed')
+  const [region, setRegion] = useState<TaxRegion>('ruk')
+  const [slPlan, setSlPlan] = useState<StudentLoanPlan>('none')
+  const [pension, setPension] = useState('')
   const [showOptions, setShowOptions] = useState(false)
 
   const result = useMemo(() => {
@@ -28,16 +28,16 @@ export default function TaxPotCalculator() {
     if (monthlyIncome <= 0) return null
 
     return calculateTax({
-      grossRevenue:          monthlyIncome   * 12,
-      allowableExpenses:     monthlyExpenses * 12,
-      dividendIncome:        0,
-      employmentType:        empType,
-      taxRegion:             region,
-      studentLoanPlan:       slPlan,
-      voluntaryClass2NI:     false,
-      marriageAllowance:     false,
+      grossRevenue: monthlyIncome   * 12,
+      allowableExpenses: monthlyExpenses * 12,
+      dividendIncome: 0,
+      employmentType: empType,
+      taxRegion: region,
+      studentLoanPlan: slPlan,
+      voluntaryClass2NI: false,
+      marriageAllowance: false,
       blindPersonsAllowance: false,
-      pensionContribution:   monthlyPension  * 12,
+      pensionContribution: monthlyPension  * 12,
     })
   }, [income, expenses, empType, region, slPlan, pension])
 

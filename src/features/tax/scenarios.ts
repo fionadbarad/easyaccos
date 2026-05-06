@@ -48,29 +48,29 @@ export function buildTaxInput(d: TaxInputDraft): TaxInput | null {
 
   if (d.scenario === 'director') {
     return {
-      grossRevenue:          d.dirSalary + d.dirDividends,
-      allowableExpenses:     0,
-      dividendIncome:        d.dirDividends,
-      employmentType:        'director' as EmploymentType,
-      taxRegion:             d.taxRegion,
-      studentLoanPlan:       d.studentLoanPlan,
-      voluntaryClass2NI:     false,
-      marriageAllowance:     d.marriageAllowance,
+      grossRevenue: d.dirSalary + d.dirDividends,
+      allowableExpenses: 0,
+      dividendIncome: d.dirDividends,
+      employmentType: 'director' as EmploymentType,
+      taxRegion: d.taxRegion,
+      studentLoanPlan: d.studentLoanPlan,
+      voluntaryClass2NI: false,
+      marriageAllowance: d.marriageAllowance,
       blindPersonsAllowance: d.blindPersonsAllowance,
-      pensionContribution:   d.pensionContribution,
+      pensionContribution: d.pensionContribution,
     }
   }
 
   return {
-    grossRevenue:          d.grossRevenue,
-    allowableExpenses:     d.scenario === 'self-employed' ? d.allowableExpenses : 0,
-    dividendIncome:        0,
-    employmentType:        d.scenario as EmploymentType,
-    taxRegion:             d.taxRegion,
-    studentLoanPlan:       d.studentLoanPlan,
-    voluntaryClass2NI:     d.voluntaryClass2NI,
-    marriageAllowance:     d.marriageAllowance,
+    grossRevenue: d.grossRevenue,
+    allowableExpenses: d.scenario === 'self-employed' ? d.allowableExpenses : 0,
+    dividendIncome: 0,
+    employmentType: d.scenario as EmploymentType,
+    taxRegion: d.taxRegion,
+    studentLoanPlan: d.studentLoanPlan,
+    voluntaryClass2NI: d.voluntaryClass2NI,
+    marriageAllowance: d.marriageAllowance,
     blindPersonsAllowance: d.blindPersonsAllowance,
-    pensionContribution:   d.pensionContribution,
+    pensionContribution: d.pensionContribution,
   }
 }

@@ -44,12 +44,12 @@ export default function TransactionsPage() {
   const { items: txs, persist, loading, isAuthenticated } = useUserData<Transaction>(
     'user_transactions', 'easyacco_transactions', SEED,
   )
-  const [typeFilter, setType]   = useState<TxType | 'all'>('all')
-  const [dateFilter, setDate]   = useState<DateFilter>('all')
-  const [customFrom, setFrom]   = useState('')
-  const [customTo, setTo]       = useState('')
+  const [typeFilter, setType] = useState<TxType | 'all'>('all')
+  const [dateFilter, setDate] = useState<DateFilter>('all')
+  const [customFrom, setFrom] = useState('')
+  const [customTo, setTo] = useState('')
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm]         = useState({
+  const [form, setForm] = useState({
     date: toISODate(new Date()), description: '', type: 'income' as TxType, amount: '', reference: '',
   })
 

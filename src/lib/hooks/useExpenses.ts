@@ -41,12 +41,12 @@ export function useExpenses() {
   const { items: expenses, persist, loading, isAuthenticated } = useUserData<Expense>(
     'user_expenses', 'easyacco_expenses', SEED,
   )
-  const [showForm, setShowForm]       = useState(false)
-  const [form, setForm]               = useState<ExpenseFormState>({
+  const [showForm, setShowForm] = useState(false)
+  const [form, setForm] = useState<ExpenseFormState>({
     date: toISODate(new Date()), description: '', category: CATEGORIES[0], amount: '',
   })
-  const [suggesting, setSuggesting]   = useState(false)
-  const [filter, setFilter]           = useState<FilterState>(emptyFilter())
+  const [suggesting, setSuggesting] = useState(false)
+  const [filter, setFilter] = useState<FilterState>(emptyFilter())
   const [pendingScan, setPendingScan] = useState<PendingScan | null>(null)
 
   useEffect(() => {

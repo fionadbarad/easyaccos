@@ -23,8 +23,8 @@ const SEED: Transaction[] = [
 ]
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-const fmt    = (v: number) => `£${Math.round(v).toLocaleString('en-GB')}`
-const fmtDp  = (v: number) => `£${Math.abs(v).toLocaleString('en-GB', { minimumFractionDigits: 2 })}`
+const fmt = (v: number) => `£${Math.round(v).toLocaleString('en-GB')}`
+const fmtDp = (v: number) => `£${Math.abs(v).toLocaleString('en-GB', { minimumFractionDigits: 2 })}`
 
 function buildMonthly(txs: Transaction[]) {
   const map: Record<string, { income: number; expenses: number }> = {}
@@ -84,10 +84,10 @@ const tooltipStyle = {
 type View = 'overview' | 'income-statement'
 
 export default function PnLPage() {
-  const [txs, setTxs]       = useState<Transaction[]>([])
+  const [txs, setTxs] = useState<Transaction[]>([])
   const [copied, setCopied] = useState(false)
   const [copyError, setCopyError] = useState(false)
-  const [view, setView]     = useState<View>('overview')
+  const [view, setView] = useState<View>('overview')
   const [cogsForm, setCogsForm] = useState({ date: new Date().toISOString().slice(0, 10), description: '', amount: '' })
 
   useEffect(() => {

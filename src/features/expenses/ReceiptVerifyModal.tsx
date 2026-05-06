@@ -18,7 +18,7 @@ export function ReceiptVerifyModal({
   onConfirm: (form: PendingScan['form']) => void
   onCancel: () => void
 }) {
-  const [form, setForm]          = useState(scan.form)
+  const [form, setForm] = useState(scan.form)
   const [suggesting, setSugging] = useState(false)
   const isImage = scan.extract.fileType.startsWith('image/')
 

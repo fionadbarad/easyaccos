@@ -24,8 +24,8 @@ export default function DashboardShell({
   const supabaseRef = useRef(createClient())
   const supabase    = supabaseRef.current
 
-  const [user, setUser]               = useState<User | null>(initialUser)
-  const [mobileOpen, setMobileOpen]   = useState(false)
+  const [user, setUser] = useState<User | null>(initialUser)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const [desktopOpen, setDesktopOpen] = useState(false)
 
   useEffect(() => { setMobileOpen(false) }, [pathname])

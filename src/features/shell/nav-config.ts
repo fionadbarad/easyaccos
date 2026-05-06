@@ -31,8 +31,8 @@ export const NAV: NavEntry[] = [
 ]
 
 export const GROUP_LABELS: Record<NavEntry['group'], string> = {
-  core:       'CORE',
-  reports:    'REPORTS',
-  tools:      'TOOLS',
+  core: 'CORE',
+  reports: 'REPORTS',
+  tools: 'TOOLS',
   compliance: 'COMPLIANCE',
 }

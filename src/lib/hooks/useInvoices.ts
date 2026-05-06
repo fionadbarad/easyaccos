@@ -7,13 +7,13 @@ import type { Invoice, InvoiceStatus } from '@/lib/validators'
 export type { Invoice, InvoiceStatus }
 
 export interface InvoiceFormState {
-  client:      string
-  number:      string
+  client: string
+  number: string
   description: string
-  date:        string
-  dueDate:     string
-  amount:      string
-  vat:         boolean
+  date: string
+  dueDate: string
+  amount: string
+  vat: boolean
 }
 
 function today() { return new Date().toISOString().slice(0, 10) }
@@ -52,7 +52,7 @@ Could you please let me know when I can expect payment, or if there are any issu
 
 Invoice details:
   Invoice number: ${inv.number}
-  Description:    ${inv.description}
+  Description: ${inv.description}
   Amount due:     ${total}
   Due date:       ${inv.dueDate}
 
@@ -71,8 +71,8 @@ export function useInvoices() {
     'user_invoices', 'ea_invoices', [],
   )
   const [showForm, setShowForm] = useState(false)
-  const [filter,   setFilter]   = useState<InvoiceStatus | 'all'>('all')
-  const [form,     setForm]     = useState<InvoiceFormState>(makeBlankForm)
+  const [filter, setFilter] = useState<InvoiceStatus | 'all'>('all')
+  const [form, setForm] = useState<InvoiceFormState>(makeBlankForm)
 
   const nextNumber = useMemo(() => {
     const nums = invoices.map(i => parseInt(i.number.replace(/\D/g, ''), 10)).filter(Boolean)
@@ -96,10 +96,10 @@ export function useInvoices() {
     const paid    = invoices.filter(i => i.status === 'paid')
     const draft   = invoices.filter(i => i.status === 'draft')
     return {
-      outstanding:  sent.reduce((s, i) => s + vatTotal(i), 0),
-      overdue:      overdue.reduce((s, i) => s + vatTotal(i), 0),
-      paid:         paid.reduce((s, i) => s + vatTotal(i), 0),
-      draftCount:   draft.length,
+      outstanding: sent.reduce((s, i) => s + vatTotal(i), 0),
+      overdue: overdue.reduce((s, i) => s + vatTotal(i), 0),
+      paid: paid.reduce((s, i) => s + vatTotal(i), 0),
+      draftCount: draft.length,
       overdueCount: overdue.length,
     }
   }, [invoices])

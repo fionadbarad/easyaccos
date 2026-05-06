@@ -23,11 +23,11 @@ export function useUserData<T extends { id: string }>(
   localKey: string,
   seed: T[],
 ) {
-  const supabaseRef  = useRef<SupabaseClient | null>(isSupabaseConfigured ? createClient() : null)
+  const supabaseRef = useRef<SupabaseClient | null>(isSupabaseConfigured ? createClient() : null)
   const supabase     = supabaseRef.current
 
-  const [items,   setItems]   = useState<T[]>([])
-  const [user,    setUser]    = useState<User | null>(null)
+  const [items, setItems] = useState<T[]>([])
+  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
   // ── Track auth state ──────────────────────────────────────────────────────

@@ -6,12 +6,12 @@ import Link from 'next/link'
 import TaxEstimator2026 from './TaxEstimator2026'
 
 interface Expense {
-  id:             number
-  category:       string
-  description:    string
-  amount:         number
-  date:           string
-  hmrcAllowable:  boolean
+  id: number
+  category: string
+  description: string
+  amount: number
+  date: string
+  hmrcAllowable: boolean
 }
 
 const EXPENSES: Expense[] = [
@@ -22,13 +22,13 @@ const EXPENSES: Expense[] = [
   { id: 5, category: 'Marketing',    description: 'Instagram ads',           amount: 75,  date: '2026-03-20', hmrcAllowable: false },
 ]
 
-const ANNUAL_INCOME  = 45_000
+const ANNUAL_INCOME = 45_000
 const TOTAL_EXPENSES = EXPENSES.reduce((sum, e) => sum + e.amount, 0)
-const ESTIMATED_TAX  = Math.round(ANNUAL_INCOME * 0.23)
+const ESTIMATED_TAX = Math.round(ANNUAL_INCOME * 0.23)
 
 const gbp = new Intl.NumberFormat('en-GB', {
-  style:                'currency',
-  currency:             'GBP',
+  style: 'currency',
+  currency: 'GBP',
   maximumFractionDigits: 0,
 })
 
@@ -40,7 +40,7 @@ const STATS = [
 ]
 
 export default function DemoDashboard() {
-  const [showModal,    setShowModal]    = useState(false)
+  const [showModal, setShowModal] = useState(false)
   const [promptAction, setPromptAction] = useState('')
 
   function openModal(action: string) {

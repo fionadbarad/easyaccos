@@ -56,7 +56,8 @@ export async function appendAuditLog(
 
   // Local IDB (authoritative)
   if (isIDBAvailable()) {
-    try { await idbSet(STORE_AUDIT, full.id, full) } catch { /* best-effort */ }
+    try { await idbSet(STORE_AUDIT, full.id, full) }
+    catch (err) { console.error('appendAuditLog: local IDB write failed:', err) }
   }
 
   // Supabase mirror (best-effort, never throws)

@@ -35,7 +35,9 @@ export function ReceiptVerifyModal({
       if (data.category && CATEGORIES.includes(data.category)) {
         setForm(f => ({ ...f, category: data.category }))
       }
-    } catch { /* silent */ } finally { setSugging(false) }
+    } catch (err) {
+      console.error('Category suggestion failed:', err)
+    } finally { setSugging(false) }
   }
 
   return (

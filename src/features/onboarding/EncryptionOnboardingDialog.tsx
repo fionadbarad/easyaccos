@@ -22,7 +22,8 @@ export default function EncryptionOnboardingDialog() {
   }, [])
 
   function dismiss() {
-    try { localStorage.setItem(SEEN_KEY, '1') } catch { /* noop */ }
+    try { localStorage.setItem(SEEN_KEY, '1') }
+    catch (err) { console.error('EncryptionOnboardingDialog: failed to persist seen flag:', err) }
     setOpen(false)
   }
 

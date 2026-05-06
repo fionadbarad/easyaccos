@@ -18,12 +18,14 @@ export default function CookieConsent() {
   }, [])
 
   function accept() {
-    try { localStorage.setItem(STORAGE_KEY, 'accepted') } catch { /* ignore */ }
+    try { localStorage.setItem(STORAGE_KEY, 'accepted') }
+    catch (err) { console.error('CookieConsent: failed to persist accept:', err) }
     setVisible(false)
   }
 
   function decline() {
-    try { localStorage.setItem(STORAGE_KEY, 'declined') } catch { /* ignore */ }
+    try { localStorage.setItem(STORAGE_KEY, 'declined') }
+    catch (err) { console.error('CookieConsent: failed to persist decline:', err) }
     setVisible(false)
   }
 

@@ -107,7 +107,9 @@ export function useExpenses() {
       if (data.category && CATEGORIES.includes(data.category)) {
         setForm(f => ({ ...f, category: data.category }))
       }
-    } catch { /* silent */ } finally { setSuggesting(false) }
+    } catch (err) {
+      console.error('Category suggestion failed:', err)
+    } finally { setSuggesting(false) }
   }
 
   async function addExpense(e: React.FormEvent) {

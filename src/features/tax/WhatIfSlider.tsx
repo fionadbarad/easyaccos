@@ -22,17 +22,17 @@ export default function WhatIfSlider({ income, onChange }: { income: number; onC
   useEffect(() => { setLocal(income) }, [income])
 
   return (
-    <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[10px] p-6 mb-6">
+    <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[10px] p-6 mb-6">
       <div className="flex justify-between items-center mb-3">
         <span className="text-[rgba(244,245,248,0.42)] text-[0.78rem] uppercase tracking-[0.08em]">
           What-If Income Slider
         </span>
-        <span className="text-[#F4F5F8] font-bold text-[1.1rem]">{fmt(local)}</span>
+        <span className="text-[var(--sa-white)] font-bold text-[1.1rem]">{fmt(local)}</span>
       </div>
       <input
         type="range" min={0} max={250_000} step={500} value={local}
         onChange={(e) => setLocal(Number(e.target.value))}
-        className="w-full accent-[#F4F5F8] cursor-pointer h-[6px]"
+        className="w-full accent-[var(--sa-white)] cursor-pointer h-[6px]"
       />
       <div className="flex justify-between text-[rgba(244,245,248,0.42)] text-[0.7rem] mt-[4px]">
         <span>£0</span><span>£50k</span><span>£100k</span><span>£150k</span><span>£200k+</span>

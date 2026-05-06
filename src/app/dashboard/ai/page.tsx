@@ -36,7 +36,7 @@ function renderInline(text: string): React.ReactNode[] {
   const parts = text.split(/(\*\*[^*]+\*\*|£[\d,]+(?:\.\d{2})?%?|`[^`]+`)/)
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={i} className="text-[#F4F5F8] font-semibold">{part.slice(2, -2)}</strong>
+      return <strong key={i} className="text-[var(--sa-white)] font-semibold">{part.slice(2, -2)}</strong>
     }
     if (part.startsWith('£') || (/^[\d,]+%$/.test(part) && part.length < 8)) {
       return <span key={i} className="text-[#4ADE80] font-mono font-medium">{part}</span>
@@ -58,7 +58,7 @@ function MarkdownBlock({ text }: { text: string }) {
     nodes.push(
       <ul key={nodes.length} className="my-[0.35rem] pl-[1.1rem] list-none">
         {listItems.map((item, i) => (
-          <li key={i} className="text-[#F4F5F8] text-[0.875rem] leading-[1.75] relative pl-[0.75rem]">
+          <li key={i} className="text-[var(--sa-white)] text-[0.875rem] leading-[1.75] relative pl-[0.75rem]">
             <span className="absolute left-0 text-[rgba(244,245,248,0.35)]">·</span>
             {renderInline(item)}
           </li>
@@ -83,13 +83,13 @@ function MarkdownBlock({ text }: { text: string }) {
         )
       } else if (line.startsWith('# ')) {
         nodes.push(
-          <p key={nodes.length} className="text-[#F4F5F8] text-[0.95rem] font-semibold my-[0.75rem_0_0.25rem] tracking-[-0.02em]">
+          <p key={nodes.length} className="text-[var(--sa-white)] text-[0.95rem] font-semibold my-[0.75rem_0_0.25rem] tracking-[-0.02em]">
             {line.slice(2)}
           </p>,
         )
       } else if (line.trim()) {
         nodes.push(
-          <p key={nodes.length} className="text-[#F4F5F8] text-[0.875rem] leading-[1.75] my-[0.2rem]">
+          <p key={nodes.length} className="text-[var(--sa-white)] text-[0.875rem] leading-[1.75] my-[0.2rem]">
             {renderInline(line)}
           </p>,
         )
@@ -107,7 +107,7 @@ function UserMessage({ msg }: { msg: KittaxMessage }) {
   return (
     <div className="flex justify-end mb-[1.5rem]">
       <div className="max-w-[68%]">
-        <div className="bg-[rgba(244,245,248,0.12)] border border-[rgba(244,245,248,0.07)] rounded-[6px_6px_2px_6px] px-[14px] py-[10px] text-[#F4F5F8] text-[0.875rem] leading-[1.65]">
+        <div className="bg-[rgba(244,245,248,0.12)] border border-[var(--sa-border)] rounded-[6px_6px_2px_6px] px-[14px] py-[10px] text-[var(--sa-white)] text-[0.875rem] leading-[1.65]">
           {msg.content}
         </div>
         <div className="text-right mt-[4px] text-[rgba(244,245,248,0.2)] text-[0.65rem] font-mono">
@@ -330,7 +330,7 @@ export default function AIPage() {
       {/* Header */}
       <div className="flex items-start justify-between mb-[2rem] flex-wrap gap-[0.5rem] shrink-0">
         <div>
-          <h1 className="text-[#F4F5F8] text-[clamp(1.2rem,2.5vw,1.5rem)] font-semibold tracking-[-0.03em] m-0">
+          <h1 className="text-[var(--sa-white)] text-[clamp(1.2rem,2.5vw,1.5rem)] font-semibold tracking-[-0.03em] m-0">
             Tax Advisory
           </h1>
           <p className="text-[rgba(244,245,248,0.42)] text-[0.72rem] mt-[3px] mb-0 font-mono">
@@ -338,7 +338,7 @@ export default function AIPage() {
           </p>
         </div>
         <button onClick={reset}
-          className="flex items-center gap-[6px] bg-transparent border border-[rgba(244,245,248,0.07)] rounded-[4px] text-[rgba(244,245,248,0.42)] text-[0.72rem] px-[11px] py-[6px] cursor-pointer tracking-[-0.01em]">
+          className="flex items-center gap-[6px] bg-transparent border border-[var(--sa-border)] rounded-[4px] text-[rgba(244,245,248,0.42)] text-[0.72rem] px-[11px] py-[6px] cursor-pointer tracking-[-0.01em]">
           <RefreshCw size={11} /> New session
         </button>
       </div>
@@ -377,7 +377,7 @@ export default function AIPage() {
       )}
 
       {/* Input */}
-      <div className="shrink-0 bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] overflow-hidden">
+      <div className="shrink-0 bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] overflow-hidden">
         <textarea
           ref={textareaRef}
           value={input}
@@ -386,14 +386,14 @@ export default function AIPage() {
           placeholder="Ask a question…   (Enter to send, Shift+Enter for new line)"
           rows={2}
           aria-label="Tax question"
-          className="block w-full bg-transparent border-none p-[12px_14px_4px] text-[#F4F5F8] text-[0.875rem] outline-none resize-none leading-[1.6] box-border"
+          className="block w-full bg-transparent border-none p-[12px_14px_4px] text-[var(--sa-white)] text-[0.875rem] outline-none resize-none leading-[1.6] box-border"
         />
         <div className="flex items-center justify-end px-[8px] pb-[8px] pt-[4px] gap-[6px]">
           <span className="text-[rgba(244,245,248,0.15)] text-[0.62rem] font-mono mr-auto">
             {input.length > 0 ? `${input.length} chars` : ''}
           </span>
           <button onClick={() => send()} disabled={!canSend}
-            className={`flex items-center gap-[5px] rounded-[4px] px-[12px] py-[6px] text-[0.75rem] font-semibold tracking-[-0.01em] transition-all duration-100 border ${canSend ? 'bg-[#F4F5F8] text-[#181818] border-[#F4F5F8] cursor-pointer' : 'bg-transparent text-[rgba(244,245,248,0.42)] border-[rgba(244,245,248,0.07)] cursor-default'}`}>
+            className={`flex items-center gap-[5px] rounded-[4px] px-[12px] py-[6px] text-[0.75rem] font-semibold tracking-[-0.01em] transition-all duration-100 border ${canSend ? 'bg-[var(--sa-white)] text-[var(--sa-black)] border-[var(--sa-white)] cursor-pointer' : 'bg-transparent text-[rgba(244,245,248,0.42)] border-[var(--sa-border)] cursor-default'}`}>
             <Send size={12} strokeWidth={2} /> Send
           </button>
         </div>

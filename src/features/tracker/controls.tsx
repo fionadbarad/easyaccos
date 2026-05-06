@@ -8,10 +8,10 @@ import { motion } from 'framer-motion'
 
 export const inputStyle: React.CSSProperties = {
   width: '100%',
-  background: '#222326',
-  border: '1px solid rgba(244,245,248,0.07)',
+  background: 'var(--sa-gray)',
+  border: '1px solid var(--sa-border)',
   borderRadius: '4px',
-  color: '#F4F5F8',
+  color: 'var(--sa-white)',
   padding: '10px 12px',
   fontSize: '0.875rem',
   outline: 'none',
@@ -38,7 +38,7 @@ export function Select({ value, onChange, options }: {
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] text-[#F4F5F8] px-3 py-[10px] text-[0.875rem] outline-none font-mono tabular-nums transition-[border-color] duration-150 appearance-none pr-8 cursor-pointer"
+        className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] text-[var(--sa-white)] px-3 py-[10px] text-[0.875rem] outline-none font-mono tabular-nums transition-[border-color] duration-150 appearance-none pr-8 cursor-pointer"
       >
         {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
@@ -49,16 +49,16 @@ export function Select({ value, onChange, options }: {
 
 export function Row({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div className="flex justify-between items-center py-[7px] border-b border-[rgba(244,245,248,0.07)]">
+    <div className="flex justify-between items-center py-[7px] border-b border-[var(--sa-border)]">
       <span className="text-[rgba(244,245,248,0.42)] text-[0.82rem]">{label}</span>
-      <span className={`text-[0.82rem] font-mono tabular-nums ${highlight ? 'text-[#F4F5F8] font-semibold' : 'text-[rgba(244,245,248,0.42)] font-normal'}`}>
+      <span className={`text-[0.82rem] font-mono tabular-nums ${highlight ? 'text-[var(--sa-white)] font-semibold' : 'text-[rgba(244,245,248,0.42)] font-normal'}`}>
         {value}
       </span>
     </div>
   )
 }
 
-export function BigStat({ label, value, color = '#F4F5F8', sub }: {
+export function BigStat({ label, value, color = 'var(--sa-white)', sub }: {
   label: string; value: string; color?: string; sub?: string
 }) {
   return (

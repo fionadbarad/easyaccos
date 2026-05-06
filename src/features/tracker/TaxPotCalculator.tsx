@@ -49,11 +49,11 @@ export default function TaxPotCalculator() {
   const hasResult        = result !== null
 
   return (
-    <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] overflow-hidden">
-      <div className="px-6 py-5 border-b border-[rgba(244,245,248,0.07)]">
+    <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] overflow-hidden">
+      <div className="px-6 py-5 border-b border-[var(--sa-border)]">
         <div className="flex items-center gap-[8px] mb-[3px]">
           <PiggyBank size={14} className="text-[rgba(244,245,248,0.42)]" />
-          <span className="text-[#F4F5F8] text-[0.9rem] font-semibold tracking-[-0.02em]">Tax Pot Calculator</span>
+          <span className="text-[var(--sa-white)] text-[0.9rem] font-semibold tracking-[-0.02em]">Tax Pot Calculator</span>
         </div>
         <div className="text-[rgba(244,245,248,0.42)] text-[0.72rem]">How much to set aside from this month&apos;s earnings</div>
       </div>
@@ -68,7 +68,7 @@ export default function TaxPotCalculator() {
               value={income} onChange={e => setIncome(e.target.value)}
               style={inputStyle}
               onFocus={e => (e.target as HTMLInputElement).style.borderColor = 'rgba(244,245,248,0.3)'}
-              onBlur={e  => (e.target as HTMLInputElement).style.borderColor = 'rgba(244,245,248,0.07)'}
+              onBlur={e  => (e.target as HTMLInputElement).style.borderColor = 'var(--sa-border)'}
             />
           </div>
           <div>
@@ -78,7 +78,7 @@ export default function TaxPotCalculator() {
               value={expenses} onChange={e => setExpenses(e.target.value)}
               style={inputStyle}
               onFocus={e => (e.target as HTMLInputElement).style.borderColor = 'rgba(244,245,248,0.3)'}
-              onBlur={e  => (e.target as HTMLInputElement).style.borderColor = 'rgba(244,245,248,0.07)'}
+              onBlur={e  => (e.target as HTMLInputElement).style.borderColor = 'var(--sa-border)'}
             />
           </div>
 
@@ -132,7 +132,7 @@ export default function TaxPotCalculator() {
                     value={pension} onChange={e => setPension(e.target.value)}
                     style={inputStyle}
                     onFocus={e => (e.target as HTMLInputElement).style.borderColor = 'rgba(244,245,248,0.3)'}
-                    onBlur={e  => (e.target as HTMLInputElement).style.borderColor = 'rgba(244,245,248,0.07)'}
+                    onBlur={e  => (e.target as HTMLInputElement).style.borderColor = 'var(--sa-border)'}
                   />
                 </div>
               </motion.div>
@@ -152,7 +152,7 @@ export default function TaxPotCalculator() {
               </motion.div>
             ) : (
               <motion.div key="result" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <div className="bg-[#222326] rounded-[6px] p-5 mb-[1rem] border border-[rgba(244,245,248,0.07)]">
+                <div className="bg-[var(--sa-gray)] rounded-[6px] p-5 mb-[1rem] border border-[var(--sa-border)]">
                   <div className="text-[rgba(244,245,248,0.18)] text-[0.6rem] uppercase tracking-[0.1em] font-semibold mb-[6px] font-mono">
                     Set aside this month
                   </div>
@@ -161,7 +161,7 @@ export default function TaxPotCalculator() {
                     initial={{ scale: 0.97 }}
                     animate={{ scale: 1 }}
                     className="text-[2.4rem] font-semibold tracking-[-0.04em] leading-none tabular-nums"
-                    style={{ color: monthlyPot > 0 ? '#FBBF24' : '#F4F5F8' }}
+                    style={{ color: monthlyPot > 0 ? '#FBBF24' : 'var(--sa-white)' }}
                   >
                     {fmt(monthlyPot)}
                   </motion.div>
@@ -170,15 +170,15 @@ export default function TaxPotCalculator() {
                   </div>
                 </div>
 
-                <div className="bg-[#181818] border border-[rgba(244,245,248,0.07)] rounded-[6px] px-[1rem] py-0">
+                <div className="bg-[var(--sa-black)] border border-[var(--sa-border)] rounded-[6px] px-[1rem] py-0">
                   <Row label="Income Tax"   value={monthlyIncomeTax > 0 ? `${fmt(monthlyIncomeTax)}/mo` : '—'} />
                   {result && result.niClass4 > 0 && <Row label="NI Class 4 (SE)"  value={`${fmt(Math.round(result.niClass4 / 12))}/mo`} />}
                   {result && result.niClass1 > 0 && <Row label="NI Class 1 (PAYE)" value={`${fmt(Math.round(result.niClass1 / 12))}/mo`} />}
                   {result && result.niClass2 > 0 && <Row label="NI Class 2"        value={`${fmt(Math.round(result.niClass2 / 12))}/mo`} />}
                   {result && result.studentLoanRepayment > 0 && <Row label="Student Loan" value={`${fmt(monthlySL)}/mo`} />}
                   <div className="flex justify-between items-center py-[10px]">
-                    <span className="text-[#F4F5F8] text-[0.82rem] font-semibold">Monthly pot total</span>
-                    <span className="text-[#F4F5F8] text-[0.82rem] font-semibold font-mono">{fmt(monthlyPot)}</span>
+                    <span className="text-[var(--sa-white)] text-[0.82rem] font-semibold">Monthly pot total</span>
+                    <span className="text-[var(--sa-white)] text-[0.82rem] font-semibold font-mono">{fmt(monthlyPot)}</span>
                   </div>
                 </div>
 

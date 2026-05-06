@@ -10,11 +10,11 @@ const mock = {
 
 export default function DemoDashboardPage() {
   return (
-    <main className="min-h-screen bg-[#181818] text-[#F4F5F8] p-[2.5rem_1.25rem]">
+    <main className="min-h-screen bg-[var(--sa-black)] text-[var(--sa-white)] p-[2.5rem_1.25rem]">
       <div className="max-w-[960px] mx-auto">
         <div className="mb-[1rem] flex items-center justify-between gap-[1rem]">
           <h1 className="text-[1.7rem] font-bold">Demo Dashboard (No login)</h1>
-          <Link href="/auth/signup" className="bg-[#F4F5F8] text-[#181818] px-[14px] py-[8px] rounded-[5px] font-bold no-underline">
+          <Link href="/auth/signup" className="bg-[var(--sa-white)] text-[var(--sa-black)] px-[14px] py-[8px] rounded-[5px] font-bold no-underline">
             Save and Sign In
           </Link>
         </div>
@@ -29,14 +29,14 @@ export default function DemoDashboardPage() {
             { label: 'Tax due', value: `£${mock.tax.toLocaleString()}` },
             { label: 'Take-home', value: `£${mock.net.toLocaleString()}` },
           ].map((item) => (
-            <div key={item.label} className="bg-[#1C1D20] rounded-[8px] border border-[rgba(244,245,248,0.07)] p-[1rem]">
+            <div key={item.label} className="bg-[var(--sa-surface)] rounded-[8px] border border-[var(--sa-border)] p-[1rem]">
               <p className="text-[rgba(244,245,248,0.42)] text-[0.8rem] mb-[0.5rem]">{item.label}</p>
               <p className="text-[1.25rem] font-bold m-0">{item.value}</p>
             </div>
           ))}
         </section>
 
-        <section className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[8px] p-[1.2rem]">
+        <section className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[8px] p-[1.2rem]">
           <h2 className="text-[1.1rem] mb-[0.75rem]">How this demo works</h2>
           <ul className="text-[rgba(244,245,248,0.42)] leading-[1.6] pl-[1.2rem] m-0">
             <li>Instant calculations from your income and expenses</li>
@@ -48,7 +48,7 @@ export default function DemoDashboardPage() {
 
         <div className="mt-[1.5rem] p-[1rem] bg-[#111827] border border-[rgba(98,113,148,0.25)] rounded-[8px]">
           <p className="text-[rgba(244,245,248,0.42)] mb-[0.35rem]">Trust signals:</p>
-          <p className="text-[0.95rem] text-[#F4F5F8] m-0">Secure & encrypted · Built for UK freelancers · Your data stays private</p>
+          <p className="text-[0.95rem] text-[var(--sa-white)] m-0">Secure & encrypted · Built for UK freelancers · Your data stays private</p>
         </div>
       </div>
     </main>

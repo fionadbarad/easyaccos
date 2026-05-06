@@ -39,7 +39,7 @@ const COPY = {
   },
 } as const
 
-const INPUT_CLASS = 'w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-lg px-[14px] py-3 text-[#F4F5F8] text-[0.9rem] outline-none box-border'
+const INPUT_CLASS = 'w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-lg px-[14px] py-3 text-[var(--sa-white)] text-[0.9rem] outline-none box-border'
 
 export default function AuthForm({ mode }: AuthFormProps) {
   const supabaseRef = useRef(createClient())
@@ -67,7 +67,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const submitDisabled = loading || !email.trim()
 
   return (
-    <div className="min-h-screen bg-[#181818] flex items-center justify-center p-6">
+    <div className="min-h-screen bg-[var(--sa-black)] flex items-center justify-center p-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -76,7 +76,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
         suppressHydrationWarning
       >
         <div className="text-center mb-8">
-          <Link href="/" className="text-[#F4F5F8] text-[1.7rem] font-bold no-underline">
+          <Link href="/" className="text-[var(--sa-white)] text-[1.7rem] font-bold no-underline">
             EasyAcco
           </Link>
           <p className="text-[rgba(244,245,248,0.42)] text-[0.82rem] mt-[6px]">{copy.subtitle}</p>
@@ -89,36 +89,36 @@ export default function AuthForm({ mode }: AuthFormProps) {
           </p>
           <Link
             href="/dashboard"
-            className="inline-flex items-center justify-center gap-2 w-full px-5 py-[13px] bg-[#F4F5F8] text-[#181818] font-bold text-[0.95rem] no-underline rounded-lg"
+            className="inline-flex items-center justify-center gap-2 w-full px-5 py-[13px] bg-[var(--sa-white)] text-[var(--sa-black)] font-bold text-[0.95rem] no-underline rounded-lg"
           >
             Open Dashboard as Guest <ArrowRight size={17} />
           </Link>
         </div>
 
         <div className="flex items-center gap-3 mb-5">
-          <div className="flex-1 h-px bg-[rgba(244,245,248,0.07)]" />
+          <div className="flex-1 h-px bg-[var(--sa-border)]" />
           <span className="text-[rgba(244,245,248,0.42)] text-[0.72rem] uppercase tracking-[0.1em]">
             {copy.dividerLabel}
           </span>
-          <div className="flex-1 h-px bg-[rgba(244,245,248,0.07)]" />
+          <div className="flex-1 h-px bg-[var(--sa-border)]" />
         </div>
 
-        <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-xl p-6">
+        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-xl p-6">
           {sent ? (
             <div className="text-center">
               <CheckCircle size={40} className="text-[#4ADE80] mx-auto mb-4" />
-              <h3 className="text-[#F4F5F8] font-bold text-[1rem] mb-2">
+              <h3 className="text-[var(--sa-white)] font-bold text-[1rem] mb-2">
                 Check your inbox
               </h3>
               <p className="text-[rgba(244,245,248,0.42)] text-[0.82rem] leading-[1.6]">
-                We sent a sign-in link to <strong className="text-[#F4F5F8]">{email}</strong>. {copy.sentCopy}
+                We sent a sign-in link to <strong className="text-[var(--sa-white)]">{email}</strong>. {copy.sentCopy}
               </p>
             </div>
           ) : (
             <>
               <div className="flex items-center gap-2 mb-4">
-                <Mail size={16} className="text-[#F4F5F8]" />
-                <span className="text-[#F4F5F8] font-semibold text-[0.88rem]">{copy.formTitle}</span>
+                <Mail size={16} className="text-[var(--sa-white)]" />
+                <span className="text-[var(--sa-white)] font-semibold text-[0.88rem]">{copy.formTitle}</span>
               </div>
               <p className="text-[rgba(244,245,248,0.42)] text-[0.78rem] leading-[1.5] mb-4">
                 {copy.formCopy}
@@ -143,7 +143,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
                 <button
                   type="submit"
                   disabled={submitDisabled}
-                  className={`flex items-center justify-center gap-2 border border-[rgba(244,245,248,0.07)] rounded-lg p-[11px] text-[0.88rem] font-semibold ${submitDisabled ? 'bg-[rgba(244,245,248,0.04)] text-[rgba(244,245,248,0.42)] cursor-default' : 'bg-[rgba(244,245,248,0.08)] text-[#F4F5F8] cursor-pointer'}`}
+                  className={`flex items-center justify-center gap-2 border border-[var(--sa-border)] rounded-lg p-[11px] text-[0.88rem] font-semibold ${submitDisabled ? 'bg-[rgba(244,245,248,0.04)] text-[rgba(244,245,248,0.42)] cursor-default' : 'bg-[rgba(244,245,248,0.08)] text-[var(--sa-white)] cursor-pointer'}`}
                 >
                   {loading
                     ? <><Loader2 size={15} className="animate-spin" /> {copy.buttonLoading}</>

@@ -54,18 +54,18 @@ export function SortableTable<T extends { id: string }>({
 
   if (rows.length === 0) {
     return (
-      <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-12 text-center text-[rgba(244,245,248,0.42)] text-[0.85rem]">
+      <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-12 text-center text-[rgba(244,245,248,0.42)] text-[0.85rem]">
         {empty ?? 'No results.'}
       </div>
     )
   }
 
   return (
-    <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] overflow-hidden">
+    <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-[0.82rem]">
           <thead>
-            <tr className="border-b border-[rgba(244,245,248,0.07)]">
+            <tr className="border-b border-[var(--sa-border)]">
               {columns.map(col => {
                 const active = sort?.key === col.key
                 const Icon = !col.sortable
@@ -77,12 +77,12 @@ export function SortableTable<T extends { id: string }>({
                   <th
                     key={col.key}
                     onClick={col.sortable ? () => toggleSort(col.key) : undefined}
-                    className={`px-[13px] py-[10px] font-semibold text-[0.62rem] uppercase tracking-[0.07em] whitespace-nowrap select-none ${active ? 'text-[#F4F5F8]' : 'text-[rgba(244,245,248,0.42)]'} ${col.sortable ? 'cursor-pointer' : 'cursor-default'}`}
+                    className={`px-[13px] py-[10px] font-semibold text-[0.62rem] uppercase tracking-[0.07em] whitespace-nowrap select-none ${active ? 'text-[var(--sa-white)]' : 'text-[rgba(244,245,248,0.42)]'} ${col.sortable ? 'cursor-pointer' : 'cursor-default'}`}
                     style={{ textAlign: col.align ?? 'left', width: col.width }}
                   >
                     <span className={`inline-flex items-center gap-[5px] ${col.align === 'right' ? 'flex-row-reverse' : 'flex-row'}`}>
                       {col.header}
-                      {Icon && <Icon size={10} className={active ? 'text-[#F4F5F8]' : 'text-[rgba(244,245,248,0.18)]'} />}
+                      {Icon && <Icon size={10} className={active ? 'text-[var(--sa-white)]' : 'text-[rgba(244,245,248,0.18)]'} />}
                     </span>
                   </th>
                 )
@@ -98,7 +98,7 @@ export function SortableTable<T extends { id: string }>({
                 {columns.map(col => (
                   <td
                     key={col.key}
-                    className="px-[13px] py-[9px] text-[#F4F5F8]"
+                    className="px-[13px] py-[9px] text-[var(--sa-white)]"
                     style={{ textAlign: col.align ?? 'left', whiteSpace: col.align === 'right' ? 'nowrap' : undefined }}
                   >
                     {col.render ? col.render(row) : String(col.accessor(row))}

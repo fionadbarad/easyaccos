@@ -37,7 +37,7 @@ export default function AuditPage() {
         <div className="text-[rgba(244,245,248,0.18)] text-[0.6rem] uppercase tracking-[0.12em] font-mono mb-[5px]">
           security
         </div>
-        <h1 className="text-[#F4F5F8] text-[clamp(1.3rem,3vw,1.8rem)] font-semibold tracking-[-0.03em] m-0 mb-[4px]">
+        <h1 className="text-[var(--sa-white)] text-[clamp(1.3rem,3vw,1.8rem)] font-semibold tracking-[-0.03em] m-0 mb-[4px]">
           Audit Trail
         </h1>
         <p className="text-[rgba(244,245,248,0.42)] text-[0.78rem] m-0 leading-[1.55]">
@@ -49,14 +49,14 @@ export default function AuditPage() {
       <div className="flex gap-[0.6rem] mb-[1.25rem] flex-wrap items-center">
         <button
           onClick={toggleFlag}
-          className={`inline-flex items-center gap-[8px] rounded-[4px] p-[7px_14px] text-[0.8rem] cursor-pointer font-medium ${enabled ? 'bg-[rgba(74,222,128,0.08)] border border-[rgba(74,222,128,0.25)] text-[#4ADE80]' : 'bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] text-[rgba(244,245,248,0.42)]'}`}
+          className={`inline-flex items-center gap-[8px] rounded-[4px] p-[7px_14px] text-[0.8rem] cursor-pointer font-medium ${enabled ? 'bg-[rgba(74,222,128,0.08)] border border-[rgba(74,222,128,0.25)] text-[#4ADE80]' : 'bg-[var(--sa-surface)] border border-[var(--sa-border)] text-[rgba(244,245,248,0.42)]'}`}
         >
           {enabled ? <ToggleRight size={15} /> : <ToggleLeft size={15} />}
           Audit logging {enabled ? 'on' : 'off'}
         </button>
         <button
           onClick={load}
-          className="inline-flex items-center gap-[6px] bg-transparent border border-[rgba(244,245,248,0.07)] text-[rgba(244,245,248,0.42)] rounded-[4px] p-[7px_12px] text-[0.8rem] cursor-pointer"
+          className="inline-flex items-center gap-[6px] bg-transparent border border-[var(--sa-border)] text-[rgba(244,245,248,0.42)] rounded-[4px] p-[7px_12px] text-[0.8rem] cursor-pointer"
         >
           <RefreshCw size={13} /> Refresh
         </button>
@@ -70,19 +70,19 @@ export default function AuditPage() {
       )}
 
       {loading ? (
-        <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[3rem] text-center text-[rgba(244,245,248,0.42)] text-[0.84rem]">
+        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-[3rem] text-center text-[rgba(244,245,248,0.42)] text-[0.84rem]">
           Loading…
         </div>
       ) : entries.length === 0 ? (
-        <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[3rem] text-center text-[rgba(244,245,248,0.42)] text-[0.84rem]">
+        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-[3rem] text-center text-[rgba(244,245,248,0.42)] text-[0.84rem]">
           No audit entries yet.{enabled ? ' Events will appear here after you create, edit, or delete data.' : ''}
         </div>
       ) : (
-        <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] overflow-hidden">
+        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-[0.8rem]">
               <thead>
-                <tr className="border-b border-[rgba(244,245,248,0.07)]">
+                <tr className="border-b border-[var(--sa-border)]">
                   {['Timestamp', 'Entity', 'Op', 'ID', 'Actor', ''].map((h, i) => (
                     <th key={i} className="p-[9px_12px] text-left text-[rgba(244,245,248,0.42)] font-semibold text-[0.6rem] uppercase tracking-[0.07em] whitespace-nowrap">
                       {h}
@@ -103,7 +103,7 @@ export default function AuditPage() {
                         <td className="p-[8px_12px] text-[rgba(244,245,248,0.42)] font-mono text-[0.72rem] whitespace-nowrap">
                           {new Date(e.ts).toLocaleString('en-GB')}
                         </td>
-                        <td className="p-[8px_12px] text-[#F4F5F8]">{e.entity}</td>
+                        <td className="p-[8px_12px] text-[var(--sa-white)]">{e.entity}</td>
                         <td className="p-[8px_12px]">
                           <span
                             className="font-mono text-[0.72rem] font-semibold"
@@ -124,13 +124,13 @@ export default function AuditPage() {
                             <div className="grid grid-cols-2 gap-[0.75rem]">
                               <div>
                                 <div className="text-[rgba(244,245,248,0.18)] text-[0.58rem] uppercase tracking-[0.07em] mb-[4px] font-mono">Before</div>
-                                <pre className="bg-[#222326] rounded-[4px] p-[8px_10px] text-[rgba(244,245,248,0.42)] text-[0.68rem] overflow-x-auto m-0 whitespace-pre-wrap break-all">
+                                <pre className="bg-[var(--sa-gray)] rounded-[4px] p-[8px_10px] text-[rgba(244,245,248,0.42)] text-[0.68rem] overflow-x-auto m-0 whitespace-pre-wrap break-all">
                                   {e.before !== null ? JSON.stringify(e.before, null, 2) : 'null'}
                                 </pre>
                               </div>
                               <div>
                                 <div className="text-[rgba(244,245,248,0.18)] text-[0.58rem] uppercase tracking-[0.07em] mb-[4px] font-mono">After</div>
-                                <pre className="bg-[#222326] rounded-[4px] p-[8px_10px] text-[rgba(244,245,248,0.42)] text-[0.68rem] overflow-x-auto m-0 whitespace-pre-wrap break-all">
+                                <pre className="bg-[var(--sa-gray)] rounded-[4px] p-[8px_10px] text-[rgba(244,245,248,0.42)] text-[0.68rem] overflow-x-auto m-0 whitespace-pre-wrap break-all">
                                   {e.after !== null ? JSON.stringify(e.after, null, 2) : 'null'}
                                 </pre>
                               </div>
@@ -144,7 +144,7 @@ export default function AuditPage() {
               </tbody>
             </table>
           </div>
-          <div className="p-[8px_12px] border-t border-[rgba(244,245,248,0.07)] text-[rgba(244,245,248,0.18)] text-[0.68rem] font-mono">
+          <div className="p-[8px_12px] border-t border-[var(--sa-border)] text-[rgba(244,245,248,0.18)] text-[0.68rem] font-mono">
             {entries.length} entries (device-local) · click row to diff
           </div>
         </div>

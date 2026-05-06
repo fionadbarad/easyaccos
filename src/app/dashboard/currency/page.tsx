@@ -37,7 +37,7 @@ function saveCache(rates: Record<string, number>) {
   }
 }
 
-const inputCls = 'bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] p-[9px_12px] text-[var(--sa-white)] text-[0.9rem] outline-none w-full'
+const inputCls = 'bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] p-[9px_12px] text-[var(--sa-white)] text-[0.9rem] outline-none w-full'
 
 export default function CurrencyPage() {
   const [rates,       setRates]       = useState<Record<string, number>>({})

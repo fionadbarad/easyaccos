@@ -28,10 +28,10 @@ export default function OfflineChip() {
     <div
       role="status"
       aria-live="polite"
-      className="fixed bottom-4 right-4 z-[55] bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-full px-[14px] py-2 flex items-center gap-2 shadow-[0_6px_20px_rgba(0,0,0,0.4)]"
+      className="fixed bottom-4 right-4 z-[55] bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-full px-[14px] py-2 flex items-center gap-2 shadow-[0_6px_20px_rgba(0,0,0,0.4)]"
     >
-      <WifiOff size={14} className="text-[#F4F5F8]" />
-      <span className="text-[#F4F5F8] text-[0.78rem] font-medium">
+      <WifiOff size={14} className="text-[var(--sa-white)]" />
+      <span className="text-[var(--sa-white)] text-[0.78rem] font-medium">
         Offline — changes save locally and sync when you reconnect
       </span>
     </div>

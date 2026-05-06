@@ -74,23 +74,23 @@ export default function ExpensesPage() {
           <div className="text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.12em] mb-[5px] font-mono">
             expenses
           </div>
-          <h1 className="text-[#F4F5F8] text-[clamp(1.4rem,3vw,1.9rem)] font-semibold tracking-[-0.03em] m-0">
+          <h1 className="text-[var(--sa-white)] text-[clamp(1.4rem,3vw,1.9rem)] font-semibold tracking-[-0.03em] m-0">
             Expense Tracker
           </h1>
           <p className="text-[rgba(244,245,248,0.42)] text-[0.75rem] mt-[4px] mb-0 font-mono">
             {loading
               ? '—'
               : `${filtered.length}${filtered.length !== expenses.length ? ` of ${expenses.length}` : ''} records · total `}
-            {!loading && <span className="text-[#F4F5F8]">£{total.toLocaleString('en-GB', { minimumFractionDigits: 2 })}</span>}
+            {!loading && <span className="text-[var(--sa-white)]">£{total.toLocaleString('en-GB', { minimumFractionDigits: 2 })}</span>}
           </p>
         </div>
         <div className="flex items-center gap-[0.5rem]">
-          <div className="flex items-center gap-[5px] text-[rgba(244,245,248,0.42)] text-[0.68rem] font-mono px-[10px] py-[6px] border border-[rgba(244,245,248,0.07)] rounded-[4px]">
+          <div className="flex items-center gap-[5px] text-[rgba(244,245,248,0.42)] text-[0.68rem] font-mono px-[10px] py-[6px] border border-[var(--sa-border)] rounded-[4px]">
             {isAuthenticated ? <><Cloud size={11} className="text-[#4ADE80]" /> synced</> : <><CloudOff size={11} /> local only</>}
           </div>
           <ReceiptScanner onExtract={onReceiptExtract} />
           <button onClick={() => setShowForm(!showForm)}
-            className="flex items-center gap-[6px] bg-[#F4F5F8] text-[#181818] border-none rounded-[4px] px-[16px] py-[8px] text-[0.8rem] font-semibold cursor-pointer min-h-[36px] tracking-[-0.01em]">
+            className="flex items-center gap-[6px] bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded-[4px] px-[16px] py-[8px] text-[0.8rem] font-semibold cursor-pointer min-h-[36px] tracking-[-0.01em]">
             <Plus size={14} strokeWidth={2.5} /> Add Expense
           </button>
         </div>
@@ -115,7 +115,7 @@ export default function ExpensesPage() {
       {byCategory.length > 0 && (
         <div className="flex gap-[0.35rem] flex-wrap mb-[1.25rem]">
           {byCategory.map(({ cat, total: t }) => (
-            <div key={cat} className="px-[12px] py-[5px] rounded-[3px] border border-[rgba(244,245,248,0.07)] bg-transparent text-[rgba(244,245,248,0.42)] text-[0.72rem] font-mono">
+            <div key={cat} className="px-[12px] py-[5px] rounded-[3px] border border-[var(--sa-border)] bg-transparent text-[rgba(244,245,248,0.42)] text-[0.72rem] font-mono">
               {cat} · £{t.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
             </div>
           ))}
@@ -127,11 +127,11 @@ export default function ExpensesPage() {
       )}
 
       {loading ? (
-        <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[3rem] text-center text-[rgba(244,245,248,0.42)] text-[0.84rem]">
+        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-[3rem] text-center text-[rgba(244,245,248,0.42)] text-[0.84rem]">
           Loading…
         </div>
       ) : expenses.length === 0 ? (
-        <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[3rem] text-center">
+        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-[3rem] text-center">
           <p className="text-[rgba(244,245,248,0.42)] text-[0.84rem] m-0">No expenses yet. Add your first one above.</p>
           <p className="text-[rgba(244,245,248,0.2)] text-[0.72rem] mt-[6px] mb-0 font-mono">
             HMRC &quot;wholly and exclusively&quot; rule applies

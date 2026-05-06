@@ -48,9 +48,9 @@ export default function DashboardShell({
   const sidebarProps = { user, pathname, onSignOut: handleSignOut }
 
   return (
-    <div className="flex min-h-screen bg-[#181818]">
+    <div className="flex min-h-screen bg-[var(--sa-black)]">
       <button
-        className={`hidden md:flex fixed top-4 left-3 z-[51] bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[4px] text-[rgba(244,245,248,0.42)] hover:text-[#F4F5F8] cursor-pointer p-[6px_8px] items-center justify-center transition-[opacity,color] duration-200 ${desktopOpen ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}
+        className={`hidden md:flex fixed top-4 left-3 z-[51] bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[4px] text-[rgba(244,245,248,0.42)] hover:text-[var(--sa-white)] cursor-pointer p-[6px_8px] items-center justify-center transition-[opacity,color] duration-200 ${desktopOpen ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}
         onClick={() => setDesktopOpen(true)}
         title="Open sidebar"
       >
@@ -66,7 +66,7 @@ export default function DashboardShell({
         className="hidden md:flex"
         style={{
           width: `${SIDEBAR_W}px`, flexShrink: 0, flexDirection: 'column',
-          background: '#181818', borderRight: '1px solid rgba(244,245,248,0.07)',
+          background: 'var(--sa-black)', borderRight: '1px solid var(--sa-border)',
           position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 50,
           transform: desktopOpen ? 'translateX(0)' : `translateX(-${SIDEBAR_W}px)`,
           transition: 'transform 0.25s cubic-bezier(0.4,0,0.2,1)',
@@ -86,7 +86,7 @@ export default function DashboardShell({
         style={{
           position: 'fixed', top: 0, left: 0, bottom: 0,
           width: `${SIDEBAR_W}px`, zIndex: 50,
-          background: '#181818', borderRight: '1px solid rgba(244,245,248,0.07)',
+          background: 'var(--sa-black)', borderRight: '1px solid var(--sa-border)',
           transform: mobileOpen ? 'translateX(0)' : `translateX(-${SIDEBAR_W}px)`,
           transition: 'transform 0.25s cubic-bezier(0.4,0,0.2,1)',
           overflowY: 'auto',
@@ -94,7 +94,7 @@ export default function DashboardShell({
         <Sidebar {...sidebarProps} onNavClick={closeMobile} />
       </aside>
 
-      <main className="mt-[52px] md:mt-0 flex-1 min-h-screen bg-[#181818] overflow-auto">
+      <main className="mt-[52px] md:mt-0 flex-1 min-h-screen bg-[var(--sa-black)] overflow-auto">
         {children}
       </main>
 

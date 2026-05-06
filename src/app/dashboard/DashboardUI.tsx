@@ -34,25 +34,25 @@ function getQuarterStatus(deadlineStr: string, today: Date) {
 function MTDCalendar() {
   const today = new Date()
   return (
-    <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] overflow-hidden mb-[2rem]">
-      <div className="px-[1.25rem] py-[1rem] border-b border-[rgba(244,245,248,0.07)] flex items-center justify-between">
+    <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] overflow-hidden mb-[2rem]">
+      <div className="px-[1.25rem] py-[1rem] border-b border-[var(--sa-border)] flex items-center justify-between">
         <div>
-          <div className="text-[#F4F5F8] text-[0.85rem] font-semibold tracking-[-0.01em]">MTD Filing Calendar</div>
+          <div className="text-[var(--sa-white)] text-[0.85rem] font-semibold tracking-[-0.01em]">MTD Filing Calendar</div>
           <div className="text-[rgba(244,245,248,0.42)] text-[0.7rem] mt-[2px] font-mono">Making Tax Digital · ITSA 2026/27</div>
         </div>
-        <span className="bg-[#222326] text-[#F4F5F8] text-[0.6rem] font-semibold px-[8px] py-[3px] rounded-[3px] tracking-[0.07em] font-mono">ACTIVE</span>
+        <span className="bg-[var(--sa-gray)] text-[var(--sa-white)] text-[0.6rem] font-semibold px-[8px] py-[3px] rounded-[3px] tracking-[0.07em] font-mono">ACTIVE</span>
       </div>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))]">
         {MTD_QUARTERS.map((q, i) => {
           const { status, color, Icon } = getQuarterStatus(q.deadline, today)
           const isActive = status === 'upcoming' || status === 'urgent'
           return (
-            <div key={q.label} className={`px-[1.25rem] py-[1rem]${i < MTD_QUARTERS.length - 1 ? ' border-r border-[rgba(244,245,248,0.07)]' : ''}${isActive ? ' bg-[rgba(244,245,248,0.025)]' : ' bg-transparent'}`}>
+            <div key={q.label} className={`px-[1.25rem] py-[1rem]${i < MTD_QUARTERS.length - 1 ? ' border-r border-[var(--sa-border)]' : ''}${isActive ? ' bg-[rgba(244,245,248,0.025)]' : ' bg-transparent'}`}>
               <div className="flex items-center gap-[6px] mb-[6px]">
                 <Icon size={12} style={{ color }} />
                 <span className="text-[0.6rem] font-bold tracking-[0.08em] font-mono uppercase" style={{ color }}>{q.label}</span>
               </div>
-              <div className={`text-[0.72rem] font-medium mb-[3px]${status === 'past' ? ' text-[rgba(244,245,248,0.42)]' : ' text-[#F4F5F8]'}`}>{q.display}</div>
+              <div className={`text-[0.72rem] font-medium mb-[3px]${status === 'past' ? ' text-[rgba(244,245,248,0.42)]' : ' text-[var(--sa-white)]'}`}>{q.display}</div>
               <div className="text-[rgba(244,245,248,0.42)] text-[0.65rem] leading-[1.4]">{q.period}</div>
             </div>
           )
@@ -97,30 +97,30 @@ function QuickEstimator() {
   const display = result ?? preview
 
   return (
-    <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[1.25rem] mb-[2rem]">
-      <div className="text-[#F4F5F8] text-[0.85rem] font-semibold tracking-[-0.01em] mb-[1rem]">Quick Estimator</div>
+    <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-[1.25rem] mb-[2rem]">
+      <div className="text-[var(--sa-white)] text-[0.85rem] font-semibold tracking-[-0.01em] mb-[1rem]">Quick Estimator</div>
       <div className="grid grid-cols-[1fr_1fr] gap-[0.75rem] mb-[0.75rem]">
         <label className="flex flex-col gap-[5px]">
           <span className="text-[rgba(244,245,248,0.42)] text-[0.65rem] uppercase tracking-[0.08em] font-semibold">Annual Revenue</span>
           <input value={income} onChange={(e) => setIncome(e.target.value)} type="number" min={0} placeholder="50000"
-            className="w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[11px] py-[9px] text-[#F4F5F8] text-[0.84rem] outline-none font-mono tabular-nums" />
+            className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none font-mono tabular-nums" />
         </label>
         <label className="flex flex-col gap-[5px]">
           <span className="text-[rgba(244,245,248,0.42)] text-[0.65rem] uppercase tracking-[0.08em] font-semibold">Allowable Expenses</span>
           <input value={expenses} onChange={(e) => setExpenses(e.target.value)} type="number" min={0} placeholder="8000"
-            className="w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[11px] py-[9px] text-[#F4F5F8] text-[0.84rem] outline-none font-mono tabular-nums" />
+            className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none font-mono tabular-nums" />
         </label>
       </div>
       <div className="flex items-center gap-[0.75rem] flex-wrap">
         <button onClick={calculate}
-          className="bg-[#F4F5F8] text-[#181818] border-none rounded-[4px] px-[18px] py-[8px] cursor-pointer font-semibold text-[0.8rem] tracking-[-0.01em]">
+          className="bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded-[4px] px-[18px] py-[8px] cursor-pointer font-semibold text-[0.8rem] tracking-[-0.01em]">
           Calculate
         </button>
         {error && <span className="text-[#F87171] text-[0.78rem]">{error}</span>}
         {display && !error && (
           <div className="flex gap-[1.5rem] font-mono text-[0.78rem]">
-            <span className="text-[rgba(244,245,248,0.42)]">Tax due: <span className="text-[#F4F5F8] font-semibold">£{display.incomeTax.toLocaleString('en-GB')}</span></span>
-            <span className="text-[rgba(244,245,248,0.42)]">Effective rate: <span className="text-[#F4F5F8] font-semibold">{display.effectiveTaxRate}%</span></span>
+            <span className="text-[rgba(244,245,248,0.42)]">Tax due: <span className="text-[var(--sa-white)] font-semibold">£{display.incomeTax.toLocaleString('en-GB')}</span></span>
+            <span className="text-[rgba(244,245,248,0.42)]">Effective rate: <span className="text-[var(--sa-white)] font-semibold">{display.effectiveTaxRate}%</span></span>
           </div>
         )}
       </div>
@@ -156,7 +156,7 @@ export default function DashboardUI({ displayName }: DashboardUIProps) {
         <div className="text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.12em] mb-[5px] font-mono">
           overview
         </div>
-        <h1 className="text-[#F4F5F8] text-[clamp(1.4rem,3vw,1.9rem)] font-semibold tracking-[-0.03em] m-0">
+        <h1 className="text-[var(--sa-white)] text-[clamp(1.4rem,3vw,1.9rem)] font-semibold tracking-[-0.03em] m-0">
           {displayName}
         </h1>
         <p className="text-[rgba(244,245,248,0.42)] text-[0.84rem] mt-[5px]">

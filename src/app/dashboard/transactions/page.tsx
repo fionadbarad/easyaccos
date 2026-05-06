@@ -12,7 +12,7 @@ interface Transaction {
   type: TxType; amount: number; reference: string
 }
 
-const INPUT_S = 'w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[11px] py-[9px] text-[#F4F5F8] text-[0.84rem] outline-none font-mono tabular-nums min-h-[40px]'
+const INPUT_S = 'w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none font-mono tabular-nums min-h-[40px]'
 const LABEL_S = 'block text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.08em] mb-[4px] font-semibold'
 
 const SEED: Transaction[] = [
@@ -38,7 +38,7 @@ const DATE_LABELS: Record<DateFilter, string> = {
 }
 
 const chipCls = (active: boolean) =>
-  `px-[11px] py-[5px] rounded-[3px] text-[0.75rem] min-h-[32px] transition-all duration-100 cursor-pointer border ${active ? 'border-[rgba(244,245,248,0.2)] bg-[rgba(244,245,248,0.07)] text-[#F4F5F8] font-medium' : 'border-[rgba(244,245,248,0.07)] bg-transparent text-[rgba(244,245,248,0.42)] font-normal'}`
+  `px-[11px] py-[5px] rounded-[3px] text-[0.75rem] min-h-[32px] transition-all duration-100 cursor-pointer border ${active ? 'border-[rgba(244,245,248,0.2)] bg-[var(--sa-border)] text-[var(--sa-white)] font-medium' : 'border-[var(--sa-border)] bg-transparent text-[rgba(244,245,248,0.42)] font-normal'}`
 
 export default function TransactionsPage() {
   const { items: txs, persist, loading, isAuthenticated } = useUserData<Transaction>(
@@ -86,7 +86,7 @@ export default function TransactionsPage() {
       <div className="flex items-start justify-between flex-wrap gap-[1rem] mb-[1.5rem]">
         <div>
           <div className="text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.12em] mb-[5px] font-mono">ledger</div>
-          <h1 className="text-[#F4F5F8] text-[clamp(1.4rem,3vw,1.9rem)] font-semibold tracking-[-0.03em] m-0">
+          <h1 className="text-[var(--sa-white)] text-[clamp(1.4rem,3vw,1.9rem)] font-semibold tracking-[-0.03em] m-0">
             Transaction Ledger
           </h1>
           <p className="text-[rgba(244,245,248,0.42)] text-[0.78rem] mt-[4px] font-mono">
@@ -95,13 +95,13 @@ export default function TransactionsPage() {
           </p>
         </div>
         <div className="flex items-center gap-[0.5rem]">
-          <div className="flex items-center gap-[5px] text-[rgba(244,245,248,0.42)] text-[0.68rem] font-mono px-[10px] py-[6px] border border-[rgba(244,245,248,0.07)] rounded-[4px]">
+          <div className="flex items-center gap-[5px] text-[rgba(244,245,248,0.42)] text-[0.68rem] font-mono px-[10px] py-[6px] border border-[var(--sa-border)] rounded-[4px]">
             {isAuthenticated
               ? <><Cloud size={11} className="text-[#4ADE80]" /> synced</>
               : <><CloudOff size={11} /> local only</>}
           </div>
           <button onClick={() => setShowForm(!showForm)}
-            className="flex items-center gap-[6px] bg-[#F4F5F8] text-[#181818] border-none rounded-[4px] px-[16px] py-[8px] text-[0.8rem] font-semibold cursor-pointer min-h-[36px] tracking-[-0.01em]">
+            className="flex items-center gap-[6px] bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded-[4px] px-[16px] py-[8px] text-[0.8rem] font-semibold cursor-pointer min-h-[36px] tracking-[-0.01em]">
             <Plus size={14} strokeWidth={2.5} /> Add Entry
           </button>
         </div>
@@ -116,13 +116,13 @@ export default function TransactionsPage() {
       )}
 
       {/* Summary tiles */}
-      <div className="grid grid-cols-3 gap-[1px] border border-[rgba(244,245,248,0.07)] rounded-[6px] overflow-hidden bg-[rgba(244,245,248,0.07)] mb-[1.5rem]">
+      <div className="grid grid-cols-3 gap-[1px] border border-[var(--sa-border)] rounded-[6px] overflow-hidden bg-[var(--sa-border)] mb-[1.5rem]">
         {[
           { label: 'Income',   value: fmt(totalIn),  color: 'text-[#4ADE80]' },
           { label: 'Expenses', value: fmt(totalOut), color: 'text-[#F87171]' },
           { label: 'Net',      value: `${net >= 0 ? '+' : '-'}${fmt(net)}`, color: net >= 0 ? 'text-[#4ADE80]' : 'text-[#F87171]' },
         ].map((s) => (
-          <div key={s.label} className="bg-[#1C1D20] p-[0.9rem_1.1rem]">
+          <div key={s.label} className="bg-[var(--sa-surface)] p-[0.9rem_1.1rem]">
             <div className="text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.07em] font-semibold mb-[4px]">{s.label}</div>
             <div className={`${s.color} font-semibold text-[1.05rem] font-mono tabular-nums`}>{s.value}</div>
           </div>
@@ -132,7 +132,7 @@ export default function TransactionsPage() {
       {/* Add form */}
       {showForm && (
         <form onSubmit={add}
-          className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[1.25rem] mb-[1.25rem] grid gap-[0.85rem] items-end"
+          className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-[1.25rem] mb-[1.25rem] grid gap-[0.85rem] items-end"
           style={{ gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))' }}>
           <div>
             <label className={LABEL_S}>Date</label>
@@ -141,7 +141,7 @@ export default function TransactionsPage() {
           <div className="col-span-2">
             <label className={LABEL_S}>Description</label>
             <input type="text" value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="e.g. Client Invoice"
-              className="w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[11px] py-[9px] text-[#F4F5F8] text-[0.84rem] outline-none min-h-[40px]" required />
+              className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none min-h-[40px]" required />
           </div>
           <div>
             <label className={LABEL_S}>Type</label>
@@ -159,8 +159,8 @@ export default function TransactionsPage() {
             <input type="text" value={form.reference} onChange={(e) => setForm((f) => ({ ...f, reference: e.target.value }))} placeholder="INV-001" className={INPUT_S} />
           </div>
           <div className="flex gap-[0.4rem]">
-            <button type="submit" className="flex-1 bg-[#F4F5F8] text-[#181818] border-none rounded-[4px] p-[9px] font-semibold cursor-pointer text-[0.8rem] min-h-[40px] tracking-[-0.01em]">Save</button>
-            <button type="button" onClick={() => setShowForm(false)} className="bg-transparent text-[rgba(244,245,248,0.42)] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[12px] py-[9px] cursor-pointer text-[0.8rem] min-h-[40px]">Cancel</button>
+            <button type="submit" className="flex-1 bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded-[4px] p-[9px] font-semibold cursor-pointer text-[0.8rem] min-h-[40px] tracking-[-0.01em]">Save</button>
+            <button type="button" onClick={() => setShowForm(false)} className="bg-transparent text-[rgba(244,245,248,0.42)] border border-[var(--sa-border)] rounded-[4px] px-[12px] py-[9px] cursor-pointer text-[0.8rem] min-h-[40px]">Cancel</button>
           </div>
         </form>
       )}
@@ -172,7 +172,7 @@ export default function TransactionsPage() {
             {f === 'all' ? 'All types' : f.charAt(0).toUpperCase() + f.slice(1)}
           </button>
         ))}
-        <div className="w-[1px] h-[20px] bg-[rgba(244,245,248,0.07)] mx-[2px]" />
+        <div className="w-[1px] h-[20px] bg-[var(--sa-border)] mx-[2px]" />
         <Calendar size={12} className="text-[rgba(244,245,248,0.42)]" />
         {(['all', 'today', 'month', 'custom'] as DateFilter[]).map((f) => (
           <button key={f} onClick={() => setDate(f)} className={chipCls(dateFilter === f)}>
@@ -187,26 +187,26 @@ export default function TransactionsPage() {
           <div>
             <label className={LABEL_S}>From</label>
             <input type="date" value={customFrom} onChange={(e) => setFrom(e.target.value)}
-              className="bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[11px] py-[9px] text-[#F4F5F8] text-[0.84rem] outline-none font-mono min-h-[40px]" />
+              className="bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none font-mono min-h-[40px]" />
           </div>
           <div>
             <label className={LABEL_S}>To</label>
             <input type="date" value={customTo} onChange={(e) => setTo(e.target.value)}
-              className="bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[11px] py-[9px] text-[#F4F5F8] text-[0.84rem] outline-none font-mono min-h-[40px]" />
+              className="bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none font-mono min-h-[40px]" />
           </div>
           <span className="text-[rgba(244,245,248,0.42)] text-[0.72rem] font-mono pb-[9px]">{visible.length} results</span>
         </div>
       )}
 
       {/* Table */}
-      <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] overflow-hidden">
+      <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] overflow-hidden">
         {visible.length === 0 ? (
           <div className="p-[3rem] text-center text-[rgba(244,245,248,0.42)] text-[0.84rem]">No entries for this period.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-[0.82rem]">
               <thead>
-                <tr className="border-b border-[rgba(244,245,248,0.07)]">
+                <tr className="border-b border-[var(--sa-border)]">
                   {['', 'Date', 'Description', 'Reference', 'Amount', ''].map((h, i) => (
                     <th key={i} className={`p-[10px_13px] text-[rgba(244,245,248,0.42)] font-semibold text-[0.62rem] uppercase tracking-[0.07em] whitespace-nowrap ${h === 'Amount' ? 'text-right' : 'text-left'}`}>{h}</th>
                   ))}
@@ -221,7 +221,7 @@ export default function TransactionsPage() {
                         : <ArrowDownCircle size={14} className="text-[#F87171]" strokeWidth={1.5} />}
                     </td>
                     <td className="p-[9px_13px] text-[rgba(244,245,248,0.42)] whitespace-nowrap font-mono text-[0.75rem]">{tx.date}</td>
-                    <td className="p-[9px_13px] text-[#F4F5F8]">{tx.description}</td>
+                    <td className="p-[9px_13px] text-[var(--sa-white)]">{tx.description}</td>
                     <td className="p-[9px_13px] text-[rgba(244,245,248,0.42)] text-[0.72rem] font-mono">{tx.reference}</td>
                     <td className={`p-[9px_13px] text-right font-medium whitespace-nowrap font-mono tabular-nums ${tx.type === 'income' ? 'text-[#4ADE80]' : 'text-[#F87171]'}`}>
                       {tx.type === 'income' ? '+' : '-'}£{tx.amount.toLocaleString('en-GB', { minimumFractionDigits: 2 })}

@@ -35,7 +35,7 @@ export function matchesQuery(haystack: string, query: string): boolean {
   return haystack.toLowerCase().includes(q)
 }
 
-const INPUT_S = 'bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[10px] py-[7px] text-[#F4F5F8] text-[0.8rem] outline-none font-mono'
+const INPUT_S = 'bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] px-[10px] py-[7px] text-[var(--sa-white)] text-[0.8rem] outline-none font-mono'
 const LABEL_S = 'text-[rgba(244,245,248,0.18)] text-[0.58rem] uppercase tracking-[0.08em] font-semibold mb-[4px] font-mono'
 
 export function FilterBar({
@@ -81,7 +81,7 @@ export function FilterBar({
   }
 
   return (
-    <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-[0.85rem_1rem] flex gap-[0.85rem] flex-wrap items-end mb-[1rem]">
+    <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-[0.85rem_1rem] flex gap-[0.85rem] flex-wrap items-end mb-[1rem]">
       {/* Date range kind */}
       <div className="min-w-[130px]">
         <div className={LABEL_S}>Period</div>
@@ -139,25 +139,25 @@ export function FilterBar({
           onClick={() => setCatOpen(o => !o)}
           className={`${INPUT_S} cursor-pointer text-left flex items-center justify-between gap-[6px] w-full`}
         >
-          <span className={`overflow-hidden text-ellipsis whitespace-nowrap ${selected.length ? 'text-[#F4F5F8]' : 'text-[rgba(244,245,248,0.42)]'}`}>
+          <span className={`overflow-hidden text-ellipsis whitespace-nowrap ${selected.length ? 'text-[var(--sa-white)]' : 'text-[rgba(244,245,248,0.42)]'}`}>
             {selected.length === 0 ? 'All' : `${selected.length} selected`}
           </span>
           <ChevronDown size={12} className="text-[rgba(244,245,248,0.42)] shrink-0" />
         </button>
         {catOpen && (
-          <div className="absolute top-[calc(100%+4px)] left-0 right-0 z-20 bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] p-[6px] max-h-[260px] overflow-y-auto shadow-[0_6px_20px_rgba(0,0,0,0.35)]">
+          <div className="absolute top-[calc(100%+4px)] left-0 right-0 z-20 bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] p-[6px] max-h-[260px] overflow-y-auto shadow-[0_6px_20px_rgba(0,0,0,0.35)]">
             {categories.length === 0 && (
               <div className="text-[rgba(244,245,248,0.42)] text-[0.75rem] p-[6px]">No categories</div>
             )}
             {categories.map(c => {
               const on = selected.includes(c)
               return (
-                <label key={c} className={`flex items-center gap-2 px-[8px] py-[5px] rounded-[3px] cursor-pointer text-[0.78rem] ${on ? 'bg-[rgba(244,245,248,0.05)] text-[#F4F5F8]' : 'bg-transparent text-[rgba(244,245,248,0.42)]'}`}>
+                <label key={c} className={`flex items-center gap-2 px-[8px] py-[5px] rounded-[3px] cursor-pointer text-[0.78rem] ${on ? 'bg-[rgba(244,245,248,0.05)] text-[var(--sa-white)]' : 'bg-transparent text-[rgba(244,245,248,0.42)]'}`}>
                   <input
                     type="checkbox"
                     checked={on}
                     onChange={() => toggleCategory(c)}
-                    className="accent-[#F4F5F8]"
+                    className="accent-[var(--sa-white)]"
                   />
                   <span className="overflow-hidden text-ellipsis whitespace-nowrap">{c}</span>
                 </label>
@@ -167,7 +167,7 @@ export function FilterBar({
               <button
                 type="button"
                 onClick={() => onChange({ ...value, categories: [] })}
-                className="mt-[4px] w-full bg-transparent text-[rgba(244,245,248,0.42)] border border-[rgba(244,245,248,0.07)] rounded-[3px] px-[8px] py-[5px] text-[0.72rem] cursor-pointer"
+                className="mt-[4px] w-full bg-transparent text-[rgba(244,245,248,0.42)] border border-[var(--sa-border)] rounded-[3px] px-[8px] py-[5px] text-[0.72rem] cursor-pointer"
               >
                 Clear
               </button>
@@ -186,7 +186,7 @@ export function FilterBar({
             value={query}
             onChange={e => onChange({ ...value, query: e.target.value })}
             placeholder="Description, reference…"
-            className={`bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] py-[7px] pl-[28px] ${query ? 'pr-[28px]' : 'pr-[10px]'} text-[#F4F5F8] text-[0.8rem] outline-none w-full`}
+            className={`bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] py-[7px] pl-[28px] ${query ? 'pr-[28px]' : 'pr-[10px]'} text-[var(--sa-white)] text-[0.8rem] outline-none w-full`}
           />
           {query && (
             <button
@@ -206,7 +206,7 @@ export function FilterBar({
         <button
           type="button"
           onClick={() => onChange(emptyFilter())}
-          className="bg-transparent text-[rgba(244,245,248,0.42)] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[12px] py-[7px] text-[0.75rem] cursor-pointer inline-flex items-center gap-[5px]"
+          className="bg-transparent text-[rgba(244,245,248,0.42)] border border-[var(--sa-border)] rounded-[4px] px-[12px] py-[7px] text-[0.75rem] cursor-pointer inline-flex items-center gap-[5px]"
         >
           <Calendar size={11} /> Reset
         </button>

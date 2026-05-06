@@ -25,7 +25,7 @@ export default function FullResultPanel({ result, showMonthly, setShowMonthly }:
           <AlertTriangle size={16} className="text-[#FB923C] shrink-0 mt-[2px]" />
           <div>
             <div className="text-[#FB923C] font-bold text-[0.85rem]">60% Tax Trap Active</div>
-            <div className="text-[#F4F5F8] text-[0.8rem] mt-[2px] leading-[1.5]">
+            <div className="text-[var(--sa-white)] text-[0.8rem] mt-[2px] leading-[1.5]">
               Income between £100k–£125,140. Each £2 earned = £1 of PA lost. Pension contributions are the escape route.
             </div>
           </div>
@@ -35,32 +35,32 @@ export default function FullResultPanel({ result, showMonthly, setShowMonthly }:
       {result.mtdWarning && (
         <div className="bg-[rgba(96,165,250,0.08)] border border-[rgba(96,165,250,0.3)] rounded-[8px] p-[0.75rem_1rem] mb-[1.25rem] flex gap-[0.6rem]">
           <Info size={14} className="text-[#93C5FD] shrink-0 mt-[2px]" />
-          <div className="text-[#F4F5F8] text-[0.8rem] leading-[1.5]">
+          <div className="text-[var(--sa-white)] text-[0.8rem] leading-[1.5]">
             <strong className="text-[#93C5FD]">MTD for Income Tax</strong> — Gross revenue over £50k means you must file quarterly via Making Tax Digital from April 2026.
           </div>
         </div>
       )}
 
       <div className="flex justify-end mb-[0.75rem] gap-[0.35rem]">
-        <button onClick={() => setShowMonthly(false)} className={`p-[6px_14px] rounded-[6px] cursor-pointer text-[0.78rem] font-semibold min-h-[36px] transition-all duration-150 ease-in-out ${!showMonthly ? 'bg-[rgba(244,245,248,0.1)] border border-[#F4F5F8] text-[#F4F5F8]' : 'bg-transparent border border-[rgba(244,245,248,0.07)] text-[rgba(244,245,248,0.42)]'}`}>Annual</button>
-        <button onClick={() => setShowMonthly(true)} className={`p-[6px_14px] rounded-[6px] cursor-pointer text-[0.78rem] font-semibold min-h-[36px] transition-all duration-150 ease-in-out ${showMonthly ? 'bg-[rgba(244,245,248,0.1)] border border-[#F4F5F8] text-[#F4F5F8]' : 'bg-transparent border border-[rgba(244,245,248,0.07)] text-[rgba(244,245,248,0.42)]'}`}>Monthly</button>
+        <button onClick={() => setShowMonthly(false)} className={`p-[6px_14px] rounded-[6px] cursor-pointer text-[0.78rem] font-semibold min-h-[36px] transition-all duration-150 ease-in-out ${!showMonthly ? 'bg-[rgba(244,245,248,0.1)] border border-[var(--sa-white)] text-[var(--sa-white)]' : 'bg-transparent border border-[var(--sa-border)] text-[rgba(244,245,248,0.42)]'}`}>Annual</button>
+        <button onClick={() => setShowMonthly(true)} className={`p-[6px_14px] rounded-[6px] cursor-pointer text-[0.78rem] font-semibold min-h-[36px] transition-all duration-150 ease-in-out ${showMonthly ? 'bg-[rgba(244,245,248,0.1)] border border-[var(--sa-white)] text-[var(--sa-white)]' : 'bg-transparent border border-[var(--sa-border)] text-[rgba(244,245,248,0.42)]'}`}>Monthly</button>
       </div>
 
       <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-[0.75rem] mb-[1.25rem]">
         {[
-          { label: 'Net Take-Home', value: fmt(showMonthly ? m.netTakeHome : result.netTakeHome), color: '#F4F5F8' },
+          { label: 'Net Take-Home', value: fmt(showMonthly ? m.netTakeHome : result.netTakeHome), color: 'var(--sa-white)' },
           { label: 'Total Deductions', value: fmt(showMonthly ? m.totalDeductions : result.totalDeductions), color: '#F87171' },
           { label: 'Effective Rate', value: pct(result.effectiveTaxRate), color: '#93C5FD' },
-          { label: 'Income Tax', value: fmt(showMonthly ? m.incomeTax : result.incomeTax), color: '#F4F5F8' },
+          { label: 'Income Tax', value: fmt(showMonthly ? m.incomeTax : result.incomeTax), color: 'var(--sa-white)' },
         ].map((s) => (
-          <div key={s.label} className="bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[8px] p-[1rem]">
+          <div key={s.label} className="bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[8px] p-[1rem]">
             <div className="text-[rgba(244,245,248,0.42)] text-[0.68rem] uppercase tracking-[0.08em] mb-[4px]">{s.label}</div>
             <div style={{ color: s.color }} className="font-bold text-[1.1rem]">{s.value}</div>
           </div>
         ))}
       </div>
 
-      <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[10px] p-[1.5rem]">
+      <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[10px] p-[1.5rem]">
         <button onClick={() => setExpanded(v => !v)}
           className={`flex justify-between items-center w-full bg-transparent border-none cursor-pointer p-0 ${expanded ? 'mb-[1rem]' : 'mb-0'}`}>
           <span className="text-[rgba(244,245,248,0.42)] text-[0.78rem] uppercase tracking-[0.08em]">Full Breakdown {showMonthly ? '(Monthly)' : '(Annual)'}</span>
@@ -94,10 +94,10 @@ export default function FullResultPanel({ result, showMonthly, setShowMonthly }:
                 ]
                 return lines.map((line, i) => (
                   <div key={i} className={`flex justify-between items-center py-[7px] border-b border-[rgba(244,245,248,0.06)] ${line.indent ? 'pl-[16px]' : 'pl-0'}`}>
-                    <span className={`${line.bold ? 'text-[#F4F5F8] text-[0.87rem] font-bold' : 'text-[rgba(244,245,248,0.42)] text-[0.82rem] font-normal'}`}>
+                    <span className={`${line.bold ? 'text-[var(--sa-white)] text-[0.87rem] font-bold' : 'text-[rgba(244,245,248,0.42)] text-[0.82rem] font-normal'}`}>
                       {line.label}
                     </span>
-                    <span className={`${line.bold ? 'font-bold text-[1rem]' : 'font-medium text-[0.85rem]'} ${line.bold && !line.negative ? 'text-[#F4F5F8]' : line.negative ? 'text-[#F87171]' : 'text-[#F4F5F8]'}`}>
+                    <span className={`${line.bold ? 'font-bold text-[1rem]' : 'font-medium text-[0.85rem]'} ${line.bold && !line.negative ? 'text-[var(--sa-white)]' : line.negative ? 'text-[#F87171]' : 'text-[var(--sa-white)]'}`}>
                       {line.negative && line.value > 0 ? '-' : ''}{fmt(round2(line.value))}
                     </span>
                   </div>
@@ -109,7 +109,7 @@ export default function FullResultPanel({ result, showMonthly, setShowMonthly }:
       </div>
 
       {result.optimizationTips.length > 0 && (
-        <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[10px] p-[1.5rem] mt-[1rem]">
+        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[10px] p-[1.5rem] mt-[1rem]">
           <button onClick={() => setTipsOpen(v => !v)}
             className={`flex justify-between items-center w-full bg-transparent border-none cursor-pointer p-0 ${tipsOpen ? 'mb-[1rem]' : 'mb-0'}`}>
             <span className="text-[#4ADE80] text-[0.78rem] uppercase tracking-[0.08em] flex items-center gap-[6px]">
@@ -131,7 +131,7 @@ export default function FullResultPanel({ result, showMonthly, setShowMonthly }:
                         </span>
                       )}
                     </div>
-                    <p className="text-[#F4F5F8] text-[0.8rem] leading-[1.55] m-0">{tip.description}</p>
+                    <p className="text-[var(--sa-white)] text-[0.8rem] leading-[1.55] m-0">{tip.description}</p>
                   </div>
                 ))}
               </motion.div>

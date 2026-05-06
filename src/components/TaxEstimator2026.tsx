@@ -94,7 +94,7 @@ export default function TaxEstimator2026() {
         value={income}
         aria-label="Annual income slider"
         onChange={(e) => setIncome(Number(e.target.value))}
-        className="w-full mb-[0.5rem] accent-[#F4F5F8]"
+        className="w-full mb-[0.5rem] accent-[var(--sa-white)]"
       />
       <input
         type="number"

@@ -1,39 +1,45 @@
-# EasyAcco: UK Fiscal Engine & Financial Management Platform
+# EasyAcco
 
-**Author:** Fiona Barad  
-**Status:** Live in Production  
-**URL:** [easyacco.uk](https://easyacco.uk)
+UK tax estimation and bookkeeping for the 2026/27 fiscal year.
 
-## Overview
-EasyAcco is a high-fidelity financial management platform specifically engineered for the UK 2026/27 fiscal year. It bridges the gap between complex tax legislation and user-centric financial tracking, providing sole traders, directors, and high-earners with a "bank-grade" tool for tax estimation, invoice management, and audit-ready record keeping.
+Built by Fiona Barad. Live at [easyacco.uk](https://easyacco.uk).
 
-## Core Technical Features
+## What it does
 
-### 1. High-Fidelity Fiscal Engine
-*   **2026/27 Tax Logic:** Full implementation of UK tax bands, including the Personal Allowance taper (£100k - £125,140) and the resulting 60% effective tax trap.
-*   **Multi-Scenario Support:** Specialized logic for Self-Employed (Class 2/4 NI), Employed (PAYE), and Limited Company Directors (Salary + Dividend optimization).
-*   **Regional Compliance:** Integrated support for Scottish tax bands and Student Loan Plans (1, 2, 5, and Postgraduate).
+- Estimates UK income tax, NI, and student loan repayments for sole traders, employees, and limited-company directors
+- Handles the Personal Allowance taper between £100k and £125,140 (the 60% trap)
+- Supports Scottish bands and Plans 1, 2, 4, 5, and PG student loans
+- Tracks invoices, expenses, and mileage with OCR receipt capture
+- Generates SA103-ready CSV exports
 
-### 2. Security & Data Privacy (Bank-Grade)
-*   **Client-Side Encryption:** Implements **AES-GCM (256-bit)** encryption using the Web Crypto API (`crypto.subtle`). User data is encrypted locally before any cloud synchronization.
-*   **Zero-Knowledge Architecture:** Sensitive financial records are never stored in plain text on the server.
-*   **Local-First Persistence:** Leverages **IndexedDB** for high-performance, offline-capable data storage, ensuring zero data loss even without an internet connection.
+## How it stores your data
 
-### 3. Modern Tech Stack
-*   **Framework:** Next.js 16 (App Router) with React 19.
-*   **Language:** Strict TypeScript for type-safe financial calculations.
-*   **Styling:** Tailwind CSS for a professional, responsive, and high-performance UI.
-*   **Backend/Auth:** Supabase (PostgreSQL) for secure user authentication and encrypted data sync.
-*   **Testing:** Vitest for unit testing the core tax engine logic to ensure 100% mathematical accuracy.
+Records are encrypted in the browser with AES-GCM (256-bit, Web Crypto API) before anything is synced. The device key never leaves your browser. Local-first via IndexedDB; works offline. Server-side is Supabase, but it only ever sees ciphertext.
 
-## Project Structure
-*   `src/lib/TaxBible2026.ts`: The central source of truth for UK tax constants and logic.
-*   `src/lib/storage/crypto.ts`: Implementation of the AES-GCM encryption layer.
-*   `src/features/`: Modularized feature components (Invoices, Expenses, Tax Estimator).
-*   `src/lib/__tests__/`: Comprehensive test suite for validating fiscal calculations against HMRC manual cases.
+## Stack
 
-## Vision
-EasyAcco was developed to empower UK taxpayers with transparency. By automating the "boring" parts of accounting and providing clear visualizations of tax liabilities, it allows users to make informed financial decisions and optimize their tax positions legally and efficiently.
+- Next.js 16 (App Router), React 19, strict TypeScript
+- Tailwind CSS 4
+- Supabase for auth and encrypted sync
+- Tesseract.js for OCR
+- Vitest for the tax engine tests
+
+## Layout
+
+- `src/lib/TaxBible2026.ts` — tax constants and scenario logic
+- `src/lib/tax-logic.ts` — calculation engine
+- `src/lib/storage/crypto.ts` — encryption layer
+- `src/features/` — feature modules (invoices, expenses, tax estimator)
+- `src/lib/__tests__/` — tests against HMRC worked examples
+
+## Local dev
+
+```
+npm install
+npm run dev
+npm test
+```
 
 ---
-© 2026 Fiona Barad. All rights reserved.
+
+© 2026 Fiona Barad

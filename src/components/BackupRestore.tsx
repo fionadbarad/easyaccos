@@ -86,17 +86,17 @@ export function BackupRestore() {
           placeholder="Leave blank for unencrypted backup"
           value={exportPw}
           onChange={(e) => setExportPw(e.target.value)}
-          className="w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[13px] py-[9px] text-[#F4F5F8] text-[0.9rem] outline-none"
+          className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] px-[13px] py-[9px] text-[var(--sa-white)] text-[0.9rem] outline-none"
           autoComplete="new-password"
         />
         <div className="mt-[10px]">
-          <button onClick={onExport} className="bg-[#F4F5F8] text-[#181818] border-none rounded-[4px] px-[22px] py-[9px] font-bold text-[0.875rem] inline-flex items-center gap-[8px] cursor-pointer transition-opacity duration-[140ms] ease-in-out">
+          <button onClick={onExport} className="bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded-[4px] px-[22px] py-[9px] font-bold text-[0.875rem] inline-flex items-center gap-[8px] cursor-pointer transition-opacity duration-[140ms] ease-in-out">
             <Download size={15} /> Download backup
           </button>
         </div>
       </div>
 
-      <div className="border-t border-[rgba(244,245,248,0.07)]" />
+      <div className="border-t border-[var(--sa-border)]" />
 
       {/* ── Import ─────────────────────────────────────────── */}
       <div>
@@ -108,13 +108,13 @@ export function BackupRestore() {
           onChange={onPickFile}
           className="hidden"
         />
-        <button onClick={() => fileRef.current?.click()} className="bg-transparent text-[#F4F5F8] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[22px] py-[9px] font-bold text-[0.875rem] inline-flex items-center gap-[8px] cursor-pointer transition-opacity duration-[140ms] ease-in-out">
+        <button onClick={() => fileRef.current?.click()} className="bg-transparent text-[var(--sa-white)] border border-[var(--sa-border)] rounded-[4px] px-[22px] py-[9px] font-bold text-[0.875rem] inline-flex items-center gap-[8px] cursor-pointer transition-opacity duration-[140ms] ease-in-out">
           <Upload size={15} /> Choose file…
         </button>
 
         {pending && (
-          <div className="mt-[14px] p-[14px] border border-[rgba(244,245,248,0.07)] rounded-[6px] bg-[#222326] flex flex-col gap-[12px]">
-            <div className="text-[#F4F5F8] text-[0.88rem]">
+          <div className="mt-[14px] p-[14px] border border-[var(--sa-border)] rounded-[6px] bg-[var(--sa-gray)] flex flex-col gap-[12px]">
+            <div className="text-[var(--sa-white)] text-[0.88rem]">
               Backup from{' '}
               <strong>{new Date(pending.createdAt).toLocaleString('en-GB')}</strong>
               {' · '}
@@ -128,7 +128,7 @@ export function BackupRestore() {
                   type="password"
                   value={restorePw}
                   onChange={(e) => setRestorePw(e.target.value)}
-                  className="w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[13px] py-[9px] text-[#F4F5F8] text-[0.9rem] outline-none"
+                  className="w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] px-[13px] py-[9px] text-[var(--sa-white)] text-[0.9rem] outline-none"
                   autoComplete="off"
                 />
               </div>
@@ -136,7 +136,7 @@ export function BackupRestore() {
 
             <div>
               <label className="block text-[rgba(244,245,248,0.42)] text-[0.75rem] uppercase tracking-[0.07em] mb-[0.35rem]">Mode</label>
-              <div className="flex gap-[14px] text-[#F4F5F8] text-[0.85rem]">
+              <div className="flex gap-[14px] text-[var(--sa-white)] text-[0.85rem]">
                 <label className="inline-flex items-center gap-[6px]">
                   <input
                     type="radio"
@@ -157,12 +157,12 @@ export function BackupRestore() {
             </div>
 
             <div className="flex gap-[10px]">
-              <button onClick={onConfirmRestore} className="bg-[#F4F5F8] text-[#181818] border-none rounded-[4px] px-[22px] py-[9px] font-bold text-[0.875rem] inline-flex items-center gap-[8px] cursor-pointer transition-opacity duration-[140ms] ease-in-out">
+              <button onClick={onConfirmRestore} className="bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded-[4px] px-[22px] py-[9px] font-bold text-[0.875rem] inline-flex items-center gap-[8px] cursor-pointer transition-opacity duration-[140ms] ease-in-out">
                 Restore
               </button>
               <button
                 onClick={() => { setPending(null); setRestorePw('') }}
-                className="bg-transparent text-[#F4F5F8] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[22px] py-[9px] font-bold text-[0.875rem] inline-flex items-center gap-[8px] cursor-pointer transition-opacity duration-[140ms] ease-in-out"
+                className="bg-transparent text-[var(--sa-white)] border border-[var(--sa-border)] rounded-[4px] px-[22px] py-[9px] font-bold text-[0.875rem] inline-flex items-center gap-[8px] cursor-pointer transition-opacity duration-[140ms] ease-in-out"
               >
                 Cancel
               </button>

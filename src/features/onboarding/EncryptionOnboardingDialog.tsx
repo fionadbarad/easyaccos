@@ -36,13 +36,13 @@ export default function EncryptionOnboardingDialog() {
       aria-labelledby="ea-crypto-onboard-title"
       className="fixed inset-0 z-[60] bg-[rgba(0,0,0,0.7)] flex items-center justify-center p-4"
     >
-      <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[12px] p-7 max-w-[480px] w-full shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+      <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[12px] p-7 max-w-[480px] w-full shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
         <div className="flex justify-between items-start gap-4 mb-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-[10px] bg-[rgba(244,245,248,0.06)] border border-[rgba(244,245,248,0.1)] flex items-center justify-center">
-              <Lock size={20} className="text-[#F4F5F8]" />
+              <Lock size={20} className="text-[var(--sa-white)]" />
             </div>
-            <h2 id="ea-crypto-onboard-title" className="text-[#F4F5F8] text-[1.1rem] font-bold m-0">
+            <h2 id="ea-crypto-onboard-title" className="text-[var(--sa-white)] text-[1.1rem] font-bold m-0">
               Your data stays on this device
             </h2>
           </div>
@@ -55,12 +55,12 @@ export default function EncryptionOnboardingDialog() {
           </button>
         </div>
 
-        <p className="text-[#F4F5F8] text-[0.9rem] leading-[1.65] m-0 mb-3">
+        <p className="text-[var(--sa-white)] text-[0.9rem] leading-[1.65] m-0 mb-3">
           EasyAcco encrypts your expenses, invoices, and mileage on this device with a key
           that never leaves your browser. We can&apos;t read it — and neither can anyone else.
         </p>
         <p className="text-[rgba(244,245,248,0.42)] text-[0.85rem] leading-[1.65] m-0 mb-5">
-          <strong className="text-[#F4F5F8]">The trade-off:</strong> if you clear site data or
+          <strong className="text-[var(--sa-white)]">The trade-off:</strong> if you clear site data or
           switch devices without a backup, your records are gone. Take a passphrase-protected
           backup now so you&apos;re covered.
         </p>
@@ -68,14 +68,14 @@ export default function EncryptionOnboardingDialog() {
         <div className="flex gap-[0.6rem] justify-end flex-wrap">
           <button
             onClick={dismiss}
-            className="bg-transparent border border-[rgba(244,245,248,0.07)] text-[rgba(244,245,248,0.42)] px-[14px] py-2 rounded-[8px] cursor-pointer text-[0.85rem]"
+            className="bg-transparent border border-[var(--sa-border)] text-[rgba(244,245,248,0.42)] px-[14px] py-2 rounded-[8px] cursor-pointer text-[0.85rem]"
           >
             Got it
           </button>
           <Link
             href="/dashboard/settings#backup"
             onClick={dismiss}
-            className="bg-[#F4F5F8] text-[#181818] px-[14px] py-2 rounded-[8px] text-[0.85rem] font-semibold no-underline"
+            className="bg-[var(--sa-white)] text-[var(--sa-black)] px-[14px] py-2 rounded-[8px] text-[0.85rem] font-semibold no-underline"
           >
             Create backup
           </Link>

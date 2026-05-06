@@ -29,7 +29,7 @@ export default function LearnPage() {
 
   return (
     <div className="p-[clamp(1.5rem,4vw,2.5rem)] max-w-[760px]">
-      <h1 className="text-[#F4F5F8] text-[clamp(1.5rem,3vw,2rem)] font-bold mb-[0.3rem]">
+      <h1 className="text-[var(--sa-white)] text-[clamp(1.5rem,3vw,2rem)] font-bold mb-[0.3rem]">
         Learn
       </h1>
       <p className="text-[rgba(244,245,248,0.42)] text-[0.875rem] mb-[2rem]">
@@ -40,7 +40,7 @@ export default function LearnPage() {
       <div className="flex flex-wrap gap-[0.5rem] mb-[2rem]">
         {CATEGORIES.map((cat) => (
           <button key={cat} onClick={() => changeCategory(cat)}
-            className={`p-[6px_16px] rounded-[999px] cursor-pointer text-[0.8rem] font-semibold transition-all duration-150 ease-in-out ${category === cat ? 'border border-[#F4F5F8] bg-[rgba(244,245,248,0.08)] text-[#F4F5F8]' : 'border border-[rgba(244,245,248,0.07)] bg-transparent text-[rgba(244,245,248,0.42)]'}`}>
+            className={`p-[6px_16px] rounded-[999px] cursor-pointer text-[0.8rem] font-semibold transition-all duration-150 ease-in-out ${category === cat ? 'border border-[var(--sa-white)] bg-[rgba(244,245,248,0.08)] text-[var(--sa-white)]' : 'border border-[var(--sa-border)] bg-transparent text-[rgba(244,245,248,0.42)]'}`}>
             {cat}
           </button>
         ))}
@@ -55,23 +55,23 @@ export default function LearnPage() {
               <span className="text-[rgba(244,245,248,0.42)] text-[0.78rem]">{Math.round(progress)}%</span>
             </div>
             <div className="h-[4px] bg-[rgba(255,255,255,0.07)] rounded-[2px] overflow-hidden">
-              <div className="h-full bg-[#F4F5F8] rounded-[2px] transition-[width] duration-300 ease-in-out" style={{ width: `${progress}%` }} />
+              <div className="h-full bg-[var(--sa-white)] rounded-[2px] transition-[width] duration-300 ease-in-out" style={{ width: `${progress}%` }} />
             </div>
           </div>
 
           {/* Flashcard */}
           <div onClick={() => setFlipped((f) => !f)}
-            className={`bg-[#1C1D20] rounded-[10px] p-[2.5rem_2rem] min-h-[220px] cursor-pointer transition-[border-color] duration-200 mb-[1.25rem] flex flex-col justify-between ${flipped ? 'border border-[rgba(244,245,248,0.3)]' : 'border border-[rgba(244,245,248,0.07)]'}`}>
+            className={`bg-[var(--sa-surface)] rounded-[10px] p-[2.5rem_2rem] min-h-[220px] cursor-pointer transition-[border-color] duration-200 mb-[1.25rem] flex flex-col justify-between ${flipped ? 'border border-[rgba(244,245,248,0.3)]' : 'border border-[var(--sa-border)]'}`}>
             <div>
               <div className="flex items-center gap-[8px] mb-[1rem]">
-                <span className="p-[3px_10px] bg-[rgba(244,245,248,0.05)] border border-[rgba(244,245,248,0.07)] rounded-[999px] text-[rgba(244,245,248,0.42)] text-[0.7rem] tracking-[0.08em]">
+                <span className="p-[3px_10px] bg-[rgba(244,245,248,0.05)] border border-[var(--sa-border)] rounded-[999px] text-[rgba(244,245,248,0.42)] text-[0.7rem] tracking-[0.08em]">
                   {card.category}
                 </span>
               </div>
-              <h2 className="text-[#F4F5F8] text-[1.35rem] font-bold mb-[1rem]">
+              <h2 className="text-[var(--sa-white)] text-[1.35rem] font-bold mb-[1rem]">
                 {card.title}
               </h2>
-              <p className={`text-[0.9rem] leading-[1.7] transition-[color] duration-200 ${flipped ? 'text-[rgba(244,245,248,0.42)]' : 'text-[#F4F5F8]'}`}>
+              <p className={`text-[0.9rem] leading-[1.7] transition-[color] duration-200 ${flipped ? 'text-[rgba(244,245,248,0.42)]' : 'text-[var(--sa-white)]'}`}>
                 {flipped ? card.deepDive : card.summary}
               </p>
             </div>
@@ -87,17 +87,17 @@ export default function LearnPage() {
           {/* Navigation */}
           <div className="flex justify-center gap-[1rem]">
             <button onClick={prev} disabled={idx === 0}
-              className={`flex items-center gap-[6px] p-[9px_20px] border rounded-[5px] text-[0.875rem] font-semibold ${idx === 0 ? 'bg-transparent border-[rgba(244,245,248,0.07)] text-[rgba(244,245,248,0.42)] cursor-default' : 'bg-[rgba(244,245,248,0.06)] border-[#F4F5F8] text-[#F4F5F8] cursor-pointer'}`}>
+              className={`flex items-center gap-[6px] p-[9px_20px] border rounded-[5px] text-[0.875rem] font-semibold ${idx === 0 ? 'bg-transparent border-[var(--sa-border)] text-[rgba(244,245,248,0.42)] cursor-default' : 'bg-[rgba(244,245,248,0.06)] border-[var(--sa-white)] text-[var(--sa-white)] cursor-pointer'}`}>
               <ChevronLeft size={16} /> Previous
             </button>
             <button onClick={next} disabled={idx === filtered.length - 1}
-              className={`flex items-center gap-[6px] p-[9px_20px] border rounded-[5px] text-[0.875rem] font-bold ${idx === filtered.length - 1 ? 'bg-transparent border-[rgba(244,245,248,0.07)] text-[rgba(244,245,248,0.42)] cursor-default' : 'bg-[#F4F5F8] border-[#F4F5F8] text-[#181818] cursor-pointer'}`}>
+              className={`flex items-center gap-[6px] p-[9px_20px] border rounded-[5px] text-[0.875rem] font-bold ${idx === filtered.length - 1 ? 'bg-transparent border-[var(--sa-border)] text-[rgba(244,245,248,0.42)] cursor-default' : 'bg-[var(--sa-white)] border-[var(--sa-white)] text-[var(--sa-black)] cursor-pointer'}`}>
               Next <ChevronRight size={16} />
             </button>
           </div>
         </>
       ) : (
-        <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[8px] p-[3rem] text-center text-[rgba(244,245,248,0.42)]">
+        <div className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[8px] p-[3rem] text-center text-[rgba(244,245,248,0.42)]">
           No cards in this category.
         </div>
       )}
@@ -107,12 +107,12 @@ export default function LearnPage() {
         <div onClick={() => setExpanded(null)}
           className="fixed inset-0 z-[100] bg-[rgba(0,0,0,0.7)] flex items-center justify-center p-[1.5rem]">
           <div onClick={(e) => e.stopPropagation()}
-            className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[10px] p-[2rem] max-w-[600px] w-full max-h-[80vh] overflow-y-auto">
+            className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[10px] p-[2rem] max-w-[600px] w-full max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-[1.25rem]">
-              <span className="p-[3px_10px] bg-[rgba(244,245,248,0.05)] border border-[rgba(244,245,248,0.07)] rounded-[999px] text-[rgba(244,245,248,0.42)] text-[0.7rem]">{expanded.category}</span>
+              <span className="p-[3px_10px] bg-[rgba(244,245,248,0.05)] border border-[var(--sa-border)] rounded-[999px] text-[rgba(244,245,248,0.42)] text-[0.7rem]">{expanded.category}</span>
               <button onClick={() => setExpanded(null)} className="bg-none border-none text-[rgba(244,245,248,0.42)] cursor-pointer p-[2px] flex"><X size={18} /></button>
             </div>
-            <h2 className="text-[#F4F5F8] text-[1.4rem] font-bold mb-[1rem]">{expanded.title}</h2>
+            <h2 className="text-[var(--sa-white)] text-[1.4rem] font-bold mb-[1rem]">{expanded.title}</h2>
             <p className="text-[rgba(244,245,248,0.42)] text-[0.9rem] leading-[1.75]">{expanded.deepDive}</p>
           </div>
         </div>

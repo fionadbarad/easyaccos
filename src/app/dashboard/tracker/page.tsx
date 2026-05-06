@@ -11,7 +11,7 @@ export default function TrackerPage() {
         <div className="text-[rgba(244,245,248,0.18)] text-[0.6rem] uppercase tracking-[0.15em] font-mono mb-[6px]">
           financial tools · 2026/27
         </div>
-        <h1 className="text-[#F4F5F8] text-[clamp(1.4rem,3vw,1.85rem)] font-semibold tracking-[-0.04em] leading-[1.1] m-0 mb-[6px]">
+        <h1 className="text-[var(--sa-white)] text-[clamp(1.4rem,3vw,1.85rem)] font-semibold tracking-[-0.04em] leading-[1.1] m-0 mb-[6px]">
           Tax Tracker
         </h1>
         <p className="text-[rgba(244,245,248,0.42)] text-[0.875rem] leading-[1.6] m-0 max-w-[48ch]">

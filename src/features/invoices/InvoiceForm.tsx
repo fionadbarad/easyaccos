@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion'
 import type { InvoiceFormState } from '@/lib/hooks/useInvoices'
 
-const INPUT_BASE = 'w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-[11px] py-[9px] text-[#F4F5F8] text-[0.84rem] outline-none'
+const INPUT_BASE = 'w-full bg-[var(--sa-gray)] border border-[var(--sa-border)] rounded-[4px] px-[11px] py-[9px] text-[var(--sa-white)] text-[0.84rem] outline-none'
 const LABEL_S = 'block text-[rgba(244,245,248,0.18)] text-[0.6rem] uppercase tracking-[0.09em] mb-[4px] font-semibold font-mono'
 
 export function InvoiceForm({
@@ -23,7 +23,7 @@ export function InvoiceForm({
     <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
       className="mb-5">
       <form onSubmit={onSubmit}
-        className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-[6px] p-5 grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-[0.85rem] items-end">
+        className="bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded-[6px] p-5 grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-[0.85rem] items-end">
         <div>
           <label className={LABEL_S}>Client name</label>
           <input value={form.client} onChange={e => setForm(f => ({ ...f, client: e.target.value }))}
@@ -56,16 +56,16 @@ export function InvoiceForm({
           <label className={LABEL_S}>VAT</label>
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" checked={form.vat} onChange={e => setForm(f => ({ ...f, vat: e.target.checked }))}
-              className="w-[14px] h-[14px] accent-[#F4F5F8] cursor-pointer" />
+              className="w-[14px] h-[14px] accent-[var(--sa-white)] cursor-pointer" />
             <span className="text-[rgba(244,245,248,0.42)] text-[0.82rem]">Add 20% VAT</span>
           </label>
         </div>
         <div className="flex gap-[0.4rem]">
-          <button type="submit" className="flex-1 bg-[#F4F5F8] text-[#181818] border-0 rounded-[4px] p-[9px] font-semibold cursor-pointer text-[0.8rem] min-h-[40px] tracking-[-0.01em]">
+          <button type="submit" className="flex-1 bg-[var(--sa-white)] text-[var(--sa-black)] border-0 rounded-[4px] p-[9px] font-semibold cursor-pointer text-[0.8rem] min-h-[40px] tracking-[-0.01em]">
             Create
           </button>
           <button type="button" onClick={onCancel}
-            className="bg-transparent text-[rgba(244,245,248,0.42)] border border-[rgba(244,245,248,0.07)] rounded-[4px] px-3 py-[9px] cursor-pointer text-[0.8rem] min-h-[40px]">
+            className="bg-transparent text-[rgba(244,245,248,0.42)] border border-[var(--sa-border)] rounded-[4px] px-3 py-[9px] cursor-pointer text-[0.8rem] min-h-[40px]">
             Cancel
           </button>
         </div>

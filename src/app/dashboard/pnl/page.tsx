@@ -93,7 +93,9 @@ export default function PnLPage() {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY)
-      setTxs(saved ? JSON.parse(saved) : SEED)
+      if (!saved) { setTxs(SEED); return }
+      const parsed = JSON.parse(saved)
+      setTxs(Array.isArray(parsed) ? parsed : SEED)
     } catch { setTxs(SEED) }
   }, [])
 

@@ -68,7 +68,8 @@ export async function secureRead<T>(recordKey: string, legacyLocalKey: string | 
       return legacy
     }
     return fallback
-  } catch {
+  } catch (err) {
+    console.error(`secureRead(${recordKey}) failed, falling back to legacy:`, err)
     return readLegacy<T>(legacyLocalKey, fallback)
   }
 }
@@ -76,7 +77,11 @@ export async function secureRead<T>(recordKey: string, legacyLocalKey: string | 
 export async function secureWrite<T>(recordKey: string, value: T): Promise<void> {
   if (!isIDBAvailable()) {
     if (typeof localStorage !== 'undefined') {
-      try { localStorage.setItem(legacyFromRecord(recordKey), JSON.stringify(value)) } catch { /* noop */ }
+      try {
+        localStorage.setItem(legacyFromRecord(recordKey), JSON.stringify(value))
+      } catch (err) {
+        console.error(`secureWrite(${recordKey}) localStorage fallback failed:`, err)
+      }
     }
     return
   }
@@ -84,8 +89,9 @@ export async function secureWrite<T>(recordKey: string, value: T): Promise<void>
     const key = await getDeviceKey()
     const env = await encryptWithKey(key, JSON.stringify(value))
     await idbSet(STORE_RECORDS, recordKey, env)
-  } catch {
-    /* swallow — caller has optimistic state in memory */
+  } catch (err) {
+    // Caller has optimistic state in memory; we just lose persistence on this write.
+    console.error(`secureWrite(${recordKey}) failed:`, err)
   }
 }
 
@@ -117,8 +123,8 @@ export async function secureDumpAll(): Promise<Record<string, unknown>> {
     if (!isCipherBlob(blob)) continue
     try {
       out[k] = JSON.parse(await decryptWithKey(key, blob))
-    } catch {
-      /* skip corrupt record */
+    } catch (err) {
+      console.error(`secureDumpAll: skipping corrupt record ${k}:`, err)
     }
   }
   return out

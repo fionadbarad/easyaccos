@@ -284,7 +284,10 @@ export default function AIPage() {
       } else {
         const data = await res.json()
         if (!res.ok || data.error) throw new Error(data.error || 'No response from server.')
-        setMessages([...next, makeMessage('assistant', data.answer || data.reply || 'No response.')])
+        const reply = typeof data.answer === 'string' ? data.answer
+                    : typeof data.reply  === 'string' ? data.reply
+                    : 'No response.'
+        setMessages([...next, makeMessage('assistant', reply)])
       }
     } catch (err: unknown) {
       if ((err as Error).name === 'AbortError') {

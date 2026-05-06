@@ -63,7 +63,11 @@ export async function restoreBackup(
   if (file.encrypted) {
     if (!passphrase) throw new Error('This backup is encrypted — passphrase required')
     const json = await decryptWithPassphrase(passphrase, file.envelope)
-    records = JSON.parse(json)
+    try {
+      records = JSON.parse(json)
+    } catch {
+      throw new Error('Decrypted backup is corrupt — passphrase may be wrong')
+    }
   } else {
     records = file.records
   }
@@ -88,7 +92,12 @@ export function downloadBackup(file: BackupFile): void {
 
 export async function readBackupFromFile(file: File): Promise<BackupFile> {
   const text = await file.text()
-  const parsed: unknown = JSON.parse(text)
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(text)
+  } catch {
+    throw new Error('Selected file is not valid JSON')
+  }
   if (!isBackupFile(parsed)) throw new Error('Not a valid EasyAcco backup file')
   return parsed
 }

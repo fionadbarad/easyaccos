@@ -32,18 +32,25 @@ export default function SettingsPage() {
   const [pwMsg, setPwMsg] = useState('')
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      const u = data.session?.user ?? null
-      setUser(u)
-      setName(u?.user_metadata?.name ?? '')
-    })
+    supabase.auth.getSession()
+      .then(({ data }) => {
+        const u = data.session?.user ?? null
+        setUser(u)
+        setName(u?.user_metadata?.name ?? '')
+      })
+      .catch((err) => console.error('Failed to load session:', err))
   }, [supabase])
 
   async function saveProfile(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true); setSaved(false)
-    await supabase.auth.updateUser({ data: { name } })
-    setSaving(false); setSaved(true)
+    const { error } = await supabase.auth.updateUser({ data: { name } })
+    setSaving(false)
+    if (error) {
+      console.error('Profile save failed:', error)
+      return
+    }
+    setSaved(true)
     setTimeout(() => setSaved(false), 3000)
   }
 

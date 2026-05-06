@@ -69,8 +69,12 @@ export default function CurrencyPage() {
       })
       if (!res.ok) throw new Error(`Rate service returned HTTP ${res.status}`)
 
-      const json        = await res.json()
-      const freshRates  = json.rates as Record<string, number>
+      const json = await res.json()
+      const candidate = (json as { rates?: unknown }).rates
+      if (!candidate || typeof candidate !== 'object') {
+        throw new Error('Rate service returned an unexpected payload')
+      }
+      const freshRates = candidate as Record<string, number>
 
       setRates(freshRates)
       setIsStale(false)

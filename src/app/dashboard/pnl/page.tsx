@@ -86,6 +86,7 @@ type View = 'overview' | 'income-statement'
 export default function PnLPage() {
   const [txs, setTxs]       = useState<Transaction[]>([])
   const [copied, setCopied] = useState(false)
+  const [copyError, setCopyError] = useState(false)
   const [view, setView]     = useState<View>('overview')
   const [cogsForm, setCogsForm] = useState({ date: new Date().toISOString().slice(0, 10), description: '', amount: '' })
 
@@ -180,8 +181,15 @@ export default function PnLPage() {
       monthlyBreakdown: monthly, transactions: txs,
     }
     navigator.clipboard.writeText(JSON.stringify(payload, null, 2))
-      .then(() => { setCopied(true); setTimeout(() => setCopied(false), 2500) })
-      .catch(() => alert('Clipboard access denied — check browser permissions.'))
+      .then(() => {
+        setCopyError(false)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2500)
+      })
+      .catch(() => {
+        setCopyError(true)
+        setTimeout(() => setCopyError(false), 4000)
+      })
   }
 
   const btnBaseClass = 'p-[7px_14px] rounded-[4px] cursor-pointer text-[0.78rem] font-medium min-h-[36px] transition-all duration-[100ms]'
@@ -205,9 +213,10 @@ export default function PnLPage() {
             </button>
           ))}
           <button onClick={exportJSON}
-            className={`${btnBaseClass} flex items-center gap-[6px] border ${copied ? 'bg-[rgba(74,222,128,0.08)] border-[rgba(74,222,128,0.25)] text-[#4ADE80]' : 'bg-[#1C1D20] border-[rgba(244,245,248,0.07)] text-[rgba(244,245,248,0.42)]'}`}>
+            title={copyError ? 'Clipboard access denied — check browser permissions.' : undefined}
+            className={`${btnBaseClass} flex items-center gap-[6px] border ${copied ? 'bg-[rgba(74,222,128,0.08)] border-[rgba(74,222,128,0.25)] text-[#4ADE80]' : copyError ? 'bg-[rgba(248,113,113,0.08)] border-[rgba(248,113,113,0.25)] text-[#F87171]' : 'bg-[#1C1D20] border-[rgba(244,245,248,0.07)] text-[rgba(244,245,248,0.42)]'}`}>
             {copied ? <CheckCheck size={13} /> : <Copy size={13} />}
-            {copied ? 'Copied' : 'Export JSON'}
+            {copied ? 'Copied' : copyError ? 'Clipboard blocked' : 'Export JSON'}
           </button>
           <button onClick={exportSA103CSV} title="SA103 self-assessment pre-fill CSV" className={`${btnBaseClass} flex items-center gap-[6px] bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] text-[rgba(244,245,248,0.42)]`}>
             <FileText size={13} /> Export SA103 CSV

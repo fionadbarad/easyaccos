@@ -1,15 +1,11 @@
-// ── Kittax Context Builder ────────────────────────────────────────────────────
-// Builds the live financial context string that gets injected into the advisory
-// system prompt so Kittax can give proactive, user-specific guidance.
-
-import type { KittaxContext } from './types'
+import type { AdvisorContext } from './types'
 
 function fmtGBP(n: number) {
   return '£' + n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 /** Returns current tax-year context populated with static 2026/27 thresholds. */
-export function buildBaseContext(): KittaxContext {
+export function buildBaseContext(): AdvisorContext {
   const now = new Date()
   const month = now.toLocaleString('en-GB', { month: 'long', year: 'numeric' })
   return {
@@ -23,7 +19,7 @@ export function buildBaseContext(): KittaxContext {
 }
 
 /** Serialises the context object into a concise prompt segment. */
-export function buildContextPrompt(ctx: KittaxContext): string {
+export function buildContextPrompt(ctx: AdvisorContext): string {
   const lines: string[] = [
     `Current period: ${ctx.currentMonth} (Tax year ${ctx.taxYear})`,
     `Key thresholds: Personal Allowance ${fmtGBP(ctx.personalAllowance)} · Basic rate limit ${fmtGBP(ctx.basicRateLimit)} · Higher rate taper ${fmtGBP(ctx.higherRateTaper)} · Top rate ${fmtGBP(ctx.topRateTaper)}`,

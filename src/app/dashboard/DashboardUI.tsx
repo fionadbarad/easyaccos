@@ -146,7 +146,7 @@ const TILES = [
   { href: '/dashboard/pnl',          label: 'Reports',          Icon: FileText,       desc: 'P&L statement · MTD-ready' },
   { href: '/dashboard/currency',     label: 'Currency',         Icon: TrendingUp,     desc: 'Live rates · 170+ currencies' },
   { href: '/dashboard/learn',        label: 'Learn',            Icon: GraduationCap,  desc: 'UK tax literacy' },
-  { href: '/dashboard/ai',           label: 'Tax Advisory',     Icon: Bot,            desc: 'Ask any UK tax question' },
+  { href: '/dashboard/ai',           label: 'Accounting Advisor', Icon: Bot,          desc: 'Ask any UK tax question' },
   { href: '/dashboard/settings',     label: 'Settings',         Icon: Settings,       desc: 'Profile and preferences' },
 ]
 

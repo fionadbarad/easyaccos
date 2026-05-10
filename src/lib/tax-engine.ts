@@ -4,7 +4,7 @@
 // Constant reconciliation:
 //   RUK_HIGHER_LIMIT (125,140)                — gross income ceiling, in tax-logic
 //   RUK_TAXABLE_ADDITIONAL_THRESHOLD (112,570) — taxable income ceiling (gross − PA_BASE)
-//   kittax-brain previously named this HIGHER_LIMIT; now uses the exported constant.
+//   Previously named HIGHER_LIMIT; now uses the exported constant.
 
 // ── Core engine (types, calculateTax, validateTaxInput, all utility exports) ──
 export * from './tax-logic'

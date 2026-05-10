@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const model = getGenAI(apiKey).getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       systemInstruction: SYSTEM,
     })
     const prompt = `Categorise this expense: "${description}"${

@@ -15,7 +15,7 @@ interface AuthFormProps {
 const COPY = {
   login: {
     subtitle: 'Save your data across sessions',
-    guestCopy: 'Every feature works instantly as a guest. Tax estimator, AI advisor, expenses, P&L — all free, no sign-up required.',
+    guestCopy: 'Every feature works instantly as a guest. Tax estimator, accounting advisor, expenses, P&L — all free, no sign-up required.',
     dividerLabel: 'or save your data',
     formTitle: 'Sign in with email link',
     formCopy: "Enter your email and we send a one-click sign-in link. No password. No form to fill in. Your data syncs across devices.",

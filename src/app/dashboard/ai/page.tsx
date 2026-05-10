@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { Send, RefreshCw, ChevronRight, TrendingDown, PiggyBank, FileText, Calendar } from 'lucide-react'
 import { useUserData } from '@/lib/use-user-data'
-import { buildBaseContext, buildContextPrompt } from '@/lib/kittax/context'
-import type { KittaxContext, KittaxMessage } from '@/lib/kittax/types'
+import { buildBaseContext, buildContextPrompt } from '@/lib/advisor/context'
+import type { AdvisorContext, AdvisorMessage } from '@/lib/advisor/types'
 
 const FETCH_TIMEOUT = 30_000
 
@@ -24,7 +24,7 @@ const QUICK_ACTIONS = [
   { label: 'Pension strategy',    q: 'How can I use pension contributions to reduce my tax?' },
 ]
 
-function makeMessage(role: KittaxMessage['role'], content: string): KittaxMessage {
+function makeMessage(role: AdvisorMessage['role'], content: string): AdvisorMessage {
   return { id: crypto.randomUUID(), role, content, ts: Date.now() }
 }
 
@@ -104,7 +104,7 @@ function MarkdownBlock({ text }: { text: string }) {
 }
 
 // ── Message components ────────────────────────────────────────────────────────
-function UserMessage({ msg }: { msg: KittaxMessage }) {
+function UserMessage({ msg }: { msg: AdvisorMessage }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
       <div style={{ maxWidth: '68%' }}>
@@ -124,7 +124,7 @@ function AssistantMessage({
   isLatest,
   onAction,
 }: {
-  msg: KittaxMessage
+  msg: AdvisorMessage
   isLatest: boolean
   onAction: (q: string) => void
 }) {
@@ -206,10 +206,10 @@ interface ExpenseStub { id: string; amount: number; date: string }
 export default function AIPage() {
   const INITIAL_MESSAGE = useMemo(() => makeMessage(
     'assistant',
-    `${greetingByHour()} — I'm your personal tax advisor, aligned to HMRC rules for the 2026/27 fiscal year.\n\nI can walk through sole-trader income, director pay, dividends, MTD deadlines, allowable expenses, National Insurance, the 60% trap — whatever's on your mind. Tell me roughly what you earn and where the friction is, and I'll take it from there.\n\nWhat shall we look at first?`,
+    `${greetingByHour()} — I'm your accounting advisor, aligned to HMRC rules for the 2026/27 fiscal year.\n\nI can walk through sole-trader income, director pay, dividends, MTD deadlines, allowable expenses, National Insurance, the 60% trap — whatever's on your mind. Tell me roughly what you earn and where the friction is, and I'll take it from there.\n\nWhat shall we look at first?`,
   ), [])
 
-  const [messages, setMessages] = useState<KittaxMessage[]>([INITIAL_MESSAGE])
+  const [messages, setMessages] = useState<AdvisorMessage[]>([INITIAL_MESSAGE])
   const [input,    setInput]    = useState('')
   const [loading,  setLoading]  = useState(false)
   const [error,    setError]    = useState('')
@@ -221,7 +221,7 @@ export default function AIPage() {
   // Load user's expenses for context injection
   const { items: expenses } = useUserData<ExpenseStub>('user_expenses', 'easyacco_expenses', [])
 
-  const taxContext: Partial<KittaxContext> = useMemo(() => {
+  const taxContext: Partial<AdvisorContext> = useMemo(() => {
     const base = buildBaseContext()
     // Sum expenses from the current tax year (6 Apr – 5 Apr)
     const now = new Date()
@@ -340,7 +340,7 @@ export default function AIPage() {
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '0.5rem', flexShrink: 0 }}>
         <div>
           <h1 style={{ color: 'var(--sa-white)', fontSize: 'clamp(1.2rem,2.5vw,1.5rem)', fontWeight: 600, letterSpacing: '-0.03em', margin: 0 }}>
-            Tax Advisory
+            Accounting Advisor
           </h1>
           <p style={{ color: 'var(--sa-muted)', fontSize: '0.72rem', margin: '3px 0 0', fontFamily: 'var(--font-geist-mono), monospace' }}>
             {ctxSummary}

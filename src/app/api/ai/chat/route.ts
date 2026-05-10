@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import { buildContextPrompt } from '@/lib/kittax/context'
-import type { KittaxContext } from '@/lib/kittax/types'
+import { buildContextPrompt } from '@/lib/advisor/context'
+import type { AdvisorContext } from '@/lib/advisor/types'
 
-const BASE_SYSTEM = `You are EasyAcco's personal tax advisor — aligned to HMRC rules for the 2026/27 UK fiscal year. You are a conversational advisor, not a text box, with a voice and a memory of the conversation so far. Do not introduce yourself with a name; simply speak as a knowledgeable UK tax advisor.
+const BASE_SYSTEM = `You are EasyAcco's accounting advisor — aligned to HMRC rules for the 2026/27 UK fiscal year. You are a conversational advisor, not a text box, with a voice and a memory of the conversation so far. Do not introduce yourself with a name; simply speak as a knowledgeable accounting advisor.
 
 Your purpose is to help users understand UK income tax, personal allowance, National Insurance, dividends, and basic tax optimisation in plain language based on HMRC rules for 2026/27.
 
@@ -68,7 +68,7 @@ RULES:
 - Always prioritise clarity and usefulness
 - Recommend a qualified accountant for complex personal circumstances
 
-When the user greets you ("hi", "hey", "hello"), greet them back briefly as their personal tax advisor (do not use a personal name) and ask what they'd like to look at — do not dump a wall of tax rules.`
+When the user greets you ("hi", "hey", "hello"), greet them back briefly as their accounting advisor (do not use a personal name) and ask what they'd like to look at — do not dump a wall of tax rules.`
 
 const OFFLINE: Record<string, string> = {
   allowance:
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
 
   type HistoryTurn = { role: 'user' | 'model'; parts: Array<{ text: string }> }
-  let body: { message?: string; history?: HistoryTurn[]; context?: Partial<KittaxContext> }
+  let body: { message?: string; history?: HistoryTurn[]; context?: Partial<AdvisorContext> }
   try {
     body = await request.json()
   } catch {
@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
   // Build context-injected system prompt
   let systemPrompt = BASE_SYSTEM
   if (body.context && typeof body.context === 'object') {
-    const ctxText = buildContextPrompt(body.context as KittaxContext)
+    const ctxText = buildContextPrompt(body.context as AdvisorContext)
     systemPrompt = `${BASE_SYSTEM}\n\nUSER CONTEXT (live data — use this for proactive guidance):\n${ctxText}`
   }
 
@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const model = getGenAI(apiKey).getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       systemInstruction: systemPrompt,
     })
     const history = Array.isArray(body.history)

@@ -78,7 +78,7 @@ export default function Sidebar({ user, pathname, onSignOut, onNavClick, onClose
           <MessageCircle size={12} className="text-[rgba(244,245,248,0.55)] shrink-0" />
           <div>
             <div className="text-white text-[0.72rem] font-medium tracking-[-0.01em]">Ask a question</div>
-            <div className="text-[rgba(244,245,248,0.55)] text-[0.6rem] mt-[1px]">Tax advisory · 2026/27</div>
+            <div className="text-[rgba(244,245,248,0.55)] text-[0.6rem] mt-[1px]">Accounting advisor · 2026/27</div>
           </div>
         </Link>
       </div>

@@ -131,7 +131,7 @@ export const STUDENT_LOAN_LABELS = Object.fromEntries(
 ) as Record<StudentLoanPlan, string>
 
 // ─── Reconciled constant: HIGHER_LIMIT naming ─────────────────────────────────
-// kittax-brain uses taxable-income basis (112,570 = 125,140 − 12,570).
+// Taxable-income basis (112,570 = 125,140 − 12,570).
 // The canonical gross-income ceiling is RUK_HIGHER_LIMIT = 125,140.
 // Import this in other modules instead of hard-coding 112,570.
 export const RUK_TAXABLE_ADDITIONAL_THRESHOLD = RUK_HIGHER_LIMIT - PA_BASE  // 112,570

@@ -1,7 +1,7 @@
 // Diff-test: the two live tax engines must agree on the numbers they share.
 //
 //   tax-logic.ts         → calculateTax(TaxInput)         — general engine
-//   TaxBible2026.ts      → calcScenario1/2/5(ScenarioX)   — UX-shaped wrappers
+//   tax-scenarios.ts     → calcScenario1/2/5(ScenarioX)   — UX-shaped wrappers
 //
 // Both consume the same HMRC 2026/27 bands (since Phase 2 bands extraction).
 // Their shared outputs — personalAllowance, taxableIncome, incomeTax, NI, net
@@ -20,7 +20,7 @@ import {
   type S1Input,
   type S2Input,
   type S5Input,
-} from '../TaxBible2026'
+} from '../tax-scenarios'
 
 function baseInput(over: Partial<TaxInput> = {}): TaxInput {
   return {

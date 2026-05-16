@@ -8,7 +8,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react'
 import { C } from '@/styles/palette'
-import { round2, type ScenarioResult } from '@/lib/TaxBible2026'
+import { round2, type ScenarioResult } from '@/lib/tax-scenarios'
 import { cardStyle, fmt, pct } from './tokens'
 
 export default function LegacyResultPanel({ result }: { result: ScenarioResult }) {
@@ -80,7 +80,7 @@ export default function LegacyResultPanel({ result }: { result: ScenarioResult }
       </div>
 
       <p style={{ color: C.muted, fontSize: '0.68rem', textAlign: 'center', marginTop: '1rem' }}>
-        2026/27 HMRC Compliant | Encrypted via Supabase
+        2026/27 HMRC Compliant
       </p>
     </motion.div>
   )

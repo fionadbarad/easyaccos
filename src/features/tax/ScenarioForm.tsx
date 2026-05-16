@@ -12,7 +12,7 @@ import {
   STUDENT_LOAN_LABELS,
   type StudentLoanPlan,
 } from '@/lib/tax-logic'
-import type { S3Input, S4Input } from '@/lib/TaxBible2026'
+import type { S3Input, S4Input } from '@/lib/tax-scenarios'
 import { cardStyle, selectStyle, fmt } from './tokens'
 import { Field, NumInput, Toggle } from './primitives'
 import { SCENARIOS, type ScenarioKey, isFullEngineScenario } from './scenarios'

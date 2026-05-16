@@ -11,28 +11,54 @@ import {
 import {
   calcScenario3, calcScenario4,
   type ScenarioResult, type S3Input, type S4Input,
-} from '@/lib/TaxBible2026'
+} from '@/lib/tax-scenarios'
+import { DIRECTOR_OPTIMAL_SALARY } from '@/lib/tax/bands-2026'
 import { buildTaxInput, isFullEngineScenario, type ScenarioKey } from './scenarios'
 
+// All initial-state values for the calculator. Centralised so a UX adjustment
+// is one diff, and so reviewers can see the prefilled "story" at a glance.
+//   sliderIncome / grossRevenue — illustrative typical sole-trader profit
+//   dirSalary                  — HMRC-optimal £12,570 (no NI, full pension credit)
+//   dirDividends               — typical owner-managed-co. distribution
+//   s3                         — claimant on JSA + Carer's + low otherIncome
+//   s4                         — mid-career redundancy mid-tax-year
+const DEFAULT_INPUTS = {
+  scenario:        'employed' as ScenarioKey,
+  showMonthly:     false,
+  sliderIncome:    45_000,
+  taxRegion:       'ruk' as TaxRegion,
+  grossRevenue:    45_000,
+  allowableExpenses:    0,
+  pensionContribution:  0,
+  studentLoanPlan: 'none' as StudentLoanPlan,
+  marriageAllowance:     false,
+  blindPersonsAllowance: false,
+  voluntaryClass2NI:     false,
+  dirSalary:    DIRECTOR_OPTIMAL_SALARY,   // £12,570 — bands-2026
+  dirDividends: 50_000,
+  s3: { universalCredit: 6_000, jsaAmount: 4_000, carersAllowance: 2_400, otherIncome: 0 } satisfies S3Input,
+  s4: { annualSalary:    42_000, monthsWorked: 6, redundancyPayment: 35_000, payeTaxPaid: 4_200 } satisfies S4Input,
+} as const
+
 export function useTaxScenario() {
-  const [scenario, setScenario] = useState<ScenarioKey>('employed')
-  const [showMonthly, setShowMonthly] = useState(false)
-  const [sliderIncome, setSliderIncome] = useState(45_000)
+  const [scenario, setScenario]     = useState<ScenarioKey>(DEFAULT_INPUTS.scenario)
+  const [showMonthly, setShowMonthly] = useState(DEFAULT_INPUTS.showMonthly)
+  const [sliderIncome, setSliderIncome] = useState(DEFAULT_INPUTS.sliderIncome)
 
-  const [taxRegion, setTaxRegion] = useState<TaxRegion>('ruk')
-  const [grossRevenue, setGrossRevenue] = useState(45_000)
-  const [allowableExpenses, setAllowableExpenses] = useState(0)
-  const [pensionContribution, setPensionContribution] = useState(0)
-  const [studentLoanPlan, setStudentLoanPlan] = useState<StudentLoanPlan>('none')
-  const [marriageAllowance, setMarriageAllowance] = useState(false)
-  const [blindPersonsAllowance, setBlindPersonsAllowance] = useState(false)
-  const [voluntaryClass2NI, setVoluntaryClass2NI] = useState(false)
+  const [taxRegion, setTaxRegion]                 = useState<TaxRegion>(DEFAULT_INPUTS.taxRegion)
+  const [grossRevenue, setGrossRevenue]           = useState(DEFAULT_INPUTS.grossRevenue)
+  const [allowableExpenses, setAllowableExpenses] = useState(DEFAULT_INPUTS.allowableExpenses)
+  const [pensionContribution, setPensionContribution] = useState(DEFAULT_INPUTS.pensionContribution)
+  const [studentLoanPlan, setStudentLoanPlan]     = useState<StudentLoanPlan>(DEFAULT_INPUTS.studentLoanPlan)
+  const [marriageAllowance, setMarriageAllowance] = useState(DEFAULT_INPUTS.marriageAllowance)
+  const [blindPersonsAllowance, setBlindPersonsAllowance] = useState(DEFAULT_INPUTS.blindPersonsAllowance)
+  const [voluntaryClass2NI, setVoluntaryClass2NI] = useState(DEFAULT_INPUTS.voluntaryClass2NI)
 
-  const [dirSalary, setDirSalary] = useState(12_570)
-  const [dirDividends, setDirDividends] = useState(50_000)
+  const [dirSalary, setDirSalary]       = useState(DEFAULT_INPUTS.dirSalary)
+  const [dirDividends, setDirDividends] = useState(DEFAULT_INPUTS.dirDividends)
 
-  const [s3, setS3] = useState<S3Input>({ universalCredit: 6_000, jsaAmount: 4_000, carersAllowance: 2_400, otherIncome: 0 })
-  const [s4, setS4] = useState<S4Input>({ annualSalary: 42_000, monthsWorked: 6, redundancyPayment: 35_000, paydeTaxPaid: 4_200 })
+  const [s3, setS3] = useState<S3Input>(DEFAULT_INPUTS.s3)
+  const [s4, setS4] = useState<S4Input>(DEFAULT_INPUTS.s4)
 
   const fullEngine = isFullEngineScenario(scenario)
 

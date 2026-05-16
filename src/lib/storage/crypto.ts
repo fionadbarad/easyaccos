@@ -48,7 +48,7 @@ const buf = (u: Uint8Array): BufferSource => u as unknown as BufferSource
 function bytesToB64(bytes: Uint8Array): string {
   if (typeof Buffer !== 'undefined') return Buffer.from(bytes).toString('base64')
   let s = ''
-  for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i])
+  for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]!)
   return btoa(s)
 }
 

@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, ChevronUp, AlertTriangle, Info, Lightbulb, TrendingDown } from 'lucide-react'
 import { C } from '@/styles/palette'
 import type { TaxResult } from '@/lib/tax-logic'
-import { round2 } from '@/lib/TaxBible2026'
+import { round2 } from '@/lib/tax-scenarios'
 import { cardStyle, toggleStyle, fmt, pct } from './tokens'
 
 export default function FullResultPanel({ result, showMonthly, setShowMonthly }: {
@@ -152,7 +152,7 @@ export default function FullResultPanel({ result, showMonthly, setShowMonthly }:
       )}
 
       <p style={{ color: C.muted, fontSize: '0.68rem', textAlign: 'center', marginTop: '1rem' }}>
-        2026/27 HMRC Compliant | Encrypted via Supabase
+        2026/27 HMRC Compliant
       </p>
     </motion.div>
   )

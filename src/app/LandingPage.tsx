@@ -2,15 +2,17 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowRight, Calculator, BarChart2, Bot, Shield, BookOpen, Receipt, CheckCircle2 } from 'lucide-react'
+import { ArrowRight, Calculator, BarChart2, MessageCircle, Shield, BookOpen, Receipt, CheckCircle2, FileText, Car } from 'lucide-react'
 
 const MODULES = [
-  { icon: Calculator, label: 'HMRC Tax Engine',    desc: '2026/27-accurate income tax, NI, dividends, and pension relief across all UK regions and employment types.' },
-  { icon: Receipt,    label: 'Expense Tracker',     desc: 'Log allowable business expenses with AI categorisation and receipt OCR scanning. HMRC "wholly & exclusively" compliant.' },
-  { icon: BarChart2,  label: 'P&L Reports',         desc: 'Instant profit & loss statements with monthly breakdowns. Export-ready for your accountant or Self Assessment return.' },
-  { icon: Bot,        label: 'Kittax AI Advisor',   desc: 'Ask any UK tax question and get structured, HMRC-accurate answers — sole trader income, dividends, MTD, and more.' },
-  { icon: BookOpen,   label: 'Double-Entry Ledger', desc: 'Maintain a clean transaction log with journal entries and a live net position — built for sole-trader bookkeeping.' },
-  { icon: Shield,     label: 'MTD Compliance',      desc: 'All 2026/27 quarterly Making Tax Digital deadlines tracked with urgency indicators and early-warning alerts.' },
+  { icon: Calculator,    label: 'HMRC Tax Engine',      desc: '2026/27-accurate income tax, NI, dividends, and pension relief across all UK regions and employment types.' },
+  { icon: Receipt,       label: 'Expense Tracker',      desc: 'Log allowable business expenses with receipt OCR scanning. HMRC "wholly & exclusively" compliant.' },
+  { icon: BarChart2,     label: 'P&L Reports',          desc: 'Instant profit & loss statements with monthly breakdowns. Export-ready for your accountant or Self Assessment return.' },
+  { icon: FileText,      label: 'Invoice Generator',    desc: 'Create professional invoices with auto-incrementing numbers, VAT support, and PDF export. Track Draft, Sent, Paid, and Overdue.' },
+  { icon: BookOpen,      label: 'Double-Entry Ledger',  desc: 'Maintain a clean transaction log with journal entries and a live net position — built for sole-trader bookkeeping.' },
+  { icon: Car,           label: 'Mileage Tracker',      desc: 'Log business journeys at HMRC-approved rates (45p first 10k miles, 25p after). Auto-totals for your Self Assessment.' },
+  { icon: Shield,        label: 'MTD Compliance',       desc: 'All 2026/27 quarterly Making Tax Digital deadlines tracked with urgency indicators and early-warning alerts.' },
+  { icon: MessageCircle, label: 'Tax Q&A Assistant',    desc: 'Ask UK tax questions and get structured answers grounded in HMRC 2026/27 rules — sole trader income, dividends, deadlines, and more.' },
 ]
 
 const TRUST_POINTS = [
@@ -26,7 +28,7 @@ const JSON_LD = {
   '@type': 'WebApplication',
   name: 'EasyAcco',
   url: 'https://easyacco.vercel.app',
-  description: 'Free HMRC-accurate tax software for UK sole traders, freelancers, and directors. Covers income tax, NI, expenses, invoices, MTD, and AI advisory for the 2026/27 tax year.',
+  description: 'Free HMRC-accurate tax software for UK sole traders, freelancers, and directors. Covers income tax, NI, expenses, invoices, and MTD compliance for the 2026/27 tax year.',
   applicationCategory: 'FinanceApplication',
   operatingSystem: 'Web',
   offers: {
@@ -40,10 +42,8 @@ const JSON_LD = {
   },
   featureList: [
     'HMRC 2026/27 income tax and NI calculator',
-    'Sole trader expense tracker with AI categorisation',
-    'Receipt OCR scanning',
+    'Sole trader expense tracker with receipt OCR scanning',
     'Invoice lifecycle management with VAT support',
-    'AI tax advisory (Kittax)',
     'Making Tax Digital (MTD) deadline tracker',
     'Mileage claim tracker (45p/25p HMRC rates)',
     'Encrypted local-first data storage',
@@ -230,7 +230,8 @@ export default function LandingPage() {
           <p className="text-[rgba(244,245,248,0.18)] text-[0.72rem] font-mono">
             2026 · UK Sole Traders &amp; Freelancers · Not financial advice · HMRC 2026/27
           </p>
-          <div className="flex gap-4">
+          <div className="flex items-center gap-4">
+            <span className="text-[rgba(244,245,248,0.25)] text-[0.72rem] font-mono">Encrypted via Supabase</span>
             <a href="/security" className="text-[rgba(244,245,248,0.25)] text-[0.72rem] no-underline hover:text-[rgba(244,245,248,0.5)] transition-colors">Security &amp; Privacy</a>
             <a href="/demo" className="text-[rgba(244,245,248,0.25)] text-[0.72rem] no-underline hover:text-[rgba(244,245,248,0.5)] transition-colors">Demo</a>
           </div>

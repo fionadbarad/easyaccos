@@ -7,6 +7,7 @@
  * envelope type.
  */
 
+import { z } from 'zod'
 import {
   encryptWithPassphrase,
   decryptWithPassphrase,
@@ -16,6 +17,7 @@ import {
   secureDumpAll,
   secureRestoreAll,
 } from './secure-store'
+import { reportError } from '@/lib/monitor'
 
 const FORMAT = 'easyacco-backup'
 const FORMAT_VERSION = 1
@@ -54,20 +56,45 @@ export function isBackupFile(x: unknown): x is BackupFile {
   return b.format === FORMAT && b.version === FORMAT_VERSION && typeof b.encrypted === 'boolean'
 }
 
+// Restored records are user data destined for IndexedDB. We don't pin field
+// shapes (those vary by record key), but we DO require: an object map keyed
+// by record-key strings, with each value either an array of objects or a
+// plain object. Anything else is rejected before it can hit the store.
+const RecordValueSchema = z.union([
+  z.array(z.record(z.string(), z.unknown())),
+  z.record(z.string(), z.unknown()),
+])
+const RestoreRecordsSchema = z.record(
+  z.string().min(1, 'record key cannot be empty'),
+  RecordValueSchema,
+)
+
 export async function restoreBackup(
   file: BackupFile,
   mode: 'merge' | 'replace',
   passphrase?: string,
 ): Promise<{ restored: number }> {
-  let records: Record<string, unknown>
+  let raw: unknown
   if (file.encrypted) {
     if (!passphrase) throw new Error('This backup is encrypted — passphrase required')
     const json = await decryptWithPassphrase(passphrase, file.envelope)
-    records = JSON.parse(json)
+    try {
+      raw = JSON.parse(json)
+    } catch (err) {
+      reportError('restoreBackup.parse', err)
+      throw new Error('Decrypted backup is not valid JSON')
+    }
   } else {
-    records = file.records
+    raw = file.records
   }
-  if (!records || typeof records !== 'object') throw new Error('Invalid backup payload')
+
+  const parsed = RestoreRecordsSchema.safeParse(raw)
+  if (!parsed.success) {
+    reportError('restoreBackup.validate', parsed.error, { issues: parsed.error.issues })
+    throw new Error('Backup payload failed schema validation — refusing to write to store')
+  }
+
+  const records = parsed.data
   await secureRestoreAll(records, mode)
   return { restored: Object.keys(records).length }
 }

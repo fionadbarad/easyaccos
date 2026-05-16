@@ -103,49 +103,25 @@ export interface TaxResult {
 }
 
 // ─── 2026/27 Constants ────────────────────────────────────────────────────────
-
-// Income Tax — Personal Allowance
-const PA_BASE                 = 12_570
-const MARRIAGE_ALLOWANCE_XFER = 1_260
-const BLIND_PERSONS_ALLOWANCE = 3_250
-const PA_TAPER_START          = 100_000
-const PA_TAPER_END            = 125_140
-
-// Income Tax — rUK bands
-const RUK_BASIC_RATE_WIDTH = 37_700   // £12,571 – £50,270 at 20%
-const RUK_BASIC_LIMIT      = 50_270
-const RUK_HIGHER_LIMIT     = 125_140  // above this: 45%
-
-// Income Tax — Scotland band ceilings (absolute gross income)
-const SCO_STARTER_END      = 16_537   // 19%
-const SCO_BASIC_END        = 29_526   // 20%
-const SCO_INTERMEDIATE_END = 43_662   // 21%
-const SCO_HIGHER_END       = 75_000   // 42%
-const SCO_ADVANCED_END     = 125_140  // 45%
-                                      // above: 48%
-
-// NI
-const NI_PT  = 12_570   // Primary Threshold
-const NI_UEL = 50_270   // Upper Earnings Limit
-const NI_C1_MAIN  = 0.08   // Employee Class 1 — main rate
-const NI_C1_UPPER = 0.02   // Employee Class 1 — above UEL
-const NI_C4_MAIN  = 0.06   // SE Class 4 — main rate
-const NI_C4_UPPER = 0.02   // SE Class 4 — above UEL
-const NI_C2_WEEKLY = 3.65
-const NI_CLASS2_SPT = 7_105  // 2026/27 Small Profits Threshold (up from £6,845)
-
-// Dividends
-const DIV_ALLOWANCE  = 500
-const DIV_BASIC      = 0.1075   // 10.75%
-const DIV_HIGHER     = 0.3575   // 35.75%
-const DIV_ADDL       = 0.3935   // 39.35%
+// Single source of truth lives in ./tax/bands-2026.
+import {
+  PA_BASE, PA_TAPER_START, PA_TAPER_END,
+  MARRIAGE_ALLOWANCE_XFER, BLIND_PERSONS_ALLOWANCE,
+  RUK_BASIC_RATE_WIDTH, RUK_BASIC_LIMIT, RUK_HIGHER_LIMIT,
+  SCO_STARTER_END, SCO_BASIC_END, SCO_INTERMEDIATE_END,
+  SCO_HIGHER_END, SCO_ADVANCED_END,
+  NI_PT, NI_UEL,
+  NI_C1_MAIN, NI_C1_UPPER, NI_C4_MAIN, NI_C4_UPPER,
+  NI_C2_WEEKLY, NI_CLASS2_SPT,
+  DIV_ALLOWANCE, DIV_BASIC, DIV_HIGHER, DIV_ADDL,
+} from './tax/bands-2026'
 
 // Student Loan 2026/27
 const STUDENT_LOAN: Record<StudentLoanPlan, { threshold: number; rate: number; label: string }> = {
   none:         { threshold: 0,      rate: 0,    label: 'None'                                       },
-  plan1:        { threshold: 24_990, rate: 0.09, label: 'Plan 1 \u2014 \u00a324,990 (pre-2012 England/Wales)' },
-  plan2:        { threshold: 27_295, rate: 0.09, label: 'Plan 2 \u2014 \u00a327,295 (2012\u20132023)'         },
-  plan4:        { threshold: 32_745, rate: 0.09, label: 'Plan 4 \u2014 \u00a332,745 (Scotland)'               },
+  plan1:        { threshold: 26_900, rate: 0.09, label: 'Plan 1 \u2014 \u00a326,900 (pre-2012 England/Wales)' },
+  plan2:        { threshold: 29_385, rate: 0.09, label: 'Plan 2 \u2014 \u00a329,385 (2012\u20132023)'         },
+  plan4:        { threshold: 33_795, rate: 0.09, label: 'Plan 4 \u2014 \u00a333,795 (Scotland)'               },
   plan5:        { threshold: 25_000, rate: 0.09, label: 'Plan 5 \u2014 \u00a325,000 (post-Aug 2023)'          },
   postgraduate: { threshold: 21_000, rate: 0.06, label: 'Postgraduate \u2014 \u00a321,000 (6%)'               },
 }
@@ -154,16 +130,24 @@ export const STUDENT_LOAN_LABELS = Object.fromEntries(
   Object.entries(STUDENT_LOAN).map(([k, v]) => [k, v.label])
 ) as Record<StudentLoanPlan, string>
 
+// ─── Reconciled constant: HIGHER_LIMIT naming ─────────────────────────────────
+// kittax-brain uses taxable-income basis (112,570 = 125,140 − 12,570).
+// The canonical gross-income ceiling is RUK_HIGHER_LIMIT = 125,140.
+// Import this in other modules instead of hard-coding 112,570.
+export const RUK_TAXABLE_ADDITIONAL_THRESHOLD = RUK_HIGHER_LIMIT - PA_BASE  // 112,570
+
+// ─── Exported constants (shared across engine modules) ───────────────────────
+export { PA_BASE, PA_TAPER_START, PA_TAPER_END, RUK_BASIC_RATE_WIDTH, RUK_BASIC_LIMIT, RUK_HIGHER_LIMIT }
+
 // ─── Utility ──────────────────────────────────────────────────────────────────
 /** Round to exactly 2 decimal places — eliminates floating point drift */
-function round2(n: number): number {
+export function round2(n: number): number {
   return Math.round(n * 100) / 100
 }
 
-/** Format £ amount for use inside tip description strings (no JSX) */
-function fmtGBP(n: number): string {
-  return '\u00a3' + Math.round(n).toLocaleString('en-GB')
-}
+// fmtGBP lives in lib/formatters.ts — re-exported here for legacy imports
+export { fmtGBP } from './formatters'
+import { fmtGBP } from './formatters'
 
 // ─── Personal Allowance ───────────────────────────────────────────────────────
 /**
@@ -172,7 +156,7 @@ function fmtGBP(n: number): string {
  *   adjusted_net_income >  £100,000 → PA = max(0, 12,570 - floor((income - 100,000) / 2))
  *   adjusted_net_income >= £125,140 → PA = £0
  */
-function calcPA(adjustedNetIncome: number): number {
+export function calcPA(adjustedNetIncome: number): number {
   if (adjustedNetIncome <= PA_TAPER_START) return PA_BASE
   const reduction = Math.floor((adjustedNetIncome - PA_TAPER_START) / 2)
   return Math.max(0, PA_BASE - reduction)
@@ -185,7 +169,7 @@ function calcPA(adjustedNetIncome: number): number {
  * Higher rate band: from end of basic to £125,140.
  * Additional rate: above £125,140.
  */
-function calcRukTax(taxableIncome: number): { tax: number; bands: TaxBand[] } {
+export function calcRukTax(taxableIncome: number): { tax: number; bands: TaxBand[] } {
   if (taxableIncome <= 0) return { tax: 0, bands: [] }
 
   const bands: TaxBand[] = []
@@ -223,7 +207,7 @@ function calcRukTax(taxableIncome: number): { tax: number; bands: TaxBand[] } {
 }
 
 // ─── Scotland Income Tax ──────────────────────────────────────────────────────
-function calcScotlandTax(grossIncome: number, pa: number): { tax: number; bands: TaxBand[] } {
+export function calcScotlandTax(grossIncome: number, pa: number): { tax: number; bands: TaxBand[] } {
   const taxable = Math.max(0, grossIncome - pa)
   if (taxable <= 0) return { tax: 0, bands: [] }
 
@@ -258,7 +242,7 @@ function calcScotlandTax(grossIncome: number, pa: number): { tax: number; bands:
 
 // ─── NI Class 1 (Employed / Director) ────────────────────────────────────────
 // Uses earnings (gross salary / director salary before expenses)
-function calcClass1NI(earnings: number): number {
+export function calcClass1NI(earnings: number): number {
   if (earnings <= NI_PT) return 0
   if (earnings <= NI_UEL) {
     return round2((earnings - NI_PT) * NI_C1_MAIN)
@@ -271,7 +255,7 @@ function calcClass1NI(earnings: number): number {
 
 // ─── NI Class 4 (Self-Employed) ──────────────────────────────────────────────
 // Uses PROFIT (after expenses, before income tax — not taxable income)
-function calcClass4NI(profit: number): number {
+export function calcClass4NI(profit: number): number {
   if (profit <= NI_PT) return 0
   if (profit <= NI_UEL) {
     return round2((profit - NI_PT) * NI_C4_MAIN)
@@ -285,10 +269,10 @@ function calcClass4NI(profit: number): number {
 // ─── Dividend Tax ─────────────────────────────────────────────────────────────
 // Dividends are stacked on top of non-dividend income within the tax bands.
 // The first £500 (dividend allowance) is tax-free.
-function calcDividendTax(
+export function calcDividendTax(
   dividends:           number,
   taxableNonDivIncome: number,
-  region:              TaxRegion,
+  region:              TaxRegion = 'ruk',
 ): number {
   if (dividends <= DIV_ALLOWANCE) return 0
 
@@ -327,7 +311,7 @@ function calcDividendTax(
 // IMPORTANT: HMRC computes student loan repayments on GROSS PROFIT (profit
 // after allowable expenses, BEFORE pension deductions and BEFORE income tax).
 // The base used here is grossProfit, NOT taxableIncome.
-function calcStudentLoan(grossProfit: number, plan: StudentLoanPlan): number {
+export function calcStudentLoan(grossProfit: number, plan: StudentLoanPlan): number {
   if (plan === 'none') return 0
   const { threshold, rate } = STUDENT_LOAN[plan]
   const repayable = Math.max(0, grossProfit - threshold)

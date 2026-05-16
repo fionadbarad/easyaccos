@@ -15,7 +15,7 @@
 
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient, isSupabaseConfigured } from '@/lib/supabase-browser'
 import { secureRead, secureWrite } from '@/lib/storage/secure-store'
 import { appendAuditLog } from '@/lib/audit'
@@ -35,8 +35,7 @@ export function useUserData<T extends AuditableRow>(
   localKey: string,
   seed: T[],
 ) {
-  const supabaseRef  = useRef<SupabaseClient | null>(isSupabaseConfigured ? createClient() : null)
-  const supabase     = supabaseRef.current
+  const [supabase] = useState<SupabaseClient | null>(() => isSupabaseConfigured ? createClient() : null)
 
   const [items,      setItems]      = useState<T[]>([])
   const [user,       setUser]       = useState<User | null>(null)
@@ -45,10 +44,7 @@ export function useUserData<T extends AuditableRow>(
 
   // ── Track auth state ──────────────────────────────────────────────────────
   useEffect(() => {
-    if (!supabase) {
-      setUser(null)
-      return
-    }
+    if (!supabase) return
     supabase.auth.getSession()
       .then(({ data }) => setUser(data.session?.user ?? null))
       .catch((err) => {
@@ -133,7 +129,6 @@ export function useUserData<T extends AuditableRow>(
       try { await secureWrite(`${table}:guest`, stamped) }
       catch (err) { reportError('useUserData.persist.guest', err, { table }) }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, table, supabase, items])
 
   return { items, persist, loading, isAuthenticated: !!user, syncStatus }

@@ -5,26 +5,26 @@
 // lives in IndexedDB — clearing site data or switching browsers = data gone
 // unless a backup was taken.
 
-import { useEffect, useState } from 'react'
+import { useState, useSyncExternalStore } from 'react'
 import Link from 'next/link'
 import { Lock, X } from 'lucide-react'
 import { C } from '@/styles/palette'
 
 const SEEN_KEY = 'ea_crypto_onboard_seen_v1'
+const NOOP_SUB = () => () => {}
+
+function notSeenYet() {
+  try { return typeof localStorage !== 'undefined' && !localStorage.getItem(SEEN_KEY) } catch { return false }
+}
 
 export default function EncryptionOnboardingDialog() {
-  const [open, setOpen] = useState(false)
-
-  useEffect(() => {
-    try {
-      if (typeof localStorage === 'undefined') return
-      if (!localStorage.getItem(SEEN_KEY)) setOpen(true)
-    } catch { /* noop */ }
-  }, [])
+  const shouldShow = useSyncExternalStore(NOOP_SUB, notSeenYet, () => false)
+  const [dismissed, setDismissed] = useState(false)
+  const open = shouldShow && !dismissed
 
   function dismiss() {
     try { localStorage.setItem(SEEN_KEY, '1') } catch { /* noop */ }
-    setOpen(false)
+    setDismissed(true)
   }
 
   if (!open) return null

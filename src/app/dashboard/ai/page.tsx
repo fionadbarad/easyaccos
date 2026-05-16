@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { Send, RefreshCw, ChevronRight, TrendingDown, PiggyBank, FileText, Calendar } from 'lucide-react'
 import { useUserData } from '@/lib/use-user-data'
-import { buildBaseContext, buildContextPrompt } from '@/lib/kittax/context'
+import { buildBaseContext } from '@/lib/kittax/context'
 import type { KittaxContext, KittaxMessage } from '@/lib/kittax/types'
 
 const FETCH_TIMEOUT = 30_000

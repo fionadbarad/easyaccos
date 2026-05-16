@@ -48,21 +48,18 @@ export default function YearTracker() {
   const projectedExpenses = projectAnnual(yearExpenses, monthsElapsed)
   const monthlyPensionNum = parseFloat(pension || '0')
 
-  const projectedTax = useMemo(() => {
-    if (projectedIncome <= 0) return null
-    return calculateTax({
-      grossRevenue:          projectedIncome,
-      allowableExpenses:     projectedExpenses,
-      dividendIncome:        0,
-      employmentType:        empType,
-      taxRegion:             region,
-      studentLoanPlan:       slPlan,
-      voluntaryClass2NI:     false,
-      marriageAllowance:     false,
-      blindPersonsAllowance: false,
-      pensionContribution:   monthlyPensionNum * 12,
-    })
-  }, [projectedIncome, projectedExpenses, empType, region, slPlan, monthlyPensionNum])
+  const projectedTax = projectedIncome <= 0 ? null : calculateTax({
+    grossRevenue:          projectedIncome,
+    allowableExpenses:     projectedExpenses,
+    dividendIncome:        0,
+    employmentType:        empType,
+    taxRegion:             region,
+    studentLoanPlan:       slPlan,
+    voluntaryClass2NI:     false,
+    marriageAllowance:     false,
+    blindPersonsAllowance: false,
+    pensionContribution:   monthlyPensionNum * 12,
+  })
 
   const projectedBill   = projectedTax ? Math.round(projectedTax.totalDeductions) : 0
   const savedSoFar      = parseFloat(potSaved || '0')

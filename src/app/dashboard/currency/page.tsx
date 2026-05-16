@@ -107,14 +107,16 @@ export default function CurrencyPage() {
 
   // On mount: serve cached data instantly, then refresh in the background.
   useEffect(() => {
-    const cached = loadCache()
-    if (cached) {
-      setRates(cached.rates)
-      setLastUpdated(new Date(cached.fetchedAt))
-      setIsStale(true)
-      setLoading(false)
-    }
-    fetchRates()
+    Promise.resolve().then(() => {
+      const cached = loadCache()
+      if (cached) {
+        setRates(cached.rates)
+        setLastUpdated(new Date(cached.fetchedAt))
+        setIsStale(true)
+        setLoading(false)
+      }
+      fetchRates()
+    })
   }, [fetchRates])
 
   // Polling: skip fetches while the tab is hidden to conserve API quota.

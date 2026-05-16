@@ -1,33 +1,30 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useSyncExternalStore } from 'react'
 import Link from 'next/link'
 
 const STORAGE_KEY = 'easyacco_cookie_consent'
+const NOOP_SUB = () => () => {}
+
+function hasNoConsent() {
+  try { return !localStorage.getItem(STORAGE_KEY) } catch { return false }
+}
 
 export default function CookieConsent() {
-  const [visible, setVisible] = useState(false)
+  const needsConsent = useSyncExternalStore(NOOP_SUB, hasNoConsent, () => false)
+  const [dismissed, setDismissed] = useState(false)
 
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (!stored) setVisible(true)
-    } catch {
-      // localStorage unavailable — don't show banner
-    }
-  }, [])
+  if (!needsConsent || dismissed) return null
 
   function accept() {
     try { localStorage.setItem(STORAGE_KEY, 'accepted') } catch { /* ignore */ }
-    setVisible(false)
+    setDismissed(true)
   }
 
   function decline() {
     try { localStorage.setItem(STORAGE_KEY, 'declined') } catch { /* ignore */ }
-    setVisible(false)
+    setDismissed(true)
   }
-
-  if (!visible) return null
 
   return (
     <div

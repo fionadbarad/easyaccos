@@ -18,13 +18,14 @@ export default function AuditPage() {
   const [enabled, setEnabled] = useState(() => isFlagEnabled(FLAG_AUDIT))
   const [expanded, setExpanded] = useState<string | null>(null)
 
-  async function load() {
+  function load() {
     setLoading(true)
-    setEntries(await readAuditLog(500))
-    setLoading(false)
+    readAuditLog(500).then(data => { setEntries(data); setLoading(false) })
   }
 
-  useEffect(() => { void load() }, [])
+  useEffect(() => {
+    readAuditLog(500).then(data => { setEntries(data); setLoading(false) })
+  }, [])
 
   function toggleFlag() {
     const next = !enabled
@@ -109,7 +110,7 @@ export default function AuditPage() {
                 </tr>
               </thead>
               <tbody>
-                {entries.map((e, idx) => {
+                {entries.map((e) => {
                   const isOpen = expanded === e.id
                   return (
                     <>

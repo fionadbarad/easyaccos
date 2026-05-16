@@ -20,7 +20,11 @@ export default function WhatIfSlider({ income, onChange }: { income: number; onC
     }
   }, [debounced, onChange])
 
-  useEffect(() => { setLocal(income) }, [income])
+  const [prevIncome, setPrevIncome] = useState(income)
+  if (income !== prevIncome) {
+    setPrevIncome(income)
+    setLocal(income)
+  }
 
   return (
     <div style={{ ...cardStyle, marginBottom: '1.5rem' }}>

@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import {
-  Plus, Trash2, Cloud, CloudOff, Car, MapPin, Calendar,
+  Plus, Trash2, Cloud, CloudOff, Car, MapPin,
   TrendingUp, ChevronDown, ChevronUp, Info,
 } from 'lucide-react'
 import { useUserData } from '@/lib/use-user-data'
@@ -42,6 +42,21 @@ function calcRate(vehicle: VehicleType, milesBefore: number, miles: number): num
   const firstBand  = Math.max(0, Math.min(miles, Math.max(0, CAR_THRESHOLD - milesBefore)))
   const excessBand = miles - firstBand
   return firstBand * RATE_CAR_FIRST + excessBand * RATE_CAR_EXCESS
+}
+
+function computeClaims(sorted: MileageEntry[]) {
+  let runningCarMiles = 0
+  let totalMilesAcc  = 0
+  let totalClaimAcc  = 0
+  const enriched = sorted.map(e => {
+    const milesBefore = e.vehicle === 'car' ? runningCarMiles : 0
+    const claim       = calcRate(e.vehicle, milesBefore, e.miles)
+    if (e.vehicle === 'car') runningCarMiles += e.miles
+    totalMilesAcc += e.miles
+    totalClaimAcc += claim
+    return { entry: e, claimAmount: claim }
+  })
+  return { enriched, totalMiles: totalMilesAcc, totalClaim: totalClaimAcc, carMiles: runningCarMiles }
 }
 
 function today(): string {
@@ -177,23 +192,10 @@ export default function MileagePage() {
     [entries],
   )
 
-  // Compute per-entry claim amounts (cumulative car miles needed)
-  const { enriched, totalMiles, totalClaim, carMiles } = useMemo(() => {
-    let runningCarMiles = 0
-    let totalMilesAcc  = 0
-    let totalClaimAcc  = 0
-
-    const enriched = sorted.map(e => {
-      const milesBefore = e.vehicle === 'car' ? runningCarMiles : 0
-      const claim       = calcRate(e.vehicle, milesBefore, e.miles)
-      if (e.vehicle === 'car') runningCarMiles += e.miles
-      totalMilesAcc += e.miles
-      totalClaimAcc += claim
-      return { entry: e, claimAmount: claim }
-    })
-
-    return { enriched, totalMiles: totalMilesAcc, totalClaim: totalClaimAcc, carMiles: runningCarMiles }
-  }, [sorted])
+  const { enriched, totalMiles, totalClaim, carMiles } = useMemo(
+    () => computeClaims(sorted),
+    [sorted],
+  )
 
   // Progress toward 10k threshold (car only)
   const thresholdPct = Math.min(100, (carMiles / CAR_THRESHOLD) * 100)

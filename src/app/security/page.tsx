@@ -1,25 +1,17 @@
 import { Shield, Zap, Lock, Eye, Server, Globe } from 'lucide-react'
 import Link from 'next/link'
 
-const C = {
-  bg:    '#0B0E1A',
-  card:  '#111827',
-  gold:  '#FFD700',
-  text:  '#E5E7EB',
-  muted: 'rgba(229,231,235,0.55)',
-  border:'rgba(255,215,0,0.12)',
-}
-
+import { C } from '@/styles/palette'
 function Pillar({ icon: Icon, title, body }: { icon: React.ElementType; title: string; body: string }) {
   return (
     <div style={{
       background: C.card, border: `1px solid ${C.border}`, borderRadius: '10px',
       padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.65rem',
     }}>
-      <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'rgba(255,215,0,0.08)', border: `1px solid rgba(255,215,0,0.2)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Icon size={20} style={{ color: C.gold }} />
+      <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'rgba(244,245,248,0.06)', border: `1px solid rgba(244,245,248,0.1)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Icon size={20} style={{ color: C.white }} />
       </div>
-      <h3 style={{ color: C.gold, fontFamily: 'var(--font-playfair)', fontSize: '1rem', fontWeight: 700, margin: 0 }}>{title}</h3>
+      <h3 style={{ color: C.white, fontSize: '1rem', fontWeight: 700, margin: 0 }}>{title}</h3>
       <p style={{ color: C.muted, fontSize: '0.85rem', lineHeight: 1.65, margin: 0 }}>{body}</p>
     </div>
   )
@@ -32,11 +24,11 @@ export default function SecurityPage() {
 
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-          <div style={{ width: '52px', height: '52px', borderRadius: '12px', background: 'rgba(255,215,0,0.08)', border: `1px solid rgba(255,215,0,0.25)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Shield size={26} style={{ color: C.gold }} />
+          <div style={{ width: '52px', height: '52px', borderRadius: '12px', background: 'rgba(244,245,248,0.06)', border: `1px solid rgba(244,245,248,0.1)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Shield size={26} style={{ color: C.white }} />
           </div>
           <div>
-            <h1 style={{ fontFamily: 'var(--font-playfair)', color: C.text, fontSize: 'clamp(1.6rem,3.5vw,2.2rem)', fontWeight: 700, margin: 0 }}>
+            <h1 style={{ color: C.text, fontSize: 'clamp(1.6rem,3.5vw,2.2rem)', fontWeight: 700, margin: 0 }}>
               Security &amp; Privacy
             </h1>
             <p style={{ color: C.muted, fontSize: '0.875rem', margin: '4px 0 0' }}>
@@ -47,11 +39,11 @@ export default function SecurityPage() {
 
         {/* Hero statement */}
         <div style={{
-          background: 'rgba(255,215,0,0.06)', border: `1px solid rgba(255,215,0,0.2)`,
+          background: 'rgba(244,245,248,0.04)', border: `1px solid rgba(244,245,248,0.1)`,
           borderRadius: '10px', padding: '1.5rem', marginBottom: '2.5rem',
         }}>
           <p style={{ color: C.text, fontSize: '1rem', lineHeight: 1.7, margin: 0 }}>
-            <strong style={{ color: C.gold }}>EasyAcco processes all tax calculations at the edge</strong> — your financial numbers never touch our servers. All estimations run entirely in your browser. We only store data when you explicitly choose to save it, and only after you authenticate with Google.
+            <strong style={{ color: C.white }}>EasyAcco processes all tax calculations at the edge</strong> — your financial numbers never touch our servers. All estimations run entirely in your browser. We only store data when you explicitly choose to save it, and only after you authenticate with Google.
           </p>
         </div>
 
@@ -71,9 +63,30 @@ export default function SecurityPage() {
             body="Authentication is handled by Supabase Auth with Google OAuth 2.0. We never see or store your Google password." />
         </div>
 
+        {/* Local-first encryption */}
+        <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: '10px', padding: '1.5rem', marginBottom: '2rem' }}>
+          <h2 style={{ color: C.white, fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem' }}>
+            Your Device, Your Keys
+          </h2>
+          <p style={{ color: C.muted, fontSize: '0.85rem', lineHeight: 1.7, margin: '0 0 0.75rem' }}>
+            Expenses, invoices, and mileage you enter are stored in your browser&apos;s IndexedDB,
+            encrypted with an <strong style={{ color: C.text }}>AES-GCM 256</strong> device key
+            generated on first use. The key is marked <strong style={{ color: C.text }}>non-extractable</strong> —
+            it cannot be read or exported, not even by this app&apos;s own code. Xero, QuickBooks,
+            FreeAgent, and Sage all require server round-trips; we don&apos;t.
+          </p>
+          <p style={{ color: C.muted, fontSize: '0.85rem', lineHeight: 1.7, margin: 0 }}>
+            <strong style={{ color: C.text }}>The trade-off:</strong> clearing site data or switching
+            browsers loses access to the key, and therefore the data. Use{' '}
+            <Link href="/dashboard/settings#backup" style={{ color: C.white }}>Settings → Backup</Link>{' '}
+            to export a passphrase-protected snapshot. The passphrase derives a separate key via
+            PBKDF2 (310,000 iterations, SHA-256) — keep it somewhere safe; it cannot be recovered.
+          </p>
+        </div>
+
         {/* What we store */}
         <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: '10px', padding: '1.5rem', marginBottom: '2rem' }}>
-          <h2 style={{ fontFamily: 'var(--font-playfair)', color: C.gold, fontSize: '1.1rem', fontWeight: 700, marginBottom: '1rem' }}>
+          <h2 style={{ color: C.white, fontSize: '1.1rem', fontWeight: 700, marginBottom: '1rem' }}>
             What We Store (Only After Sign-In)
           </h2>
           {[
@@ -81,19 +94,34 @@ export default function SecurityPage() {
             ['Saved transactions', 'Only if you use the Save feature — encrypted at rest'],
             ['Display name', 'Optional, editable in Settings at any time'],
           ].map(([field, desc]) => (
-            <div key={field} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: `1px solid rgba(255,215,0,0.06)`, gap: '1rem' }}>
+            <div key={field} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: `1px solid rgba(244,245,248,0.06)`, gap: '1rem' }}>
               <span style={{ color: C.text, fontSize: '0.875rem', fontWeight: 500, flexShrink: 0 }}>{field}</span>
               <span style={{ color: C.muted, fontSize: '0.82rem', textAlign: 'right' }}>{desc}</span>
             </div>
           ))}
         </div>
 
+        {/* AI disclosure */}
+        <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: '10px', padding: '1.5rem', marginBottom: '2rem' }}>
+          <h2 style={{ color: C.white, fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem' }}>
+            AI Features &amp; Third-Party Processing
+          </h2>
+          <p style={{ color: C.muted, fontSize: '0.85rem', lineHeight: 1.7, margin: 0 }}>
+            The Tax Advisory chat and the optional <strong style={{ color: C.text }}>Suggest Category</strong> button on the Expenses
+            page send the relevant text (your question, or the expense description and amount) to
+            <strong style={{ color: C.text }}> Google Gemini</strong> for a single response. Numeric totals, receipt images, and your
+            full ledger are never transmitted. Receipt OCR runs <strong style={{ color: C.text }}>entirely in your browser</strong> via
+            Tesseract — the photo never leaves your device. If you prefer not to use AI features, simply don&apos;t click the
+            Suggest button or open the Advisory tab — the rest of the app runs fully client-side.
+          </p>
+        </div>
+
         {/* Contact */}
         <p style={{ color: C.muted, fontSize: '0.82rem', lineHeight: 1.7 }}>
           Questions? Contact us at{' '}
-          <span style={{ color: C.gold }}>security@easyacco.com</span>
+          <a href="mailto:baradfiona14@gmail.com" style={{ color: C.white, textDecoration: 'none', borderBottom: '1px solid rgba(244,245,248,0.2)' }}>baradfiona14@gmail.com</a>
           {' '}— or{' '}
-          <Link href="/dashboard" style={{ color: C.gold }}>return to the dashboard</Link>.
+          <Link href="/dashboard" style={{ color: C.white }}>return to the dashboard</Link>.
         </p>
       </div>
     </div>

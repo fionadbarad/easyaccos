@@ -1,0 +1,19 @@
+{
+  "name": "EasyAcco — UK Tax & Accounting",
+  "short_name": "EasyAcco",
+  "description": "Free client-side UK tax and accounting tool for sole traders. 2026/27 HMRC-accurate.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#181818",
+  "theme_color": "#181818",
+  "categories": ["finance", "business", "productivity"],
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}

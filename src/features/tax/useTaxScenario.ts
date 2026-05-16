@@ -38,7 +38,7 @@ const DEFAULT_INPUTS = {
   dirDividends: 50_000,
   s3: { universalCredit: 6_000, jsaAmount: 4_000, carersAllowance: 2_400, otherIncome: 0 } satisfies S3Input,
   s4: { annualSalary:    42_000, monthsWorked: 6, redundancyPayment: 35_000, payeTaxPaid: 4_200 } satisfies S4Input,
-} as const
+}
 
 export function useTaxScenario() {
   const [scenario, setScenario]     = useState<ScenarioKey>(DEFAULT_INPUTS.scenario)

@@ -339,7 +339,7 @@ export default function AIPage() {
   const canSend = !loading && input.trim().length > 0
   const lastAssistantIdx = [...messages].reverse().findIndex((m) => m.role === 'assistant')
   const lastAssistantId  = lastAssistantIdx >= 0
-    ? messages[messages.length - 1 - lastAssistantIdx].id
+    ? messages[messages.length - 1 - lastAssistantIdx]!.id
     : null
 
   // Context summary for the UI

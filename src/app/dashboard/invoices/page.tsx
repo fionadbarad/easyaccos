@@ -5,6 +5,7 @@ import { Plus, Cloud, CloudOff, AlertTriangle } from 'lucide-react'
 import { useInvoices, fmt, type InvoiceStatus } from '@/lib/hooks/useInvoices'
 import { InvoiceRow } from '@/features/invoices/InvoiceRow'
 import { InvoiceForm } from '@/features/invoices/InvoiceForm'
+import { SkeletonRows } from '@/components/ui/Skeleton'
 
 import { C } from '@/styles/palette'
 function StatCard({ label, value, color = C.white, sub }: { label: string; value: string; color?: string; sub?: string }) {
@@ -104,7 +105,7 @@ export default function InvoicesPage() {
       </div>
 
       {loading ? (
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '3rem', textAlign: 'center', color: C.muted, fontSize: '0.84rem' }}>Loading…</div>
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '1rem 1.1rem' }}><SkeletonRows count={6} /></div>
       ) : displayed.length === 0 ? (
         <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '3.5rem', textAlign: 'center' }}>
           <div style={{ color: C.muted, fontSize: '0.84rem', marginBottom: '6px' }}>{invoices.length === 0 ? 'No invoices yet.' : 'No invoices match this filter.'}</div>

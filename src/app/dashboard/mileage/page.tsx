@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { useUserData } from '@/lib/use-user-data'
 import { fmtGBP } from '@/lib/tax-engine'
+import RouteLoading from '@/components/ui/RouteLoading'
 
 import { C } from '@/styles/palette'
 // HMRC 2026/27 approved mileage rates
@@ -221,11 +222,7 @@ export default function MileagePage() {
   }
 
   if (loading) {
-    return (
-      <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ color: C.muted, fontSize: '0.8rem', fontFamily: 'var(--font-geist-mono, monospace)' }}>loading…</span>
-      </div>
-    )
+    return <RouteLoading />
   }
 
   return (

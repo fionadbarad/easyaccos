@@ -1,6 +1,3 @@
-
-'use client'
-
 import Link from 'next/link'
 import { X, MessageCircle } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'

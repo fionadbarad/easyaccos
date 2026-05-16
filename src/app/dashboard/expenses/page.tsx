@@ -8,6 +8,7 @@ import { useExpenses, CATEGORIES } from '@/lib/hooks/useExpenses'
 import type { Expense } from '@/lib/validators'
 import { ReceiptVerifyModal } from '@/features/expenses/ReceiptVerifyModal'
 import { ExpenseForm } from '@/features/expenses/ExpenseForm'
+import { SkeletonRows } from '@/components/ui/Skeleton'
 
 import { C } from '@/styles/palette'
 export default function ExpensesPage() {
@@ -128,8 +129,8 @@ export default function ExpensesPage() {
       )}
 
       {loading ? (
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '3rem', textAlign: 'center', color: C.muted, fontSize: '0.84rem' }}>
-          Loading…
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '1rem 1.1rem' }}>
+          <SkeletonRows count={6} />
         </div>
       ) : expenses.length === 0 ? (
         <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '3rem', textAlign: 'center' }}>

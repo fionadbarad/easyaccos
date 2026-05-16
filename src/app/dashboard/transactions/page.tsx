@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { Plus, Trash2, ArrowUpCircle, ArrowDownCircle, Calendar, Cloud, CloudOff } from 'lucide-react'
 import { useUserData } from '@/lib/use-user-data'
+import { AsyncBoundary } from '@/components/ui/AsyncBoundary'
 
 import { C } from '@/styles/palette'
 type TxType    = 'income' | 'expense'
@@ -124,6 +125,8 @@ export default function TransactionsPage() {
           <a href="/auth/login" style={{ color: '#FBBF24', fontSize: '0.72rem', fontWeight: 600, textDecoration: 'none', borderBottom: '1px solid rgba(251,191,36,0.4)' }}>Sign in →</a>
         </div>
       )}
+
+      <AsyncBoundary loading={loading}>
 
       {/* Summary tiles */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', border: `1px solid ${C.border}`, borderRadius: '6px', overflow: 'hidden', background: C.border, marginBottom: '1.5rem' }}>
@@ -250,6 +253,7 @@ export default function TransactionsPage() {
       <p style={{ color: C.muted, fontSize: '0.62rem', textAlign: 'right', marginTop: '0.75rem', fontFamily: 'var(--font-geist-mono), monospace' }}>
         2026/27 HMRC compliant · digitally linked records
       </p>
+      </AsyncBoundary>
     </div>
   )
 }

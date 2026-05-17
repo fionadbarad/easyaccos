@@ -11,33 +11,37 @@ export default function DashboardError({
   useEffect(() => { console.error(error) }, [error])
 
   return (
-    <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)', maxWidth: '560px' }}>
-      <div style={{ color: '#FBBF24', fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '6px', fontFamily: 'var(--font-geist-mono), monospace' }}>
+    <div className="p-[clamp(1.5rem,4vw,2.5rem)] max-w-[560px]">
+      <div className="text-amber-400 text-[0.62rem] uppercase tracking-[0.12em] mb-1.5 font-mono">
         error · safety net engaged
       </div>
-      <h1 style={{ color: '#F4F5F8', fontSize: 'clamp(1.2rem,2.4vw,1.5rem)', fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 0.6rem' }}>
+      <h1 className="text-[var(--sa-white)] text-[clamp(1.2rem,2.4vw,1.5rem)] font-semibold tracking-[-0.02em] mb-2.5">
         Something went wrong rendering this view.
       </h1>
-      <p style={{ color: 'rgba(244,245,248,0.5)', fontSize: '0.82rem', lineHeight: 1.5, marginBottom: '1.25rem' }}>
+      <p className="text-[rgba(244,245,248,0.5)] text-[0.82rem] leading-relaxed mb-5">
         Your data is safe — nothing was written. You can retry, or navigate away.
       </p>
       {error.message && (
-        <pre style={{ color: 'rgba(244,245,248,0.75)', fontSize: '0.72rem', fontFamily: 'var(--font-geist-mono), monospace', background: '#1C1D20', border: '1px solid rgba(244,245,248,0.07)', borderRadius: '4px', padding: '0.6rem 0.8rem', marginBottom: '0.6rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+        <pre className="text-[rgba(244,245,248,0.75)] text-[0.72rem] font-mono bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded px-3 py-2.5 mb-2.5 whitespace-pre-wrap break-words">
           {error.message}
         </pre>
       )}
       {error.digest && (
-        <pre style={{ color: 'rgba(244,245,248,0.3)', fontSize: '0.68rem', fontFamily: 'var(--font-geist-mono), monospace', background: '#1C1D20', border: '1px solid rgba(244,245,248,0.07)', borderRadius: '4px', padding: '0.6rem 0.8rem', marginBottom: '1.25rem' }}>
+        <pre className="text-[rgba(244,245,248,0.3)] text-[0.68rem] font-mono bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded px-3 py-2.5 mb-5 whitespace-pre-wrap break-words">
           digest: {error.digest}
         </pre>
       )}
-      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-        <button onClick={reset}
-          style={{ background: '#F4F5F8', color: '#181818', border: 'none', borderRadius: '4px', padding: '9px 16px', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', letterSpacing: '-0.01em' }}>
+      <div className="flex gap-2 flex-wrap">
+        <button
+          onClick={reset}
+          className="bg-[var(--sa-white)] text-[var(--sa-black)] border-none rounded px-4 py-2.5 text-[0.82rem] font-semibold cursor-pointer tracking-[-0.01em] hover:opacity-90 transition-opacity"
+        >
           Try again
         </button>
-        <a href="mailto:support@easyacco.com?subject=Dashboard%20error"
-          style={{ background: 'transparent', color: 'rgba(244,245,248,0.7)', border: '1px solid rgba(244,245,248,0.15)', borderRadius: '4px', padding: '9px 16px', fontSize: '0.82rem', fontWeight: 500, textDecoration: 'none', letterSpacing: '-0.01em' }}>
+        <a
+          href="mailto:support@easyacco.com?subject=Dashboard%20error"
+          className="bg-transparent text-[rgba(244,245,248,0.7)] border border-[rgba(244,245,248,0.15)] rounded px-4 py-2.5 text-[0.82rem] font-medium no-underline tracking-[-0.01em] hover:border-[rgba(244,245,248,0.3)] transition-colors"
+        >
           Contact support
         </a>
       </div>

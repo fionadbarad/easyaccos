@@ -5,12 +5,10 @@ import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import type { User } from '@supabase/supabase-js'
 import { Menu } from 'lucide-react'
-import { C } from '@/styles/palette'
 import Sidebar from '@/features/shell/Sidebar'
 import MobileTopBar from '@/features/shell/MobileTopBar'
 import OfflineChip from '@/features/shell/OfflineChip'
 import EncryptionOnboardingDialog from '@/features/onboarding/EncryptionOnboardingDialog'
-import { SIDEBAR_W } from '@/features/shell/nav-config'
 
 export default function DashboardShell({
   children,
@@ -49,79 +47,37 @@ export default function DashboardShell({
   const sidebarProps = { user, pathname, onSignOut: handleSignOut }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: C.bg }}>
+    <div className="flex min-h-screen bg-[var(--sa-black)]">
       <button
-        className="hidden md:flex"
+        className={`hidden md:flex fixed top-4 left-3 z-[51] bg-[var(--sa-surface)] border border-[var(--sa-border)] rounded text-[var(--sa-muted)] cursor-pointer px-2 py-1.5 items-center justify-center transition-[opacity,color] duration-200 hover:text-[var(--sa-white)] ${desktopOpen ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}
         onClick={() => setDesktopOpen(true)}
-        title="Open sidebar"
-        style={{
-          position: 'fixed', top: '1rem', left: '0.75rem',
-          zIndex: 51, background: C.surface, border: `1px solid ${C.border}`,
-          borderRadius: '4px', color: C.muted, cursor: 'pointer',
-          padding: '6px 8px', alignItems: 'center', justifyContent: 'center',
-          opacity: desktopOpen ? 0 : 1,
-          pointerEvents: desktopOpen ? 'none' : 'auto',
-          transition: 'opacity 0.2s ease, color 0.1s',
-        }}
-        onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = C.white}
-        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = C.muted}>
+        title="Open sidebar">
         <Menu size={14} />
       </button>
 
       <div
-        className="hidden md:block"
+        className={`hidden md:block fixed inset-0 z-[45] bg-black/55 transition-opacity duration-200 ${desktopOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         onClick={closeDesktop}
-        style={{
-          position: 'fixed', inset: 0, zIndex: 45,
-          background: 'rgba(0,0,0,0.55)',
-          opacity: desktopOpen ? 1 : 0,
-          pointerEvents: desktopOpen ? 'auto' : 'none',
-          transition: 'opacity 0.2s ease',
-        }}
       />
 
       <aside
-        className="hidden md:flex"
-        style={{
-          width: `${SIDEBAR_W}px`, flexShrink: 0, flexDirection: 'column',
-          background: C.bg, borderRight: `1px solid ${C.border}`,
-          position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 50,
-          transform: desktopOpen ? 'translateX(0)' : `translateX(-${SIDEBAR_W}px)`,
-          transition: 'transform 0.25s cubic-bezier(0.4,0,0.2,1)',
-        }}>
+        className={`hidden md:flex w-[232px] shrink-0 flex-col bg-[var(--sa-black)] border-r border-[var(--sa-border)] fixed top-0 left-0 bottom-0 z-50 transition-transform duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${desktopOpen ? 'translate-x-0' : '-translate-x-[232px]'}`}>
         <Sidebar {...sidebarProps} onNavClick={closeDesktop} onClose={closeDesktop} />
       </aside>
 
       <MobileTopBar open={mobileOpen} onToggle={() => setMobileOpen(o => !o)} />
 
       <div
-        className="md:hidden"
+        className={`md:hidden fixed inset-0 z-[45] bg-black/70 transition-opacity duration-200 ${mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         onClick={closeMobile}
-        style={{
-          position: 'fixed', inset: 0, zIndex: 45,
-          background: 'rgba(0,0,0,0.7)',
-          opacity: mobileOpen ? 1 : 0,
-          pointerEvents: mobileOpen ? 'auto' : 'none',
-          transition: 'opacity 0.2s ease',
-        }}
       />
 
       <aside
-        className="md:hidden"
-        style={{
-          position: 'fixed', top: 0, left: 0, bottom: 0,
-          width: `${SIDEBAR_W}px`, zIndex: 50,
-          background: C.bg, borderRight: `1px solid ${C.border}`,
-          transform: mobileOpen ? 'translateX(0)' : `translateX(-${SIDEBAR_W}px)`,
-          transition: 'transform 0.25s cubic-bezier(0.4,0,0.2,1)',
-          overflowY: 'auto',
-        }}>
+        className={`md:hidden fixed top-0 left-0 bottom-0 w-[232px] z-50 bg-[var(--sa-black)] border-r border-[var(--sa-border)] overflow-y-auto transition-transform duration-[250ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${mobileOpen ? 'translate-x-0' : '-translate-x-[232px]'}`}>
         <Sidebar {...sidebarProps} onNavClick={closeMobile} />
       </aside>
 
-      <main
-        className="mt-[52px] md:mt-0"
-        style={{ flex: 1, minHeight: '100vh', background: C.bg, overflow: 'auto' }}>
+      <main className="mt-[52px] md:mt-0 flex-1 min-h-screen bg-[var(--sa-black)] overflow-auto">
         {children}
       </main>
 

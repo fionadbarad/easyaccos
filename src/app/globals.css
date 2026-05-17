@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+/* ── Shimmer animation for skeleton loading states ──────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+@utility animate-shimmer {
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
 /* ── System Auditor Design System ── Quiet Luxury · Nordic Monochrome ───── */
 :root {
   --sa-black:    #181818;

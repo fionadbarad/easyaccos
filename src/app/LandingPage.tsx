@@ -165,7 +165,7 @@ export default function LandingPage() {
         <div className="max-w-[1120px] mx-auto">
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-12">
             <div className="text-[rgba(244,245,248,0.18)] text-[0.62rem] uppercase tracking-[0.15em] mb-2 font-mono">
-              what's included
+              what&apos;s included
             </div>
             <h2 className="text-[var(--sa-white)] text-[clamp(1.5rem,3vw,2rem)] font-semibold tracking-[-0.03em] m-0">
               Every tool a sole trader needs.

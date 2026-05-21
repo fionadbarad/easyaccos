@@ -37,6 +37,7 @@ export default function AuditPage() {
     setLoading(false)
   }
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- async IndexedDB read, cannot use useState lazy init
   useEffect(() => { void load() }, [])
 
   function toggleFlag() {
@@ -122,7 +123,7 @@ export default function AuditPage() {
                 </tr>
               </thead>
               <tbody>
-                {entries.map((e, idx) => {
+                {entries.map((e) => {
                   const isOpen = expanded === e.id
                   return (
                     <>

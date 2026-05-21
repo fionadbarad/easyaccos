@@ -10,7 +10,7 @@
 
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient, isSupabaseConfigured } from '@/lib/supabase-browser'
 import { secureRead, secureWrite } from '@/lib/storage/secure-store'
 import { appendAuditLog } from '@/lib/audit'
@@ -23,8 +23,7 @@ export function useUserData<T extends { id: string }>(
   localKey: string,
   seed: T[],
 ) {
-  const supabaseRef  = useRef<SupabaseClient | null>(isSupabaseConfigured ? createClient() : null)
-  const supabase     = supabaseRef.current
+  const [supabase] = useState<SupabaseClient | null>(() => isSupabaseConfigured ? createClient() : null)
 
   const [items,   setItems]   = useState<T[]>([])
   const [user,    setUser]    = useState<User | null>(null)
@@ -33,6 +32,7 @@ export function useUserData<T extends { id: string }>(
   // ── Track auth state ──────────────────────────────────────────────────────
   useEffect(() => {
     if (!supabase) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setUser(null)
       return
     }
@@ -137,7 +137,6 @@ export function useUserData<T extends { id: string }>(
     } else {
       await secureWrite(`${table}:guest`, next)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, table, supabase, items])
 
   return { items, persist, loading, isAuthenticated: !!user }

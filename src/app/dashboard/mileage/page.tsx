@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import {
-  Plus, Trash2, Cloud, CloudOff, Car, MapPin, Calendar,
+  Plus, Trash2, Cloud, CloudOff, Car, MapPin,
   TrendingUp, ChevronDown, ChevronUp, Info,
 } from 'lucide-react'
 import { useUserData } from '@/lib/use-user-data'
@@ -191,20 +191,25 @@ export default function MileagePage() {
 
   // Compute per-entry claim amounts (cumulative car miles needed)
   const { enriched, totalMiles, totalClaim, carMiles } = useMemo(() => {
-    let runningCarMiles = 0
-    let totalMilesAcc  = 0
-    let totalClaimAcc  = 0
-
-    const enriched = sorted.map(e => {
-      const milesBefore = e.vehicle === 'car' ? runningCarMiles : 0
-      const claim       = calcRate(e.vehicle, milesBefore, e.miles)
-      if (e.vehicle === 'car') runningCarMiles += e.miles
-      totalMilesAcc += e.miles
-      totalClaimAcc += claim
-      return { entry: e, claimAmount: claim }
-    })
-
-    return { enriched, totalMiles: totalMilesAcc, totalClaim: totalClaimAcc, carMiles: runningCarMiles }
+    const acc = sorted.reduce<{
+      enriched: Array<{ entry: MileageEntry; claimAmount: number }>
+      runningCarMiles: number
+      totalMiles: number
+      totalClaim: number
+    }>(
+      (a, e) => {
+        const milesBefore = e.vehicle === 'car' ? a.runningCarMiles : 0
+        const claim       = calcRate(e.vehicle, milesBefore, e.miles)
+        return {
+          enriched:        [...a.enriched, { entry: e, claimAmount: claim }],
+          runningCarMiles: a.runningCarMiles + (e.vehicle === 'car' ? e.miles : 0),
+          totalMiles:      a.totalMiles + e.miles,
+          totalClaim:      a.totalClaim + claim,
+        }
+      },
+      { enriched: [], runningCarMiles: 0, totalMiles: 0, totalClaim: 0 },
+    )
+    return { enriched: acc.enriched, totalMiles: acc.totalMiles, totalClaim: acc.totalClaim, carMiles: acc.runningCarMiles }
   }, [sorted])
 
   // Progress toward 10k threshold (car only)

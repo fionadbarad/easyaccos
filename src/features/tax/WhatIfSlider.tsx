@@ -20,7 +20,10 @@ export default function WhatIfSlider({ income, onChange }: { income: number; onC
     }
   }, [debounced, onChange])
 
-  useEffect(() => { setLocal(income) }, [income])
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLocal(income)
+  }, [income])
 
   return (
     <div style={{ ...cardStyle, marginBottom: '1.5rem' }}>

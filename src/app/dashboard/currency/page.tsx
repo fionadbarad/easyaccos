@@ -50,11 +50,12 @@ const inputStyle: React.CSSProperties = {
 }
 
 export default function CurrencyPage() {
-  const [rates,       setRates]       = useState<Record<string, number>>({})
-  const [loading,     setLoading]     = useState(true)
+  const [initCache] = useState(loadCache)
+  const [rates,       setRates]       = useState<Record<string, number>>(() => initCache?.rates ?? {})
+  const [loading,     setLoading]     = useState(() => !initCache)
   const [error,       setError]       = useState('')
-  const [isStale,     setIsStale]     = useState(false)
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const [isStale,     setIsStale]     = useState(() => !!initCache)
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(() => initCache ? new Date(initCache.fetchedAt) : null)
 
   const [amount, setAmount] = useState('1000')
   const [from,   setFrom]   = useState('GBP')
@@ -105,17 +106,9 @@ export default function CurrencyPage() {
     }
   }, [])
 
-  // On mount: serve cached data instantly, then refresh in the background.
-  useEffect(() => {
-    const cached = loadCache()
-    if (cached) {
-      setRates(cached.rates)
-      setLastUpdated(new Date(cached.fetchedAt))
-      setIsStale(true)
-      setLoading(false)
-    }
-    fetchRates()
-  }, [fetchRates])
+  // On mount: refresh rates in the background (cache already loaded via useState lazy init).
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- fetchRates sets state internally after async fetch
+  useEffect(() => { fetchRates() }, [fetchRates])
 
   // Polling: skip fetches while the tab is hidden to conserve API quota.
   useEffect(() => {

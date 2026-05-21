@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { TrendingUp, TrendingDown, Minus, PiggyBank, Calendar, AlertTriangle, CheckCircle, ChevronDown } from 'lucide-react'
+import { TrendingDown, Minus, PiggyBank, Calendar, AlertTriangle, CheckCircle, ChevronDown } from 'lucide-react'
 import { calculateTax } from '@/lib/tax-engine'
 import type { EmploymentType, StudentLoanPlan, TaxRegion } from '@/lib/tax-engine'
 import { useUserData } from '@/lib/use-user-data'
@@ -31,9 +31,6 @@ const TAX_YEAR_DAYS  = Math.ceil((TAX_YEAR_END.getTime() - TAX_YEAR_START.getTim
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function fmt(n: number) {
   return '£' + Math.round(Math.abs(n)).toLocaleString('en-GB')
-}
-function fmtDec(n: number) {
-  return '£' + Math.abs(n).toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 }
 function clamp(n: number, lo: number, hi: number) {
   return Math.max(lo, Math.min(hi, n))
@@ -81,29 +78,6 @@ function Select({ value, onChange, options }: {
         {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
       <ChevronDown size={13} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', color: C.muted, pointerEvents: 'none' }} />
-    </div>
-  )
-}
-
-// ── Big stat display ──────────────────────────────────────────────────────────
-function BigStat({ label, value, color = C.white, sub }: {
-  label: string; value: string; color?: string; sub?: string
-}) {
-  return (
-    <div>
-      <div style={{ color: C.dim, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, marginBottom: '4px', fontFamily: 'var(--font-geist-mono), monospace' }}>
-        {label}
-      </div>
-      <motion.div
-        key={value}
-        initial={{ opacity: 0.4, y: 4 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
-        style={{ color, fontSize: '1.65rem', fontWeight: 600, letterSpacing: '-0.04em', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}
-      >
-        {value}
-      </motion.div>
-      {sub && <div style={{ color: C.muted, fontSize: '0.7rem', marginTop: '4px' }}>{sub}</div>}
     </div>
   )
 }
@@ -168,7 +142,7 @@ function TaxPotCalculator() {
           <PiggyBank size={14} style={{ color: C.muted }} />
           <span style={{ color: C.white, fontSize: '0.9rem', fontWeight: 600, letterSpacing: '-0.02em' }}>Tax Pot Calculator</span>
         </div>
-        <div style={{ color: C.muted, fontSize: '0.72rem' }}>How much to set aside from this month's earnings</div>
+        <div style={{ color: C.muted, fontSize: '0.72rem' }}>How much to set aside from this month&apos;s earnings</div>
       </div>
 
       <div style={{ padding: '1.5rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
@@ -176,7 +150,7 @@ function TaxPotCalculator() {
         {/* ── Inputs ── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div>
-            <Label>This month's gross income</Label>
+            <Label>This month&apos;s gross income</Label>
             <input
               type="number" min={0} placeholder="e.g. 4500"
               value={income} onChange={e => setIncome(e.target.value)}
@@ -262,7 +236,7 @@ function TaxPotCalculator() {
               <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '180px' }}>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ color: C.dim, fontSize: '0.78rem' }}>Enter this month's income</div>
+                  <div style={{ color: C.dim, fontSize: '0.78rem' }}>Enter this month&apos;s income</div>
                   <div style={{ color: 'rgba(244,245,248,0.08)', fontSize: '0.65rem', marginTop: '4px', fontFamily: 'var(--font-geist-mono), monospace' }}>to calculate your tax pot</div>
                 </div>
               </motion.div>
@@ -556,7 +530,7 @@ function YearTracker() {
                     onFocus={e => (e.target as HTMLInputElement).style.borderColor = 'rgba(244,245,248,0.3)'}
                     onBlur={e  => (e.target as HTMLInputElement).style.borderColor = C.border}
                   />
-                  <div style={{ color: C.dim, fontSize: '0.65rem', marginTop: '5px' }}>Enter what's currently in your tax savings pot</div>
+                  <div style={{ color: C.dim, fontSize: '0.65rem', marginTop: '5px' }}>Enter what&apos;s currently in your tax savings pot</div>
                 </div>
 
                 {projectedTax && (
@@ -599,7 +573,7 @@ function YearTracker() {
                       <div>
                         {isOnTrack ? (
                           <>
-                            <div style={{ color: C.green, fontSize: '0.82rem', fontWeight: 600, marginBottom: '2px' }}>You're covered</div>
+                            <div style={{ color: C.green, fontSize: '0.82rem', fontWeight: 600, marginBottom: '2px' }}>You&apos;re covered</div>
                             <div style={{ color: C.muted, fontSize: '0.72rem', lineHeight: 1.5 }}>
                               Surplus of {fmt(Math.abs(gap))} — you have more than enough set aside.
                             </div>

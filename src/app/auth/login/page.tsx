@@ -2,9 +2,9 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase-browser'
 import { ArrowRight, Mail, Loader2, CheckCircle } from 'lucide-react'
@@ -21,9 +21,7 @@ const C = {
 }
 
 export default function LoginPage() {
-  const router      = useRouter()
-  const supabaseRef = useRef(createClient())
-  const supabase    = supabaseRef.current
+  const [supabase] = useState(() => createClient())
 
   const [email,   setEmail]   = useState('')
   const [loading, setLoading] = useState(false)

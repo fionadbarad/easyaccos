@@ -3,8 +3,8 @@
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import {
-  Calculator, Receipt, ArrowLeftRight,
-  GraduationCap, Bot, BarChart2,
+  Calculator, Receipt,
+  GraduationCap, Bot,
   TrendingUp, Settings, BookOpen, FileText,
   AlertCircle, CheckCircle2, Clock,
 } from 'lucide-react'

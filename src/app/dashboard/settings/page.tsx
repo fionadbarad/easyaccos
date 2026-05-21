@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-browser'
 import { Loader2, CheckCircle } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
@@ -21,8 +21,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 export default function SettingsPage() {
-  const supabaseRef = useRef(createClient())
-  const supabase = supabaseRef.current
+  const [supabase] = useState(() => createClient())
 
   const [user, setUser] = useState<User | null>(null)
   const [name, setName] = useState('')

@@ -44,15 +44,14 @@ export default function YearTracker() {
   const yearIncome   = useMemo(() => yearlyIncome(transactions),   [transactions])
   const yearExpenses = useMemo(() => yearlyExpenses(expenses),     [expenses])
 
-  const projectedIncome   = projectAnnual(yearIncome,   monthsElapsed)
-  const projectedExpenses = projectAnnual(yearExpenses, monthsElapsed)
   const monthlyPensionNum = parseFloat(pension || '0')
 
-  const projectedTax = useMemo(() => {
-    if (projectedIncome <= 0) return null
-    return calculateTax({
-      grossRevenue:          projectedIncome,
-      allowableExpenses:     projectedExpenses,
+  const { projectedIncome, projectedExpenses, projectedTax } = useMemo(() => {
+    const projIncome   = projectAnnual(yearIncome,   monthsElapsed)
+    const projExpenses = projectAnnual(yearExpenses, monthsElapsed)
+    const tax = projIncome <= 0 ? null : calculateTax({
+      grossRevenue:          projIncome,
+      allowableExpenses:     projExpenses,
       dividendIncome:        0,
       employmentType:        empType,
       taxRegion:             region,
@@ -62,7 +61,9 @@ export default function YearTracker() {
       blindPersonsAllowance: false,
       pensionContribution:   monthlyPensionNum * 12,
     })
-  }, [projectedIncome, projectedExpenses, empType, region, slPlan, monthlyPensionNum])
+    return { projectedIncome: projIncome, projectedExpenses: projExpenses, projectedTax: tax }
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization -- monthsElapsed derives from Date, compiler can't track it
+  }, [yearIncome, yearExpenses, monthsElapsed, empType, region, slPlan, monthlyPensionNum])
 
   const projectedBill   = projectedTax ? Math.round(projectedTax.totalDeductions) : 0
   const savedSoFar      = parseFloat(potSaved || '0')

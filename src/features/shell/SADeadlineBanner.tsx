@@ -58,6 +58,7 @@ export default function SADeadlineBanner() {
   const [dismissed, setDismissed] = useState<boolean>(() => readDismissed() === dismissId)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDismissed(readDismissed() === dismissId)
   }, [dismissId])
 

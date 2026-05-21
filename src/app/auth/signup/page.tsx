@@ -125,7 +125,7 @@ export default function SignupPage() {
                 </span>
               </div>
               <p style={{ color: C.muted, fontSize: '0.78rem', lineHeight: 1.5, marginBottom: '1rem' }}>
-                Enter your email and we'll send a one-click link. No password. Your account is created on first click.
+                Enter your email and we&apos;ll send a one-click link. No password. Your account is created on first click.
               </p>
 
               <form onSubmit={sendMagicLink} style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>

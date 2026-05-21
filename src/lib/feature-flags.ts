@@ -5,13 +5,11 @@
  * SSR-safe: env is consulted first, localStorage only when available.
  */
 
-export const FLAG_GAAP = 'gaap'
 export const FLAG_AUDIT = 'audit'
 
-type FlagName = typeof FLAG_GAAP | typeof FLAG_AUDIT
+type FlagName = typeof FLAG_AUDIT
 
 const ENV_MAP: Record<FlagName, string | undefined> = {
-  [FLAG_GAAP]: process.env.NEXT_PUBLIC_EA_GAAP,
   [FLAG_AUDIT]: process.env.NEXT_PUBLIC_EA_AUDIT,
 }
 

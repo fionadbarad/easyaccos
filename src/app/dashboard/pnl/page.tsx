@@ -6,7 +6,7 @@ import {
   Tooltip, ResponsiveContainer, Legend,
 } from 'recharts'
 import { Copy, CheckCheck, FileText, TrendingUp, TrendingDown } from 'lucide-react'
-import { calcScenario1 } from '@/lib/TaxBible2026'
+import { calcScenario1 } from '@/lib/tax-scenarios'
 
 const C = {
   bg:      '#181818',

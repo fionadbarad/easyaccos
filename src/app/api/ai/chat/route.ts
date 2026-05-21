@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { buildContextPrompt } from '@/lib/kittax/context'
 import type { KittaxContext } from '@/lib/kittax/types'
+import { fmtGBP, pct1 } from '@/lib/formatters'
+import {
+  NI_CLASS2_SPT, NI_C2_WEEKLY, NI_PT, NI_UEL,
+  PA_BASE, PA_TAPER_START, PA_TAPER_END,
+  RUK_BASIC_LIMIT, RUK_HIGHER_LIMIT,
+  DIV_BASIC, DIV_HIGHER,
+} from '@/lib/tax/bands-2026'
+
+const pct = (rate: number) => pct1(rate * 100)
 
 const BASE_SYSTEM = `You are EasyAcco's personal tax advisor — aligned to HMRC rules for the 2026/27 UK fiscal year. You are a conversational advisor, not a text box, with a voice and a memory of the conversation so far. Do not introduce yourself with a name; simply speak as a knowledgeable UK tax advisor.
 
@@ -19,40 +28,40 @@ TONE:
 CORE TAX RULES — FOLLOW EXACTLY:
 
 Personal Allowance:
-- Standard allowance = £12,570
-- Income below £100,000: full allowance applies
-- Income above £100,000: reduction = (income minus 100,000) divided by 2
-  adjusted allowance = max(0, 12,570 minus reduction)
-- Income at or above £125,140: allowance = £0
+- Standard allowance = ${fmtGBP(PA_BASE)}
+- Income below ${fmtGBP(PA_TAPER_START)}: full allowance applies
+- Income above ${fmtGBP(PA_TAPER_START)}: reduction = (income minus ${PA_TAPER_START}) divided by 2
+  adjusted allowance = max(0, ${PA_BASE} minus reduction)
+- Income at or above ${fmtGBP(PA_TAPER_END)}: allowance = £0
 - Personal Allowance is NEVER negative — minimum is £0
 
 Taxable Income:
 - taxable income = max(0, income minus adjusted allowance)
 
 Income Tax Bands (rUK 2026/27):
-- 20% basic rate: £12,571 to £50,270
-- 40% higher rate: £50,271 to £125,140
-- 45% additional rate: above £125,140
+- 20% basic rate: ${fmtGBP(PA_BASE + 1)} to ${fmtGBP(RUK_BASIC_LIMIT)}
+- 40% higher rate: ${fmtGBP(RUK_BASIC_LIMIT + 1)} to ${fmtGBP(RUK_HIGHER_LIMIT)}
+- 45% additional rate: above ${fmtGBP(RUK_HIGHER_LIMIT)}
 
 Dividend Tax Rates (2026/27):
 - First £500: tax-free allowance
-- 8.75% in basic rate band
-- 33.75% in higher rate band
+- ${pct(DIV_BASIC)} in basic rate band
+- ${pct(DIV_HIGHER)} in higher rate band
 - 39.35% in additional rate band
 
 National Insurance (Self-Employed):
-- Class 4: 6% on profits £12,570 to £50,270; 2% above
-- Class 2: deemed paid (no charge) if profit above £7,105 SPT
-- Class 2 voluntary: £3.65/week if profit below £7,105 SPT
+- Class 4: 6% on profits ${fmtGBP(NI_PT)} to ${fmtGBP(NI_UEL)}; 2% above
+- Class 2: deemed paid (no charge) if profit above ${fmtGBP(NI_CLASS2_SPT)} SPT
+- Class 2 voluntary: £${NI_C2_WEEKLY.toFixed(2)}/week if profit below ${fmtGBP(NI_CLASS2_SPT)} SPT
 
 NI (Employed):
-- Class 1: 8% on earnings £12,570 to £50,270; 2% above
+- Class 1: 8% on earnings ${fmtGBP(NI_PT)} to ${fmtGBP(NI_UEL)}; 2% above
 
 60% Trap:
-- Income between £100,000 and £125,140
-- Personal Allowance tapers away at £1 per £2 above £100,000
+- Income between ${fmtGBP(PA_TAPER_START)} and ${fmtGBP(PA_TAPER_END)}
+- Personal Allowance tapers away at £1 per £2 above ${fmtGBP(PA_TAPER_START)}
 - Creates effective 60% marginal rate on that slice of income
-- SIPP pension contribution is the main tool to reduce income below £100,000
+- SIPP pension contribution is the main tool to reduce income below ${fmtGBP(PA_TAPER_START)}
 
 BEHAVIOUR:
 When the user provides income figures, explain:
@@ -72,17 +81,17 @@ When the user greets you ("hi", "hey", "hello"), greet them back briefly as thei
 
 const OFFLINE: Record<string, string> = {
   allowance:
-    'Your standard Personal Allowance is **£12,570** for 2026/27. ' +
-    'If your income exceeds £100,000, it reduces by £1 for every £2 above that threshold. ' +
-    'At £125,140 or above, no Personal Allowance applies.',
+    `Your standard Personal Allowance is **${fmtGBP(PA_BASE)}** for 2026/27. ` +
+    `If your income exceeds ${fmtGBP(PA_TAPER_START)}, it reduces by £1 for every £2 above that threshold. ` +
+    `At ${fmtGBP(PA_TAPER_END)} or above, no Personal Allowance applies.`,
   pension:
-    'SIPP pension contributions reduce your adjusted net income pound-for-pound. ' +
-    'If your income is between **£100,000 and £125,140**, you are in the 60% trap — ' +
-    'a contribution back to £100,000 restores your full Personal Allowance and saves significantly.',
+    `SIPP pension contributions reduce your adjusted net income pound-for-pound. ` +
+    `If your income is between **${fmtGBP(PA_TAPER_START)} and ${fmtGBP(PA_TAPER_END)}**, you are in the 60% trap — ` +
+    `a contribution back to ${fmtGBP(PA_TAPER_START)} restores your full Personal Allowance and saves significantly.`,
   dividend:
-    'Directors: the first **£500** in dividends is tax-free (2026/27). ' +
-    'Above that: **8.75%** in the basic rate band, **33.75%** in the higher rate band. ' +
-    'Optimal structure is a salary at the NI threshold (£12,570) plus dividends.',
+    `Directors: the first **£500** in dividends is tax-free (2026/27). ` +
+    `Above that: **${pct(DIV_BASIC)}** in the basic rate band, **${pct(DIV_HIGHER)}** in the higher rate band. ` +
+    `Optimal structure is a salary at the NI threshold (${fmtGBP(NI_PT)}) plus dividends.`,
   mileage:
     'You can claim **45p per business mile** for the first 10,000 miles, then **25p/mile**. ' +
     'Keep a log with dates, destinations and business purpose.',
@@ -91,14 +100,14 @@ const OFFLINE: Record<string, string> = {
     'equipment, training, professional subscriptions, pension contributions. ' +
     'Enter your expenses in the Tax Estimator to see the exact reduction.',
   ni:
-    'Self-employed Class 4 NI: **6%** on profits £12,570 to £50,270, then **2%** above. ' +
-    'Class 2 is deemed paid at no charge once profits exceed £7,105. ' +
-    'Employed Class 1: **8%** on earnings £12,570 to £50,270, then 2% above.',
+    `Self-employed Class 4 NI: **6%** on profits ${fmtGBP(NI_PT)} to ${fmtGBP(NI_UEL)}, then **2%** above. ` +
+    `Class 2 is deemed paid at no charge once profits exceed ${fmtGBP(NI_CLASS2_SPT)}. ` +
+    `Employed Class 1: **8%** on earnings ${fmtGBP(NI_PT)} to ${fmtGBP(NI_UEL)}, then 2% above.`,
   trap:
-    'The **60% trap** applies when income is between £100,000 and £125,140. ' +
-    'Your Personal Allowance reduces by £1 for every £2 above £100,000, ' +
-    'creating an effective 60% marginal rate on that slice. ' +
-    'A SIPP contribution to bring income below £100,000 is the standard solution.',
+    `The **60% trap** applies when income is between ${fmtGBP(PA_TAPER_START)} and ${fmtGBP(PA_TAPER_END)}. ` +
+    `Your Personal Allowance reduces by £1 for every £2 above ${fmtGBP(PA_TAPER_START)}, ` +
+    `creating an effective 60% marginal rate on that slice. ` +
+    `A SIPP contribution to bring income below ${fmtGBP(PA_TAPER_START)} is the standard solution.`,
 }
 
 function offlineReply(query: string): string {

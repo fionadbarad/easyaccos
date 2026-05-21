@@ -1,6 +1,6 @@
 'use client'
 
-import TaxCalculator5 from '@/components/TaxCalculator5'
+import TaxCalculator from '@/features/tax/TaxCalculator'
 
 const C = {
   white:  '#F4F5F8',
@@ -31,7 +31,7 @@ export default function TaxPage() {
           <span>Class 4 NI: 6%</span>
         </div>
       </div>
-      <TaxCalculator5 />
+      <TaxCalculator />
     </div>
   )
 }

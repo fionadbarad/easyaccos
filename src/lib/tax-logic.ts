@@ -194,7 +194,7 @@ export function calcPA(adjustedNetIncome: number): number {
  * Higher rate band: from end of basic to £125,140.
  * Additional rate: above £125,140.
  */
-function calcRukTax(taxableIncome: number): { tax: number; bands: TaxBand[] } {
+export function calcRukTax(taxableIncome: number): { tax: number; bands: TaxBand[] } {
   if (taxableIncome <= 0) return { tax: 0, bands: [] }
 
   const bands: TaxBand[] = []
@@ -267,7 +267,7 @@ function calcScotlandTax(grossIncome: number, pa: number): { tax: number; bands:
 
 // ─── NI Class 1 (Employed / Director) ────────────────────────────────────────
 // Uses earnings (gross salary / director salary before expenses)
-function calcClass1NI(earnings: number): number {
+export function calcClass1NI(earnings: number): number {
   if (earnings <= NI_PT) return 0
   if (earnings <= NI_UEL) {
     return round2((earnings - NI_PT) * NI_C1_MAIN)
@@ -280,7 +280,7 @@ function calcClass1NI(earnings: number): number {
 
 // ─── NI Class 4 (Self-Employed) ──────────────────────────────────────────────
 // Uses PROFIT (after expenses, before income tax — not taxable income)
-function calcClass4NI(profit: number): number {
+export function calcClass4NI(profit: number): number {
   if (profit <= NI_PT) return 0
   if (profit <= NI_UEL) {
     return round2((profit - NI_PT) * NI_C4_MAIN)
@@ -294,7 +294,7 @@ function calcClass4NI(profit: number): number {
 // ─── Dividend Tax ─────────────────────────────────────────────────────────────
 // Dividends are stacked on top of non-dividend income within the tax bands.
 // The first £500 (dividend allowance) is tax-free.
-function calcDividendTax(
+export function calcDividendTax(
   dividends:           number,
   taxableNonDivIncome: number,
   region:              TaxRegion,

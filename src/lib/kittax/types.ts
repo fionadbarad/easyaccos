@@ -31,4 +31,10 @@ export interface KittaxMessage {
   role: 'user' | 'assistant'
   content: string
   ts: number
+  /**
+   * True when an assistant message was produced by the offline keyword
+   * fallback, not the live AI. UI surfaces this so users never mistake a
+   * canned reply for a real advisory answer.
+   */
+  offline?: boolean
 }

@@ -9,7 +9,7 @@ import {
   LayoutDashboard, Calculator, Receipt,
   GraduationCap, Bot, Settings, TrendingUp,
   LogOut, LogIn, Menu, X, Shield, BookOpen, FileText,
-  MessageCircle, PiggyBank, Car, Send,
+  MessageCircle, PiggyBank, Car, Send, Landmark,
 } from 'lucide-react'
 
 const C = {
@@ -37,6 +37,7 @@ const NAV = [
   { href: '/dashboard/learn',        label: 'Learn',         icon: GraduationCap,   group: 'tools' },
   { href: '/dashboard/ai',           label: 'Tax Advisory',  icon: Bot,             group: 'tools' },
   { href: '/dashboard/settings',     label: 'Settings',      icon: Settings,        group: 'tools' },
+  { href: '/dashboard/hmrc',         label: 'HMRC Sandbox',  icon: Landmark,        group: 'compliance' },
   { href: '/security',               label: 'Security',      icon: Shield,          group: 'compliance' },
 ]
 

@@ -31,9 +31,10 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files — .env.production is safe to commit (NEXT_PUBLIC vars are not secrets)
+# env files — .env.production and .env.example are safe to commit (templates/public values only)
 .env*
 !.env.production
+!.env.example
 
 # vercel
 .vercel

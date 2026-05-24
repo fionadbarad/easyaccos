@@ -42,6 +42,10 @@ yarn-error.log*
 # Claude Code local config (may contain tokens)
 .claude/
 
+# HMRC sandbox test user credentials — personal copy with real test user IDs.
+# Commit docs/HMRC.md (scrubbed), keep docs/HMRC.local.md private.
+docs/HMRC.local.md
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

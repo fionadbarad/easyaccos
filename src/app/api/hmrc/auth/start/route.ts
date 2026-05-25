@@ -1,11 +1,18 @@
 import { NextResponse } from 'next/server'
-import { setStateCookie } from '@/lib/hmrc/cookies'
+import { STATE_COOKIE } from '@/lib/hmrc/cookies'
 import { randomToken } from '@/lib/hmrc/crypto'
 import { readHmrcEnv } from '@/lib/hmrc/oauth'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
+// IMPORTANT: We construct the response with `new NextResponse(null, { status, headers })`
+// and set Set-Cookie as an explicit header rather than calling
+// `NextResponse.redirect(...).cookies.set(...)`. In Next.js 16 the latter
+// does NOT serialise the Set-Cookie header onto the outgoing 302 response on
+// Vercel — the cookie is set on the internal cookies object but stripped from
+// the wire. Cache-Control: private, no-store also ensures Vercel's CDN does
+// not cache the redirect (which would cause cookie leakage between users).
 export async function GET(): Promise<NextResponse> {
   const env = readHmrcEnv()
   if ('error' in env) {
@@ -21,7 +28,15 @@ export async function GET(): Promise<NextResponse> {
   url.searchParams.set('redirect_uri', env.redirectUri)
   url.searchParams.set('state', state)
 
-  const res = NextResponse.redirect(url.toString(), 302)
-  setStateCookie(res, state)
-  return res
+  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : ''
+  const cookie = `${STATE_COOKIE}=${state}; Path=/; HttpOnly${secure}; SameSite=Lax; Max-Age=600`
+
+  return new NextResponse(null, {
+    status: 302,
+    headers: {
+      Location: url.toString(),
+      'Set-Cookie': cookie,
+      'Cache-Control': 'private, no-store',
+    },
+  })
 }

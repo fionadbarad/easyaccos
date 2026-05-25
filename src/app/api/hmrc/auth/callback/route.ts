@@ -44,9 +44,16 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   const state = sp.get('state')
   const storedState = readStateCookie(req)
   if (!code || !state || !storedState) {
+    // Diagnostic: surface what arrived so we can debug cookie/redirect issues.
+    const cookieNames = req.cookies.getAll().map((c) => c.name).join(',') || '(none)'
+    const queryKeys = Array.from(sp.keys()).join(',') || '(none)'
+    const host = req.headers.get('host') ?? '(unknown)'
+    const referer = req.headers.get('referer') ?? '(none)'
+    const diag = `code=${code ? 'present' : 'MISSING'} state=${state ? 'present' : 'MISSING'} cookie=${storedState ? 'present' : 'MISSING'} | host=${host} | cookies=[${cookieNames}] | query=[${queryKeys}] | referer=${referer}`
+    console.error('[hmrc/callback] missing_params', diag)
     const res = dashboardRedirect(req, {
       hmrc_error: 'missing_params',
-      detail: 'Missing code, state, or state cookie. Restart connect flow.',
+      detail: diag,
     })
     clearStateCookie(res)
     return res

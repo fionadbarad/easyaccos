@@ -130,12 +130,6 @@ export const STUDENT_LOAN_LABELS = Object.fromEntries(
   Object.entries(STUDENT_LOAN).map(([k, v]) => [k, v.label])
 ) as Record<StudentLoanPlan, string>
 
-// ─── Reconciled constant: HIGHER_LIMIT naming ─────────────────────────────────
-// kittax-brain uses taxable-income basis (112,570 = 125,140 − 12,570).
-// The canonical gross-income ceiling is RUK_HIGHER_LIMIT = 125,140.
-// Import this in other modules instead of hard-coding 112,570.
-export const RUK_TAXABLE_ADDITIONAL_THRESHOLD = RUK_HIGHER_LIMIT - PA_BASE  // 112,570
-
 // ─── Exported constants (shared across engine modules) ───────────────────────
 export { PA_BASE, PA_TAPER_START, PA_TAPER_END, RUK_BASIC_RATE_WIDTH, RUK_BASIC_LIMIT, RUK_HIGHER_LIMIT }
 
@@ -185,9 +179,13 @@ export function calcRukTax(taxableIncome: number): { tax: number; bands: TaxBand
     remaining = Math.max(0, remaining - basicAmt)
   }
 
-  // Higher: 40% on £37,701–£125,140 (band width = £74,870)
+  // Higher: 40% from the end of the basic band (£37,700 taxable) up to the
+  // higher-rate limit (£125,140 taxable). The higher-rate limit is defined on
+  // TAXABLE income, so band width = £125,140 − £37,700 = £87,440 — it must NOT
+  // subtract the Personal Allowance again (doing so starts the 45% rate £12,570
+  // too early and over-taxes additional-rate payers by £628.50).
   if (remaining > 0) {
-    const higherAmt = Math.min(remaining, RUK_HIGHER_LIMIT - RUK_BASIC_LIMIT)
+    const higherAmt = Math.min(remaining, RUK_HIGHER_LIMIT - RUK_BASIC_RATE_WIDTH)
     if (higherAmt > 0) {
       const t = round2(higherAmt * 0.40)
       bands.push({ label: 'Higher Rate', rate: 40, amount: higherAmt, tax: t })
@@ -280,7 +278,7 @@ export function calcDividendTax(
   const basicWidth  = region === 'scotland'
     ? (SCO_BASIC_END - PA_BASE)
     : RUK_BASIC_RATE_WIDTH
-  const higherWidth = RUK_HIGHER_LIMIT - RUK_BASIC_LIMIT   // 74,870
+  const higherWidth = RUK_HIGHER_LIMIT - RUK_BASIC_RATE_WIDTH   // 87,440 (taxable basis)
 
   let remaining = taxableDivs
   let tax = 0

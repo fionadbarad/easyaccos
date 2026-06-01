@@ -8,7 +8,6 @@ import {
   PA_TAPER_START,
   PA_TAPER_END,
   RUK_HIGHER_LIMIT,
-  RUK_TAXABLE_ADDITIONAL_THRESHOLD,
 } from '../tax-logic'
 import type { TaxInput } from '../tax-logic'
 
@@ -28,11 +27,33 @@ function seInput(grossRevenue: number, allowableExpenses = 0): TaxInput {
   }
 }
 
-// ── Reconciled constant sanity ────────────────────────────────────────────────
-describe('Reconciled constants', () => {
-  it('RUK_TAXABLE_ADDITIONAL_THRESHOLD = RUK_HIGHER_LIMIT − PA_BASE', () => {
-    expect(RUK_TAXABLE_ADDITIONAL_THRESHOLD).toBe(RUK_HIGHER_LIMIT - PA_BASE)
-    expect(RUK_TAXABLE_ADDITIONAL_THRESHOLD).toBe(112_570)
+// ── Additional-rate threshold: exact HMRC figures ─────────────────────────────
+// The 45% rate starts at £125,140 of TAXABLE income (the higher-rate limit is a
+// taxable-income figure). Regression guard for the bug where the band started at
+// £112,570 (= £125,140 − PA) and over-taxed every additional-rate payer by £628.50.
+describe('rUK additional-rate threshold (exact figures)', () => {
+  it('higher-rate limit is £125,140 of taxable income', () => {
+    expect(RUK_HIGHER_LIMIT).toBe(125_140)
+  })
+
+  it('£125,140 income (PA fully tapered) → £42,516 income tax', () => {
+    // PA = 0, taxable = 125,140. Basic 37,700@20 + higher 87,440@40, no 45%.
+    const r = calculateTax(seInput(125_140))
+    expect(r.personalAllowance).toBe(0)
+    expect(r.incomeTax).toBe(42_516)
+    expect(r.taxBands.map(b => b.rate)).not.toContain(45)
+  })
+
+  it('£150,000 income → £53,703 income tax (HMRC published figure)', () => {
+    // 37,700@20 = 7,540; 87,440@40 = 34,976; 24,860@45 = 11,187.
+    const r = calculateTax(seInput(150_000))
+    expect(r.incomeTax).toBe(53_703)
+  })
+
+  it('£160,000 income → £58,203 income tax', () => {
+    // 37,700@20 = 7,540; 87,440@40 = 34,976; 34,860@45 = 15,687.
+    const r = calculateTax(seInput(160_000))
+    expect(r.incomeTax).toBe(58_203)
   })
 })
 

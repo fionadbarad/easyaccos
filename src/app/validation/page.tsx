@@ -104,7 +104,8 @@ const SCENARIOS: Scenario[] = [
     title: 'Director optimal mix — £12,570 salary + £50,000 dividends',
     why:
       'The canonical limited-company structure: salary set at the Primary Threshold (no Class 1 NI) and the rest as dividends. ' +
-      'Dividend allowance is £500 (2026/27, down from £1,000). First £37,700 of taxable dividends hits 10.75%, the rest 35.75% (2026/27 hiked rates). ' +
+      'Dividend allowance is £500 (2026/27, down from £1,000) — a 0% band that still uses up £500 of the basic-rate band. ' +
+      'So £37,200 of taxable dividends (37,700 − 500) hit 10.75%, the rest 35.75% (2026/27 hiked rates). ' +
       'Getting the dividend-allowance-first ordering wrong is a classic error.',
     input: baseInput({
       grossRevenue:   12_570,
@@ -116,13 +117,13 @@ const SCENARIOS: Scenario[] = [
       { label: 'Class 1 NI on salary at PT',                 value: 0 },
       { label: 'Dividend allowance (first £500 tax-free)',   value: 500 },
       { label: 'Taxable dividends (50,000 − 500)',           value: 49_500 },
-      { label: 'Basic band dividends: 37,700 × 10.75%',      value: 4_052.75 },
-      { label: 'Higher band dividends: 11,800 × 35.75%',     value: 4_218.50 },
-      { label: 'Dividend tax',                               value: 8_271.25 },
+      { label: 'Basic-band dividends: (37,700 − 500 allowance) = 37,200 × 10.75%', value: 3_999.00 },
+      { label: 'Higher-band dividends: 12,300 × 35.75%',     value: 4_397.25 },
+      { label: 'Dividend tax',                               value: 8_396.25 },
     ],
     assertions: [
       { path: 'niClass1',            expected: 0,       note: 'Salary at PT → zero Class 1' },
-      { path: 'dividendTax',         expected: 8_271.25 },
+      { path: 'dividendTax',         expected: 8_396.25 },
     ],
   },
   {

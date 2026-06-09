@@ -275,6 +275,37 @@ describe('Dividend tax', () => {
     const r = calculateTax({ ...seInput(20_000), dividendIncome: 5_000 })
     expect(r.dividendTax).toBe(round2((5_000 - 500) * 0.1075))
   })
+
+  // ── Allowance uses up the basic-rate band (LITRG-verified) ──────────────────
+  // The £500 allowance is a 0% nil-rate band that still consumes basic-band room,
+  // pushing post-allowance dividends up a band. Regression guard for the bug
+  // where the allowance was netted off WITHOUT using up the band.
+  it('allowance uses up basic band: £50k employed + £10k divs → £3,396.25', () => {
+    // taxable non-div = 37,430 → only £270 of basic band left; the £500 allowance
+    // consumes it, so all £9,500 taxable dividends are higher-rate (35.75%).
+    const r = calculateTax({ ...seInput(50_000), employmentType: 'employed', dividendIncome: 10_000 })
+    expect(r.dividendTax).toBe(3_396.25)
+  })
+
+  it('LITRG worked example: £40,650 earnings + £10k divs → £1,116.25', () => {
+    // £9,120 @ 10.75% (£980.40) + £380 @ 35.75% (£135.85). Ref: LITRG Tax on dividends.
+    const r = calculateTax({ ...seInput(40_650), employmentType: 'employed', dividendIncome: 10_000 })
+    expect(r.dividendTax).toBe(1_116.25)
+  })
+
+  it('director optimal: £12,570 salary + £50k divs → £8,396.25', () => {
+    // allowance uses £500 of basic band: 37,200 @ 10.75% (3,999.00) + 12,300 @ 35.75% (4,397.25).
+    const r = calculateTax({ ...seInput(12_570), employmentType: 'director', dividendIncome: 50_000 })
+    expect(r.dividendTax).toBe(8_396.25)
+  })
+
+  it('dividends use UK bands, not Scottish: Scotland == rUK for identical inputs', () => {
+    // Scottish bands apply only to non-dividend income (gov.uk/scottish-income-tax).
+    const ruk = calculateTax({ ...seInput(40_000), dividendIncome: 10_000, taxRegion: 'ruk' })
+    const sco = calculateTax({ ...seInput(40_000), dividendIncome: 10_000, taxRegion: 'scotland' })
+    expect(sco.dividendTax).toBe(ruk.dividendTax)
+    expect(sco.dividendTax).toBe(1_021.25)
+  })
 })
 
 // ── Marriage & Blind persons allowance ───────────────────────────────────────

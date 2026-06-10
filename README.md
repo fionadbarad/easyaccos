@@ -1,5 +1,8 @@
 # EasyAcco
 
+[![CI](https://github.com/fionadbarad/easyaccos/actions/workflows/ci.yml/badge.svg)](https://github.com/fionadbarad/easyaccos/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 UK Self Assessment + Making Tax Digital app for the **2026/27** tax year. End-to-end integrated with HMRC's MTD sandbox — OAuth2 authorization-code flow, full Fraud Prevention Headers, real MTD-IT and MTD-VAT return submission.
 
 **Live:** [easyacco.uk](https://easyacco.uk) · **Stack:** Next.js 16 (App Router) · React 19 · TypeScript · Tailwind · Supabase · Vitest

@@ -1,0 +1,62 @@
+name: CI
+
+# Runs the full quality gate on every push to main and every PR targeting it.
+# workflow_dispatch lets you trigger a run by hand from the Actions tab.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# A newer commit on the same branch cancels the in-flight run, so the badge
+# always reflects the latest commit and CI minutes aren't wasted on stale runs.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Least privilege: this workflow only ever reads the repository contents.
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Lint · Types · Tests · Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # `npm ci` installs exactly what package-lock.json pins — reproducible,
+      # and it fails if package.json and the lockfile have drifted.
+      - name: Install dependencies
+        run: npm ci
+
+      # Ordered fast-to-slow so a cheap failure surfaces before the slow build.
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+        env:
+          # NEXT_PUBLIC_* vars are inlined into the client bundle at build time.
+          # The Supabase client is only constructed at request time, so these
+          # placeholders keep the build deterministic without exposing real
+          # project credentials in CI.
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+          NEXT_TELEMETRY_DISABLED: "1"

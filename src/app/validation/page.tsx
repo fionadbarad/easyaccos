@@ -338,7 +338,7 @@ export default function ValidationPage() {
           The five scenarios below were chosen to cover the worst edge cases in UK personal tax:
           the 60% trap, full PA withdrawal, Scottish bands, director salary-plus-dividends optimisation,
           and a three-layer additional-rate mix with dividends.
-          Each shows the HMRC calculation worked in plain arithmetic, then the live engine's output,
+          Each shows the HMRC calculation worked in plain arithmetic, then the live engine&apos;s output,
           then every numerical assertion side-by-side. If any cell flashes red, the engine has drifted
           from the manual calc — that is a blocking bug.
         </p>

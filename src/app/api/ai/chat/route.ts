@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import { buildContextPrompt } from '@/lib/kittax/context'
+import { buildContextPrompt } from '@/lib/acco/context'
 import { ChatRequestSchema } from '@/app/api/ai/schemas'
 import { reportError } from '@/lib/monitor'
 import { fmtGBP } from '@/lib/formatters'

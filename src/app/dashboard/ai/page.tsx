@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { Send, RefreshCw, ChevronRight, TrendingDown, PiggyBank, FileText, Calendar } from 'lucide-react'
 import { useUserData } from '@/lib/use-user-data'
-import { buildBaseContext, buildContextPrompt } from '@/lib/kittax/context'
-import type { KittaxContext, KittaxMessage } from '@/lib/kittax/types'
+import { buildBaseContext, buildContextPrompt } from '@/lib/acco/context'
+import type { AccoContext, AccoMessage } from '@/lib/acco/types'
 
 const FETCH_TIMEOUT = 30_000
 
@@ -24,7 +24,7 @@ const QUICK_ACTIONS = [
   { label: 'Pension strategy',    q: 'How can I use pension contributions to reduce my tax?' },
 ]
 
-function makeMessage(role: KittaxMessage['role'], content: string, offline = false): KittaxMessage {
+function makeMessage(role: AccoMessage['role'], content: string, offline = false): AccoMessage {
   return { id: crypto.randomUUID(), role, content, ts: Date.now(), offline }
 }
 
@@ -104,7 +104,7 @@ function MarkdownBlock({ text }: { text: string }) {
 }
 
 // ── Message components ────────────────────────────────────────────────────────
-function UserMessage({ msg }: { msg: KittaxMessage }) {
+function UserMessage({ msg }: { msg: AccoMessage }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
       <div style={{ maxWidth: '68%' }}>
@@ -124,7 +124,7 @@ function AssistantMessage({
   isLatest,
   onAction,
 }: {
-  msg: KittaxMessage
+  msg: AccoMessage
   isLatest: boolean
   onAction: (q: string) => void
 }) {
@@ -221,7 +221,7 @@ export default function AIPage() {
     `${greetingByHour()} — I'm your personal tax advisor, aligned to HMRC rules for the 2026/27 fiscal year.\n\nI can walk through sole-trader income, director pay, dividends, MTD deadlines, allowable expenses, National Insurance, the 60% trap — whatever's on your mind. Tell me roughly what you earn and where the friction is, and I'll take it from there.\n\nWhat shall we look at first?`,
   ), [])
 
-  const [messages, setMessages] = useState<KittaxMessage[]>([INITIAL_MESSAGE])
+  const [messages, setMessages] = useState<AccoMessage[]>([INITIAL_MESSAGE])
   const [input,    setInput]    = useState('')
   const [loading,  setLoading]  = useState(false)
   const [error,    setError]    = useState('')
@@ -233,7 +233,7 @@ export default function AIPage() {
   // Load user's expenses for context injection
   const { items: expenses } = useUserData<ExpenseStub>('user_expenses', 'easyacco_expenses', [])
 
-  const taxContext: Partial<KittaxContext> = useMemo(() => {
+  const taxContext: Partial<AccoContext> = useMemo(() => {
     const base = buildBaseContext()
     // Sum expenses from the current tax year (6 Apr – 5 Apr)
     const now = new Date()

@@ -8,7 +8,6 @@ import {
   PA_TAPER_START,
   PA_TAPER_END,
   RUK_HIGHER_LIMIT,
-  RUK_TAXABLE_ADDITIONAL_THRESHOLD,
 } from '../tax-logic'
 import type { TaxInput } from '../tax-logic'
 
@@ -28,11 +27,33 @@ function seInput(grossRevenue: number, allowableExpenses = 0): TaxInput {
   }
 }
 
-// ── Reconciled constant sanity ────────────────────────────────────────────────
-describe('Reconciled constants', () => {
-  it('RUK_TAXABLE_ADDITIONAL_THRESHOLD = RUK_HIGHER_LIMIT − PA_BASE', () => {
-    expect(RUK_TAXABLE_ADDITIONAL_THRESHOLD).toBe(RUK_HIGHER_LIMIT - PA_BASE)
-    expect(RUK_TAXABLE_ADDITIONAL_THRESHOLD).toBe(112_570)
+// ── Additional-rate threshold: exact HMRC figures ─────────────────────────────
+// The 45% rate starts at £125,140 of TAXABLE income (the higher-rate limit is a
+// taxable-income figure). Regression guard for the bug where the band started at
+// £112,570 (= £125,140 − PA) and over-taxed every additional-rate payer by £628.50.
+describe('rUK additional-rate threshold (exact figures)', () => {
+  it('higher-rate limit is £125,140 of taxable income', () => {
+    expect(RUK_HIGHER_LIMIT).toBe(125_140)
+  })
+
+  it('£125,140 income (PA fully tapered) → £42,516 income tax', () => {
+    // PA = 0, taxable = 125,140. Basic 37,700@20 + higher 87,440@40, no 45%.
+    const r = calculateTax(seInput(125_140))
+    expect(r.personalAllowance).toBe(0)
+    expect(r.incomeTax).toBe(42_516)
+    expect(r.taxBands.map(b => b.rate)).not.toContain(45)
+  })
+
+  it('£150,000 income → £53,703 income tax (HMRC published figure)', () => {
+    // 37,700@20 = 7,540; 87,440@40 = 34,976; 24,860@45 = 11,187.
+    const r = calculateTax(seInput(150_000))
+    expect(r.incomeTax).toBe(53_703)
+  })
+
+  it('£160,000 income → £58,203 income tax', () => {
+    // 37,700@20 = 7,540; 87,440@40 = 34,976; 34,860@45 = 15,687.
+    const r = calculateTax(seInput(160_000))
+    expect(r.incomeTax).toBe(58_203)
   })
 })
 
@@ -253,6 +274,37 @@ describe('Dividend tax', () => {
   it('10.75% on dividend income in basic band', () => {
     const r = calculateTax({ ...seInput(20_000), dividendIncome: 5_000 })
     expect(r.dividendTax).toBe(round2((5_000 - 500) * 0.1075))
+  })
+
+  // ── Allowance uses up the basic-rate band (LITRG-verified) ──────────────────
+  // The £500 allowance is a 0% nil-rate band that still consumes basic-band room,
+  // pushing post-allowance dividends up a band. Regression guard for the bug
+  // where the allowance was netted off WITHOUT using up the band.
+  it('allowance uses up basic band: £50k employed + £10k divs → £3,396.25', () => {
+    // taxable non-div = 37,430 → only £270 of basic band left; the £500 allowance
+    // consumes it, so all £9,500 taxable dividends are higher-rate (35.75%).
+    const r = calculateTax({ ...seInput(50_000), employmentType: 'employed', dividendIncome: 10_000 })
+    expect(r.dividendTax).toBe(3_396.25)
+  })
+
+  it('LITRG worked example: £40,650 earnings + £10k divs → £1,116.25', () => {
+    // £9,120 @ 10.75% (£980.40) + £380 @ 35.75% (£135.85). Ref: LITRG Tax on dividends.
+    const r = calculateTax({ ...seInput(40_650), employmentType: 'employed', dividendIncome: 10_000 })
+    expect(r.dividendTax).toBe(1_116.25)
+  })
+
+  it('director optimal: £12,570 salary + £50k divs → £8,396.25', () => {
+    // allowance uses £500 of basic band: 37,200 @ 10.75% (3,999.00) + 12,300 @ 35.75% (4,397.25).
+    const r = calculateTax({ ...seInput(12_570), employmentType: 'director', dividendIncome: 50_000 })
+    expect(r.dividendTax).toBe(8_396.25)
+  })
+
+  it('dividends use UK bands, not Scottish: Scotland == rUK for identical inputs', () => {
+    // Scottish bands apply only to non-dividend income (gov.uk/scottish-income-tax).
+    const ruk = calculateTax({ ...seInput(40_000), dividendIncome: 10_000, taxRegion: 'ruk' })
+    const sco = calculateTax({ ...seInput(40_000), dividendIncome: 10_000, taxRegion: 'scotland' })
+    expect(sco.dividendTax).toBe(ruk.dividendTax)
+    expect(sco.dividendTax).toBe(1_021.25)
   })
 })
 

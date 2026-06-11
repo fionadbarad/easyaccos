@@ -15,11 +15,7 @@ export const RUK_HIGHER_RATE      = 0.40
 export const RUK_ADDITIONAL_RATE  = 0.45
 export const RUK_BASIC_RATE_WIDTH = 37_700    // £12,571 – £50,270 at 20%
 export const RUK_BASIC_LIMIT      = 50_270
-export const RUK_HIGHER_LIMIT     = 125_140   // above this: 45%
-
-// Taxable-income basis of the additional-rate threshold (gross − PA_BASE).
-// Kept as a derived export for callers that work in taxable-income space.
-export const RUK_TAXABLE_ADDITIONAL_THRESHOLD = RUK_HIGHER_LIMIT - PA_BASE  // 112,570
+export const RUK_HIGHER_LIMIT     = 125_140   // taxable income above this: 45%
 
 // ── Income Tax — Scotland band ceilings (absolute gross income) ─────────────
 export const SCO_STARTER_END      = 16_537    // 19%

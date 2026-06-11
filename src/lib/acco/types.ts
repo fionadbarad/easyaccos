@@ -1,4 +1,4 @@
-// ── Kittax AI — shared types ─────────────────────────────────────────────────
+// ── Acco AI — shared types ─────────────────────────────────────────────────
 
 export interface TaxBreakdown {
   income: number
@@ -13,7 +13,7 @@ export interface TaxBreakdown {
 }
 
 /** Live user financial state injected into the advisory system prompt. */
-export interface KittaxContext {
+export interface AccoContext {
   currentMonth: string        // e.g. "April 2026"
   taxYear: string             // "2026/27"
   personalAllowance: number   // £12,570
@@ -26,7 +26,7 @@ export interface KittaxContext {
   taxBand?: string
 }
 
-export interface KittaxMessage {
+export interface AccoMessage {
   id: string
   role: 'user' | 'assistant'
   content: string

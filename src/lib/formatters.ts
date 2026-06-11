@@ -2,7 +2,7 @@
  * Currency / number formatters. Single source of truth — do not redefine
  * these inline. Previously lived scattered across tax-logic.ts,
  * useInvoices.ts, tracker/shared.ts, pnl/page.tsx, transactions/page.tsx,
- * and kittax/context.ts; all now re-export or import from here.
+ * and acco/context.ts; all now re-export or import from here.
  *
  * Conventions:
  *   fmtGBP  — whole pounds, rounded, for tip/label strings    ("£1,234")

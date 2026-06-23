@@ -43,7 +43,7 @@ function renderInline(text: string): React.ReactNode[] {
       return <span key={i} style={{ color: '#4ADE80', fontFamily: 'var(--font-geist-mono), monospace', fontWeight: 500 }}>{part}</span>
     }
     if (part.startsWith('`') && part.endsWith('`')) {
-      return <code key={i} style={{ background: 'rgba(244,245,248,0.08)', borderRadius: '3px', padding: '1px 5px', fontSize: '0.82rem', fontFamily: 'var(--font-geist-mono), monospace' }}>{part.slice(1, -1)}</code>
+      return <code key={i} style={{ background: 'rgba(244,245,248,0.08)', borderRadius: '3px', padding: '1px 5px', fontSize: '0.875rem', fontFamily: 'var(--font-geist-mono), monospace' }}>{part.slice(1, -1)}</code>
     }
     return <span key={i}>{part}</span>
   })
@@ -59,7 +59,7 @@ function MarkdownBlock({ text }: { text: string }) {
     nodes.push(
       <ul key={nodes.length} style={{ margin: '0.35rem 0', paddingLeft: '1.1rem', listStyle: 'none' }}>
         {listItems.map((item, i) => (
-          <li key={i} style={{ color: 'var(--sa-white)', fontSize: '0.875rem', lineHeight: 1.75, position: 'relative', paddingLeft: '0.75rem' }}>
+          <li key={i} style={{ color: 'var(--sa-white)', fontSize: '0.9375rem', lineHeight: 1.75, position: 'relative', paddingLeft: '0.75rem' }}>
             <span style={{ position: 'absolute', left: 0, color: 'rgba(244,245,248,0.35)' }}>·</span>
             {renderInline(item)}
           </li>
@@ -78,19 +78,19 @@ function MarkdownBlock({ text }: { text: string }) {
       flushList()
       if (line.startsWith('## ')) {
         nodes.push(
-          <p key={nodes.length} style={{ color: 'rgba(244,245,248,0.5)', fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontFamily: 'var(--font-geist-mono), monospace', margin: '0.75rem 0 0.25rem', fontWeight: 600 }}>
+          <p key={nodes.length} style={{ color: 'rgba(244,245,248,0.5)', fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontFamily: 'var(--font-geist-mono), monospace', margin: '0.75rem 0 0.25rem', fontWeight: 600 }}>
             {line.slice(3)}
           </p>,
         )
       } else if (line.startsWith('# ')) {
         nodes.push(
-          <p key={nodes.length} style={{ color: 'var(--sa-white)', fontSize: '0.95rem', fontWeight: 600, margin: '0.75rem 0 0.25rem', letterSpacing: '-0.02em' }}>
+          <p key={nodes.length} style={{ color: 'var(--sa-white)', fontSize: '1rem', fontWeight: 600, margin: '0.75rem 0 0.25rem', letterSpacing: '-0.02em' }}>
             {line.slice(2)}
           </p>,
         )
       } else if (line.trim()) {
         nodes.push(
-          <p key={nodes.length} style={{ color: 'var(--sa-white)', fontSize: '0.875rem', lineHeight: 1.75, margin: '0.2rem 0' }}>
+          <p key={nodes.length} style={{ color: 'var(--sa-white)', fontSize: '0.9375rem', lineHeight: 1.75, margin: '0.2rem 0' }}>
             {renderInline(line)}
           </p>,
         )
@@ -108,10 +108,10 @@ function UserMessage({ msg }: { msg: AccoMessage }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
       <div style={{ maxWidth: '68%' }}>
-        <div style={{ background: 'rgba(244,245,248,0.12)', border: '1px solid var(--sa-border)', borderRadius: '6px 6px 2px 6px', padding: '10px 14px', color: 'var(--sa-white)', fontSize: '0.875rem', lineHeight: 1.65 }}>
+        <div style={{ background: 'rgba(244,245,248,0.12)', border: '1px solid var(--sa-border)', borderRadius: '6px 6px 2px 6px', padding: '10px 14px', color: 'var(--sa-white)', fontSize: '0.9375rem', lineHeight: 1.65 }}>
           {msg.content}
         </div>
-        <div style={{ textAlign: 'right', marginTop: '4px', color: 'rgba(244,245,248,0.2)', fontSize: '0.65rem', fontFamily: 'var(--font-geist-mono), monospace' }}>
+        <div style={{ textAlign: 'right', marginTop: '4px', color: 'rgba(244,245,248,0.2)', fontSize: '0.72rem', fontFamily: 'var(--font-geist-mono), monospace' }}>
           {formatTime(msg.ts)}
         </div>
       </div>
@@ -134,14 +134,14 @@ function AssistantMessage({
         <div style={{ width: '1px', minHeight: '20px', background: 'rgba(244,245,248,0.15)', marginLeft: '6px' }} />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ color: 'rgba(244,245,248,0.3)', fontSize: '0.62rem', fontFamily: 'var(--font-geist-mono), monospace', letterSpacing: '0.08em', marginBottom: '6px' }}>
+        <div style={{ color: 'rgba(244,245,248,0.3)', fontSize: '0.72rem', fontFamily: 'var(--font-geist-mono), monospace', letterSpacing: '0.08em', marginBottom: '6px' }}>
           {msg.offline ? 'OFFLINE · GENERIC ANSWER' : 'ADVISORY'} · {formatTime(msg.ts)}
         </div>
         {msg.offline && (
           <div role="status" aria-live="polite" style={{
             background: 'rgba(250,204,21,0.06)', border: '1px solid rgba(250,204,21,0.22)',
             borderRadius: '4px', padding: '8px 12px', marginBottom: '10px',
-            color: '#FACC15', fontSize: '0.72rem', lineHeight: 1.45,
+            color: '#FACC15', fontSize: '0.8rem', lineHeight: 1.45,
             fontFamily: 'var(--font-geist-mono), monospace',
           }}>
             The live advisor is unavailable. This is a canned reply matched on
@@ -160,7 +160,7 @@ function AssistantMessage({
                 onClick={() => onAction(a.q)}
                 style={{
                   background: 'transparent', border: '1px solid rgba(244,245,248,0.1)',
-                  borderRadius: '3px', color: 'rgba(244,245,248,0.45)', fontSize: '0.65rem',
+                  borderRadius: '3px', color: 'rgba(244,245,248,0.45)', fontSize: '0.75rem',
                   padding: '4px 10px', cursor: 'pointer', fontFamily: 'var(--font-geist-mono), monospace',
                   letterSpacing: '0.02em', transition: 'all 0.1s',
                 }}
@@ -192,7 +192,7 @@ function ThinkingIndicator() {
         <div style={{ width: '1px', minHeight: '20px', background: 'rgba(244,245,248,0.15)', marginLeft: '6px' }} />
       </div>
       <div style={{ flex: 1 }}>
-        <div style={{ color: 'rgba(244,245,248,0.3)', fontSize: '0.62rem', fontFamily: 'var(--font-geist-mono), monospace', letterSpacing: '0.08em', marginBottom: '8px' }}>
+        <div style={{ color: 'rgba(244,245,248,0.3)', fontSize: '0.72rem', fontFamily: 'var(--font-geist-mono), monospace', letterSpacing: '0.08em', marginBottom: '8px' }}>
           ADVISORY
         </div>
         <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
@@ -356,12 +356,12 @@ export default function AIPage() {
           <h1 style={{ color: 'var(--sa-white)', fontSize: 'clamp(1.2rem,2.5vw,1.5rem)', fontWeight: 600, letterSpacing: '-0.03em', margin: 0 }}>
             Tax Advisory
           </h1>
-          <p style={{ color: 'var(--sa-muted)', fontSize: '0.72rem', margin: '3px 0 0', fontFamily: 'var(--font-geist-mono), monospace' }}>
+          <p style={{ color: 'var(--sa-muted)', fontSize: '0.8rem', margin: '3px 0 0', fontFamily: 'var(--font-geist-mono), monospace' }}>
             {ctxSummary}
           </p>
         </div>
         <button onClick={reset}
-          style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: '1px solid var(--sa-border)', borderRadius: '4px', color: 'var(--sa-muted)', fontSize: '0.72rem', padding: '6px 11px', cursor: 'pointer', letterSpacing: '-0.01em' }}>
+          style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: '1px solid var(--sa-border)', borderRadius: '4px', color: 'var(--sa-muted)', fontSize: '0.8rem', padding: '6px 11px', cursor: 'pointer', letterSpacing: '-0.01em' }}>
           <RefreshCw size={11} /> New session
         </button>
       </div>
@@ -375,7 +375,7 @@ export default function AIPage() {
         )}
         {loading && <ThinkingIndicator />}
         {error && (
-          <div role="alert" style={{ background: 'rgba(248,113,113,0.06)', border: '1px solid rgba(248,113,113,0.18)', borderRadius: '4px', padding: '10px 14px', color: '#F87171', fontSize: '0.78rem', marginBottom: '1.5rem' }}>
+          <div role="alert" style={{             background: 'rgba(248,113,113,0.06)', border: '1px solid rgba(248,113,113,0.18)', borderRadius: '4px', padding: '10px 14px', color: '#F87171', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
             {error}
           </div>
         )}
@@ -385,7 +385,7 @@ export default function AIPage() {
       {/* ── Suggested topics ── */}
       {showSuggested && (
         <div style={{ flexShrink: 0, marginBottom: '1rem' }}>
-          <div style={{ color: 'rgba(244,245,248,0.2)', fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontFamily: 'var(--font-geist-mono), monospace', marginBottom: '0.5rem' }}>
+          <div style={{ color: 'rgba(244,245,248,0.2)', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontFamily: 'var(--font-geist-mono), monospace', marginBottom: '0.5rem' }}>
             Common topics
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(180px,1fr))', gap: '0.35rem' }}>
@@ -409,14 +409,14 @@ export default function AIPage() {
           placeholder="Ask a question…   (Enter to send, Shift+Enter for new line)"
           rows={2}
           aria-label="Tax question"
-          style={{ display: 'block', width: '100%', background: 'transparent', border: 'none', padding: '12px 14px 4px', color: 'var(--sa-white)', fontSize: '0.875rem', outline: 'none', resize: 'none', lineHeight: 1.6, boxSizing: 'border-box' }}
+          style={{ display: 'block', width: '100%', background: 'transparent', border: 'none', padding: '12px 14px 4px', color: 'var(--sa-white)', fontSize: '0.9375rem', outline: 'none', resize: 'none', lineHeight: 1.6, boxSizing: 'border-box' }}
         />
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', padding: '4px 8px 8px', gap: '6px' }}>
-          <span style={{ color: 'rgba(244,245,248,0.15)', fontSize: '0.62rem', fontFamily: 'var(--font-geist-mono), monospace', marginRight: 'auto' }}>
+          <span style={{ color: 'rgba(244,245,248,0.15)', fontSize: '0.72rem', fontFamily: 'var(--font-geist-mono), monospace', marginRight: 'auto' }}>
             {input.length > 0 ? `${input.length} chars` : ''}
           </span>
           <button onClick={() => send()} disabled={!canSend}
-            style={{ display: 'flex', alignItems: 'center', gap: '5px', background: canSend ? 'var(--sa-white)' : 'transparent', border: `1px solid ${canSend ? 'var(--sa-white)' : 'var(--sa-border)'}`, borderRadius: '4px', padding: '6px 12px', color: canSend ? 'var(--sa-black)' : 'var(--sa-muted)', fontSize: '0.75rem', fontWeight: 600, cursor: canSend ? 'pointer' : 'default', transition: 'all 0.1s', letterSpacing: '-0.01em' }}>
+            style={{ display: 'flex', alignItems: 'center', gap: '5px', background: canSend ? 'var(--sa-white)' : 'transparent', border: `1px solid ${canSend ? 'var(--sa-white)' : 'var(--sa-border)'}`, borderRadius: '4px', padding: '6px 12px', color: canSend ? 'var(--sa-black)' : 'var(--sa-muted)', fontSize: '0.82rem', fontWeight: 600, cursor: canSend ? 'pointer' : 'default', transition: 'all 0.1s', letterSpacing: '-0.01em' }}>
             <Send size={12} strokeWidth={2} /> Send
           </button>
         </div>

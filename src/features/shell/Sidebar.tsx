@@ -29,10 +29,10 @@ export default function Sidebar({ user, pathname, onSignOut, onNavClick, onClose
       {/* Header */}
       <div className="px-4 pt-5 pb-4 border-b border-[rgba(244,245,248,0.12)] flex items-start justify-between">
         <Link href="/" onClick={onNavClick} className="no-underline group">
-          <div className="text-white text-[0.95rem] font-semibold tracking-[-0.03em]">
+          <div className="text-white text-[1rem] font-semibold tracking-[-0.03em]">
             System Auditor
           </div>
-          <div className="text-[rgba(244,245,248,0.55)] text-[0.6rem] uppercase tracking-[0.1em] mt-[3px] font-mono">
+          <div className="text-[rgba(244,245,248,0.55)] text-[0.7rem] uppercase tracking-[0.1em] mt-[3px] font-mono">
             2026/27 · UK Fiscal Engine
           </div>
         </Link>
@@ -52,7 +52,7 @@ export default function Sidebar({ user, pathname, onSignOut, onNavClick, onClose
       <nav className="flex-1 p-2 flex flex-col overflow-y-auto">
         {Object.entries(grouped).map(([group, items]) => (
           <div key={group} className="mb-1">
-            <div className="px-3 pt-2.5 pb-1 text-[rgba(244,245,248,0.22)] text-[0.58rem] tracking-[0.1em] font-semibold uppercase font-mono">
+            <div className="px-3 pt-2.5 pb-1 text-[rgba(244,245,248,0.22)] text-[0.68rem] tracking-[0.1em] font-semibold uppercase font-mono">
               {GROUP_LABELS[group as NavEntry['group']] ?? group}
             </div>
             {items.map(({ href, label, icon: Icon }) => (
@@ -76,10 +76,10 @@ export default function Sidebar({ user, pathname, onSignOut, onNavClick, onClose
           onClick={onNavClick}
           className="flex items-center gap-2 no-underline bg-[rgba(244,245,248,0.03)] border border-[rgba(244,245,248,0.12)] hover:border-[rgba(244,245,248,0.18)] hover:bg-[rgba(244,245,248,0.05)] rounded-md p-2.5 transition-all duration-100"
         >
-          <MessageCircle size={12} className="text-[rgba(244,245,248,0.55)] shrink-0" />
+          <MessageCircle size={13} className="text-[rgba(244,245,248,0.55)] shrink-0" />
           <div>
-            <div className="text-white text-[0.72rem] font-medium tracking-[-0.01em]">Ask a question</div>
-            <div className="text-[rgba(244,245,248,0.55)] text-[0.6rem] mt-[1px]">Tax advisory · 2026/27</div>
+            <div className="text-white text-[0.8rem] font-medium tracking-[-0.01em]">Ask a question</div>
+            <div className="text-[rgba(244,245,248,0.55)] text-[0.7rem] mt-[1px]">Tax advisory · 2026/27</div>
           </div>
         </Link>
       </div>

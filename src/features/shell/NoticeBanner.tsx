@@ -34,7 +34,7 @@ export default function NoticeBanner({
       background: c.bg,
       borderBottom: `1px solid ${c.border}`,
       color: c.text,
-      fontSize: '0.78rem',
+      fontSize: '0.85rem',
       fontFamily: 'var(--font-mono, monospace)',
     }}>
       <Icon size={13} style={{ flexShrink: 0, marginTop: 1 }} />

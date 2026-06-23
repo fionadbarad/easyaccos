@@ -71,16 +71,16 @@ export default function LandingPage() {
       {/* ── NAV ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-[var(--sa-border)] bg-[rgba(24,24,24,0.9)] backdrop-blur-[16px]">
         <div className="max-w-[1120px] mx-auto px-6 h-14 flex items-center justify-between">
-          <span className="text-[var(--sa-white)] text-[0.95rem] font-semibold tracking-[-0.03em]">
+          <span className="text-[var(--sa-white)] text-[1rem] font-semibold tracking-[-0.03em]">
             EasyAcco
           </span>
           <div className="flex items-center gap-3">
-            <Link href="/auth/login" className="text-[var(--sa-muted)] text-[0.82rem] no-underline px-[14px] py-[7px]">
+            <Link href="/auth/login" className="text-[var(--sa-muted)] text-[0.875rem] no-underline px-[14px] py-[7px]">
               Sign in
             </Link>
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-[6px] bg-[var(--sa-white)] text-[var(--sa-black)] px-5 py-2 text-[0.82rem] font-semibold no-underline rounded-[4px] tracking-[-0.01em]"
+              className="inline-flex items-center gap-[6px] bg-[var(--sa-white)] text-[var(--sa-black)] px-5 py-2 text-[0.875rem] font-semibold no-underline rounded-[4px] tracking-[-0.01em]"
             >
               Open Dashboard <ArrowRight size={13} />
             </Link>
@@ -98,7 +98,7 @@ export default function LandingPage() {
         <div className="relative z-10 max-w-[800px] mx-auto w-full">
           <motion.div initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} suppressHydrationWarning>
 
-            <div className="inline-flex items-center gap-[6px] px-3 py-1 border border-[var(--sa-border)] rounded-[3px] text-[rgba(244,245,248,0.35)] text-[0.62rem] tracking-[0.15em] uppercase mb-8 font-mono">
+            <div className="inline-flex items-center gap-[6px] px-3 py-1 border border-[var(--sa-border)] rounded-[3px] text-[rgba(244,245,248,0.35)] text-[0.72rem] tracking-[0.15em] uppercase mb-8 font-mono">
               UK Tax Platform · 2026/27 · HMRC-Accurate · Free
             </div>
 
@@ -132,7 +132,7 @@ export default function LandingPage() {
               {TRUST_POINTS.map((pt) => (
                 <div key={pt} className="flex items-start gap-[8px]">
                   <CheckCircle2 size={13} className="text-[rgba(74,222,128,0.7)] mt-[2px] flex-shrink-0" />
-                  <span className="text-[rgba(244,245,248,0.45)] text-[0.78rem] leading-[1.5] font-mono">{pt}</span>
+                  <span className="text-[rgba(244,245,248,0.45)] text-[0.85rem] leading-[1.5] font-mono">{pt}</span>
                 </div>
               ))}
             </div>
@@ -144,7 +144,7 @@ export default function LandingPage() {
       <section className="px-6 py-20 border-t border-[var(--sa-border)] bg-[rgba(244,245,248,0.01)]">
         <div className="max-w-[760px] mx-auto">
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <div className="text-[rgba(244,245,248,0.18)] text-[0.62rem] uppercase tracking-[0.15em] mb-3 font-mono">
+            <div className="text-[rgba(244,245,248,0.18)] text-[0.72rem] uppercase tracking-[0.15em] mb-3 font-mono">
               the problem
             </div>
             <h2 className="text-[var(--sa-white)] text-[clamp(1.4rem,3vw,2rem)] font-semibold tracking-[-0.03em] mb-5">
@@ -164,13 +164,13 @@ export default function LandingPage() {
       <section className="px-6 py-20 border-t border-[var(--sa-border)]">
         <div className="max-w-[1120px] mx-auto">
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-12">
-            <div className="text-[rgba(244,245,248,0.18)] text-[0.62rem] uppercase tracking-[0.15em] mb-2 font-mono">
+            <div className="text-[rgba(244,245,248,0.18)] text-[0.72rem] uppercase tracking-[0.15em] mb-2 font-mono">
               what's included
             </div>
             <h2 className="text-[var(--sa-white)] text-[clamp(1.5rem,3vw,2rem)] font-semibold tracking-[-0.03em] m-0">
               Every tool a sole trader needs.
             </h2>
-            <p className="text-[var(--sa-muted)] text-[0.88rem] mt-2 max-w-[32rem]">
+            <p className="text-[var(--sa-muted)] text-[0.95rem] mt-2 max-w-[32rem]">
               Built to the same standard as Big 4 tax software — without the enterprise price tag.
             </p>
           </motion.div>
@@ -185,9 +185,9 @@ export default function LandingPage() {
               >
                 <div className="flex items-center gap-[9px] mb-[0.65rem]">
                   <Icon size={14} strokeWidth={1.5} className="text-[var(--sa-muted)]" />
-                  <span className="text-[var(--sa-white)] text-[0.85rem] font-semibold tracking-[-0.01em]">{label}</span>
+                  <span className="text-[var(--sa-white)] text-[0.9rem] font-semibold tracking-[-0.01em]">{label}</span>
                 </div>
-                <p className="text-[var(--sa-muted)] text-[0.78rem] leading-[1.6] m-0">{desc}</p>
+                <p className="text-[var(--sa-muted)] text-[0.85rem] leading-[1.6] m-0">{desc}</p>
               </motion.div>
             ))}
           </div>
@@ -197,7 +197,7 @@ export default function LandingPage() {
       {/* ── CTA ── */}
       <section className="px-6 py-20 border-t border-[var(--sa-border)]">
         <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="max-w-[580px] mx-auto">
-          <div className="text-[rgba(244,245,248,0.18)] text-[0.62rem] uppercase tracking-[0.15em] mb-3 font-mono">
+          <div className="text-[rgba(244,245,248,0.18)] text-[0.72rem] uppercase tracking-[0.15em] mb-3 font-mono">
             get started
           </div>
           <h2 className="text-[var(--sa-white)] text-[clamp(1.5rem,3vw,2rem)] font-semibold tracking-[-0.03em] mb-3">
@@ -213,11 +213,11 @@ export default function LandingPage() {
             >
               Open Dashboard — Free <ArrowRight size={16} />
             </Link>
-            <Link href="/auth/login" className="text-[var(--sa-muted)] text-[0.82rem] no-underline">
+            <Link href="/auth/login" className="text-[var(--sa-muted)] text-[0.875rem] no-underline">
               Sign in to sync →
             </Link>
           </div>
-          <p className="text-[rgba(244,245,248,0.18)] text-[0.72rem] mt-5 font-mono">
+          <p className="text-[rgba(244,245,248,0.18)] text-[0.78rem] mt-5 font-mono">
             No credit card · No account required · AES-256 encrypted
           </p>
         </motion.div>
@@ -227,13 +227,13 @@ export default function LandingPage() {
       <footer className="px-6 py-8 border-t border-[var(--sa-border)]">
         <div className="max-w-[1120px] mx-auto flex flex-wrap items-center justify-between gap-3">
           <span className="text-[var(--sa-white)] text-[0.85rem] font-semibold tracking-[-0.02em]">EasyAcco</span>
-          <p className="text-[rgba(244,245,248,0.18)] text-[0.72rem] font-mono">
+          <p className="text-[rgba(244,245,248,0.18)] text-[0.78rem] font-mono">
             2026 · UK Sole Traders &amp; Freelancers · Not financial advice · HMRC 2026/27
           </p>
           <div className="flex items-center gap-4">
-            <span className="text-[rgba(244,245,248,0.25)] text-[0.72rem] font-mono">Encrypted via Supabase</span>
-            <a href="/security" className="text-[rgba(244,245,248,0.25)] text-[0.72rem] no-underline hover:text-[rgba(244,245,248,0.5)] transition-colors">Security &amp; Privacy</a>
-            <a href="/demo" className="text-[rgba(244,245,248,0.25)] text-[0.72rem] no-underline hover:text-[rgba(244,245,248,0.5)] transition-colors">Demo</a>
+            <span className="text-[rgba(244,245,248,0.25)] text-[0.78rem] font-mono">Encrypted via Supabase</span>
+            <a href="/security" className="text-[rgba(244,245,248,0.25)] text-[0.78rem] no-underline hover:text-[rgba(244,245,248,0.5)] transition-colors">Security &amp; Privacy</a>
+            <a href="/demo" className="text-[rgba(244,245,248,0.25)] text-[0.78rem] no-underline hover:text-[rgba(244,245,248,0.5)] transition-colors">Demo</a>
           </div>
         </div>
       </footer>

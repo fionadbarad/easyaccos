@@ -25,7 +25,7 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; font-size: 16px; }
 
 body {
   background: var(--sa-black);
@@ -69,7 +69,7 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: var(--radius);
   padding: 0.65rem 1.15rem;
   font-weight: 600;
-  font-size: 0.84rem;
+  font-size: 0.875rem;
   letter-spacing: -0.01em;
   cursor: pointer;
   transition: opacity 0.15s ease;
@@ -83,7 +83,7 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: var(--radius);
   padding: 0.65rem 1.15rem;
   font-weight: 500;
-  font-size: 0.84rem;
+  font-size: 0.875rem;
   cursor: pointer;
   transition: border-color 0.15s ease;
 }
@@ -94,7 +94,7 @@ h1, h2, h3, h4, h5, h6 {
   border: none;
   color: var(--sa-muted);
   cursor: pointer;
-  font-size: 0.84rem;
+  font-size: 0.875rem;
   transition: color 0.15s ease;
 }
 .ui-btn-ghost:hover { color: var(--sa-white); }
@@ -106,8 +106,8 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid var(--sa-border);
   padding: 1.2rem;
 }
-.ui-card-title { margin: 0 0 0.5rem; color: var(--sa-white); font-weight: 600; font-size: 0.9rem; }
-.ui-card-body { color: var(--sa-muted); font-size: 0.84rem; }
+.ui-card-title { margin: 0 0 0.5rem; color: var(--sa-white); font-weight: 600; font-size: 0.95rem; }
+.ui-card-body { color: var(--sa-muted); font-size: 0.875rem; }
 
 /* ── Inputs ──────────────────────────────────────────────────────────── */
 .ui-input {
@@ -117,7 +117,7 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--sa-white);
   padding: 0.65rem 0.85rem;
   border-radius: var(--radius);
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   outline: none;
   transition: border-color 0.15s ease;
 }
@@ -159,14 +159,14 @@ h1, h2, h3, h4, h5, h6 {
 .dashboard-title {
   color: var(--sa-white);
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   letter-spacing: -0.01em;
   margin-bottom: 3px;
 }
 
 .dashboard-desc {
   color: var(--sa-muted);
-  font-size: 0.75rem;
+  font-size: 0.82rem;
   line-height: 1.5;
 }
 
@@ -184,7 +184,7 @@ h1, h2, h3, h4, h5, h6 {
   border:          1px solid var(--sa-border);
   border-radius:   4px;
   color:           var(--sa-muted);
-  font-size:       0.75rem;
+  font-size:       0.82rem;
   cursor:          pointer;
   text-align:      left;
   transition:      border-color 0.1s ease, color 0.1s ease;

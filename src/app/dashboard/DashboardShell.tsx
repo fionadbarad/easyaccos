@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
@@ -25,14 +25,11 @@ export default function DashboardShell({
   const pathname = usePathname()
   const router   = useRouter()
 
-  const supabaseRef = useRef(createClient())
-  const supabase    = supabaseRef.current
+  const [supabase] = useState(createClient)
 
   const [user, setUser]               = useState<User | null>(initialUser)
   const [mobileOpen, setMobileOpen]   = useState(false)
   const [desktopOpen, setDesktopOpen] = useState(false)
-
-  useEffect(() => { setMobileOpen(false) }, [pathname])
 
   useEffect(() => {
     let mounted = true

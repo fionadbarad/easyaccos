@@ -15,7 +15,7 @@
 
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { createClient, isSupabaseConfigured } from '@/lib/supabase-browser'
 import { secureRead, secureWrite } from '@/lib/storage/secure-store'
 import { appendAuditLog } from '@/lib/audit'
@@ -35,8 +35,9 @@ export function useUserData<T extends AuditableRow>(
   localKey: string,
   seed: T[],
 ) {
-  const supabaseRef  = useRef<SupabaseClient | null>(isSupabaseConfigured ? createClient() : null)
-  const supabase     = supabaseRef.current
+  const supabase     = useMemo<SupabaseClient | null>(() => (
+    isSupabaseConfigured ? createClient() : null
+  ), [])
 
   const [items,      setItems]      = useState<T[]>([])
   const [user,       setUser]       = useState<User | null>(null)

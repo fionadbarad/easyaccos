@@ -24,7 +24,15 @@ export default function AuditPage() {
     setLoading(false)
   }
 
-  useEffect(() => { void load() }, [])
+  useEffect(() => {
+    let cancelled = false
+    void readAuditLog(500).then((rows) => {
+      if (cancelled) return
+      setEntries(rows)
+      setLoading(false)
+    })
+    return () => { cancelled = true }
+  }, [])
 
   function toggleFlag() {
     const next = !enabled
@@ -109,7 +117,7 @@ export default function AuditPage() {
                 </tr>
               </thead>
               <tbody>
-                {entries.map((e, idx) => {
+                {entries.map((e) => {
                   const isOpen = expanded === e.id
                   return (
                     <>

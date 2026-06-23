@@ -50,11 +50,14 @@ const inputStyle: React.CSSProperties = {
 }
 
 export default function CurrencyPage() {
-  const [rates,       setRates]       = useState<Record<string, number>>({})
-  const [loading,     setLoading]     = useState(true)
+  const [cachedOnLoad] = useState<RateCache | null>(loadCache)
+  const [rates,       setRates]       = useState<Record<string, number>>(() => cachedOnLoad?.rates ?? {})
+  const [loading,     setLoading]     = useState(() => !cachedOnLoad)
   const [error,       setError]       = useState('')
-  const [isStale,     setIsStale]     = useState(false)
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const [isStale,     setIsStale]     = useState(() => !!cachedOnLoad)
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(() => (
+    cachedOnLoad ? new Date(cachedOnLoad.fetchedAt) : null
+  ))
 
   const [amount, setAmount] = useState('1000')
   const [from,   setFrom]   = useState('GBP')
@@ -105,15 +108,8 @@ export default function CurrencyPage() {
     }
   }, [])
 
-  // On mount: serve cached data instantly, then refresh in the background.
+  // On mount: refresh in the background (cache is applied via lazy state init).
   useEffect(() => {
-    const cached = loadCache()
-    if (cached) {
-      setRates(cached.rates)
-      setLastUpdated(new Date(cached.fetchedAt))
-      setIsStale(true)
-      setLoading(false)
-    }
     fetchRates()
   }, [fetchRates])
 

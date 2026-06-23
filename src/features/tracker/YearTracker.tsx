@@ -44,8 +44,8 @@ export default function YearTracker() {
   const yearIncome   = useMemo(() => yearlyIncome(transactions),   [transactions])
   const yearExpenses = useMemo(() => yearlyExpenses(expenses),     [expenses])
 
-  const projectedIncome   = projectAnnual(yearIncome,   monthsElapsed)
-  const projectedExpenses = projectAnnual(yearExpenses, monthsElapsed)
+  const projectedIncome   = useMemo(() => projectAnnual(yearIncome, monthsElapsed), [yearIncome, monthsElapsed])
+  const projectedExpenses = useMemo(() => projectAnnual(yearExpenses, monthsElapsed), [yearExpenses, monthsElapsed])
   const monthlyPensionNum = parseFloat(pension || '0')
 
   const projectedTax = useMemo(() => {

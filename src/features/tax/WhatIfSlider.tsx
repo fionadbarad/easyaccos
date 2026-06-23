@@ -20,8 +20,6 @@ export default function WhatIfSlider({ income, onChange }: { income: number; onC
     }
   }, [debounced, onChange])
 
-  useEffect(() => { setLocal(income) }, [income])
-
   return (
     <div style={{ ...cardStyle, marginBottom: '1.5rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>

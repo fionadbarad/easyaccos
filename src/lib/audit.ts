@@ -25,7 +25,7 @@
 
 import { isFlagEnabled, FLAG_AUDIT } from './feature-flags'
 import { idbSet, STORE_AUDIT, isIDBAvailable, idbAuditRange } from './storage/idb'
-import { isSupabaseConfigured, createClient } from './supabase-browser'
+import { isSupabaseConfigured } from './supabase-browser'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 export type AuditOp = 'create' | 'update' | 'delete'

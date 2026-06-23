@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import {
-  Plus, Trash2, Cloud, CloudOff, Car, MapPin, Calendar,
+  Plus, Trash2, Cloud, CloudOff, Car, MapPin,
   TrendingUp, ChevronDown, ChevronUp, Info,
 } from 'lucide-react'
 import { useUserData } from '@/lib/use-user-data'

@@ -131,7 +131,6 @@ export function useUserData<T extends AuditableRow>(
       try { await secureWrite(`${table}:guest`, stamped) }
       catch (err) { reportError('useUserData.persist.guest', err, { table }) }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, table, supabase, items])
 
   return { items, persist, loading, isAuthenticated: !!user, syncStatus }

@@ -60,19 +60,7 @@ function ISLine({
   )
 }
 
-function StatCard({ label, value, sub, trend }: { label: string; value: string; sub?: string; trend?: 'up' | 'down' }) {
-  return (
-    <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '1.1rem 1.25rem' }}>
-      <div style={{ color: C.muted, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 600 }}>
-        {trend === 'up'   && <TrendingUp  size={10} style={{ color: C.green }} />}
-        {trend === 'down' && <TrendingDown size={10} style={{ color: C.red   }} />}
-        {label}
-      </div>
-      <div style={{ color: C.white, fontWeight: 600, fontSize: '1.2rem', letterSpacing: '-0.02em', fontFamily: 'var(--font-geist-mono), monospace', fontVariantNumeric: 'tabular-nums' }}>{value}</div>
-      {sub && <div style={{ color: C.muted, fontSize: '0.7rem', marginTop: '3px' }}>{sub}</div>}
-    </div>
-  )
-}
+
 
 const tooltipStyle = {
   background: '#1C1D20', border: `1px solid rgba(244,245,248,0.1)`,

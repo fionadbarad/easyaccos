@@ -110,6 +110,7 @@ export default function CurrencyPage() {
 
   // On mount: refresh in the background (cache is applied via lazy state init).
   useEffect(() => {
+    // Defer to next macrotask to satisfy React Hooks lint rule for sync effect updates.
     const id = setTimeout(() => { void fetchRates() }, 0)
     return () => clearTimeout(id)
   }, [fetchRates])

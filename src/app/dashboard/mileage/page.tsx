@@ -189,11 +189,12 @@ export default function MileagePage() {
       const claimAmount = calcRate(entry.vehicle, milesBefore, entry.miles)
       const nextCarMiles = entry.vehicle === 'car' ? acc.carMiles + entry.miles : acc.carMiles
 
-      acc.enriched.push({ entry, claimAmount })
-      acc.totalMiles += entry.miles
-      acc.totalClaim += claimAmount
-      acc.carMiles = nextCarMiles
-      return acc
+      return {
+        enriched: [...acc.enriched, { entry, claimAmount }],
+        totalMiles: acc.totalMiles + entry.miles,
+        totalClaim: acc.totalClaim + claimAmount,
+        carMiles: nextCarMiles,
+      }
     }, { enriched: [], totalMiles: 0, totalClaim: 0, carMiles: 0 })
   }, [sorted])
 

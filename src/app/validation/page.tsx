@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { calculateTax, type TaxInput, type TaxResult } from '@/lib/tax-engine'
 import { fmtGBP } from '@/lib/formatters'
-import { ShieldCheck, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { HMRC_ERROR_MESSAGES, mapHmrcError } from '@/lib/hmrc/mtd-errors'
+import { ShieldCheck, AlertCircle, CheckCircle2, Network } from 'lucide-react'
 
 export const metadata = {
   title: 'Engine Validation — EasyAcco',
@@ -70,12 +71,12 @@ const SCENARIOS: Scenario[] = [
       { label: 'Personal Allowance',                         value: 0 },
       { label: 'Taxable income',                             value: 125_140 },
       { label: 'Basic rate: 37,700 × 20%',                   value: 7_540 },
-      { label: 'Higher rate: (125,140 − 50,270) × 40%',      value: 29_948 },
-      { label: 'Income tax',                                 value: 37_488 },
+      { label: 'Higher rate: (125,140 − 37,700) × 40%',      value: 34_976 },
+      { label: 'Income tax',                                 value: 42_516 },
     ],
     assertions: [
       { path: 'personalAllowance',   expected: 0 },
-      { path: 'incomeTax',           expected: 37_488 },
+      { path: 'incomeTax',           expected: 42_516 },
       { path: 'sixtyPercentTrap',    expected: false,   note: 'Trap ends at £125,140' },
     ],
   },
@@ -103,7 +104,8 @@ const SCENARIOS: Scenario[] = [
     title: 'Director optimal mix — £12,570 salary + £50,000 dividends',
     why:
       'The canonical limited-company structure: salary set at the Primary Threshold (no Class 1 NI) and the rest as dividends. ' +
-      'Dividend allowance is £500 (2026/27, down from £1,000). First £37,700 of taxable dividends hits 8.75%, the rest 33.75%. ' +
+      'Dividend allowance is £500 (2026/27, down from £1,000) — a 0% band that still uses up £500 of the basic-rate band. ' +
+      'So £37,200 of taxable dividends (37,700 − 500) hit 10.75%, the rest 35.75% (2026/27 hiked rates). ' +
       'Getting the dividend-allowance-first ordering wrong is a classic error.',
     input: baseInput({
       grossRevenue:   12_570,
@@ -115,13 +117,13 @@ const SCENARIOS: Scenario[] = [
       { label: 'Class 1 NI on salary at PT',                 value: 0 },
       { label: 'Dividend allowance (first £500 tax-free)',   value: 500 },
       { label: 'Taxable dividends (50,000 − 500)',           value: 49_500 },
-      { label: 'Basic band dividends: 37,700 × 8.75%',       value: 3_298.75 },
-      { label: 'Higher band dividends: 11,800 × 33.75%',     value: 3_982.50 },
-      { label: 'Dividend tax',                               value: 7_281.25 },
+      { label: 'Basic-band dividends: (37,700 − 500 allowance) = 37,200 × 10.75%', value: 3_999.00 },
+      { label: 'Higher-band dividends: 12,300 × 35.75%',     value: 4_397.25 },
+      { label: 'Dividend tax',                               value: 8_396.25 },
     ],
     assertions: [
       { path: 'niClass1',            expected: 0,       note: 'Salary at PT → zero Class 1' },
-      { path: 'dividendTax',         expected: 7_281.25 },
+      { path: 'dividendTax',         expected: 8_396.25 },
     ],
   },
   {
@@ -135,19 +137,120 @@ const SCENARIOS: Scenario[] = [
     manual: [
       { label: 'PA (income ≥ £125,140)',                     value: 0 },
       { label: 'Basic rate: 37,700 × 20%',                   value: 7_540 },
-      { label: 'Higher rate: 74,870 × 40%',                  value: 29_948 },
-      { label: 'Additional rate: (160,000 − 112,570) × 45%', value: 21_343.50 },
-      { label: 'Income tax',                                 value: 58_831.50 },
+      { label: 'Higher rate: 87,440 × 40%',                  value: 34_976 },
+      { label: 'Additional rate: (160,000 − 125,140) × 45%', value: 15_687 },
+      { label: 'Income tax',                                 value: 58_203 },
       { label: 'Dividend allowance',                         value: 500 },
       { label: 'Dividend tax (additional): 9,500 × 39.35%',  value: 3_738.25 },
     ],
     assertions: [
       { path: 'personalAllowance',   expected: 0 },
-      { path: 'incomeTax',           expected: 58_831.50 },
+      { path: 'incomeTax',           expected: 58_203 },
       { path: 'dividendTax',         expected: 3_738.25 },
     ],
   },
 ]
+
+// Gov-Test-Scenario header values that drive specific sandbox responses,
+// paired with the HMRC error body each one triggers and the human-readable
+// message easyacco surfaces via mapHmrcError().
+//
+// The response bodies are the EXACT shape HMRC's sandbox returns when the
+// matching Gov-Test-Scenario is set on a submission. Documented at
+// https://developer.service.hmrc.gov.uk/api-documentation/docs/api/service/
+type ScenarioCase = {
+  govTestScenario: string
+  surface:         'MTD-IT' | 'MTD-VAT'
+  why:             string
+  responseStatus:  number
+  responseBody:    unknown
+}
+
+const HMRC_SCENARIOS: ScenarioCase[] = [
+  {
+    govTestScenario: 'OVERLAPPING_PERIOD',
+    surface: 'MTD-IT',
+    why:
+      'Sandbox simulates a quarterly period that overlaps a period already on file. ' +
+      'HMRC enforces non-overlapping period summaries — submitting one is a hard rejection, not a warning.',
+    responseStatus: 403,
+    responseBody:  { code: 'RULE_OVERLAPPING_PERIOD', message: 'The period overlaps an existing summary' },
+  },
+  {
+    govTestScenario: 'DUPLICATE_SUBMISSION',
+    surface: 'MTD-IT',
+    why:
+      'Sandbox simulates the same period summary being submitted twice. HMRC returns RULE_DUPLICATE_SUBMISSION ' +
+      'rather than silently overwriting — important: easyacco must surface this so the user does not assume the second send is a correction.',
+    responseStatus: 403,
+    responseBody:  { code: 'RULE_DUPLICATE_SUBMISSION', message: 'Submission already exists for this period' },
+  },
+  {
+    govTestScenario: 'CLIENT_OR_AGENT_NOT_AUTHORISED',
+    surface: 'MTD-IT',
+    why:
+      'Sandbox simulates the access token being valid but not scoped to this taxpayer (e.g. wrong NINO). ' +
+      'In production this is the canonical "your auth went through but you are not allowed to act for this user" failure.',
+    responseStatus: 403,
+    responseBody:  { code: 'CLIENT_OR_AGENT_NOT_AUTHORISED', message: 'Not authorised' },
+  },
+  {
+    govTestScenario: 'VAT_TOTAL_VALUE',
+    surface: 'MTD-VAT',
+    why:
+      'Sandbox simulates totalVatDue not equalling vatDueSales + vatDueAcquisitions. easyacco pre-validates this client-side, ' +
+      'so this code only appears if a request bypasses the dashboard — proves the server-side mapping still degrades gracefully.',
+    responseStatus: 400,
+    responseBody: {
+      code:    'INVALID_REQUEST',
+      message: 'Invalid request',
+      errors:  [{ code: 'VAT_TOTAL_VALUE', message: 'totalVatDue does not equal sales + acquisitions' }],
+    },
+  },
+  {
+    govTestScenario: 'TAX_PERIOD_NOT_ENDED',
+    surface: 'MTD-VAT',
+    why:
+      'Sandbox simulates submitting a VAT return for a period that has not finished yet. HMRC rejects rather than ' +
+      'accepting a partial-period return — easyacco surfaces the cause so the user knows to wait, not to fix data.',
+    responseStatus: 403,
+    responseBody:  { code: 'TAX_PERIOD_NOT_ENDED', message: 'Tax period has not ended' },
+  },
+]
+
+const ERROR_BUCKETS: { label: string; prefix: (code: string) => boolean }[] = [
+  { label: 'MTD-IT format errors',     prefix: (c) => c.startsWith('FORMAT_') },
+  { label: 'MTD-IT business rules',    prefix: (c) => c.startsWith('RULE_') || c === 'MATCHING_RESOURCE_NOT_FOUND' },
+  { label: 'MTD-VAT format errors',    prefix: (c) => ['VRN_INVALID', 'PERIOD_KEY_INVALID', 'INVALID_REQUEST', 'INVALID_NUMERIC_VALUE', 'INVALID_MONETARY_AMOUNT', 'VAT_TOTAL_VALUE', 'VAT_NET_VALUE'].includes(c) },
+  { label: 'MTD-VAT business rules',   prefix: (c) => ['NOT_FINALISED', 'DUPLICATE_SUBMISSION', 'TAX_PERIOD_NOT_ENDED', 'RULE_INSOLVENT_TRADER'].includes(c) },
+  { label: 'Auth & rate limits',       prefix: (c) => ['CLIENT_OR_AGENT_NOT_AUTHORISED', 'INVALID_CREDENTIALS', 'INVALID_SCOPE', 'TOO_MANY_REQUESTS'].includes(c) },
+]
+
+function bucketErrors(): { label: string; entries: [string, string][] }[] {
+  const codes = Object.keys(HMRC_ERROR_MESSAGES)
+  const used  = new Set<string>()
+  const out   = ERROR_BUCKETS.map((b) => {
+    const entries = codes
+      .filter((c) => b.prefix(c) && !used.has(c))
+      .map((c) => {
+        used.add(c)
+        return [c, HMRC_ERROR_MESSAGES[c]] as [string, string]
+      })
+    return { label: b.label, entries }
+  })
+  const leftover = codes.filter((c) => !used.has(c)).map((c) => [c, HMRC_ERROR_MESSAGES[c]] as [string, string])
+  if (leftover.length) out.push({ label: 'Other', entries: leftover })
+  return out
+}
+
+// Extracts the most-specific HMRC code from an error body (first inner error,
+// else top-level) — the code mapHmrcError keys off internally.
+function errorCodeOf(body: unknown): string {
+  if (typeof body !== 'object' || body === null) return '—'
+  const b = body as { code?: string; errors?: Array<{ code?: string }> }
+  if (Array.isArray(b.errors) && b.errors[0]?.code) return b.errors[0].code
+  return b.code ?? '—'
+}
 
 function pickAssertion(result: TaxResult, path: string): number | boolean | undefined {
   if (path === 'taxBands.length')   return result.taxBands.length
@@ -182,6 +285,16 @@ export default function ValidationPage() {
   const totalChecks   = results.reduce((n, r) => n + r.checks.length, 0)
   const passingChecks = results.reduce((n, r) => n + r.checks.filter((c) => c.match).length, 0)
   const allPass       = totalChecks === passingChecks
+
+  // Run every Gov-Test-Scenario error body through the same mapper the live
+  // submission routes use, so the page proves the real mapping, not a copy.
+  const hmrcResults = HMRC_SCENARIOS.map((s) => ({
+    ...s,
+    rawCode:  errorCodeOf(s.responseBody),
+    friendly: mapHmrcError(s.responseBody),
+  }))
+  const buckets = bucketErrors()
+  const totalCodes = Object.keys(HMRC_ERROR_MESSAGES).length
 
   return (
     <div className="min-h-screen bg-[#181818] text-[#F4F5F8] py-[clamp(2rem,5vw,4rem)] px-[clamp(1.5rem,5vw,3rem)]">
@@ -302,11 +415,82 @@ export default function ValidationPage() {
           </section>
         ))}
 
-        <p className="text-[rgba(244,245,248,0.42)] text-[0.72rem] leading-[1.6] mt-8">
-          All calculations executed on the server using the production engine exported from
+        <div className="flex items-center gap-4 mb-3 mt-16 pt-12 border-t border-[rgba(244,245,248,0.07)]">
+          <div className="w-[52px] h-[52px] rounded-xl bg-[rgba(244,245,248,0.06)] border border-[rgba(244,245,248,0.1)] flex items-center justify-center">
+            <Network size={26} className="text-[#F4F5F8]" />
+          </div>
+          <div>
+            <h2 className="text-[clamp(1.4rem,3vw,1.9rem)] font-bold m-0">HMRC error handling</h2>
+            <p className="text-[rgba(244,245,248,0.55)] text-[0.875rem] m-0 mt-1">
+              Sandbox <code className="font-mono">Gov-Test-Scenario</code> edge cases → the message easyacco shows
+            </p>
+          </div>
+        </div>
+
+        <p className="text-[rgba(244,245,248,0.55)] text-[0.85rem] leading-[1.7] mb-8 mt-6">
+          HMRC&rsquo;s sandbox lets you force specific failures with the <code className="font-mono text-[rgba(244,245,248,0.7)]">Gov-Test-Scenario</code> request
+          header. Each row below sends a real HMRC error body through{' '}
+          <code className="font-mono text-[rgba(244,245,248,0.7)]">mapHmrcError()</code> — the exact mapper the live submission routes use —
+          so the friendly message shown is the one a user would actually see. The point: HMRC&rsquo;s coded errors never reach the user raw,
+          and never collapse into a generic &ldquo;submission failed&rdquo;.
+        </p>
+
+        {hmrcResults.map((r) => (
+          <section key={r.govTestScenario} className="mb-6 bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-lg p-5">
+            <div className="flex items-center justify-between gap-4 flex-wrap mb-3">
+              <code className="font-mono text-[0.8rem] text-[#F4F5F8] bg-[rgba(244,245,248,0.06)] px-2 py-1 rounded">
+                Gov-Test-Scenario: {r.govTestScenario}
+              </code>
+              <div className="flex items-center gap-2">
+                <span className="text-[rgba(244,245,248,0.42)] text-[0.7rem] font-mono uppercase tracking-[0.1em]">{r.surface}</span>
+                <span className="text-[#F87171] text-[0.72rem] font-mono">HTTP {r.responseStatus}</span>
+              </div>
+            </div>
+            <p className="text-[rgba(244,245,248,0.55)] text-[0.8rem] leading-[1.6] mb-4 max-w-[680px]">{r.why}</p>
+            <div className="flex flex-col gap-[6px] font-mono text-[0.78rem]">
+              <div className="flex gap-3">
+                <span className="text-[rgba(244,245,248,0.42)] w-[120px] shrink-0">HMRC code</span>
+                <span className="text-[#F87171]">{r.rawCode}</span>
+              </div>
+              <div className="flex gap-3">
+                <span className="text-[rgba(244,245,248,0.42)] w-[120px] shrink-0">easyacco shows</span>
+                <span className="text-[#F4F5F8] inline-flex items-start gap-1.5">
+                  <CheckCircle2 size={13} className="text-[#4ADE80] mt-[3px] shrink-0" />
+                  <span>{r.friendly}</span>
+                </span>
+              </div>
+            </div>
+          </section>
+        ))}
+
+        <div className="bg-[rgba(244,245,248,0.02)] border border-[rgba(244,245,248,0.07)] rounded-lg p-5 mt-8">
+          <div className="text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.12em] font-mono mb-4">
+            Full coverage — {totalCodes} HMRC codes mapped, zero generic fallbacks
+          </div>
+          <div className="grid md:grid-cols-2 gap-x-8 gap-y-6">
+            {buckets.filter((b) => b.entries.length > 0).map((b) => (
+              <div key={b.label}>
+                <div className="text-[rgba(244,245,248,0.7)] text-[0.72rem] font-semibold mb-2">{b.label}</div>
+                <div className="flex flex-col gap-2">
+                  {b.entries.map(([code, msg]) => (
+                    <div key={code} className="font-mono text-[0.72rem] leading-[1.5]">
+                      <span className="text-[#F87171]">{code}</span>
+                      <span className="text-[rgba(244,245,248,0.55)] block">{msg}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <p className="text-[rgba(244,245,248,0.42)] text-[0.72rem] leading-[1.6] mt-12">
+          Tax calculations executed on the server using the production engine exported from
           <code className="font-mono text-[rgba(244,245,248,0.7)] px-1">@/lib/tax-engine</code>.
           2026/27 HMRC rates. Class 2 NI is deemed paid above the Small Profits Threshold of £7,105.
           Scotland band ranges use the Holyrood-set thresholds for non-savings, non-dividend income.
+          HMRC error messages mapped by <code className="font-mono text-[rgba(244,245,248,0.7)] px-1">@/lib/hmrc/mtd-errors</code>;
+          codes sourced from HMRC&rsquo;s published OpenAPI specs.
         </p>
 
       </div>

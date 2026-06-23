@@ -280,7 +280,7 @@ export function calcScenario5(inp: S5Input): ScenarioResult {
   // Income tax: salary consumes PA first, dividends stack on top.
   const salTaxable  = Math.max(0, adjustedSal - pa)
   const itaxSal     = rukIncomeTax(salTaxable)
-  const divTax      = calcDividendTax(dividends, salTaxable, 'ruk')
+  const divTax      = calcDividendTax(dividends, salTaxable)
   const itaxTotal   = round2(itaxSal + divTax)
 
   const total       = round2(itaxTotal + ni)

@@ -1,8 +1,8 @@
-// ── Kittax Context Builder ────────────────────────────────────────────────────
+// ── Acco Context Builder ────────────────────────────────────────────────────
 // Builds the live financial context string that gets injected into the advisory
-// system prompt so Kittax can give proactive, user-specific guidance.
+// system prompt so Acco can give proactive, user-specific guidance.
 
-import type { KittaxContext } from './types'
+import type { AccoContext } from './types'
 import { fmtDec as fmtGBP } from '@/lib/formatters'
 import {
   PA_BASE,
@@ -12,7 +12,7 @@ import {
 } from '@/lib/tax/bands-2026'
 
 /** Returns current tax-year context populated from bands-2026 (single source). */
-export function buildBaseContext(): KittaxContext {
+export function buildBaseContext(): AccoContext {
   const now = new Date()
   const month = now.toLocaleString('en-GB', { month: 'long', year: 'numeric' })
   return {
@@ -26,7 +26,7 @@ export function buildBaseContext(): KittaxContext {
 }
 
 /** Serialises the context object into a concise prompt segment. */
-export function buildContextPrompt(ctx: KittaxContext): string {
+export function buildContextPrompt(ctx: AccoContext): string {
   const lines: string[] = [
     `Current period: ${ctx.currentMonth} (Tax year ${ctx.taxYear})`,
     `Key thresholds: Personal Allowance ${fmtGBP(ctx.personalAllowance)} · Basic rate limit ${fmtGBP(ctx.basicRateLimit)} · Higher rate taper ${fmtGBP(ctx.higherRateTaper)} · Top rate ${fmtGBP(ctx.topRateTaper)}`,

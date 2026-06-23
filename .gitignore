@@ -31,15 +31,25 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files — .env.production is safe to commit (NEXT_PUBLIC vars are not secrets)
+# env files — .env.production and .env.example are safe to commit (templates/public values only)
 .env*
 !.env.production
+!.env.example
 
 # vercel
 .vercel
 
 # Claude Code local config (may contain tokens)
 .claude/
+
+# Stray agent worktree/scratch dirs (orphan source copies — not registered git worktrees)
+.claire/
+.clone/
+scratch/
+
+# HMRC sandbox test user credentials — personal copy with real test user IDs.
+# Commit docs/HMRC.md (scrubbed), keep docs/HMRC.local.md private.
+docs/HMRC.local.md
 
 # typescript
 *.tsbuildinfo

@@ -122,7 +122,7 @@ export default function ScenarioForm(p: ScenarioFormProps) {
                 <NumInput value={p.s4.redundancyPayment} onChange={(v) => p.setS4(prev => ({ ...prev, redundancyPayment: v }))} />
               </Field>
               <Field label="PAYE Tax Already Paid (£)">
-                <NumInput value={p.s4.paydeTaxPaid} onChange={(v) => p.setS4(prev => ({ ...prev, paydeTaxPaid: v }))} />
+                <NumInput value={p.s4.payeTaxPaid} onChange={(v) => p.setS4(prev => ({ ...prev, payeTaxPaid: v }))} />
               </Field>
             </>}
           </div>

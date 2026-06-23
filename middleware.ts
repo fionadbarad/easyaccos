@@ -38,6 +38,6 @@ export const config = {
      * Match all paths except static assets, images, and API routes
      * that don't need auth-token refresh.
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|api/hmrc|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

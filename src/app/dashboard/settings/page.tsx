@@ -20,7 +20,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 export default function SettingsPage() {
-  const [supabase] = useState(createClient)
+  const [supabase] = useState(() => createClient())
 
   const [user, setUser] = useState<User | null>(null)
   const [name, setName] = useState('')

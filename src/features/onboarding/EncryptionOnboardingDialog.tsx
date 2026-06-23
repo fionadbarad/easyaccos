@@ -17,8 +17,9 @@ export default function EncryptionOnboardingDialog() {
     try {
       if (typeof localStorage === 'undefined') return false
       return !localStorage.getItem(SEEN_KEY)
-    } catch { /* noop */ }
-    return false
+    } catch {
+      return false
+    }
   })
 
   function dismiss() {

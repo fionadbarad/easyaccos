@@ -25,7 +25,7 @@ export default function DashboardShell({
   const pathname = usePathname()
   const router   = useRouter()
 
-  const [supabase] = useState(createClient)
+  const [supabase] = useState(() => createClient())
 
   const [user, setUser]               = useState<User | null>(initialUser)
   const [mobileOpen, setMobileOpen]   = useState(false)

@@ -62,7 +62,7 @@ export default function YearTracker() {
       blindPersonsAllowance: false,
       pensionContribution:   monthlyPensionNum * 12,
     })
-  }, [yearIncome, yearExpenses, monthsElapsed, empType, region, slPlan, monthlyPensionNum, projectedIncome, projectedExpenses])
+  }, [yearIncome, yearExpenses, monthsElapsed, empType, region, slPlan, monthlyPensionNum])
 
   const projectedBill   = projectedTax ? Math.round(projectedTax.totalDeductions) : 0
   const savedSoFar      = parseFloat(potSaved || '0')

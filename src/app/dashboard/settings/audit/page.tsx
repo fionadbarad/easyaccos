@@ -30,6 +30,10 @@ export default function AuditPage() {
       if (cancelled) return
       setEntries(rows)
       setLoading(false)
+    }).catch(() => {
+      if (cancelled) return
+      setEntries([])
+      setLoading(false)
     })
     return () => { cancelled = true }
   }, [])

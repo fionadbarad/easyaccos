@@ -46,10 +46,7 @@ export function useUserData<T extends AuditableRow>(
 
   // ── Track auth state ──────────────────────────────────────────────────────
   useEffect(() => {
-    if (!supabase) {
-      setUser(null)
-      return
-    }
+    if (!supabase) return
     supabase.auth.getSession()
       .then(({ data }) => setUser(data.session?.user ?? null))
       .catch((err) => {

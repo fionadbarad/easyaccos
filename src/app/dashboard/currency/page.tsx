@@ -110,7 +110,8 @@ export default function CurrencyPage() {
 
   // On mount: refresh in the background (cache is applied via lazy state init).
   useEffect(() => {
-    fetchRates()
+    const id = setTimeout(() => { void fetchRates() }, 0)
+    return () => clearTimeout(id)
   }, [fetchRates])
 
   // Polling: skip fetches while the tab is hidden to conserve API quota.

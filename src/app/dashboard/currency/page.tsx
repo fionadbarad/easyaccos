@@ -50,11 +50,15 @@ const inputStyle: React.CSSProperties = {
 }
 
 export default function CurrencyPage() {
-  const [rates,       setRates]       = useState<Record<string, number>>({})
-  const [loading,     setLoading]     = useState(true)
+  const initialCache = loadCache()
+
+  const [rates,       setRates]       = useState<Record<string, number>>(initialCache?.rates ?? {})
+  const [loading,     setLoading]     = useState(!initialCache)
   const [error,       setError]       = useState('')
-  const [isStale,     setIsStale]     = useState(false)
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const [isStale,     setIsStale]     = useState(!!initialCache)
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(
+    initialCache ? new Date(initialCache.fetchedAt) : null,
+  )
 
   const [amount, setAmount] = useState('1000')
   const [from,   setFrom]   = useState('GBP')
@@ -105,16 +109,9 @@ export default function CurrencyPage() {
     }
   }, [])
 
-  // On mount: serve cached data instantly, then refresh in the background.
+  // On mount: refresh in the background.
   useEffect(() => {
-    const cached = loadCache()
-    if (cached) {
-      setRates(cached.rates)
-      setLastUpdated(new Date(cached.fetchedAt))
-      setIsStale(true)
-      setLoading(false)
-    }
-    fetchRates()
+    void fetchRates()
   }, [fetchRates])
 
   // Polling: skip fetches while the tab is hidden to conserve API quota.

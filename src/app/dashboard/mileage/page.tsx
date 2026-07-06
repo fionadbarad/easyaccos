@@ -178,22 +178,26 @@ export default function MileagePage() {
   )
 
   // Compute per-entry claim amounts (cumulative car miles needed)
-  const { enriched, totalMiles, totalClaim, carMiles } = useMemo(() => {
-    let runningCarMiles = 0
-    let totalMilesAcc  = 0
-    let totalClaimAcc  = 0
-
-    const enriched = sorted.map(e => {
-      const milesBefore = e.vehicle === 'car' ? runningCarMiles : 0
-      const claim       = calcRate(e.vehicle, milesBefore, e.miles)
-      if (e.vehicle === 'car') runningCarMiles += e.miles
-      totalMilesAcc += e.miles
-      totalClaimAcc += claim
-      return { entry: e, claimAmount: claim }
-    })
-
-    return { enriched, totalMiles: totalMilesAcc, totalClaim: totalClaimAcc, carMiles: runningCarMiles }
-  }, [sorted])
+  const { enriched, totalMiles, totalClaim, carMiles } = useMemo(() => sorted.reduce<{
+    enriched: Array<{ entry: MileageEntry; claimAmount: number }>
+    totalMiles: number
+    totalClaim: number
+    carMiles: number
+  }>((acc, entry) => {
+    const milesBefore = entry.vehicle === 'car' ? acc.carMiles : 0
+    const claim = calcRate(entry.vehicle, milesBefore, entry.miles)
+    return {
+      enriched: [...acc.enriched, { entry, claimAmount: claim }],
+      totalMiles: acc.totalMiles + entry.miles,
+      totalClaim: acc.totalClaim + claim,
+      carMiles: entry.vehicle === 'car' ? acc.carMiles + entry.miles : acc.carMiles,
+    }
+  }, {
+    enriched: [],
+    totalMiles: 0,
+    totalClaim: 0,
+    carMiles: 0,
+  }), [sorted])
 
   // Progress toward 10k threshold (car only)
   const thresholdPct = Math.min(100, (carMiles / CAR_THRESHOLD) * 100)

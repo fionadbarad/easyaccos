@@ -1,21 +1,20 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 
 const STORAGE_KEY = 'easyacco_cookie_consent'
 
 export default function CookieConsent() {
-  const [visible, setVisible] = useState(false)
-
-  useEffect(() => {
+  const [visible, setVisible] = useState(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY)
-      if (!stored) setVisible(true)
+      return !stored
     } catch {
       // localStorage unavailable — don't show banner
+      return false
     }
-  }, [])
+  })
 
   function accept() {
     try { localStorage.setItem(STORAGE_KEY, 'accepted') } catch { /* ignore */ }

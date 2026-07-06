@@ -107,11 +107,14 @@ export default function CurrencyPage() {
       clearTimeout(timeout)
       setLoading(false)
     }
-  }, [])
+  }, [setError, setIsStale, setLastUpdated, setLoading, setRates])
 
   // On mount: refresh in the background.
   useEffect(() => {
-    void fetchRates()
+    const id = requestAnimationFrame(() => {
+      void fetchRates()
+    })
+    return () => cancelAnimationFrame(id)
   }, [fetchRates])
 
   // Polling: skip fetches while the tab is hidden to conserve API quota.

@@ -46,10 +46,7 @@ export function useUserData<T extends AuditableRow>(
 
   // ── Track auth state ──────────────────────────────────────────────────────
   useEffect(() => {
-    if (!supabase) {
-      setUser(null)
-      return
-    }
+    if (!supabase) return
     supabase.auth.getSession()
       .then(({ data }) => setUser(data.session?.user ?? null))
       .catch((err) => {
@@ -103,7 +100,7 @@ export function useUserData<T extends AuditableRow>(
 
     load()
     return () => { cancelled = true }
-  }, [user, table, localKey, reloadKey])
+  }, [user, table, localKey, reloadKey, seed, supabase])
 
   // ── Persist ───────────────────────────────────────────────────────────────
   const persist = useCallback(async (next: T[]) => {

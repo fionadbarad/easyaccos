@@ -2,6 +2,9 @@
 
 /* ── System Auditor Design System ── Quiet Luxury · Nordic Monochrome ───── */
 :root {
+  --font-inter: "Inter";
+  --font-geist-mono: "Geist Mono";
+
   --sa-black:    #181818;
   --sa-surface:  #1C1D20;
   --sa-gray:     #222326;

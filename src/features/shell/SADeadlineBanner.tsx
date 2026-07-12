@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Bell } from 'lucide-react'
 import NoticeBanner from './NoticeBanner'
 
@@ -56,10 +56,6 @@ export default function SADeadlineBanner() {
 
   // Lazy init from localStorage so we don't flash the banner before hiding it.
   const [dismissed, setDismissed] = useState<boolean>(() => readDismissed() === dismissId)
-
-  useEffect(() => {
-    setDismissed(readDismissed() === dismissId)
-  }, [dismissId])
 
   const handleDismiss = () => {
     setDismissed(true)

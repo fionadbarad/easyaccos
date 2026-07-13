@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
 import { CategoriseRequestSchema } from '@/app/api/ai/schemas'
 import { reportError } from '@/lib/monitor'
 
@@ -35,10 +35,12 @@ function heuristic(description: string): Category {
   return 'Other'
 }
 
-let _genAI: GoogleGenerativeAI | null = null
-function getGenAI(apiKey: string): GoogleGenerativeAI {
-  if (!_genAI) _genAI = new GoogleGenerativeAI(apiKey)
-  return _genAI
+const MODEL = 'gemini-2.5-flash'
+
+let _ai: GoogleGenAI | null = null
+function getAI(apiKey: string): GoogleGenAI {
+  if (!_ai) _ai = new GoogleGenAI({ apiKey })
+  return _ai
 }
 
 const SYSTEM = `You are a UK sole-trader expense categoriser. Respond with exactly one category from this list, and nothing else:
@@ -69,15 +71,15 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const model = getGenAI(apiKey).getGenerativeModel({
-      model: 'gemini-1.5-flash',
-      systemInstruction: SYSTEM,
-    })
     const prompt = `Categorise this expense: "${description}"${
       amount !== undefined ? ` (£${amount.toFixed(2)})` : ''
     }`
-    const result = await model.generateContent(prompt)
-    const text = (result.response.text() || '').trim()
+    const result = await getAI(apiKey).models.generateContent({
+      model: MODEL,
+      contents: prompt,
+      config: { systemInstruction: SYSTEM },
+    })
+    const text = (result.text || '').trim()
     const match = CATEGORIES.find((c) => text.toLowerCase().includes(c.toLowerCase())) ?? heuristic(description)
     return NextResponse.json({ category: match, source: 'ai' })
   } catch (err) {

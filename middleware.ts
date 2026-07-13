@@ -33,11 +33,11 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all paths except static assets, images, and API routes
-     * that don't need auth-token refresh.
-     */
-    '/((?!_next/static|_next/image|api/hmrc|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
+  // Only /dashboard/* actually reads the server-side session (see
+  // src/app/dashboard/layout.tsx, page.tsx, settings/page.tsx). Every other
+  // route — marketing pages, /tax, /api/ai/*, etc. — was previously paying
+  // for a blocking network round-trip to Supabase's auth server on *every*
+  // request for no reason, since nothing on those pages reads the cookie
+  // this refreshes. That was the single biggest contributor to slow loads.
+  matcher: ['/dashboard/:path*'],
 }

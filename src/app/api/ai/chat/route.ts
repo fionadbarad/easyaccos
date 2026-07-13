@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
 import { buildContextPrompt } from '@/lib/acco/context'
 import { ChatRequestSchema } from '@/app/api/ai/schemas'
 import { reportError } from '@/lib/monitor'
@@ -144,10 +144,16 @@ function offlineReply(query: string): string {
   )
 }
 
-let _genAI: GoogleGenerativeAI | null = null
-function getGenAI(apiKey: string): GoogleGenerativeAI {
-  if (!_genAI) _genAI = new GoogleGenerativeAI(apiKey)
-  return _genAI
+// gemini-2.5-flash: current-gen, free-tier eligible, not a preview model.
+// (The old gemini-1.5-flash model and the @google/generative-ai SDK are
+// both retired — that combo would fail even with a valid key and silently
+// drop back to the offline canned replies below.)
+const MODEL = 'gemini-2.5-flash'
+
+let _ai: GoogleGenAI | null = null
+function getAI(apiKey: string): GoogleGenAI {
+  if (!_ai) _ai = new GoogleGenAI({ apiKey })
+  return _ai
 }
 
 export async function POST(request: NextRequest) {
@@ -178,19 +184,18 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const model = getGenAI(apiKey).getGenerativeModel({
-      model: 'gemini-1.5-flash',
-      systemInstruction: systemPrompt,
+    const chat = getAI(apiKey).chats.create({
+      model: MODEL,
+      config: { systemInstruction: systemPrompt },
+      history: (validatedHistory ?? []).slice(-20),
     })
-    const history = (validatedHistory ?? []).slice(-20)
-    const chat = model.startChat({ history })
-    const result = await chat.sendMessageStream(query)
+    const result = await chat.sendMessageStream({ message: query })
 
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          for await (const chunk of result.stream) {
-            const text = chunk.text()
+          for await (const chunk of result) {
+            const text = chunk.text
             if (text) controller.enqueue(new TextEncoder().encode(text))
           }
         } finally {

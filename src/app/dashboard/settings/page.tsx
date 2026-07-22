@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase-browser'
+import { useState, useEffect, useMemo } from 'react'
+import { getSupabaseBrowserClient } from '@/lib/supabase-client-singleton'
 import { Loader2, CheckCircle } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 import { BackupRestore } from '@/components/BackupRestore'
@@ -20,7 +20,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 export default function SettingsPage() {
-  const [supabase] = useState(() => createClient())
+  const supabase = useMemo(() => getSupabaseBrowserClient(), [])
 
   const [user, setUser] = useState<User | null>(null)
   const [name, setName] = useState('')
@@ -32,6 +32,7 @@ export default function SettingsPage() {
   const [pwMsg, setPwMsg] = useState('')
 
   useEffect(() => {
+    if (!supabase) return
     supabase.auth.getSession().then(({ data }) => {
       const u = data.session?.user ?? null
       setUser(u)
@@ -41,6 +42,7 @@ export default function SettingsPage() {
 
   async function saveProfile(e: React.FormEvent) {
     e.preventDefault()
+    if (!supabase) return
     setSaving(true); setSaved(false)
     await supabase.auth.updateUser({ data: { name } })
     setSaving(false); setSaved(true)
@@ -49,6 +51,7 @@ export default function SettingsPage() {
 
   async function changePassword(e: React.FormEvent) {
     e.preventDefault()
+    if (!supabase) return
     setPwMsg('')
     if (pwForm.next !== pwForm.confirm) { setPwMsg('Passwords do not match.'); return }
     if (pwForm.next.length < 6) { setPwMsg('Password must be at least 6 characters.'); return }

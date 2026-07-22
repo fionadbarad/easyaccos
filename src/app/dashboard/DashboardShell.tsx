@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase-browser'
+import { getSupabaseBrowserClient } from '@/lib/supabase-client-singleton'
 import type { User } from '@supabase/supabase-js'
 import { Menu, AlertTriangle } from 'lucide-react'
 import { C } from '@/styles/palette'
@@ -25,23 +25,27 @@ export default function DashboardShell({
   const pathname = usePathname()
   const router   = useRouter()
 
-  const [supabase] = useState(() => createClient())
-
   const [user, setUser]               = useState<User | null>(initialUser)
   const [mobileOpen, setMobileOpen]   = useState(false)
   const [desktopOpen, setDesktopOpen] = useState(false)
 
   useEffect(() => {
+    const supabase = getSupabaseBrowserClient()
+    if (!supabase) return
+
     let mounted = true
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (mounted) setUser(session?.user ?? null)
     })
     return () => { mounted = false; subscription.unsubscribe() }
-  }, [supabase])
+  }, [])
 
   async function handleSignOut() {
-    await supabase.auth.signOut()
-    router.push('/')
+    const supabase = getSupabaseBrowserClient()
+    if (supabase) {
+      await supabase.auth.signOut()
+      router.push('/')
+    }
   }
 
   const closeMobile = () => setMobileOpen(false)

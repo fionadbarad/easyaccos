@@ -6,17 +6,13 @@
  * Local data is AES-GCM encrypted and survives browser refreshes via
  * IndexedDB rather than localStorage. Existing localStorage data is migrated
  * transparently on first read.
- *
- * The hook composes three single-purpose helpers below:
- *   - emitAuditDiff:     write create/update/delete entries to the audit log
- *   - syncSupabaseRows:  upsert/delete with updated_at conflict skip
- *   - loadLocalSnapshot: encrypted IDB read with seed fallback
  */
 
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { createClient, isSupabaseConfigured } from '@/lib/supabase-browser'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { getSupabaseBrowserClient } from '@/lib/supabase-client-singleton'
+import { isSupabaseConfigured } from '@/lib/supabase-browser'
 import { secureRead, secureWrite } from '@/lib/storage/secure-store'
 import { appendAuditLog } from '@/lib/audit'
 import { reportError, reportWarn } from '@/lib/monitor'
@@ -35,9 +31,7 @@ export function useUserData<T extends AuditableRow>(
   localKey: string,
   seed: T[],
 ) {
-  const [supabase] = useState<SupabaseClient | null>(() => (
-    isSupabaseConfigured ? createClient() : null
-  ))
+  const supabase = useMemo(() => getSupabaseBrowserClient(), [])
 
   const [items,      setItems]      = useState<T[]>([])
   const [user,       setUser]       = useState<User | null>(null)
@@ -47,16 +41,34 @@ export function useUserData<T extends AuditableRow>(
   // ── Track auth state ──────────────────────────────────────────────────────
   useEffect(() => {
     if (!supabase) return
+    
+    let mounted = true
+    let debounceTimer: NodeJS.Timeout
+
+    // Check current session
     supabase.auth.getSession()
-      .then(({ data }) => setUser(data.session?.user ?? null))
+      .then(({ data }) => {
+        if (mounted) setUser(data.session?.user ?? null)
+      })
       .catch((err) => {
         reportError('useUserData.getSession', err, { table })
-        setUser(null)
+        if (mounted) setUser(null)
       })
+
+    // Subscribe to auth changes with a small debounce to avoid rapid re-renders 
+    // during multi-step auth flows
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      setUser(session?.user ?? null)
+      clearTimeout(debounceTimer)
+      debounceTimer = setTimeout(() => {
+        if (mounted) setUser(session?.user ?? null)
+      }, 50)
     })
-    return () => subscription.unsubscribe()
+
+    return () => {
+      mounted = false
+      clearTimeout(debounceTimer)
+      subscription.unsubscribe()
+    }
   }, [supabase, table])
 
   const reloadKey = useRestoreSignal()
@@ -100,15 +112,14 @@ export function useUserData<T extends AuditableRow>(
 
     load()
     return () => { cancelled = true }
-  }, [user, table, localKey, reloadKey, seed, supabase])
+  }, [user, table, localKey, seed, supabase, localKey])
 
   // ── Persist ───────────────────────────────────────────────────────────────
   const persist = useCallback(async (next: T[]) => {
     const now      = new Date().toISOString()
     const prevMap  = new Map(items.map(i => [i.id, i]))
 
-    // Stamp updated_at on rows whose contents changed so the conflict check
-    // below has a meaningful timestamp to compare against the server copy.
+    // Stamp updated_at on rows whose contents changed
     const stamped: T[] = next.map((item) => {
       const before = prevMap.get(item.id)
       const changed = !before || JSON.stringify(before) !== JSON.stringify(item)
@@ -122,8 +133,6 @@ export function useUserData<T extends AuditableRow>(
       setSyncStatus('syncing')
       const ok = await syncSupabaseRows(supabase, table, user.id, stamped, now)
       setSyncStatus(ok ? 'synced' : 'error')
-      // Always keep an encrypted local cache so optimistic state isn't lost
-      // even when the server write fails.
       try { await secureWrite(`${table}:${user.id}`, stamped) }
       catch (err) { reportError('useUserData.localCache', err, { table }) }
     } else {
@@ -137,7 +146,6 @@ export function useUserData<T extends AuditableRow>(
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-/** Read encrypted snapshot from IDB; fall back to seed on any failure. */
 async function loadLocalSnapshot<T extends AuditableRow>(
   table:    Table,
   userId:   string | null,
@@ -163,7 +171,6 @@ async function loadLocalSnapshot<T extends AuditableRow>(
   }
 }
 
-/** Best-effort audit log diff: create/update/delete entries per row change. */
 function emitAuditDiff<T extends AuditableRow>(
   table:    Table,
   prevMap:  Map<string, T>,
@@ -188,14 +195,6 @@ function emitAuditDiff<T extends AuditableRow>(
   }
 }
 
-/**
- * Mirror `stamped` to Supabase: delete rows missing from the new set, then
- * upsert the rest. Rows whose server copy is newer than the local copy are
- * skipped (logged as conflicts) so a slow client cannot overwrite a faster
- * write from another device.
- *
- * Returns true on success, false on any error (caller flips syncStatus).
- */
 async function syncSupabaseRows<T extends AuditableRow>(
   supabase: SupabaseClient,
   table:    Table,
@@ -249,10 +248,6 @@ async function syncSupabaseRows<T extends AuditableRow>(
   }
 }
 
-/**
- * Bumps a counter whenever a global restore event fires. Components using
- * useUserData re-load their backing data automatically — no page refresh.
- */
 function useRestoreSignal(): number {
   const [tick, setTick] = useState(0)
   useEffect(() => {

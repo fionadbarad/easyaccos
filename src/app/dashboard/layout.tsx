@@ -1,8 +1,7 @@
-import { createClient } from '@/lib/supabase-server'
+import { getCachedUser } from '@/lib/auth-shared'
 import DashboardShell from './DashboardShell'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  return <DashboardShell initialUser={user ?? null}>{children}</DashboardShell>
+  const user = await getCachedUser()
+  return <DashboardShell initialUser={user}>{children}</DashboardShell>
 }

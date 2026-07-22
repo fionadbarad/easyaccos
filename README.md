@@ -7,7 +7,6 @@ UK Self Assessment + Making Tax Digital app for the **2026/27** tax year. End-to
 ---
 
 ## What's in the box
-
 | Area | What it does | Where it lives |
 | --- | --- | --- |
 | **Tax engine** | 2026/27 UK personal tax — Income Tax, Class 1/2/4 NI, dividend tax, student loans (Plans 1/2/4/5/PG), Scottish bands, PA taper, 60% trap detection | `src/lib/tax-engine.ts` |

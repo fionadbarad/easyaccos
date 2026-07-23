@@ -55,20 +55,17 @@ export default function DashboardShell({
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: C.bg }}>
       <button
-        className="hidden md:flex"
+        className="hidden md:flex hover:text-white transition-colors duration-100"
         onClick={() => setDesktopOpen(true)}
         title="Open sidebar"
         style={{
           position: 'fixed', top: '1rem', left: '0.75rem',
           zIndex: 51, background: C.surface, border: `1px solid ${C.border}`,
-          borderRadius: '4px', color: C.muted, cursor: 'pointer',
+          borderRadius: '4px', color: desktopOpen ? 'transparent' : C.muted, cursor: 'pointer',
           padding: '6px 8px', alignItems: 'center', justifyContent: 'center',
           opacity: desktopOpen ? 0 : 1,
           pointerEvents: desktopOpen ? 'none' : 'auto',
-          transition: 'opacity 0.2s ease, color 0.1s',
-        }}
-        onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = C.white}
-        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = C.muted}>
+        }}>
         <Menu size={14} />
       </button>
 

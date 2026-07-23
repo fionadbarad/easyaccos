@@ -21,6 +21,7 @@ import {
   encryptWithKey,
   decryptWithKey,
 } from './crypto'
+import { reportError } from '@/lib/monitor'
 
 const DEVICE_KEY_ID = 'device-key'
 
@@ -74,19 +75,27 @@ export async function secureRead<T>(recordKey: string, legacyLocalKey: string | 
   }
 }
 
-export async function secureWrite<T>(recordKey: string, value: T): Promise<void> {
+export async function secureWrite<T>(recordKey: string, value: T): Promise<boolean> {
   if (!isIDBAvailable()) {
     if (typeof localStorage !== 'undefined') {
-      try { localStorage.setItem(legacyFromRecord(recordKey), JSON.stringify(value)) } catch { /* noop */ }
+      try {
+        localStorage.setItem(legacyFromRecord(recordKey), JSON.stringify(value))
+        return true
+      } catch (err) {
+        reportError('secureStore.write', err, { recordKey })
+        return false
+      }
     }
-    return
+    return false
   }
   try {
     const key = await getDeviceKey()
     const env = await encryptWithKey(key, JSON.stringify(value))
     await idbSet(STORE_RECORDS, recordKey, env)
-  } catch {
-    /* swallow — caller has optimistic state in memory */
+    return true
+  } catch (err) {
+    reportError('secureStore.write', err, { recordKey })
+    return false
   }
 }
 

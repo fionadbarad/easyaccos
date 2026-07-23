@@ -6,7 +6,7 @@ import {
   TrendingUp, ChevronDown, ChevronUp, Info,
 } from 'lucide-react'
 import { useUserData } from '@/lib/use-user-data'
-import { fmtGBP } from '@/lib/tax-engine'
+import { fmtGBP } from '@/lib/formatters'
 
 import { C } from '@/styles/palette'
 // HMRC 2026/27 approved mileage rates

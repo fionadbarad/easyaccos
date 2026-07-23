@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect, useRef } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useUserData } from '@/lib/use-user-data'
 import type { Invoice, InvoiceStatus } from '@/lib/validators'
 
@@ -79,12 +79,11 @@ export function useInvoices() {
     return String((nums.length ? Math.max(...nums) : 0) + 1).padStart(4, '0')
   }, [invoices])
 
-  const sweptRef = useRef(false)
+  // Auto-flip overdue invoices on every render — no ref, no stale state.
   useEffect(() => {
-    if (loading || sweptRef.current) return
+    if (loading) return
     const needsFlip = invoices.some(i => i.status === 'sent' && isPastDue(i))
-    if (!needsFlip) { sweptRef.current = true; return }
-    sweptRef.current = true
+    if (!needsFlip) return
     void persist(invoices.map(i =>
       i.status === 'sent' && isPastDue(i) ? { ...i, status: 'overdue' as InvoiceStatus } : i,
     ))

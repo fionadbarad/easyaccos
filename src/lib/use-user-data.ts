@@ -112,7 +112,7 @@ export function useUserData<T extends AuditableRow>(
 
     load()
     return () => { cancelled = true }
-  }, [user, table, localKey, seed, supabase, localKey])
+  }, [user, table, localKey, seed, supabase])
 
   // ── Persist ───────────────────────────────────────────────────────────────
   const persist = useCallback(async (next: T[]) => {
@@ -131,7 +131,7 @@ export function useUserData<T extends AuditableRow>(
 
     if (user && supabase) {
       setSyncStatus('syncing')
-      const ok = await syncSupabaseRows(supabase, table, user.id, stamped, now)
+      const ok = await syncSupabaseRows(supabase, table, user.id, stamped, now, setItems)
       setSyncStatus(ok ? 'synced' : 'error')
       try { await secureWrite(`${table}:${user.id}`, stamped) }
       catch (err) { reportError('useUserData.localCache', err, { table }) }
@@ -201,6 +201,7 @@ async function syncSupabaseRows<T extends AuditableRow>(
   userId:   string,
   stamped:  T[],
   now:      string,
+  setItems: (updater: (prev: T[]) => T[]) => void,
 ): Promise<boolean> {
   try {
     const { data: existing, error: selectErr } = await supabase
@@ -226,9 +227,32 @@ async function syncSupabaseRows<T extends AuditableRow>(
       const serverTs = existingMap.get(item.id)
       const localTs  = item.updated_at
       if (serverTs && localTs && serverTs > localTs) {
-        reportWarn('useUserData.persist.conflict', 'server row newer than local — skipping', {
+        // Server has newer data — fetch the full row and merge into local state.
+        reportWarn('useUserData.persist.conflict', 'server row newer than local — fetching and merging', {
           table, id: item.id, serverTs, localTs,
         })
+        try {
+          const { data: serverRow, error: fetchErr } = await supabase
+            .from(table)
+            .select('*')
+            .eq('id', item.id)
+            .single()
+          if (!fetchErr && serverRow) {
+            // Replace local with server version in the stamped array
+            const idx = stamped.indexOf(item)
+            if (idx !== -1) {
+              stamped[idx] = { ...serverRow } as T
+              setItems((prev) => {
+                const copy = [...prev]
+                const i = copy.findIndex((r) => r.id === item.id)
+                if (i !== -1) copy[i] = { ...serverRow } as T
+                return copy
+              })
+            }
+          }
+        } catch (err) {
+          reportError('useUserData.persist.conflictFetch', err, { table, id: item.id })
+        }
         continue
       }
       upsertable.push(item)

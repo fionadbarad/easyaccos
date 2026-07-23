@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { createClient } from '@/lib/supabase-browser'
+import { isSupabaseConfigured } from '@/lib/supabase-browser'
+import { getSupabaseBrowserClient } from '@/lib/supabase-client-singleton'
 import { Mail, Loader2, CheckCircle, ArrowRight } from 'lucide-react'
 
 type Mode = 'login' | 'signup'
@@ -42,9 +42,10 @@ const COPY = {
 const INPUT_CLASS = 'w-full bg-[#222326] border border-[rgba(244,245,248,0.07)] rounded-lg px-[14px] py-3 text-[#F4F5F8] text-[0.9rem] outline-none box-border'
 
 export default function AuthForm({ mode }: AuthFormProps) {
-  const supabaseRef = useRef(createClient())
-  const supabase = supabaseRef.current
   const copy = COPY[mode]
+
+  // Guard: memoize Supabase client creation; returns null when unconfigured.
+  const supabase = useMemo(() => getSupabaseBrowserClient(), [])
 
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
@@ -53,6 +54,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
   async function sendMagicLink(e: React.FormEvent) {
     e.preventDefault()
+    if (!supabase) return
     setError('')
     setLoading(true)
     const { error: err } = await supabase.auth.signInWithOtp({
@@ -66,15 +68,42 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
   const submitDisabled = loading || !email.trim()
 
+  // When Supabase is not configured, show a fallback UI instead of crashing.
+  if (!supabase || !isSupabaseConfigured) {
+    return (
+      <div className="min-h-screen bg-[#181818] flex items-center justify-center p-6">
+        <div className="w-full max-w-[420px] animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="text-center mb-8">
+            <Link href="/" className="text-[#F4F5F8] text-[1.7rem] font-bold no-underline">
+              EasyAcco
+            </Link>
+            <p className="text-[rgba(244,245,248,0.42)] text-[0.82rem] mt-[6px]">{copy.subtitle}</p>
+          </div>
+
+          <div className="bg-[rgba(244,245,248,0.03)] border border-[rgba(244,245,248,0.12)] rounded-xl p-6 mb-5 text-center">
+            <div className="text-[2rem] mb-2">No account needed</div>
+            <p className="text-[rgba(244,245,248,0.42)] text-[0.82rem] leading-[1.55] mb-[1.1rem]">
+              {copy.guestCopy}
+            </p>
+            <p className="text-[rgba(251,191,36,0.8)] text-[0.78rem] border border-[rgba(251,191,36,0.3)] rounded-md px-3 py-[9px] mb-4">
+              Cloud sync is not available. Running in local-only mode.
+              Your data is saved in this browser and will persist between visits.
+            </p>
+            <Link
+              href="/dashboard"
+              className="inline-block mt-6 px-5 py-[13px] bg-[rgba(244,245,248,0.08)] text-[#F4F5F8] font-bold text-[0.95rem] no-underline rounded-lg border border-[rgba(244,245,248,0.07)]"
+            >
+              Open Dashboard →
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-[#181818] flex items-center justify-center p-6">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-[420px]"
-        suppressHydrationWarning
-      >
+      <div className="w-full max-w-[420px] animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="text-center mb-8">
           <Link href="/" className="text-[#F4F5F8] text-[1.7rem] font-bold no-underline">
             EasyAcco
@@ -168,7 +197,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
             </Link>
           </p>
         )}
-      </motion.div>
+      </div>
     </div>
   )
 }

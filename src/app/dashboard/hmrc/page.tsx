@@ -347,24 +347,39 @@ function browserTimezone(): string {
   return `UTC${sign}${h}:${m}`
 }
 
+// In-memory fallback so the HMRC flow never crashes if storage is unavailable.
+let _inMemoryDeviceId: string | undefined
+let _inMemoryUserId: string | undefined
+
 function getOrCreateDeviceId(): string {
   const KEY = 'hmrc_device_id'
-  let id = window.localStorage.getItem(KEY)
-  if (!id) {
-    id = window.crypto.randomUUID()
-    window.localStorage.setItem(KEY, id)
+  try {
+    let id = window.localStorage.getItem(KEY)
+    if (!id) {
+      id = window.crypto.randomUUID()
+      window.localStorage.setItem(KEY, id)
+    }
+    return id
+  } catch {
+    // Storage unavailable — fall back to an in-memory ID for this session.
+    if (!_inMemoryDeviceId) _inMemoryDeviceId = window.crypto.randomUUID()
+    return _inMemoryDeviceId
   }
-  return id
 }
 
 function getOrCreateUserId(): string {
   const KEY = 'hmrc_user_id'
-  let id = window.localStorage.getItem(KEY)
-  if (!id) {
-    id = window.crypto.randomUUID()
-    window.localStorage.setItem(KEY, id)
+  try {
+    let id = window.localStorage.getItem(KEY)
+    if (!id) {
+      id = window.crypto.randomUUID()
+      window.localStorage.setItem(KEY, id)
+    }
+    return id
+  } catch {
+    if (!_inMemoryUserId) _inMemoryUserId = window.crypto.randomUUID()
+    return _inMemoryUserId
   }
-  return id
 }
 
 function collectBrowserFraudData(): BrowserFraudData {

@@ -139,8 +139,7 @@ export function round2(n: number): number {
   return Math.round(n * 100) / 100
 }
 
-// fmtGBP lives in lib/formatters.ts — re-exported here for legacy imports
-export { fmtGBP } from './formatters'
+// fmtGBP lives in lib/formatters.ts — import only, no re-export.
 import { fmtGBP } from './formatters'
 
 // ─── Personal Allowance ───────────────────────────────────────────────────────

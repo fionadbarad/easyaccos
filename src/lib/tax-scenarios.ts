@@ -7,13 +7,13 @@
 
 import {
   round2,
-  fmtGBP,
   calcPA,
   calcRukTax,
   calcClass1NI,
   calcClass4NI,
   calcDividendTax,
 } from './tax-logic'
+import { fmtGBP } from './formatters'
 import {
   PA_BASE,
   PA_TAPER_START,
@@ -23,7 +23,7 @@ import {
   REDUNDANCY_EXEMPTION,
 } from './tax/bands-2026'
 
-export { round2, fmtGBP }
+export { round2 }
 
 // ─── Scenario result shape ───────────────────────────────────────────────────
 export interface ScenarioLine {

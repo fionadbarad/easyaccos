@@ -8,15 +8,8 @@
  */
 
 import { z } from 'zod'
-import {
-  encryptWithPassphrase,
-  decryptWithPassphrase,
-  type PassphraseEnvelope,
-} from './crypto'
-import {
-  secureDumpAll,
-  secureRestoreAll,
-} from './secure-store'
+import { encryptWithPassphrase, decryptWithPassphrase, type PassphraseEnvelope } from './crypto'
+import { secureDumpAll, secureRestoreAll } from './secure-store'
 import { reportError } from '@/lib/monitor'
 
 const FORMAT = 'easyacco-backup'

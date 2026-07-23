@@ -1,4 +1,3 @@
-
 'use client'
 
 import Link from 'next/link'
@@ -17,12 +16,15 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ user, pathname, onSignOut, onNavClick, onClose }: SidebarProps) {
-  const grouped = NAV.reduce((acc, item) => {
-    const list = acc[item.group] ?? []
-    list.push(item)
-    acc[item.group] = list
-    return acc
-  }, {} as Record<string, NavEntry[]>)
+  const grouped = NAV.reduce(
+    (acc, item) => {
+      const list = acc[item.group] ?? []
+      list.push(item)
+      acc[item.group] = list
+      return acc
+    },
+    {} as Record<string, NavEntry[]>,
+  )
 
   return (
     <div className="flex flex-col h-full bg-[#121212]">
@@ -36,10 +38,10 @@ export default function Sidebar({ user, pathname, onSignOut, onNavClick, onClose
             2026/27 · UK Fiscal Engine
           </div>
         </Link>
-        
+
         {onClose && (
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             title="Collapse sidebar"
             className="bg-transparent border-none text-[rgba(244,245,248,0.55)] hover:text-white cursor-pointer p-0.5 mt-0.5 shrink-0 transition-colors duration-100"
           >
@@ -56,13 +58,15 @@ export default function Sidebar({ user, pathname, onSignOut, onNavClick, onClose
               {GROUP_LABELS[group as NavEntry['group']] ?? group}
             </div>
             {items.map(({ href, label, icon: Icon }) => (
-              <NavItem 
-                key={href} 
-                href={href} 
-                label={label} 
+              <NavItem
+                key={href}
+                href={href}
+                label={label}
                 Icon={Icon}
-                active={pathname === href || (href !== '/dashboard' && !!pathname?.startsWith(href))}
-                onClick={onNavClick} 
+                active={
+                  pathname === href || (href !== '/dashboard' && !!pathname?.startsWith(href))
+                }
+                onClick={onNavClick}
               />
             ))}
           </div>
@@ -71,15 +75,19 @@ export default function Sidebar({ user, pathname, onSignOut, onNavClick, onClose
 
       {/* AI CTA */}
       <div className="px-3 py-2.5 border-t border-[rgba(244,245,248,0.12)]">
-        <Link 
-          href="/dashboard/ai" 
+        <Link
+          href="/dashboard/ai"
           onClick={onNavClick}
           className="flex items-center gap-2 no-underline bg-[rgba(244,245,248,0.03)] border border-[rgba(244,245,248,0.12)] hover:border-[rgba(244,245,248,0.18)] hover:bg-[rgba(244,245,248,0.05)] rounded-md p-2.5 transition-all duration-100"
         >
           <MessageCircle size={13} className="text-[rgba(244,245,248,0.55)] shrink-0" />
           <div>
-            <div className="text-white text-[0.8rem] font-medium tracking-[-0.01em]">Ask a question</div>
-            <div className="text-[rgba(244,245,248,0.55)] text-[0.7rem] mt-[1px]">Tax advisory · 2026/27</div>
+            <div className="text-white text-[0.8rem] font-medium tracking-[-0.01em]">
+              Ask a question
+            </div>
+            <div className="text-[rgba(244,245,248,0.55)] text-[0.7rem] mt-[1px]">
+              Tax advisory · 2026/27
+            </div>
           </div>
         </Link>
       </div>

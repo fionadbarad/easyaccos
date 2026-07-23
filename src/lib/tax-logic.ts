@@ -10,128 +10,155 @@
 //   - Monthly breakdown added to TaxResult
 //   - effectiveTaxRate capped at 100% defensively
 
-export type EmploymentType  = 'employed' | 'self-employed' | 'director'
+export type EmploymentType = 'employed' | 'self-employed' | 'director'
 export type StudentLoanPlan = 'none' | 'plan1' | 'plan2' | 'plan4' | 'plan5' | 'postgraduate'
-export type TaxRegion       = 'ruk' | 'scotland'
+export type TaxRegion = 'ruk' | 'scotland'
 
 export interface TaxInput {
-  grossRevenue:          number
-  allowableExpenses:     number
-  dividendIncome:        number
-  employmentType:        EmploymentType
-  taxRegion:             TaxRegion
-  studentLoanPlan:       StudentLoanPlan
-  voluntaryClass2NI:     boolean   // only applies when profit < SPT (£7,105)
-  marriageAllowance:     boolean   // transfer £1,260 PA to partner
-  blindPersonsAllowance: boolean   // additional £3,250 PA
-  pensionContribution:   number    // annual SIPP — reduces adjusted net income
+  grossRevenue: number
+  allowableExpenses: number
+  dividendIncome: number
+  employmentType: EmploymentType
+  taxRegion: TaxRegion
+  studentLoanPlan: StudentLoanPlan
+  voluntaryClass2NI: boolean // only applies when profit < SPT (£7,105)
+  marriageAllowance: boolean // transfer £1,260 PA to partner
+  blindPersonsAllowance: boolean // additional £3,250 PA
+  pensionContribution: number // annual SIPP — reduces adjusted net income
 }
 
 export interface TaxBand {
-  label:  string
-  rate:   number   // integer percentage e.g. 20
-  amount: number   // income in this band
-  tax:    number   // tax payable in this band (2dp)
+  label: string
+  rate: number // integer percentage e.g. 20
+  amount: number // income in this band
+  tax: number // tax payable in this band (2dp)
 }
 
 export interface OptimizationTip {
-  id:          string
-  title:       string
+  id: string
+  title: string
   description: string
-  saving:      number   // estimated annual saving £ (0 = informational)
+  saving: number // estimated annual saving £ (0 = informational)
 }
 
 export interface BreakdownStep {
   label: string
-  value: number   // positive = income/addition; negative = deduction
-  note:  string
+  value: number // positive = income/addition; negative = deduction
+  note: string
 }
 
 export interface MonthlyBreakdown {
-  grossProfit:       number
-  incomeTax:         number
-  niClass1:          number
-  niClass4:          number
-  niClass2:          number
-  dividendTax:       number
-  studentLoan:       number
-  totalDeductions:   number
-  netTakeHome:       number
+  grossProfit: number
+  incomeTax: number
+  niClass1: number
+  niClass4: number
+  niClass2: number
+  dividendTax: number
+  studentLoan: number
+  totalDeductions: number
+  netTakeHome: number
 }
 
 export interface TaxResult {
   // ── Echo inputs ──────────────────────────────────────────────────────────
-  grossRevenue:          number
-  allowableExpenses:     number
-  pensionContribution:   number   // capped at grossProfit
+  grossRevenue: number
+  allowableExpenses: number
+  pensionContribution: number // capped at grossProfit
 
   // ── Computed income chain ─────────────────────────────────────────────
-  grossProfit:           number   // revenue - expenses
-  adjustedProfit:        number   // grossProfit - pensionContribution
-  personalAllowance:     number   // after taper + marriage/blind adjustments (never < 0)
-  taxableIncome:         number   // max(0, adjustedProfit - personalAllowance)
+  grossProfit: number // revenue - expenses
+  adjustedProfit: number // grossProfit - pensionContribution
+  personalAllowance: number // after taper + marriage/blind adjustments (never < 0)
+  taxableIncome: number // max(0, adjustedProfit - personalAllowance)
 
   // ── Income tax ────────────────────────────────────────────────────────
-  incomeTax:             number
-  taxBands:              TaxBand[]
+  incomeTax: number
+  taxBands: TaxBand[]
 
   // ── National Insurance ───────────────────────────────────────────────
-  niClass1:              number   // employed / director
-  niClass4:              number   // self-employed
-  niClass2:              number   // voluntary only (deemed = £0)
-  niClass2Deemed:        boolean  // profit >= £7,105 SPT: record protected, no charge
+  niClass1: number // employed / director
+  niClass4: number // self-employed
+  niClass2: number // voluntary only (deemed = £0)
+  niClass2Deemed: boolean // profit >= £7,105 SPT: record protected, no charge
 
   // ── Other deductions ─────────────────────────────────────────────────
-  dividendTax:           number
-  studentLoanRepayment:  number   // based on grossProfit (before pension)
-  studentLoanBase:       number   // the base used for SL calculation (grossProfit)
+  dividendTax: number
+  studentLoanRepayment: number // based on grossProfit (before pension)
+  studentLoanBase: number // the base used for SL calculation (grossProfit)
 
   // ── Totals ────────────────────────────────────────────────────────────
-  totalDeductions:       number
-  netTakeHome:           number
-  effectiveTaxRate:      number   // % of total income taken as deductions
+  totalDeductions: number
+  netTakeHome: number
+  effectiveTaxRate: number // % of total income taken as deductions
 
   // ── Flags ─────────────────────────────────────────────────────────────
-  sixtyPercentTrap:      boolean  // income £100k–£125,140
-  taperWarning:          boolean
-  mtdWarning:            boolean  // SE/director gross > £50k
+  sixtyPercentTrap: boolean // income £100k–£125,140
+  taperWarning: boolean
+  mtdWarning: boolean // SE/director gross > £50k
 
   // ── Extras ────────────────────────────────────────────────────────────
-  monthly:               MonthlyBreakdown
-  optimizationTips:      OptimizationTip[]
-  breakdown:             BreakdownStep[]
+  monthly: MonthlyBreakdown
+  optimizationTips: OptimizationTip[]
+  breakdown: BreakdownStep[]
 }
 
 // ─── 2026/27 Constants ────────────────────────────────────────────────────────
 // Single source of truth lives in ./tax/bands-2026.
 import {
-  PA_BASE, PA_TAPER_START, PA_TAPER_END,
-  MARRIAGE_ALLOWANCE_XFER, BLIND_PERSONS_ALLOWANCE,
-  RUK_BASIC_RATE_WIDTH, RUK_BASIC_LIMIT, RUK_HIGHER_LIMIT,
-  SCO_STARTER_END, SCO_BASIC_END, SCO_INTERMEDIATE_END,
-  SCO_HIGHER_END, SCO_ADVANCED_END,
-  NI_PT, NI_UEL,
-  NI_C1_MAIN, NI_C1_UPPER, NI_C4_MAIN, NI_C4_UPPER,
-  NI_C2_WEEKLY, NI_CLASS2_SPT,
-  DIV_ALLOWANCE, DIV_BASIC, DIV_HIGHER, DIV_ADDL,
+  PA_BASE,
+  PA_TAPER_START,
+  PA_TAPER_END,
+  MARRIAGE_ALLOWANCE_XFER,
+  BLIND_PERSONS_ALLOWANCE,
+  RUK_BASIC_RATE_WIDTH,
+  RUK_BASIC_LIMIT,
+  RUK_HIGHER_LIMIT,
+  SCO_STARTER_END,
+  SCO_BASIC_END,
+  SCO_INTERMEDIATE_END,
+  SCO_HIGHER_END,
+  SCO_ADVANCED_END,
+  NI_PT,
+  NI_UEL,
+  NI_C1_MAIN,
+  NI_C1_UPPER,
+  NI_C4_MAIN,
+  NI_C4_UPPER,
+  NI_C2_WEEKLY,
+  NI_CLASS2_SPT,
+  DIV_ALLOWANCE,
+  DIV_BASIC,
+  DIV_HIGHER,
+  DIV_ADDL,
 } from './tax/bands-2026'
 
 // Student Loan 2026/27
 const STUDENT_LOAN: Record<StudentLoanPlan, { threshold: number; rate: number; label: string }> = {
-  none:         { threshold: 0,      rate: 0,    label: 'None'                                       },
-  plan1:        { threshold: 26_900, rate: 0.09, label: 'Plan 1 \u2014 \u00a326,900 (pre-2012 England/Wales)' },
-  plan2:        { threshold: 29_385, rate: 0.09, label: 'Plan 2 \u2014 \u00a329,385 (2012\u20132023)'         },
-  plan4:        { threshold: 33_795, rate: 0.09, label: 'Plan 4 \u2014 \u00a333,795 (Scotland)'               },
-  plan5:        { threshold: 25_000, rate: 0.09, label: 'Plan 5 \u2014 \u00a325,000 (post-Aug 2023)'          },
-  postgraduate: { threshold: 21_000, rate: 0.06, label: 'Postgraduate \u2014 \u00a321,000 (6%)'               },
+  none: { threshold: 0, rate: 0, label: 'None' },
+  plan1: {
+    threshold: 26_900,
+    rate: 0.09,
+    label: 'Plan 1 \u2014 \u00a326,900 (pre-2012 England/Wales)',
+  },
+  plan2: { threshold: 29_385, rate: 0.09, label: 'Plan 2 \u2014 \u00a329,385 (2012\u20132023)' },
+  plan4: { threshold: 33_795, rate: 0.09, label: 'Plan 4 \u2014 \u00a333,795 (Scotland)' },
+  plan5: { threshold: 25_000, rate: 0.09, label: 'Plan 5 \u2014 \u00a325,000 (post-Aug 2023)' },
+  postgraduate: { threshold: 21_000, rate: 0.06, label: 'Postgraduate \u2014 \u00a321,000 (6%)' },
 }
 
 export const STUDENT_LOAN_LABELS = Object.fromEntries(
-  Object.entries(STUDENT_LOAN).map(([k, v]) => [k, v.label])
+  Object.entries(STUDENT_LOAN).map(([k, v]) => [k, v.label]),
 ) as Record<StudentLoanPlan, string>
 
 // ─── Exported constants (shared across engine modules) ───────────────────────
-export { PA_BASE, PA_TAPER_START, PA_TAPER_END, RUK_BASIC_RATE_WIDTH, RUK_BASIC_LIMIT, RUK_HIGHER_LIMIT }
+export {
+  PA_BASE,
+  PA_TAPER_START,
+  PA_TAPER_END,
+  RUK_BASIC_RATE_WIDTH,
+  RUK_BASIC_LIMIT,
+  RUK_HIGHER_LIMIT,
+}
 
 // ─── Utility ──────────────────────────────────────────────────────────────────
 /** Round to exactly 2 decimal places — eliminates floating point drift */
@@ -167,12 +194,12 @@ export function calcRukTax(taxableIncome: number): { tax: number; bands: TaxBand
 
   const bands: TaxBand[] = []
   let remaining = taxableIncome
-  let totalTax  = 0
+  let totalTax = 0
 
   // Basic: 20% on first £37,700
   const basicAmt = Math.min(remaining, RUK_BASIC_RATE_WIDTH)
   if (basicAmt > 0) {
-    const t = round2(basicAmt * 0.20)
+    const t = round2(basicAmt * 0.2)
     bands.push({ label: 'Basic Rate', rate: 20, amount: basicAmt, tax: t })
     totalTax += t
     remaining = Math.max(0, remaining - basicAmt)
@@ -186,7 +213,7 @@ export function calcRukTax(taxableIncome: number): { tax: number; bands: TaxBand
   if (remaining > 0) {
     const higherAmt = Math.min(remaining, RUK_HIGHER_LIMIT - RUK_BASIC_RATE_WIDTH)
     if (higherAmt > 0) {
-      const t = round2(higherAmt * 0.40)
+      const t = round2(higherAmt * 0.4)
       bands.push({ label: 'Higher Rate', rate: 40, amount: higherAmt, tax: t })
       totalTax += t
       remaining = Math.max(0, remaining - higherAmt)
@@ -204,17 +231,20 @@ export function calcRukTax(taxableIncome: number): { tax: number; bands: TaxBand
 }
 
 // ─── Scotland Income Tax ──────────────────────────────────────────────────────
-export function calcScotlandTax(grossIncome: number, pa: number): { tax: number; bands: TaxBand[] } {
+export function calcScotlandTax(
+  grossIncome: number,
+  pa: number,
+): { tax: number; bands: TaxBand[] } {
   const taxable = Math.max(0, grossIncome - pa)
   if (taxable <= 0) return { tax: 0, bands: [] }
 
   const LIMITS = [
-    { label: 'Starter Rate',      rate: 19, ceiling: SCO_STARTER_END      },
-    { label: 'Basic Rate',        rate: 20, ceiling: SCO_BASIC_END         },
-    { label: 'Intermediate Rate', rate: 21, ceiling: SCO_INTERMEDIATE_END  },
-    { label: 'Higher Rate',       rate: 42, ceiling: SCO_HIGHER_END        },
-    { label: 'Advanced Rate',     rate: 45, ceiling: SCO_ADVANCED_END      },
-    { label: 'Top Rate',          rate: 48, ceiling: Infinity              },
+    { label: 'Starter Rate', rate: 19, ceiling: SCO_STARTER_END },
+    { label: 'Basic Rate', rate: 20, ceiling: SCO_BASIC_END },
+    { label: 'Intermediate Rate', rate: 21, ceiling: SCO_INTERMEDIATE_END },
+    { label: 'Higher Rate', rate: 42, ceiling: SCO_HIGHER_END },
+    { label: 'Advanced Rate', rate: 45, ceiling: SCO_ADVANCED_END },
+    { label: 'Top Rate', rate: 48, ceiling: Infinity },
   ]
 
   const bands: TaxBand[] = []
@@ -222,8 +252,8 @@ export function calcScotlandTax(grossIncome: number, pa: number): { tax: number;
   let prev = PA_BASE
 
   for (const { label, rate, ceiling } of LIMITS) {
-    const lower  = Math.max(0, taxable - Math.max(0, prev    - pa))
-    const upper  = Math.max(0, taxable - Math.max(0, ceiling - pa))
+    const lower = Math.max(0, taxable - Math.max(0, prev - pa))
+    const upper = Math.max(0, taxable - Math.max(0, ceiling - pa))
     const amount = lower - upper
     if (amount > 0) {
       const t = round2(amount * (rate / 100))
@@ -244,10 +274,7 @@ export function calcClass1NI(earnings: number): number {
   if (earnings <= NI_UEL) {
     return round2((earnings - NI_PT) * NI_C1_MAIN)
   }
-  return round2(
-    (NI_UEL - NI_PT) * NI_C1_MAIN +
-    (earnings - NI_UEL) * NI_C1_UPPER
-  )
+  return round2((NI_UEL - NI_PT) * NI_C1_MAIN + (earnings - NI_UEL) * NI_C1_UPPER)
 }
 
 // ─── NI Class 4 (Self-Employed) ──────────────────────────────────────────────
@@ -257,10 +284,7 @@ export function calcClass4NI(profit: number): number {
   if (profit <= NI_UEL) {
     return round2((profit - NI_PT) * NI_C4_MAIN)
   }
-  return round2(
-    (NI_UEL - NI_PT) * NI_C4_MAIN +
-    (profit - NI_UEL) * NI_C4_UPPER
-  )
+  return round2((NI_UEL - NI_PT) * NI_C4_MAIN + (profit - NI_UEL) * NI_C4_UPPER)
 }
 
 // ─── Dividend Tax ─────────────────────────────────────────────────────────────
@@ -274,32 +298,35 @@ export function calcClass4NI(profit: number): number {
 // STILL USE UP basic/higher rate band, pushing the dividends above the
 // allowance up into the next band. (LITRG worked example: £40,650 earnings +
 // £10,000 divs → £9,120 @ 10.75% + £380 @ 35.75% = £1,116.25.)
-export function calcDividendTax(
-  dividends:           number,
-  taxableNonDivIncome: number,
-): number {
+export function calcDividendTax(dividends: number, taxableNonDivIncome: number): number {
   if (dividends <= 0) return 0
 
   // Absolute taxable-income ceilings of the UK dividend bands.
-  const BASIC_CEIL  = RUK_BASIC_RATE_WIDTH   // 37,700 taxable: dividends at 10.75%
-  const HIGHER_CEIL = RUK_HIGHER_LIMIT       // 125,140: above this 39.35%
+  const BASIC_CEIL = RUK_BASIC_RATE_WIDTH // 37,700 taxable: dividends at 10.75%
+  const HIGHER_CEIL = RUK_HIGHER_LIMIT // 125,140: above this 39.35%
 
   // The dividend stack occupies taxable-income positions [base, base+dividends).
   // The first £500 (allowance) is taxed at 0% but still CONSUMES band, so the
   // rateable dividends begin one allowance-width higher up the stack.
-  const base      = Math.max(0, taxableNonDivIncome)
+  const base = Math.max(0, taxableNonDivIncome)
   const allowance = Math.min(dividends, DIV_ALLOWANCE)
-  const hi        = base + dividends             // top of the dividend stack
-  let   lo        = base + allowance             // bottom of the RATEABLE dividends
+  const hi = base + dividends // top of the dividend stack
+  let lo = base + allowance // bottom of the RATEABLE dividends
   if (hi <= lo) return 0
 
   let tax = 0
 
   const basicPart = Math.max(0, Math.min(hi, BASIC_CEIL) - lo)
-  if (basicPart > 0) { tax += basicPart * DIV_BASIC; lo += basicPart }
+  if (basicPart > 0) {
+    tax += basicPart * DIV_BASIC
+    lo += basicPart
+  }
 
   const higherPart = Math.max(0, Math.min(hi, HIGHER_CEIL) - lo)
-  if (higherPart > 0) { tax += higherPart * DIV_HIGHER; lo += higherPart }
+  if (higherPart > 0) {
+    tax += higherPart * DIV_HIGHER
+    lo += higherPart
+  }
 
   const additionalPart = Math.max(0, hi - lo)
   if (additionalPart > 0) tax += additionalPart * DIV_ADDL
@@ -323,14 +350,14 @@ function buildTips(
   adjustedProfit: number,
   dividendIncome: number,
   employmentType: EmploymentType,
-  in60pctTrap:    boolean,
-  incomeTax:      number,
+  in60pctTrap: boolean,
+  incomeTax: number,
 ): OptimizationTip[] {
   const tips: OptimizationTip[] = []
 
   if (in60pctTrap) {
     const toEscape = adjustedProfit - PA_TAPER_START
-    const saving   = Math.round(toEscape * 0.60)
+    const saving = Math.round(toEscape * 0.6)
     tips.push({
       id: 'pension-60pct',
       title: 'Escape the 60% Trap',
@@ -343,9 +370,9 @@ function buildTips(
   }
 
   if (adjustedProfit > RUK_BASIC_LIMIT && !in60pctTrap) {
-    const higherSlice  = Math.min(adjustedProfit, PA_TAPER_START) - RUK_BASIC_LIMIT
-    const suggest      = Math.min(10_000, higherSlice)
-    const saving       = Math.round(suggest * 0.40)
+    const higherSlice = Math.min(adjustedProfit, PA_TAPER_START) - RUK_BASIC_LIMIT
+    const suggest = Math.min(10_000, higherSlice)
+    const saving = Math.round(suggest * 0.4)
     if (saving > 0) {
       tips.push({
         id: 'pension-higher',
@@ -361,7 +388,7 @@ function buildTips(
 
   if (employmentType === 'self-employed' && adjustedProfit > 30_000) {
     const niSlice = Math.min(adjustedProfit - NI_PT, NI_UEL - NI_PT)
-    const saving  = Math.round((niSlice * NI_C4_MAIN) / 3)
+    const saving = Math.round((niSlice * NI_C4_MAIN) / 3)
     tips.push({
       id: 'ltd-structure',
       title: 'Ltd Company Structure Could Reduce NI',
@@ -390,9 +417,15 @@ function buildTips(
 // ─── Main Calculator ──────────────────────────────────────────────────────────
 export function calculateTax(input: TaxInput): TaxResult {
   const {
-    grossRevenue, allowableExpenses, dividendIncome,
-    employmentType, taxRegion, studentLoanPlan,
-    voluntaryClass2NI, marriageAllowance, blindPersonsAllowance,
+    grossRevenue,
+    allowableExpenses,
+    dividendIncome,
+    employmentType,
+    taxRegion,
+    studentLoanPlan,
+    voluntaryClass2NI,
+    marriageAllowance,
+    blindPersonsAllowance,
     pensionContribution,
   } = input
 
@@ -401,14 +434,14 @@ export function calculateTax(input: TaxInput): TaxResult {
 
   // ── 2. Adjusted profit after pension contribution ──────────────────────────
   // Pension capped at grossProfit and at £60,000 annual allowance
-  const pensionCapped   = Math.min(pensionContribution, grossProfit, 60_000)
-  const adjustedProfit  = Math.max(0, grossProfit - pensionCapped)
+  const pensionCapped = Math.min(pensionContribution, grossProfit, 60_000)
+  const adjustedProfit = Math.max(0, grossProfit - pensionCapped)
 
   // ── 3. Personal Allowance ──────────────────────────────────────────────────
   // Taper uses adjusted_net_income = adjustedProfit + dividendIncome
-  const paRaw   = calcPA(adjustedProfit + dividendIncome)
-  const paMarr  = marriageAllowance ? Math.max(0, paRaw - MARRIAGE_ALLOWANCE_XFER) : paRaw
-  const pa      = blindPersonsAllowance ? paMarr + BLIND_PERSONS_ALLOWANCE : paMarr
+  const paRaw = calcPA(adjustedProfit + dividendIncome)
+  const paMarr = marriageAllowance ? Math.max(0, paRaw - MARRIAGE_ALLOWANCE_XFER) : paRaw
+  const pa = blindPersonsAllowance ? paMarr + BLIND_PERSONS_ALLOWANCE : paMarr
   // PA is never negative
   const personalAllowance = Math.max(0, pa)
 
@@ -416,73 +449,75 @@ export function calculateTax(input: TaxInput): TaxResult {
   const taxableIncome = Math.max(0, adjustedProfit - personalAllowance)
 
   // ── 5. Income tax ──────────────────────────────────────────────────────────
-  const { tax: incomeTaxRaw, bands: taxBands } = taxRegion === 'scotland'
-    ? calcScotlandTax(adjustedProfit, personalAllowance)
-    : calcRukTax(taxableIncome)
+  const { tax: incomeTaxRaw, bands: taxBands } =
+    taxRegion === 'scotland'
+      ? calcScotlandTax(adjustedProfit, personalAllowance)
+      : calcRukTax(taxableIncome)
   const incomeTax = round2(incomeTaxRaw)
 
   // ── 6. National Insurance ──────────────────────────────────────────────────
   // Class 1: employed / director — on adjusted profit (salary)
-  const niClass1 = (employmentType === 'employed' || employmentType === 'director')
-    ? calcClass1NI(adjustedProfit)
-    : 0
+  const niClass1 =
+    employmentType === 'employed' || employmentType === 'director'
+      ? calcClass1NI(adjustedProfit)
+      : 0
 
   // Class 4: self-employed — on PROFIT (correct base is adjustedProfit for NI)
-  const niClass4 = employmentType === 'self-employed'
-    ? calcClass4NI(adjustedProfit)
-    : 0
+  const niClass4 = employmentType === 'self-employed' ? calcClass4NI(adjustedProfit) : 0
 
   // Class 2 (2026/27 rules):
   //   Profit >= £7,105 (SPT) → deemed paid, NI record protected, ZERO actual charge
   //   Profit <  £7,105       → optional voluntary payment of £3.65/wk
-  const niClass2Deemed    = employmentType === 'self-employed' && adjustedProfit >= NI_CLASS2_SPT
-  const niClass2Voluntary = employmentType === 'self-employed' && !niClass2Deemed && voluntaryClass2NI
-  const niClass2          = niClass2Voluntary ? round2(NI_C2_WEEKLY * 52) : 0
+  const niClass2Deemed = employmentType === 'self-employed' && adjustedProfit >= NI_CLASS2_SPT
+  const niClass2Voluntary =
+    employmentType === 'self-employed' && !niClass2Deemed && voluntaryClass2NI
+  const niClass2 = niClass2Voluntary ? round2(NI_C2_WEEKLY * 52) : 0
 
   // ── 7. Dividend tax ────────────────────────────────────────────────────────
-  const dividendTax = dividendIncome > 0
-    ? calcDividendTax(dividendIncome, taxableIncome)
-    : 0
+  const dividendTax = dividendIncome > 0 ? calcDividendTax(dividendIncome, taxableIncome) : 0
 
   // ── 8. Student loan ────────────────────────────────────────────────────────
   // Base = grossProfit (after expenses, BEFORE pension deduction)
   // HMRC repayment threshold applies to gross trading income
-  const studentLoanBase       = grossProfit
-  const studentLoanRepayment  = calcStudentLoan(grossProfit, studentLoanPlan)
+  const studentLoanBase = grossProfit
+  const studentLoanRepayment = calcStudentLoan(grossProfit, studentLoanPlan)
 
   // ── 9. Totals ──────────────────────────────────────────────────────────────
   const totalDeductions = round2(
-    incomeTax + niClass1 + niClass4 + niClass2 + dividendTax + studentLoanRepayment
+    incomeTax + niClass1 + niClass4 + niClass2 + dividendTax + studentLoanRepayment,
   )
   const totalIncome = adjustedProfit + dividendIncome
   const netTakeHome = round2(Math.max(0, totalIncome - totalDeductions))
   // Defensive: effective rate capped at 100%
-  const effectiveTaxRate = totalIncome > 0
-    ? Math.min(100, round2((totalDeductions / totalIncome) * 100))
-    : 0
+  const effectiveTaxRate =
+    totalIncome > 0 ? Math.min(100, round2((totalDeductions / totalIncome) * 100)) : 0
 
   // ── 10. Flags ──────────────────────────────────────────────────────────────
   const sixtyPercentTrap = adjustedProfit > PA_TAPER_START && adjustedProfit < PA_TAPER_END
-  const taperWarning     = sixtyPercentTrap
-  const mtdWarning       = (employmentType === 'self-employed' || employmentType === 'director')
-    && grossRevenue > 50_000
+  const taperWarning = sixtyPercentTrap
+  const mtdWarning =
+    (employmentType === 'self-employed' || employmentType === 'director') && grossRevenue > 50_000
 
   // ── 11. Monthly breakdown ──────────────────────────────────────────────────
   const monthly: MonthlyBreakdown = {
-    grossProfit:     round2(adjustedProfit / 12),
-    incomeTax:       round2(incomeTax / 12),
-    niClass1:        round2(niClass1 / 12),
-    niClass4:        round2(niClass4 / 12),
-    niClass2:        round2(niClass2 / 12),
-    dividendTax:     round2(dividendTax / 12),
-    studentLoan:     round2(studentLoanRepayment / 12),
+    grossProfit: round2(adjustedProfit / 12),
+    incomeTax: round2(incomeTax / 12),
+    niClass1: round2(niClass1 / 12),
+    niClass4: round2(niClass4 / 12),
+    niClass2: round2(niClass2 / 12),
+    dividendTax: round2(dividendTax / 12),
+    studentLoan: round2(studentLoanRepayment / 12),
     totalDeductions: round2(totalDeductions / 12),
-    netTakeHome:     round2(netTakeHome / 12),
+    netTakeHome: round2(netTakeHome / 12),
   }
 
   // ── 12. Optimization tips ──────────────────────────────────────────────────
   const optimizationTips = buildTips(
-    adjustedProfit, dividendIncome, employmentType, sixtyPercentTrap, incomeTax,
+    adjustedProfit,
+    dividendIncome,
+    employmentType,
+    sixtyPercentTrap,
+    incomeTax,
   )
 
   // ── 13. Step-by-step breakdown ────────────────────────────────────────────
@@ -490,39 +525,40 @@ export function calculateTax(input: TaxInput): TaxResult {
     {
       label: 'Gross Revenue',
       value: grossRevenue,
-      note:  'Total income or turnover before any deductions',
+      note: 'Total income or turnover before any deductions',
     },
     {
       label: 'Allowable Expenses',
       value: -allowableExpenses,
-      note:  'Business costs deducted from revenue — tax is calculated on profit, not revenue',
+      note: 'Business costs deducted from revenue — tax is calculated on profit, not revenue',
     },
     {
       label: 'Gross Profit',
       value: grossProfit,
-      note:  'Revenue minus expenses — this is the base for NI Class 4 and student loan',
+      note: 'Revenue minus expenses — this is the base for NI Class 4 and student loan',
     },
     {
       label: 'Pension Contribution',
       value: -pensionCapped,
-      note:  'SIPP/pension reduces adjusted net income, attracting full marginal rate relief',
+      note: 'SIPP/pension reduces adjusted net income, attracting full marginal rate relief',
     },
     {
       label: 'Adjusted Net Income',
       value: adjustedProfit,
-      note:  'Used for Personal Allowance taper check and income tax calculation',
+      note: 'Used for Personal Allowance taper check and income tax calculation',
     },
     {
       label: 'Personal Allowance',
       value: -personalAllowance,
-      note:  personalAllowance < PA_BASE
-        ? `Tapered: \u00a3${PA_BASE.toLocaleString()} reduced by \u00a3${(PA_BASE - personalAllowance).toLocaleString()} because income > \u00a3100,000`
-        : 'Standard 2026/27 allowance \u2014 income below taper threshold',
+      note:
+        personalAllowance < PA_BASE
+          ? `Tapered: \u00a3${PA_BASE.toLocaleString()} reduced by \u00a3${(PA_BASE - personalAllowance).toLocaleString()} because income > \u00a3100,000`
+          : 'Standard 2026/27 allowance \u2014 income below taper threshold',
     },
     {
       label: 'Taxable Income',
       value: taxableIncome,
-      note:  'The amount subject to Income Tax rates (Personal Allowance is subtracted above)',
+      note: 'The amount subject to Income Tax rates (Personal Allowance is subtracted above)',
     },
   ]
 
@@ -557,9 +593,9 @@ export function calculateTax(input: TaxInput): TaxResult {
 
 // ─── Validation ───────────────────────────────────────────────────────────────
 export interface ValidationErrors {
-  grossRevenue?:       string
-  allowableExpenses?:  string
-  dividendIncome?:     string
+  grossRevenue?: string
+  allowableExpenses?: string
+  dividendIncome?: string
   pensionContribution?: string
 }
 
@@ -567,18 +603,14 @@ export function validateTaxInput(input: TaxInput): ValidationErrors {
   const e: ValidationErrors = {}
   const MAX = 9_999_999
 
-  if (input.grossRevenue <= 0)
-    e.grossRevenue = 'Enter a gross income greater than \u00a30'
-  else if (input.grossRevenue > MAX)
-    e.grossRevenue = 'Maximum supported income is \u00a39,999,999'
+  if (input.grossRevenue <= 0) e.grossRevenue = 'Enter a gross income greater than \u00a30'
+  else if (input.grossRevenue > MAX) e.grossRevenue = 'Maximum supported income is \u00a39,999,999'
 
-  if (input.allowableExpenses < 0)
-    e.allowableExpenses = 'Expenses cannot be negative'
+  if (input.allowableExpenses < 0) e.allowableExpenses = 'Expenses cannot be negative'
   else if (input.allowableExpenses >= input.grossRevenue)
     e.allowableExpenses = 'Expenses cannot equal or exceed gross revenue'
 
-  if (input.dividendIncome < 0)
-    e.dividendIncome = 'Dividend income cannot be negative'
+  if (input.dividendIncome < 0) e.dividendIncome = 'Dividend income cannot be negative'
   else if (input.dividendIncome > MAX)
     e.dividendIncome = 'Maximum supported dividend income is \u00a39,999,999'
 
@@ -601,8 +633,8 @@ export function validateTaxInput(input: TaxInput): ValidationErrors {
 
 // ─── Legacy shim ─────────────────────────────────────────────────────────────
 export interface TaxInput_Legacy {
-  grossIncome:     number
-  employmentType:  'self-employed' | 'employed' | 'both'
+  grossIncome: number
+  employmentType: 'self-employed' | 'employed' | 'both'
   studentLoanPlan: StudentLoanPlan
   voluntaryClass2NI: boolean
 }

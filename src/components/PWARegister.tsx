@@ -9,11 +9,9 @@ export default function PWARegister() {
     if (process.env.NODE_ENV !== 'production') return
 
     const register = () => {
-      navigator.serviceWorker
-        .register('/sw.js', { scope: '/' })
-        .catch(() => {
-          // Silently ignore — SW registration is progressive enhancement.
-        })
+      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {
+        // Silently ignore — SW registration is progressive enhancement.
+      })
     }
 
     if (document.readyState === 'complete') register()

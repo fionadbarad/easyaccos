@@ -13,7 +13,12 @@ const classes = {
   ghost: 'ui-btn-ghost',
 }
 
-export default function Button({ variant = 'primary', className = '', children, ...rest }: ButtonProps) {
+export default function Button({
+  variant = 'primary',
+  className = '',
+  children,
+  ...rest
+}: ButtonProps) {
   return (
     <button className={`${classes[variant]} ${className}`} {...rest}>
       {children}

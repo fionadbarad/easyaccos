@@ -4,16 +4,34 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { ArrowLeftRight, RefreshCw } from 'lucide-react'
 
 const POPULAR: string[] = [
-  'USD','EUR','GBP','JPY','CAD','AUD','CHF','INR','SGD','HKD',
-  'NOK','SEK','DKK','NZD','ZAR','MXN','BRL','PLN','CZK','HUF',
+  'USD',
+  'EUR',
+  'GBP',
+  'JPY',
+  'CAD',
+  'AUD',
+  'CHF',
+  'INR',
+  'SGD',
+  'HKD',
+  'NOK',
+  'SEK',
+  'DKK',
+  'NZD',
+  'ZAR',
+  'MXN',
+  'BRL',
+  'PLN',
+  'CZK',
+  'HUF',
 ]
 
-const CACHE_KEY      = 'ea_fx_rates'
-const CACHE_TTL_MS   = 5 * 60 * 1000   // serve cached rates for up to 5 minutes
-const FETCH_TIMEOUT  = 8_000            // abort stalled requests after 8 s
+const CACHE_KEY = 'ea_fx_rates'
+const CACHE_TTL_MS = 5 * 60 * 1000 // serve cached rates for up to 5 minutes
+const FETCH_TIMEOUT = 8_000 // abort stalled requests after 8 s
 
 interface RateCache {
-  rates:     Record<string, number>
+  rates: Record<string, number>
   fetchedAt: number
 }
 
@@ -31,38 +49,41 @@ function loadCache(): RateCache | null {
 
 function saveCache(rates: Record<string, number>) {
   try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ rates, fetchedAt: Date.now() } satisfies RateCache))
+    localStorage.setItem(
+      CACHE_KEY,
+      JSON.stringify({ rates, fetchedAt: Date.now() } satisfies RateCache),
+    )
   } catch {
     // localStorage may be unavailable (e.g. private browsing with strict settings) — skip silently
   }
 }
 
 const inputStyle: React.CSSProperties = {
-  background:  'var(--sa-gray)',
-  border:      '1px solid var(--sa-border)',
+  background: 'var(--sa-gray)',
+  border: '1px solid var(--sa-border)',
   borderRadius: '4px',
-  padding:     '9px 12px',
-  color:       'var(--sa-white)',
-  fontSize:    '0.9rem',
-  outline:     'none',
-  width:       '100%',
-  boxSizing:   'border-box',
+  padding: '9px 12px',
+  color: 'var(--sa-white)',
+  fontSize: '0.9rem',
+  outline: 'none',
+  width: '100%',
+  boxSizing: 'border-box',
 }
 
 export default function CurrencyPage() {
   const initialCache = loadCache()
 
-  const [rates,       setRates]       = useState<Record<string, number>>(initialCache?.rates ?? {})
-  const [loading,     setLoading]     = useState(!initialCache)
-  const [error,       setError]       = useState('')
-  const [isStale,     setIsStale]     = useState(!!initialCache)
+  const [rates, setRates] = useState<Record<string, number>>(initialCache?.rates ?? {})
+  const [loading, setLoading] = useState(!initialCache)
+  const [error, setError] = useState('')
+  const [isStale, setIsStale] = useState(!!initialCache)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(
     initialCache ? new Date(initialCache.fetchedAt) : null,
   )
 
   const [amount, setAmount] = useState('1000')
-  const [from,   setFrom]   = useState('GBP')
-  const [to,     setTo]     = useState('USD')
+  const [from, setFrom] = useState('GBP')
+  const [to, setTo] = useState('USD')
 
   const abortRef = useRef<AbortController | null>(null)
 
@@ -70,7 +91,7 @@ export default function CurrencyPage() {
     // Cancel any in-flight request before starting a new one.
     abortRef.current?.abort()
     const controller = new AbortController()
-    abortRef.current  = controller
+    abortRef.current = controller
 
     const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT)
 
@@ -83,8 +104,8 @@ export default function CurrencyPage() {
       })
       if (!res.ok) throw new Error(`Rate service returned HTTP ${res.status}`)
 
-      const json        = await res.json()
-      const freshRates  = json.rates as Record<string, number>
+      const json = await res.json()
+      const freshRates = json.rates as Record<string, number>
 
       setRates(freshRates)
       setIsStale(false)
@@ -135,7 +156,7 @@ export default function CurrencyPage() {
 
   function getRate(fromCur: string, toCur: string): number | null {
     if (!rates[fromCur] || !rates[toCur]) return null
-    return rates[toCur] / rates[fromCur]   // both rates are relative to GBP base
+    return rates[toCur] / rates[fromCur] // both rates are relative to GBP base
   }
 
   function swap() {
@@ -143,23 +164,40 @@ export default function CurrencyPage() {
     setTo(from)
   }
 
-  const rate       = getRate(from, to)
-  const converted  = rate !== null ? (parseFloat(amount) || 0) * rate : null
+  const rate = getRate(from, to)
+  const converted = rate !== null ? (parseFloat(amount) || 0) * rate : null
   const currencies = Object.keys(rates).length > 0 ? Object.keys(rates).sort() : POPULAR
 
   return (
     <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)', maxWidth: '800px' }}>
-
       {/* ── Header ── */}
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '1rem',
+          marginBottom: '2rem',
+        }}
+      >
         <div>
-          <h1 style={{ color: 'var(--sa-white)', fontSize: 'clamp(1.5rem,3vw,2rem)', fontWeight: 700, marginBottom: '0.3rem' }}>
+          <h1
+            style={{
+              color: 'var(--sa-white)',
+              fontSize: 'clamp(1.5rem,3vw,2rem)',
+              fontWeight: 700,
+              marginBottom: '0.3rem',
+            }}
+          >
             Currency Converter
           </h1>
           <p style={{ color: 'var(--sa-muted)', fontSize: '0.875rem' }}>
             Live exchange rates · 170+ currencies · Updates every 60s
             {isStale && (
-              <span style={{ marginLeft: '0.5rem', color: 'rgba(253,186,116,0.85)' }}>(cached)</span>
+              <span style={{ marginLeft: '0.5rem', color: 'rgba(253,186,116,0.85)' }}>
+                (cached)
+              </span>
             )}
           </p>
         </div>
@@ -168,16 +206,16 @@ export default function CurrencyPage() {
           disabled={loading}
           aria-label="Refresh exchange rates"
           style={{
-            display:    'flex',
+            display: 'flex',
             alignItems: 'center',
-            gap:        '6px',
+            gap: '6px',
             background: 'rgba(244,245,248,0.05)',
-            border:     '1px solid var(--sa-border)',
+            border: '1px solid var(--sa-border)',
             borderRadius: '4px',
-            color:      'var(--sa-white)',
-            fontSize:   '0.8rem',
-            padding:    '7px 14px',
-            cursor:     loading ? 'default' : 'pointer',
+            color: 'var(--sa-white)',
+            fontSize: '0.8rem',
+            padding: '7px 14px',
+            cursor: loading ? 'default' : 'pointer',
           }}
         >
           <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
@@ -186,26 +224,52 @@ export default function CurrencyPage() {
       </div>
 
       {error && (
-        <div role="alert" style={{
-          background:    'rgba(248,113,113,0.1)',
-          border:        '1px solid rgba(248,113,113,0.3)',
-          borderRadius:  '4px',
-          padding:       '10px 14px',
-          color:         '#F87171',
-          fontSize:      '0.85rem',
-          marginBottom:  '1.5rem',
-        }}>
+        <div
+          role="alert"
+          style={{
+            background: 'rgba(248,113,113,0.1)',
+            border: '1px solid rgba(248,113,113,0.3)',
+            borderRadius: '4px',
+            padding: '10px 14px',
+            color: '#F87171',
+            fontSize: '0.85rem',
+            marginBottom: '1.5rem',
+          }}
+        >
           {error}
         </div>
       )}
 
       {/* ── Converter ── */}
-      <div style={{ background: 'var(--sa-surface)', border: '1px solid var(--sa-border)', borderRadius: '8px', padding: '2rem', marginBottom: '1.5rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'end', gap: '1rem' }}>
-
+      <div
+        style={{
+          background: 'var(--sa-surface)',
+          border: '1px solid var(--sa-border)',
+          borderRadius: '8px',
+          padding: '2rem',
+          marginBottom: '1.5rem',
+        }}
+      >
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr auto 1fr',
+            alignItems: 'end',
+            gap: '1rem',
+          }}
+        >
           {/* From */}
           <div>
-            <label style={{ display: 'block', color: 'var(--sa-muted)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>
+            <label
+              style={{
+                display: 'block',
+                color: 'var(--sa-muted)',
+                fontSize: '0.75rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                marginBottom: '0.4rem',
+              }}
+            >
               Amount
             </label>
             <input
@@ -217,7 +281,16 @@ export default function CurrencyPage() {
               style={inputStyle}
             />
             <div style={{ marginTop: '0.5rem' }}>
-              <label style={{ display: 'block', color: 'var(--sa-muted)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>
+              <label
+                style={{
+                  display: 'block',
+                  color: 'var(--sa-muted)',
+                  fontSize: '0.75rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  marginBottom: '0.4rem',
+                }}
+              >
                 From
               </label>
               <select
@@ -225,7 +298,11 @@ export default function CurrencyPage() {
                 onChange={(e) => setFrom(e.target.value)}
                 style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}
               >
-                {currencies.map((c) => <option key={c} value={c}>{c}</option>)}
+                {currencies.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -235,17 +312,17 @@ export default function CurrencyPage() {
             onClick={swap}
             aria-label="Swap currencies"
             style={{
-              display:        'flex',
-              alignItems:     'center',
+              display: 'flex',
+              alignItems: 'center',
               justifyContent: 'center',
-              width:          '40px',
-              height:         '40px',
-              borderRadius:   '50%',
-              background:     'rgba(244,245,248,0.06)',
-              border:         '1px solid var(--sa-border)',
-              cursor:         'pointer',
-              color:          'var(--sa-white)',
-              flexShrink:     0,
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              background: 'rgba(244,245,248,0.06)',
+              border: '1px solid var(--sa-border)',
+              cursor: 'pointer',
+              color: 'var(--sa-white)',
+              flexShrink: 0,
             }}
           >
             <ArrowLeftRight size={18} />
@@ -253,13 +330,27 @@ export default function CurrencyPage() {
 
           {/* To */}
           <div>
-            <label style={{ display: 'block', color: 'var(--sa-muted)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>
+            <label
+              style={{
+                display: 'block',
+                color: 'var(--sa-muted)',
+                fontSize: '0.75rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                marginBottom: '0.4rem',
+              }}
+            >
               Converted
             </label>
             <div
               aria-live="polite"
               aria-label="Converted amount"
-              style={{ ...inputStyle, background: 'rgba(244,245,248,0.04)', fontWeight: 700, fontSize: '1.1rem' }}
+              style={{
+                ...inputStyle,
+                background: 'rgba(244,245,248,0.04)',
+                fontWeight: 700,
+                fontSize: '1.1rem',
+              }}
             >
               {loading && Object.keys(rates).length === 0
                 ? '…'
@@ -268,7 +359,16 @@ export default function CurrencyPage() {
                   : '—'}
             </div>
             <div style={{ marginTop: '0.5rem' }}>
-              <label style={{ display: 'block', color: 'var(--sa-muted)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.4rem' }}>
+              <label
+                style={{
+                  display: 'block',
+                  color: 'var(--sa-muted)',
+                  fontSize: '0.75rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  marginBottom: '0.4rem',
+                }}
+              >
                 To
               </label>
               <select
@@ -276,7 +376,11 @@ export default function CurrencyPage() {
                 onChange={(e) => setTo(e.target.value)}
                 style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}
               >
-                {currencies.map((c) => <option key={c} value={c}>{c}</option>)}
+                {currencies.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -295,28 +399,52 @@ export default function CurrencyPage() {
       </div>
 
       {/* ── GBP cross-rate tiles ── */}
-      <h2 style={{ color: 'var(--sa-white)', fontSize: '1.1rem', fontWeight: 700, marginBottom: '1rem' }}>
+      <h2
+        style={{
+          color: 'var(--sa-white)',
+          fontSize: '1.1rem',
+          fontWeight: 700,
+          marginBottom: '1rem',
+        }}
+      >
         GBP Cross Rates
       </h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(140px,1fr))', gap: '0.75rem' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill,minmax(140px,1fr))',
+          gap: '0.75rem',
+        }}
+      >
         {POPULAR.filter((c) => c !== 'GBP').map((cur) => {
           const r = rates[cur]
           return (
             <button
               key={cur}
-              onClick={() => { setFrom('GBP'); setTo(cur) }}
+              onClick={() => {
+                setFrom('GBP')
+                setTo(cur)
+              }}
               aria-label={`Set converter to GBP/${cur}`}
               style={{
-                background:   'var(--sa-surface)',
-                border:       '1px solid var(--sa-border)',
+                background: 'var(--sa-surface)',
+                border: '1px solid var(--sa-border)',
                 borderRadius: '6px',
-                padding:      '0.9rem 1rem',
-                cursor:       'pointer',
-                textAlign:    'left',
-                color:        'inherit',
+                padding: '0.9rem 1rem',
+                cursor: 'pointer',
+                textAlign: 'left',
+                color: 'inherit',
               }}
             >
-              <div style={{ color: 'var(--sa-muted)', fontSize: '0.72rem', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '4px' }}>
+              <div
+                style={{
+                  color: 'var(--sa-muted)',
+                  fontSize: '0.72rem',
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  marginBottom: '4px',
+                }}
+              >
                 GBP/{cur}
               </div>
               <div style={{ color: 'var(--sa-white)', fontWeight: 700, fontSize: '1.1rem' }}>

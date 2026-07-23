@@ -6,11 +6,7 @@
  * `@/lib/tax-logic` keep working; this barrel does not replace them.
  */
 
-export type {
-  Expense,
-  Invoice,
-  InvoiceStatus,
-} from '@/lib/validators'
+export type { Expense, Invoice, InvoiceStatus } from '@/lib/validators'
 
 export type {
   EmploymentType,
@@ -24,6 +20,4 @@ export type {
   BreakdownStep,
 } from '@/lib/tax-logic'
 
-export type {
-  PassphraseEnvelope,
-} from '@/lib/storage/crypto'
+export type { PassphraseEnvelope } from '@/lib/storage/crypto'

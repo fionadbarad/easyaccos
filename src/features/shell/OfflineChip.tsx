@@ -30,9 +30,17 @@ export default function OfflineChip() {
       role="status"
       aria-live="polite"
       style={{
-        position: 'fixed', bottom: '1rem', right: '1rem', zIndex: 55,
-        background: C.card, border: `1px solid ${C.border}`, borderRadius: '999px',
-        padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '0.5rem',
+        position: 'fixed',
+        bottom: '1rem',
+        right: '1rem',
+        zIndex: 55,
+        background: C.card,
+        border: `1px solid ${C.border}`,
+        borderRadius: '999px',
+        padding: '8px 14px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem',
         boxShadow: '0 6px 20px rgba(0,0,0,0.4)',
       }}
     >

@@ -15,17 +15,35 @@ const CATEGORIES = [
   'Other',
 ] as const
 
-type Category = typeof CATEGORIES[number]
+type Category = (typeof CATEGORIES)[number]
 
 const KEYWORDS: Array<[RegExp, Category]> = [
-  [/\b(uber|train|rail|taxi|tfl|bus|parking|fuel|petrol|diesel|mileage|flight|airline|hotel)\b/i, 'Travel & Transport'],
-  [/\b(adobe|figma|github|aws|vercel|notion|slack|zoom|microsoft|google workspace|subscription|saas|netflix|spotify)\b/i, 'Software & Subscriptions'],
-  [/\b(facebook ads|google ads|linkedin|marketing|advert|campaign|seo|ppc)\b/i, 'Marketing & Advertising'],
+  [
+    /\b(uber|train|rail|taxi|tfl|bus|parking|fuel|petrol|diesel|mileage|flight|airline|hotel)\b/i,
+    'Travel & Transport',
+  ],
+  [
+    /\b(adobe|figma|github|aws|vercel|notion|slack|zoom|microsoft|google workspace|subscription|saas|netflix|spotify)\b/i,
+    'Software & Subscriptions',
+  ],
+  [
+    /\b(facebook ads|google ads|linkedin|marketing|advert|campaign|seo|ppc)\b/i,
+    'Marketing & Advertising',
+  ],
   [/\b(accountant|solicitor|lawyer|consultant|legal|advisor|bookkeep)\b/i, 'Professional Services'],
   [/\b(course|training|udemy|coursera|book|ebook|conference|workshop)\b/i, 'Training & Education'],
-  [/\b(electric|gas|water|broadband|internet|phone|mobile|ee|bt|vodafone|o2|three)\b/i, 'Utilities'],
-  [/\b(lunch|dinner|meal|restaurant|cafe|coffee|starbucks|pret|greggs|client lunch)\b/i, 'Meals (business)'],
-  [/\b(laptop|monitor|keyboard|mouse|desk|chair|printer|paper|pen|stationery|office)\b/i, 'Office & Equipment'],
+  [
+    /\b(electric|gas|water|broadband|internet|phone|mobile|ee|bt|vodafone|o2|three)\b/i,
+    'Utilities',
+  ],
+  [
+    /\b(lunch|dinner|meal|restaurant|cafe|coffee|starbucks|pret|greggs|client lunch)\b/i,
+    'Meals (business)',
+  ],
+  [
+    /\b(laptop|monitor|keyboard|mouse|desk|chair|printer|paper|pen|stationery|office)\b/i,
+    'Office & Equipment',
+  ],
 ]
 
 function heuristic(description: string): Category {
@@ -80,7 +98,8 @@ export async function POST(request: NextRequest) {
       config: { systemInstruction: SYSTEM },
     })
     const text = (result.text || '').trim()
-    const match = CATEGORIES.find((c) => text.toLowerCase().includes(c.toLowerCase())) ?? heuristic(description)
+    const match =
+      CATEGORIES.find((c) => text.toLowerCase().includes(c.toLowerCase())) ?? heuristic(description)
     return NextResponse.json({ category: match, source: 'ai' })
   } catch (err) {
     reportError('api.ai.categorise', err)

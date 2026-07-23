@@ -14,10 +14,7 @@ export default function VercelAnalytics() {
   return (
     <>
       {/* Vercel Speed Insights — loads after page is fully idle */}
-      <Script
-        src="https://va.vercel-scripts.com/v1/script.debug.js"
-        strategy="lazyOnload"
-      />
+      <Script src="https://va.vercel-scripts.com/v1/script.debug.js" strategy="lazyOnload" />
       {/* Vercel Analytics — loads after page is fully idle */}
       <Script
         src="https://va.vercel-scripts.com/v1/analytics/script.debug.js"

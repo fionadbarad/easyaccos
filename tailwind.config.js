@@ -9,17 +9,17 @@ module.exports = {
     extend: {
       colors: {
         sa: {
-          black:   '#181818',
+          black: '#181818',
           surface: '#1C1D20',
-          gray:    '#222326',
-          white:   '#F4F5F8',
-          green:   '#4ADE80',
-          red:     '#F87171',
+          gray: '#222326',
+          white: '#F4F5F8',
+          green: '#4ADE80',
+          red: '#F87171',
         },
       },
       fontFamily: {
         inter: ['var(--font-inter)', 'sans-serif'],
-        mono:  ['var(--font-geist-mono)', 'Geist Mono', 'Fira Code', 'monospace'],
+        mono: ['var(--font-geist-mono)', 'Geist Mono', 'Fira Code', 'monospace'],
       },
       borderRadius: {
         DEFAULT: '6px',

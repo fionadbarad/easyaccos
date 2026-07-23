@@ -14,21 +14,21 @@
 export type MonitorLevel = 'info' | 'warn' | 'error'
 
 export interface MonitorEvent {
-  level:     MonitorLevel
-  scope:     string
-  message:   string
-  meta?:     Record<string, unknown>
+  level: MonitorLevel
+  scope: string
+  message: string
+  meta?: Record<string, unknown>
   timestamp: number
 }
 
 export type MonitorTransport = (event: MonitorEvent) => void
 
-const DEDUPE_MS  = 30_000
-const WINDOW_MS  = 60_000
-const MAX_BURST  = 100
+const DEDUPE_MS = 30_000
+const WINDOW_MS = 60_000
+const MAX_BURST = 100
 
 const recent = new Map<string, number>()
-const burst:  number[] = []
+const burst: number[] = []
 
 let transport: MonitorTransport = consoleTransport
 
@@ -38,10 +38,10 @@ export function setMonitorTransport(fn: MonitorTransport): void {
 
 export function reportError(scope: string, error: unknown, meta?: Record<string, unknown>): void {
   emit({
-    level:     'error',
+    level: 'error',
     scope,
-    message:   error instanceof Error ? error.message : String(error),
-    meta:      { ...meta, stack: error instanceof Error ? error.stack : undefined },
+    message: error instanceof Error ? error.message : String(error),
+    meta: { ...meta, stack: error instanceof Error ? error.stack : undefined },
     timestamp: Date.now(),
   })
 }
@@ -57,8 +57,11 @@ export function reportInfo(scope: string, message: string, meta?: Record<string,
 function emit(ev: MonitorEvent): void {
   if (rateLimited(ev.timestamp)) return
   if (deduped(ev)) return
-  try { transport(ev) }
-  catch { /* never let the monitor itself throw */ }
+  try {
+    transport(ev)
+  } catch {
+    /* never let the monitor itself throw */
+  }
 }
 
 function deduped(ev: MonitorEvent): boolean {
@@ -84,9 +87,9 @@ function rateLimited(now: number): boolean {
 function consoleTransport(ev: MonitorEvent): void {
   if (typeof console === 'undefined') return
   const tag = `[monitor:${ev.scope}]`
-  if (ev.level === 'error')      console.error(tag, ev.message, ev.meta ?? {})
-  else if (ev.level === 'warn')  console.warn(tag, ev.message, ev.meta ?? {})
-  else                           console.info(tag, ev.message, ev.meta ?? {})
+  if (ev.level === 'error') console.error(tag, ev.message, ev.meta ?? {})
+  else if (ev.level === 'warn') console.warn(tag, ev.message, ev.meta ?? {})
+  else console.info(tag, ev.message, ev.meta ?? {})
 }
 
 /** Test-only: drop dedupe/rate state between tests. */

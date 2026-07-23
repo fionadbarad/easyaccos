@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 
 /**
  * Creates a Supabase server client with optimized connection settings.
- * We use a shorter global fetch timeout to prevent hanging connections 
+ * We use a shorter global fetch timeout to prevent hanging connections
  * from exhausting the pool during high traffic.
  */
 export async function createClient() {
@@ -19,9 +19,13 @@ export async function createClient() {
         setAll(cookiesToSet) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
+              cookieStore.set(name, value, options),
             )
-          } catch {}
+          } catch (err) {
+            // reportError is not available in server components if it uses window
+            // but we should at least not swallow it silently in dev
+            console.error('Supabase cookie set error:', err)
+          }
         },
       },
       global: {
@@ -29,10 +33,10 @@ export async function createClient() {
         fetch: (url, options) => {
           return fetch(url, {
             ...options,
-            signal: AbortSignal.timeout(10000)
+            signal: AbortSignal.timeout(10000),
           })
-        }
-      }
-    }
+        },
+      },
+    },
   )
 }

@@ -28,17 +28,28 @@ export default function TaxCalculator() {
 
       <ScenarioForm
         scenario={s.scenario}
-        grossRevenue={s.grossRevenue}                 setGrossRevenue={s.setGrossRevenue}
-        allowableExpenses={s.allowableExpenses}       setAllowableExpenses={s.setAllowableExpenses}
-        pensionContribution={s.pensionContribution}   setPensionContribution={s.setPensionContribution}
-        dirSalary={s.dirSalary}                       setDirSalary={s.setDirSalary}
-        dirDividends={s.dirDividends}                 setDirDividends={s.setDirDividends}
-        s3={s.s3}                                     setS3={s.setS3}
-        s4={s.s4}                                     setS4={s.setS4}
-        studentLoanPlan={s.studentLoanPlan}           setStudentLoanPlan={s.setStudentLoanPlan}
-        marriageAllowance={s.marriageAllowance}       setMarriageAllowance={s.setMarriageAllowance}
-        blindPersonsAllowance={s.blindPersonsAllowance} setBlindPersonsAllowance={s.setBlindPersonsAllowance}
-        voluntaryClass2NI={s.voluntaryClass2NI}       setVoluntaryClass2NI={s.setVoluntaryClass2NI}
+        grossRevenue={s.grossRevenue}
+        setGrossRevenue={s.setGrossRevenue}
+        allowableExpenses={s.allowableExpenses}
+        setAllowableExpenses={s.setAllowableExpenses}
+        pensionContribution={s.pensionContribution}
+        setPensionContribution={s.setPensionContribution}
+        dirSalary={s.dirSalary}
+        setDirSalary={s.setDirSalary}
+        dirDividends={s.dirDividends}
+        setDirDividends={s.setDirDividends}
+        s3={s.s3}
+        setS3={s.setS3}
+        s4={s.s4}
+        setS4={s.setS4}
+        studentLoanPlan={s.studentLoanPlan}
+        setStudentLoanPlan={s.setStudentLoanPlan}
+        marriageAllowance={s.marriageAllowance}
+        setMarriageAllowance={s.setMarriageAllowance}
+        blindPersonsAllowance={s.blindPersonsAllowance}
+        setBlindPersonsAllowance={s.setBlindPersonsAllowance}
+        voluntaryClass2NI={s.voluntaryClass2NI}
+        setVoluntaryClass2NI={s.setVoluntaryClass2NI}
       />
 
       {s.fullResult && (

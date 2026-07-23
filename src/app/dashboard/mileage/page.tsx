@@ -2,44 +2,53 @@
 
 import { useState, useMemo } from 'react'
 import {
-  Plus, Trash2, Cloud, CloudOff, Car, MapPin, Calendar,
-  TrendingUp, ChevronDown, ChevronUp, Info,
+  Plus,
+  Trash2,
+  Cloud,
+  CloudOff,
+  Car,
+  MapPin,
+  Calendar,
+  TrendingUp,
+  ChevronDown,
+  ChevronUp,
+  Info,
 } from 'lucide-react'
 import { useUserData } from '@/lib/use-user-data'
 import { fmtGBP } from '@/lib/formatters'
 
 import { C } from '@/styles/palette'
 // HMRC 2026/27 approved mileage rates
-const RATE_CAR_FIRST   = 0.45   // First 10,000 miles
-const RATE_CAR_EXCESS  = 0.25   // Above 10,000 miles
-const RATE_BIKE        = 0.20
-const RATE_MOTORCYCLE  = 0.24
-const CAR_THRESHOLD    = 10_000
+const RATE_CAR_FIRST = 0.45 // First 10,000 miles
+const RATE_CAR_EXCESS = 0.25 // Above 10,000 miles
+const RATE_BIKE = 0.2
+const RATE_MOTORCYCLE = 0.24
+const CAR_THRESHOLD = 10_000
 
 type VehicleType = 'car' | 'motorcycle' | 'bike'
 
 interface MileageEntry {
-  id:          string
-  date:        string
+  id: string
+  date: string
   description: string
-  vehicle:     VehicleType
-  miles:       number
-  createdAt:   string
+  vehicle: VehicleType
+  miles: number
+  createdAt: string
 }
 
 const SEED: MileageEntry[] = []
 
 const VEHICLE_LABELS: Record<VehicleType, string> = {
-  car:         'Car / Van',
-  motorcycle:  'Motorcycle',
-  bike:        'Bicycle',
+  car: 'Car / Van',
+  motorcycle: 'Motorcycle',
+  bike: 'Bicycle',
 }
 
 function calcRate(vehicle: VehicleType, milesBefore: number, miles: number): number {
-  if (vehicle === 'bike')       return miles * RATE_BIKE
+  if (vehicle === 'bike') return miles * RATE_BIKE
   if (vehicle === 'motorcycle') return miles * RATE_MOTORCYCLE
   // Car: split at 10,000 threshold
-  const firstBand  = Math.max(0, Math.min(miles, Math.max(0, CAR_THRESHOLD - milesBefore)))
+  const firstBand = Math.max(0, Math.min(miles, Math.max(0, CAR_THRESHOLD - milesBefore)))
   const excessBand = miles - firstBand
   return firstBand * RATE_CAR_FIRST + excessBand * RATE_CAR_EXCESS
 }
@@ -53,18 +62,47 @@ function formatMiles(m: number): string {
 }
 
 // ── Stat card ─────────────────────────────────────────────────────────────────
-function Stat({ label, value, sub, accent }: {
-  label: string; value: string; sub?: string; accent?: string
+function Stat({
+  label,
+  value,
+  sub,
+  accent,
+}: {
+  label: string
+  value: string
+  sub?: string
+  accent?: string
 }) {
   return (
-    <div style={{
-      background: C.surface, border: `1px solid ${C.border}`,
-      borderRadius: '6px', padding: '1rem 1.25rem',
-    }}>
-      <div style={{ color: C.muted, fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px', fontFamily: 'var(--font-geist-mono, monospace)' }}>
+    <div
+      style={{
+        background: C.surface,
+        border: `1px solid ${C.border}`,
+        borderRadius: '6px',
+        padding: '1rem 1.25rem',
+      }}
+    >
+      <div
+        style={{
+          color: C.muted,
+          fontSize: '0.68rem',
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          marginBottom: '6px',
+          fontFamily: 'var(--font-geist-mono, monospace)',
+        }}
+      >
         {label}
       </div>
-      <div style={{ color: accent ?? C.white, fontSize: '1.4rem', fontWeight: 700, letterSpacing: '-0.03em', fontFamily: 'var(--font-geist-mono, monospace)' }}>
+      <div
+        style={{
+          color: accent ?? C.white,
+          fontSize: '1.4rem',
+          fontWeight: 700,
+          letterSpacing: '-0.03em',
+          fontFamily: 'var(--font-geist-mono, monospace)',
+        }}
+      >
         {value}
       </div>
       {sub && <div style={{ color: C.muted, fontSize: '0.68rem', marginTop: '4px' }}>{sub}</div>}
@@ -75,14 +113,30 @@ function Stat({ label, value, sub, accent }: {
 // ── Rate info panel ───────────────────────────────────────────────────────────
 function RatePanel({ open, onToggle }: { open: boolean; onToggle: () => void }) {
   return (
-    <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', overflow: 'hidden' }}>
+    <div
+      style={{
+        background: C.surface,
+        border: `1px solid ${C.border}`,
+        borderRadius: '6px',
+        overflow: 'hidden',
+      }}
+    >
       <button
         onClick={onToggle}
         style={{
-          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '0.75rem 1rem', background: 'none', border: 'none', color: C.white,
-          cursor: 'pointer', fontSize: '0.78rem', fontWeight: 500,
-        }}>
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0.75rem 1rem',
+          background: 'none',
+          border: 'none',
+          color: C.white,
+          cursor: 'pointer',
+          fontSize: '0.78rem',
+          fontWeight: 500,
+        }}
+      >
         <span style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
           <Info size={13} style={{ color: C.muted }} />
           HMRC Approved Mileage Rates 2026/27
@@ -91,30 +145,67 @@ function RatePanel({ open, onToggle }: { open: boolean; onToggle: () => void }) 
       </button>
       {open && (
         <div style={{ padding: '0 1rem 1rem', borderTop: `1px solid ${C.border}` }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem', marginTop: '0.75rem' }}>
+          <table
+            style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+              fontSize: '0.78rem',
+              marginTop: '0.75rem',
+            }}
+          >
             <thead>
               <tr>
-                {['Vehicle', 'First 10,000 mi', 'Above 10,000 mi'].map(h => (
-                  <th key={h} style={{ textAlign: 'left', color: C.muted, fontWeight: 500, padding: '4px 8px 8px 0', fontSize: '0.68rem', letterSpacing: '0.04em' }}>{h}</th>
+                {['Vehicle', 'First 10,000 mi', 'Above 10,000 mi'].map((h) => (
+                  <th
+                    key={h}
+                    style={{
+                      textAlign: 'left',
+                      color: C.muted,
+                      fontWeight: 500,
+                      padding: '4px 8px 8px 0',
+                      fontSize: '0.68rem',
+                      letterSpacing: '0.04em',
+                    }}
+                  >
+                    {h}
+                  </th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {[
-                ['Car / Van',    '45p per mile', '25p per mile'],
-                ['Motorcycle',   '24p per mile', '24p per mile'],
-                ['Bicycle',      '20p per mile', '20p per mile'],
+                ['Car / Van', '45p per mile', '25p per mile'],
+                ['Motorcycle', '24p per mile', '24p per mile'],
+                ['Bicycle', '20p per mile', '20p per mile'],
               ].map(([v, r1, r2]) => (
                 <tr key={v} style={{ borderTop: `1px solid ${C.border}` }}>
                   <td style={{ padding: '6px 8px 6px 0', color: C.white }}>{v}</td>
-                  <td style={{ padding: '6px 8px 6px 0', color: C.green, fontFamily: 'var(--font-geist-mono, monospace)' }}>{r1}</td>
-                  <td style={{ padding: '6px 8px 6px 0', color: C.muted, fontFamily: 'var(--font-geist-mono, monospace)' }}>{r2}</td>
+                  <td
+                    style={{
+                      padding: '6px 8px 6px 0',
+                      color: C.green,
+                      fontFamily: 'var(--font-geist-mono, monospace)',
+                    }}
+                  >
+                    {r1}
+                  </td>
+                  <td
+                    style={{
+                      padding: '6px 8px 6px 0',
+                      color: C.muted,
+                      fontFamily: 'var(--font-geist-mono, monospace)',
+                    }}
+                  >
+                    {r2}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
           <p style={{ color: C.muted, fontSize: '0.68rem', marginTop: '10px', lineHeight: 1.5 }}>
-            Use these HMRC-approved rates instead of claiming actual vehicle costs. The car threshold resets each tax year (6 April). Only business journeys qualify — commuting to a regular workplace does not.
+            Use these HMRC-approved rates instead of claiming actual vehicle costs. The car
+            threshold resets each tax year (6 April). Only business journeys qualify — commuting to
+            a regular workplace does not.
           </p>
         </div>
       )}
@@ -123,35 +214,81 @@ function RatePanel({ open, onToggle }: { open: boolean; onToggle: () => void }) 
 }
 
 // ── Entry row ─────────────────────────────────────────────────────────────────
-function EntryRow({ entry, claimAmount, onDelete }: {
-  entry: MileageEntry; claimAmount: number; onDelete: () => void
+function EntryRow({
+  entry,
+  claimAmount,
+  onDelete,
+}: {
+  entry: MileageEntry
+  claimAmount: number
+  onDelete: () => void
 }) {
   return (
-    <div style={{
-      display: 'grid', gridTemplateColumns: '100px 1fr 90px 70px 80px 36px',
-      alignItems: 'center', gap: '8px',
-      padding: '10px 12px', borderBottom: `1px solid ${C.border}`,
-      fontSize: '0.78rem',
-    }}>
-      <span style={{ color: C.muted, fontFamily: 'var(--font-geist-mono, monospace)', fontSize: '0.7rem' }}>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '100px 1fr 90px 70px 80px 36px',
+        alignItems: 'center',
+        gap: '8px',
+        padding: '10px 12px',
+        borderBottom: `1px solid ${C.border}`,
+        fontSize: '0.78rem',
+      }}
+    >
+      <span
+        style={{
+          color: C.muted,
+          fontFamily: 'var(--font-geist-mono, monospace)',
+          fontSize: '0.7rem',
+        }}
+      >
         {entry.date}
       </span>
-      <span style={{ color: C.white, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+      <span
+        style={{
+          color: C.white,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
         {entry.description}
       </span>
-      <span style={{ color: C.muted, fontSize: '0.7rem' }}>
-        {VEHICLE_LABELS[entry.vehicle]}
-      </span>
-      <span style={{ color: C.white, textAlign: 'right', fontFamily: 'var(--font-geist-mono, monospace)' }}>
+      <span style={{ color: C.muted, fontSize: '0.7rem' }}>{VEHICLE_LABELS[entry.vehicle]}</span>
+      <span
+        style={{
+          color: C.white,
+          textAlign: 'right',
+          fontFamily: 'var(--font-geist-mono, monospace)',
+        }}
+      >
         {formatMiles(entry.miles)} mi
       </span>
-      <span style={{ color: C.green, textAlign: 'right', fontFamily: 'var(--font-geist-mono, monospace)', fontWeight: 600 }}>
+      <span
+        style={{
+          color: C.green,
+          textAlign: 'right',
+          fontFamily: 'var(--font-geist-mono, monospace)',
+          fontWeight: 600,
+        }}
+      >
         {fmtGBP(claimAmount)}
       </span>
-      <button onClick={onDelete}
-        style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.dim, padding: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-        onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = C.red}
-        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = C.dim}>
+      <button
+        onClick={onDelete}
+        style={{
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          color: C.dim,
+          padding: '2px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = C.red)}
+        onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = C.dim)}
+      >
         <Trash2 size={13} />
       </button>
     </div>
@@ -160,44 +297,51 @@ function EntryRow({ entry, claimAmount, onDelete }: {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function MileagePage() {
-  const { items: entries, persist, loading, isAuthenticated } = useUserData<MileageEntry>(
-    'user_mileage', 'easyacco_mileage', SEED,
-  )
+  const {
+    items: entries,
+    persist,
+    loading,
+    isAuthenticated,
+  } = useUserData<MileageEntry>('user_mileage', 'easyacco_mileage', SEED)
 
-  const [showForm,    setShowForm]    = useState(false)
-  const [ratesOpen,   setRatesOpen]   = useState(false)
-  const [date,        setDate]        = useState(today())
+  const [showForm, setShowForm] = useState(false)
+  const [ratesOpen, setRatesOpen] = useState(false)
+  const [date, setDate] = useState(today())
   const [description, setDescription] = useState('')
-  const [vehicle,     setVehicle]     = useState<VehicleType>('car')
-  const [miles,       setMiles]       = useState('')
+  const [vehicle, setVehicle] = useState<VehicleType>('car')
+  const [miles, setMiles] = useState('')
 
   // Sort entries chronologically
-  const sorted = useMemo(() =>
-    [...entries].sort((a, b) => a.date.localeCompare(b.date)),
-    [entries],
-  )
+  const sorted = useMemo(() => [...entries].sort((a, b) => a.date.localeCompare(b.date)), [entries])
 
   // Compute per-entry claim amounts (cumulative car miles needed)
-  const { enriched, totalMiles, totalClaim, carMiles } = useMemo(() => sorted.reduce<{
-    enriched: Array<{ entry: MileageEntry; claimAmount: number }>
-    totalMiles: number
-    totalClaim: number
-    carMiles: number
-  }>((acc, entry) => {
-    const milesBefore = entry.vehicle === 'car' ? acc.carMiles : 0
-    const claim = calcRate(entry.vehicle, milesBefore, entry.miles)
-    return {
-      enriched: [...acc.enriched, { entry, claimAmount: claim }],
-      totalMiles: acc.totalMiles + entry.miles,
-      totalClaim: acc.totalClaim + claim,
-      carMiles: entry.vehicle === 'car' ? acc.carMiles + entry.miles : acc.carMiles,
-    }
-  }, {
-    enriched: [],
-    totalMiles: 0,
-    totalClaim: 0,
-    carMiles: 0,
-  }), [sorted])
+  const { enriched, totalMiles, totalClaim, carMiles } = useMemo(
+    () =>
+      sorted.reduce<{
+        enriched: Array<{ entry: MileageEntry; claimAmount: number }>
+        totalMiles: number
+        totalClaim: number
+        carMiles: number
+      }>(
+        (acc, entry) => {
+          const milesBefore = entry.vehicle === 'car' ? acc.carMiles : 0
+          const claim = calcRate(entry.vehicle, milesBefore, entry.miles)
+          return {
+            enriched: [...acc.enriched, { entry, claimAmount: claim }],
+            totalMiles: acc.totalMiles + entry.miles,
+            totalClaim: acc.totalClaim + claim,
+            carMiles: entry.vehicle === 'car' ? acc.carMiles + entry.miles : acc.carMiles,
+          }
+        },
+        {
+          enriched: [],
+          totalMiles: 0,
+          totalClaim: 0,
+          carMiles: 0,
+        },
+      ),
+    [sorted],
+  )
 
   // Progress toward 10k threshold (car only)
   const thresholdPct = Math.min(100, (carMiles / CAR_THRESHOLD) * 100)
@@ -206,12 +350,12 @@ export default function MileagePage() {
     const m = parseFloat(miles)
     if (!description.trim() || isNaN(m) || m <= 0) return
     const entry: MileageEntry = {
-      id:          crypto.randomUUID(),
+      id: crypto.randomUUID(),
       date,
       description: description.trim(),
       vehicle,
-      miles:       m,
-      createdAt:   new Date().toISOString(),
+      miles: m,
+      createdAt: new Date().toISOString(),
     }
     persist([entry, ...entries])
     setDescription('')
@@ -221,26 +365,66 @@ export default function MileagePage() {
   }
 
   function deleteEntry(id: string) {
-    persist(entries.filter(e => e.id !== id))
+    persist(entries.filter((e) => e.id !== id))
   }
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ color: C.muted, fontSize: '0.8rem', fontFamily: 'var(--font-geist-mono, monospace)' }}>loading…</span>
+      <div
+        style={{
+          minHeight: '100vh',
+          background: C.bg,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <span
+          style={{
+            color: C.muted,
+            fontSize: '0.8rem',
+            fontFamily: 'var(--font-geist-mono, monospace)',
+          }}
+        >
+          loading…
+        </span>
       </div>
     )
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: C.bg, padding: '2rem 1.5rem 4rem', maxWidth: '820px', margin: '0 auto' }}>
-
+    <div
+      style={{
+        minHeight: '100vh',
+        background: C.bg,
+        padding: '2rem 1.5rem 4rem',
+        maxWidth: '820px',
+        margin: '0 auto',
+      }}
+    >
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1.75rem', flexWrap: 'wrap', gap: '1rem' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          marginBottom: '1.75rem',
+          flexWrap: 'wrap',
+          gap: '1rem',
+        }}
+      >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
             <Car size={18} style={{ color: C.white }} />
-            <h1 style={{ color: C.white, fontSize: '1.1rem', fontWeight: 600, letterSpacing: '-0.03em', margin: 0 }}>
+            <h1
+              style={{
+                color: C.white,
+                fontSize: '1.1rem',
+                fontWeight: 600,
+                letterSpacing: '-0.03em',
+                margin: 0,
+              }}
+            >
               Mileage Tracker
             </h1>
           </div>
@@ -249,53 +433,128 @@ export default function MileagePage() {
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: C.muted, fontSize: '0.68rem' }}>
-            {isAuthenticated
-              ? <><Cloud size={11} style={{ color: C.green }} /> synced</>
-              : <><CloudOff size={11} /> guest</>}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              color: C.muted,
+              fontSize: '0.68rem',
+            }}
+          >
+            {isAuthenticated ? (
+              <>
+                <Cloud size={11} style={{ color: C.green }} /> synced
+              </>
+            ) : (
+              <>
+                <CloudOff size={11} /> guest
+              </>
+            )}
           </div>
           <button
-            onClick={() => setShowForm(f => !f)}
+            onClick={() => setShowForm((f) => !f)}
             style={{
-              display: 'flex', alignItems: 'center', gap: '6px',
-              background: C.white, color: C.bg, border: 'none', borderRadius: '4px',
-              padding: '7px 14px', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer',
-            }}>
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: C.white,
+              color: C.bg,
+              border: 'none',
+              borderRadius: '4px',
+              padding: '7px 14px',
+              fontSize: '0.78rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+          >
             <Plus size={13} /> Log Journey
           </button>
         </div>
       </div>
 
       {/* Stat cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '1.25rem' }}>
-        <Stat label="Total Miles" value={`${formatMiles(totalMiles)} mi`} sub={`${entries.length} journeys`} />
-        <Stat label="Total Claim" value={fmtGBP(totalClaim)} sub="tax deductible" accent={C.green} />
-        <Stat label="Car Miles" value={`${formatMiles(carMiles)} mi`} sub={`of ${CAR_THRESHOLD.toLocaleString()} threshold`} />
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+          gap: '12px',
+          marginBottom: '1.25rem',
+        }}
+      >
+        <Stat
+          label="Total Miles"
+          value={`${formatMiles(totalMiles)} mi`}
+          sub={`${entries.length} journeys`}
+        />
+        <Stat
+          label="Total Claim"
+          value={fmtGBP(totalClaim)}
+          sub="tax deductible"
+          accent={C.green}
+        />
+        <Stat
+          label="Car Miles"
+          value={`${formatMiles(carMiles)} mi`}
+          sub={`of ${CAR_THRESHOLD.toLocaleString()} threshold`}
+        />
         <Stat
           label="Rate"
           value={carMiles >= CAR_THRESHOLD ? '25p/mi' : '45p/mi'}
-          sub={carMiles >= CAR_THRESHOLD ? 'excess rate active' : `${formatMiles(CAR_THRESHOLD - carMiles)} mi until drop`}
+          sub={
+            carMiles >= CAR_THRESHOLD
+              ? 'excess rate active'
+              : `${formatMiles(CAR_THRESHOLD - carMiles)} mi until drop`
+          }
           accent={carMiles >= CAR_THRESHOLD ? C.amber : C.white}
         />
       </div>
 
       {/* 10k threshold progress */}
-      {entries.some(e => e.vehicle === 'car') && (
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '0.875rem 1rem', marginBottom: '1.25rem' }}>
+      {entries.some((e) => e.vehicle === 'car') && (
+        <div
+          style={{
+            background: C.surface,
+            border: `1px solid ${C.border}`,
+            borderRadius: '6px',
+            padding: '0.875rem 1rem',
+            marginBottom: '1.25rem',
+          }}
+        >
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-            <span style={{ color: C.muted, fontSize: '0.7rem', letterSpacing: '0.04em', textTransform: 'uppercase', fontFamily: 'var(--font-geist-mono, monospace)' }}>
+            <span
+              style={{
+                color: C.muted,
+                fontSize: '0.7rem',
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+                fontFamily: 'var(--font-geist-mono, monospace)',
+              }}
+            >
               Car mileage threshold (45p → 25p)
             </span>
-            <span style={{ color: C.white, fontSize: '0.7rem', fontFamily: 'var(--font-geist-mono, monospace)' }}>
+            <span
+              style={{
+                color: C.white,
+                fontSize: '0.7rem',
+                fontFamily: 'var(--font-geist-mono, monospace)',
+              }}
+            >
               {formatMiles(carMiles)} / {CAR_THRESHOLD.toLocaleString()} mi
             </span>
           </div>
-          <div style={{ height: '6px', background: C.gray, borderRadius: '99px', overflow: 'hidden' }}>
-            <div style={{
-              height: '100%', borderRadius: '99px', transition: 'width 0.4s ease',
-              width: `${thresholdPct}%`,
-              background: thresholdPct >= 100 ? C.amber : C.green,
-            }} />
+          <div
+            style={{ height: '6px', background: C.gray, borderRadius: '99px', overflow: 'hidden' }}
+          >
+            <div
+              style={{
+                height: '100%',
+                borderRadius: '99px',
+                transition: 'width 0.4s ease',
+                width: `${thresholdPct}%`,
+                background: thresholdPct >= 100 ? C.amber : C.green,
+              }}
+            />
           </div>
           {thresholdPct >= 100 && (
             <p style={{ color: C.amber, fontSize: '0.68rem', marginTop: '6px' }}>
@@ -307,27 +566,90 @@ export default function MileagePage() {
 
       {/* HMRC rates info */}
       <div style={{ marginBottom: '1.25rem' }}>
-        <RatePanel open={ratesOpen} onToggle={() => setRatesOpen(o => !o)} />
+        <RatePanel open={ratesOpen} onToggle={() => setRatesOpen((o) => !o)} />
       </div>
 
       {/* Add journey form */}
       {showForm && (
-        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', padding: '1.25rem', marginBottom: '1.25rem' }}>
-          <h3 style={{ color: C.white, fontSize: '0.85rem', fontWeight: 600, margin: '0 0 1rem' }}>Log Journey</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '12px' }}>
-
+        <div
+          style={{
+            background: C.surface,
+            border: `1px solid ${C.border}`,
+            borderRadius: '6px',
+            padding: '1.25rem',
+            marginBottom: '1.25rem',
+          }}
+        >
+          <h3 style={{ color: C.white, fontSize: '0.85rem', fontWeight: 600, margin: '0 0 1rem' }}>
+            Log Journey
+          </h3>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+              gap: '12px',
+              marginBottom: '12px',
+            }}
+          >
             {/* Date */}
             <div>
-              <label style={{ display: 'block', color: C.muted, fontSize: '0.68rem', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Date</label>
-              <input type="date" value={date} onChange={e => setDate(e.target.value)}
-                style={{ width: '100%', background: C.gray, border: `1px solid ${C.border}`, borderRadius: '4px', color: C.white, padding: '7px 10px', fontSize: '0.78rem', boxSizing: 'border-box' }} />
+              <label
+                style={{
+                  display: 'block',
+                  color: C.muted,
+                  fontSize: '0.68rem',
+                  marginBottom: '4px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                }}
+              >
+                Date
+              </label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                style={{
+                  width: '100%',
+                  background: C.gray,
+                  border: `1px solid ${C.border}`,
+                  borderRadius: '4px',
+                  color: C.white,
+                  padding: '7px 10px',
+                  fontSize: '0.78rem',
+                  boxSizing: 'border-box',
+                }}
+              />
             </div>
 
             {/* Vehicle */}
             <div>
-              <label style={{ display: 'block', color: C.muted, fontSize: '0.68rem', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Vehicle</label>
-              <select value={vehicle} onChange={e => setVehicle(e.target.value as VehicleType)}
-                style={{ width: '100%', background: C.gray, border: `1px solid ${C.border}`, borderRadius: '4px', color: C.white, padding: '7px 10px', fontSize: '0.78rem', boxSizing: 'border-box' }}>
+              <label
+                style={{
+                  display: 'block',
+                  color: C.muted,
+                  fontSize: '0.68rem',
+                  marginBottom: '4px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                }}
+              >
+                Vehicle
+              </label>
+              <select
+                value={vehicle}
+                onChange={(e) => setVehicle(e.target.value as VehicleType)}
+                style={{
+                  width: '100%',
+                  background: C.gray,
+                  border: `1px solid ${C.border}`,
+                  borderRadius: '4px',
+                  color: C.white,
+                  padding: '7px 10px',
+                  fontSize: '0.78rem',
+                  boxSizing: 'border-box',
+                }}
+              >
                 <option value="car">Car / Van</option>
                 <option value="motorcycle">Motorcycle</option>
                 <option value="bike">Bicycle</option>
@@ -336,42 +658,132 @@ export default function MileagePage() {
 
             {/* Miles */}
             <div>
-              <label style={{ display: 'block', color: C.muted, fontSize: '0.68rem', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Miles</label>
-              <input type="number" min="0.1" step="0.1" placeholder="0.0" value={miles} onChange={e => setMiles(e.target.value)}
-                style={{ width: '100%', background: C.gray, border: `1px solid ${C.border}`, borderRadius: '4px', color: C.white, padding: '7px 10px', fontSize: '0.78rem', boxSizing: 'border-box' }} />
+              <label
+                style={{
+                  display: 'block',
+                  color: C.muted,
+                  fontSize: '0.68rem',
+                  marginBottom: '4px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                }}
+              >
+                Miles
+              </label>
+              <input
+                type="number"
+                min="0.1"
+                step="0.1"
+                placeholder="0.0"
+                value={miles}
+                onChange={(e) => setMiles(e.target.value)}
+                style={{
+                  width: '100%',
+                  background: C.gray,
+                  border: `1px solid ${C.border}`,
+                  borderRadius: '4px',
+                  color: C.white,
+                  padding: '7px 10px',
+                  fontSize: '0.78rem',
+                  boxSizing: 'border-box',
+                }}
+              />
             </div>
           </div>
 
           {/* Description */}
           <div style={{ marginBottom: '12px' }}>
-            <label style={{ display: 'block', color: C.muted, fontSize: '0.68rem', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Business Purpose</label>
-            <input type="text" placeholder="e.g. Client meeting — Manchester" value={description} onChange={e => setDescription(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && addEntry()}
-              style={{ width: '100%', background: C.gray, border: `1px solid ${C.border}`, borderRadius: '4px', color: C.white, padding: '7px 10px', fontSize: '0.78rem', boxSizing: 'border-box' }} />
+            <label
+              style={{
+                display: 'block',
+                color: C.muted,
+                fontSize: '0.68rem',
+                marginBottom: '4px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+              }}
+            >
+              Business Purpose
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Client meeting — Manchester"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && addEntry()}
+              style={{
+                width: '100%',
+                background: C.gray,
+                border: `1px solid ${C.border}`,
+                borderRadius: '4px',
+                color: C.white,
+                padding: '7px 10px',
+                fontSize: '0.78rem',
+                boxSizing: 'border-box',
+              }}
+            />
           </div>
 
           {/* Preview claim */}
           {miles && parseFloat(miles) > 0 && (
-            <div style={{ background: C.gray, borderRadius: '4px', padding: '8px 12px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: C.muted, fontSize: '0.72rem' }}>Estimated claim for this journey</span>
-              <span style={{ color: C.green, fontFamily: 'var(--font-geist-mono, monospace)', fontWeight: 700 }}>
-                {fmtGBP(calcRate(vehicle, vehicle === 'car' ? carMiles : 0, parseFloat(miles) || 0))}
+            <div
+              style={{
+                background: C.gray,
+                borderRadius: '4px',
+                padding: '8px 12px',
+                marginBottom: '12px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <span style={{ color: C.muted, fontSize: '0.72rem' }}>
+                Estimated claim for this journey
+              </span>
+              <span
+                style={{
+                  color: C.green,
+                  fontFamily: 'var(--font-geist-mono, monospace)',
+                  fontWeight: 700,
+                }}
+              >
+                {fmtGBP(
+                  calcRate(vehicle, vehicle === 'car' ? carMiles : 0, parseFloat(miles) || 0),
+                )}
               </span>
             </div>
           )}
 
           <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-            <button onClick={() => setShowForm(false)}
-              style={{ background: 'none', border: `1px solid ${C.border}`, borderRadius: '4px', color: C.muted, padding: '7px 14px', fontSize: '0.78rem', cursor: 'pointer' }}>
+            <button
+              onClick={() => setShowForm(false)}
+              style={{
+                background: 'none',
+                border: `1px solid ${C.border}`,
+                borderRadius: '4px',
+                color: C.muted,
+                padding: '7px 14px',
+                fontSize: '0.78rem',
+                cursor: 'pointer',
+              }}
+            >
               Cancel
             </button>
-            <button onClick={addEntry}
+            <button
+              onClick={addEntry}
               disabled={!description.trim() || !miles || parseFloat(miles) <= 0}
               style={{
-                background: C.white, color: C.bg, border: 'none', borderRadius: '4px',
-                padding: '7px 14px', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer',
-                opacity: (!description.trim() || !miles || parseFloat(miles) <= 0) ? 0.4 : 1,
-              }}>
+                background: C.white,
+                color: C.bg,
+                border: 'none',
+                borderRadius: '4px',
+                padding: '7px 14px',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                opacity: !description.trim() || !miles || parseFloat(miles) <= 0 ? 0.4 : 1,
+              }}
+            >
               Add Journey
             </button>
           </div>
@@ -379,16 +791,36 @@ export default function MileagePage() {
       )}
 
       {/* Journey list */}
-      <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: '6px', overflow: 'hidden' }}>
+      <div
+        style={{
+          background: C.surface,
+          border: `1px solid ${C.border}`,
+          borderRadius: '6px',
+          overflow: 'hidden',
+        }}
+      >
         {/* Column headers */}
-        <div style={{
-          display: 'grid', gridTemplateColumns: '100px 1fr 90px 70px 80px 36px',
-          gap: '8px', padding: '8px 12px',
-          borderBottom: `1px solid ${C.border}`,
-          background: C.gray,
-        }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '100px 1fr 90px 70px 80px 36px',
+            gap: '8px',
+            padding: '8px 12px',
+            borderBottom: `1px solid ${C.border}`,
+            background: C.gray,
+          }}
+        >
           {['Date', 'Purpose', 'Vehicle', 'Miles', 'Claim', ''].map((h, i) => (
-            <span key={i} style={{ color: C.muted, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.08em', textAlign: i >= 3 ? 'right' : 'left' }}>
+            <span
+              key={i}
+              style={{
+                color: C.muted,
+                fontSize: '0.65rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                textAlign: i >= 3 ? 'right' : 'left',
+              }}
+            >
               {h}
             </span>
           ))}
@@ -398,7 +830,9 @@ export default function MileagePage() {
           <div style={{ padding: '3rem', textAlign: 'center' }}>
             <MapPin size={28} style={{ color: C.dim, marginBottom: '12px' }} />
             <p style={{ color: C.muted, fontSize: '0.8rem', margin: 0 }}>No journeys logged yet.</p>
-            <p style={{ color: C.dim, fontSize: '0.72rem', marginTop: '4px' }}>Log your first business trip to start tracking your HMRC mileage claim.</p>
+            <p style={{ color: C.dim, fontSize: '0.72rem', marginTop: '4px' }}>
+              Log your first business trip to start tracking your HMRC mileage claim.
+            </p>
           </div>
         ) : (
           enriched.map(({ entry, claimAmount }) => (
@@ -413,19 +847,39 @@ export default function MileagePage() {
 
         {/* Total footer */}
         {enriched.length > 0 && (
-          <div style={{
-            display: 'grid', gridTemplateColumns: '100px 1fr 90px 70px 80px 36px',
-            gap: '8px', padding: '10px 12px',
-            borderTop: `1px solid ${C.border}`,
-            background: C.gray,
-          }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '100px 1fr 90px 70px 80px 36px',
+              gap: '8px',
+              padding: '10px 12px',
+              borderTop: `1px solid ${C.border}`,
+              background: C.gray,
+            }}
+          >
             <span />
             <span style={{ color: C.muted, fontSize: '0.7rem' }}>Total claim</span>
             <span />
-            <span style={{ color: C.white, textAlign: 'right', fontFamily: 'var(--font-geist-mono, monospace)', fontSize: '0.78rem', fontWeight: 600 }}>
+            <span
+              style={{
+                color: C.white,
+                textAlign: 'right',
+                fontFamily: 'var(--font-geist-mono, monospace)',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+              }}
+            >
               {formatMiles(totalMiles)} mi
             </span>
-            <span style={{ color: C.green, textAlign: 'right', fontFamily: 'var(--font-geist-mono, monospace)', fontSize: '0.78rem', fontWeight: 700 }}>
+            <span
+              style={{
+                color: C.green,
+                textAlign: 'right',
+                fontFamily: 'var(--font-geist-mono, monospace)',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+              }}
+            >
               {fmtGBP(totalClaim)}
             </span>
             <span />
@@ -435,23 +889,31 @@ export default function MileagePage() {
 
       {/* Tax tip */}
       {totalClaim > 0 && (
-        <div style={{
-          marginTop: '1.25rem', background: C.surface, border: `1px solid ${C.border}`,
-          borderRadius: '6px', padding: '0.875rem 1rem',
-          display: 'flex', alignItems: 'flex-start', gap: '10px',
-        }}>
+        <div
+          style={{
+            marginTop: '1.25rem',
+            background: C.surface,
+            border: `1px solid ${C.border}`,
+            borderRadius: '6px',
+            padding: '0.875rem 1rem',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '10px',
+          }}
+        >
           <TrendingUp size={14} style={{ color: C.green, flexShrink: 0, marginTop: '2px' }} />
           <div>
             <p style={{ color: C.white, fontSize: '0.75rem', fontWeight: 500, margin: '0 0 3px' }}>
-              Tax saving: approx. {fmtGBP(totalClaim * 0.20)}–{fmtGBP(totalClaim * 0.40)}
+              Tax saving: approx. {fmtGBP(totalClaim * 0.2)}–{fmtGBP(totalClaim * 0.4)}
             </p>
             <p style={{ color: C.muted, fontSize: '0.7rem', margin: 0 }}>
-              Add {fmtGBP(totalClaim)} to your allowable expenses on your Self Assessment. At 20% basic rate this saves {fmtGBP(totalClaim * 0.20)}, at 40% higher rate {fmtGBP(totalClaim * 0.40)}.
+              Add {fmtGBP(totalClaim)} to your allowable expenses on your Self Assessment. At 20%
+              basic rate this saves {fmtGBP(totalClaim * 0.2)}, at 40% higher rate{' '}
+              {fmtGBP(totalClaim * 0.4)}.
             </p>
           </div>
         </div>
       )}
-
     </div>
   )
 }

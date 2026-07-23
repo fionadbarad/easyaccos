@@ -17,8 +17,14 @@ type Ok = {
   helloBody: unknown
 }
 
-type Fail =
-  | { ok: false; stage: 'env' | 'auth' | 'hello'; message: string; status?: number; body?: unknown; needsReauth?: boolean }
+type Fail = {
+  ok: false
+  stage: 'env' | 'auth' | 'hello'
+  message: string
+  status?: number
+  body?: unknown
+  needsReauth?: boolean
+}
 
 export async function GET(req: NextRequest): Promise<NextResponse<Ok | Fail>> {
   const env = readHmrcEnv()
@@ -71,7 +77,13 @@ export async function GET(req: NextRequest): Promise<NextResponse<Ok | Fail>> {
 
   if (!helloRes.ok) {
     return NextResponse.json<Fail>(
-      { ok: false, stage: 'hello', status: helloRes.status, body: helloBody, message: `HMRC returned ${helloRes.status}` },
+      {
+        ok: false,
+        stage: 'hello',
+        status: helloRes.status,
+        body: helloBody,
+        message: `HMRC returned ${helloRes.status}`,
+      },
       { status: 502 },
     )
   }

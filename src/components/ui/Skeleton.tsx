@@ -43,7 +43,8 @@ export function Skeleton({ width = '100%', height = 14, radius = 4, style }: Ske
         width,
         height,
         borderRadius: radius,
-        background: 'linear-gradient(90deg, rgba(244,245,248,0.04) 0%, rgba(244,245,248,0.10) 50%, rgba(244,245,248,0.04) 100%)',
+        background:
+          'linear-gradient(90deg, rgba(244,245,248,0.04) 0%, rgba(244,245,248,0.10) 50%, rgba(244,245,248,0.04) 100%)',
         backgroundSize: '800px 100%',
         animation: 'easyacco-shimmer 1.4s ease-in-out infinite',
         ...style,
@@ -52,7 +53,13 @@ export function Skeleton({ width = '100%', height = 14, radius = 4, style }: Ske
   )
 }
 
-export function SkeletonRows({ count = 5, rowHeight = 34 }: { count?: number; rowHeight?: number }) {
+export function SkeletonRows({
+  count = 5,
+  rowHeight = 34,
+}: {
+  count?: number
+  rowHeight?: number
+}) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
       {Array.from({ length: count }, (_, i) => (

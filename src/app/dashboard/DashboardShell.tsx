@@ -23,10 +23,10 @@ export default function DashboardShell({
   initialUser: User | null
 }) {
   const pathname = usePathname()
-  const router   = useRouter()
+  const router = useRouter()
 
-  const [user, setUser]               = useState<User | null>(initialUser)
-  const [mobileOpen, setMobileOpen]   = useState(false)
+  const [user, setUser] = useState<User | null>(initialUser)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const [desktopOpen, setDesktopOpen] = useState(false)
 
   useEffect(() => {
@@ -34,10 +34,15 @@ export default function DashboardShell({
     if (!supabase) return
 
     let mounted = true
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       if (mounted) setUser(session?.user ?? null)
     })
-    return () => { mounted = false; subscription.unsubscribe() }
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   async function handleSignOut() {
@@ -59,13 +64,22 @@ export default function DashboardShell({
         onClick={() => setDesktopOpen(true)}
         title="Open sidebar"
         style={{
-          position: 'fixed', top: '1rem', left: '0.75rem',
-          zIndex: 51, background: C.surface, border: `1px solid ${C.border}`,
-          borderRadius: '4px', color: desktopOpen ? 'transparent' : C.muted, cursor: 'pointer',
-          padding: '6px 8px', alignItems: 'center', justifyContent: 'center',
+          position: 'fixed',
+          top: '1rem',
+          left: '0.75rem',
+          zIndex: 51,
+          background: C.surface,
+          border: `1px solid ${C.border}`,
+          borderRadius: '4px',
+          color: desktopOpen ? 'transparent' : C.muted,
+          cursor: 'pointer',
+          padding: '6px 8px',
+          alignItems: 'center',
+          justifyContent: 'center',
           opacity: desktopOpen ? 0 : 1,
           pointerEvents: desktopOpen ? 'none' : 'auto',
-        }}>
+        }}
+      >
         <Menu size={14} />
       </button>
 
@@ -73,7 +87,9 @@ export default function DashboardShell({
         className="hidden md:block"
         onClick={closeDesktop}
         style={{
-          position: 'fixed', inset: 0, zIndex: 45,
+          position: 'fixed',
+          inset: 0,
+          zIndex: 45,
           background: 'rgba(0,0,0,0.55)',
           opacity: desktopOpen ? 1 : 0,
           pointerEvents: desktopOpen ? 'auto' : 'none',
@@ -84,22 +100,32 @@ export default function DashboardShell({
       <aside
         className="hidden md:flex"
         style={{
-          width: `${SIDEBAR_W}px`, flexShrink: 0, flexDirection: 'column',
-          background: C.bg, borderRight: `1px solid ${C.border}`,
-          position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 50,
+          width: `${SIDEBAR_W}px`,
+          flexShrink: 0,
+          flexDirection: 'column',
+          background: C.bg,
+          borderRight: `1px solid ${C.border}`,
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          bottom: 0,
+          zIndex: 50,
           transform: desktopOpen ? 'translateX(0)' : `translateX(-${SIDEBAR_W}px)`,
           transition: 'transform 0.25s cubic-bezier(0.4,0,0.2,1)',
-        }}>
+        }}
+      >
         <Sidebar {...sidebarProps} onNavClick={closeDesktop} onClose={closeDesktop} />
       </aside>
 
-      <MobileTopBar open={mobileOpen} onToggle={() => setMobileOpen(o => !o)} />
+      <MobileTopBar open={mobileOpen} onToggle={() => setMobileOpen((o) => !o)} />
 
       <div
         className="md:hidden"
         onClick={closeMobile}
         style={{
-          position: 'fixed', inset: 0, zIndex: 45,
+          position: 'fixed',
+          inset: 0,
+          zIndex: 45,
           background: 'rgba(0,0,0,0.7)',
           opacity: mobileOpen ? 1 : 0,
           pointerEvents: mobileOpen ? 'auto' : 'none',
@@ -110,24 +136,34 @@ export default function DashboardShell({
       <aside
         className="md:hidden"
         style={{
-          position: 'fixed', top: 0, left: 0, bottom: 0,
-          width: `${SIDEBAR_W}px`, zIndex: 50,
-          background: C.bg, borderRight: `1px solid ${C.border}`,
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          bottom: 0,
+          width: `${SIDEBAR_W}px`,
+          zIndex: 50,
+          background: C.bg,
+          borderRight: `1px solid ${C.border}`,
           transform: mobileOpen ? 'translateX(0)' : `translateX(-${SIDEBAR_W}px)`,
           transition: 'transform 0.25s cubic-bezier(0.4,0,0.2,1)',
           overflowY: 'auto',
-        }}>
+        }}
+      >
         <Sidebar {...sidebarProps} onNavClick={closeMobile} />
       </aside>
 
       <main
         className="mt-[52px] md:mt-0"
-        style={{ flex: 1, minHeight: '100vh', background: C.bg, overflow: 'auto' }}>
+        style={{ flex: 1, minHeight: '100vh', background: C.bg, overflow: 'auto' }}
+      >
         <SADeadlineBanner />
         {!user && (
           <NoticeBanner variant="warning" icon={AlertTriangle}>
             Guest mode — your data is not saved.{' '}
-            <Link href="/auth/login" style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: '2px' }}>
+            <Link
+              href="/auth/login"
+              style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: '2px' }}
+            >
               Sign in to keep your records →
             </Link>
           </NoticeBanner>

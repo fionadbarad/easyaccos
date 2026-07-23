@@ -14,8 +14,8 @@ export const runtime = 'nodejs'
 type RequestBody = {
   nino: string
   businessId: string
-  periodStartDate: string  // YYYY-MM-DD
-  periodEndDate: string    // YYYY-MM-DD
+  periodStartDate: string // YYYY-MM-DD
+  periodEndDate: string // YYYY-MM-DD
   income: {
     turnover: number
     other?: number
@@ -37,7 +37,7 @@ type RequestBody = {
     depreciation?: number
     otherExpenses?: number
   }
-  consolidatedExpenses?: number  // alternative to detailed expenses
+  consolidatedExpenses?: number // alternative to detailed expenses
   browser: BrowserFraudData
   userId: string
   govTestScenario?: string

@@ -3,9 +3,15 @@
 
 import { describe, expect, test } from 'vitest'
 import {
-  daysElapsedAt, yearProgressAt, monthsElapsedAt, daysToDeadlineAt,
-  yearlyIncome, yearlyExpenses, projectAnnual,
-  potShortfall, monthlyNeededToClose,
+  daysElapsedAt,
+  yearProgressAt,
+  monthsElapsedAt,
+  daysToDeadlineAt,
+  yearlyIncome,
+  yearlyExpenses,
+  projectAnnual,
+  potShortfall,
+  monthlyNeededToClose,
 } from '../aggregates'
 import { SA_DEADLINE, TAX_YEAR_DAYS } from '../shared'
 
@@ -27,7 +33,7 @@ describe('daysElapsedAt / yearProgressAt / monthsElapsedAt', () => {
   })
 
   test('halfway-ish point returns non-degenerate values', () => {
-    const mid = new Date('2026-10-06')  // ~6 months in
+    const mid = new Date('2026-10-06') // ~6 months in
     expect(daysElapsedAt(mid)).toBeGreaterThan(170)
     expect(daysElapsedAt(mid)).toBeLessThan(200)
     expect(yearProgressAt(mid)).toBeGreaterThan(0.45)
@@ -51,10 +57,10 @@ describe('daysToDeadlineAt', () => {
 describe('yearlyIncome', () => {
   test('sums only in-year income-type transactions', () => {
     const txs = [
-      { date: '2026-05-01', type: 'income',  amount: 1000 },
-      { date: '2026-05-02', type: 'expense', amount: 500 },   // wrong type
-      { date: '2025-12-01', type: 'income',  amount: 9999 },  // out of year
-      { date: '2026-11-30', type: 'income',  amount: 2000 },
+      { date: '2026-05-01', type: 'income', amount: 1000 },
+      { date: '2026-05-02', type: 'expense', amount: 500 }, // wrong type
+      { date: '2025-12-01', type: 'income', amount: 9999 }, // out of year
+      { date: '2026-11-30', type: 'income', amount: 2000 },
     ]
     expect(yearlyIncome(txs)).toBe(3000)
   })
@@ -68,7 +74,7 @@ describe('yearlyExpenses', () => {
   test('sums only in-year expenses', () => {
     const exp = [
       { date: '2026-04-10', amount: 200 },
-      { date: '2025-01-01', amount: 5000 },  // out of year
+      { date: '2025-01-01', amount: 5000 }, // out of year
       { date: '2027-03-01', amount: 300 },
     ]
     expect(yearlyExpenses(exp)).toBe(500)
@@ -100,7 +106,7 @@ describe('potShortfall + monthlyNeededToClose', () => {
     expect(monthlyNeededToClose(1_000, 3)).toBe(333)
   })
 
-  test('zero months remaining returns 0 (don\'t divide by zero)', () => {
+  test("zero months remaining returns 0 (don't divide by zero)", () => {
     expect(monthlyNeededToClose(500, 0)).toBe(0)
   })
 })

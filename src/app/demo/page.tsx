@@ -1,2 +1,4 @@
-import DemoDashboard from '@/components/DemoDashboard';
-export default function DemoPage() { return <DemoDashboard />; }
+import DemoDashboard from '@/components/DemoDashboard'
+export default function DemoPage() {
+  return <DemoDashboard />
+}

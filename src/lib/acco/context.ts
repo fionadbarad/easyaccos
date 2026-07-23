@@ -4,24 +4,19 @@
 
 import type { AccoContext } from './types'
 import { fmtDec as fmtGBP } from '@/lib/formatters'
-import {
-  PA_BASE,
-  RUK_BASIC_RATE_WIDTH,
-  PA_TAPER_START,
-  PA_TAPER_END,
-} from '@/lib/tax/bands-2026'
+import { PA_BASE, RUK_BASIC_RATE_WIDTH, PA_TAPER_START, PA_TAPER_END } from '@/lib/tax/bands-2026'
 
 /** Returns current tax-year context populated from bands-2026 (single source). */
 export function buildBaseContext(): AccoContext {
   const now = new Date()
   const month = now.toLocaleString('en-GB', { month: 'long', year: 'numeric' })
   return {
-    currentMonth:      month,
-    taxYear:           '2026/27',
+    currentMonth: month,
+    taxYear: '2026/27',
     personalAllowance: PA_BASE,
-    basicRateLimit:    RUK_BASIC_RATE_WIDTH,
-    higherRateTaper:   PA_TAPER_START,
-    topRateTaper:      PA_TAPER_END,
+    basicRateLimit: RUK_BASIC_RATE_WIDTH,
+    higherRateTaper: PA_TAPER_START,
+    topRateTaper: PA_TAPER_END,
   }
 }
 

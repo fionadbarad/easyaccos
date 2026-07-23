@@ -24,23 +24,26 @@ import {
 
 function baseInput(over: Partial<TaxInput> = {}): TaxInput {
   return {
-    grossRevenue:          0,
-    allowableExpenses:     0,
-    dividendIncome:        0,
-    employmentType:        'self-employed',
-    taxRegion:             'ruk',
-    studentLoanPlan:       'none',
-    voluntaryClass2NI:     false,
-    marriageAllowance:     false,
+    grossRevenue: 0,
+    allowableExpenses: 0,
+    dividendIncome: 0,
+    employmentType: 'self-employed',
+    taxRegion: 'ruk',
+    studentLoanPlan: 'none',
+    voluntaryClass2NI: false,
+    marriageAllowance: false,
     blindPersonsAllowance: false,
-    pensionContribution:   0,
+    pensionContribution: 0,
     ...over,
   }
 }
 
 // ─── Scenario 1 parity: employed / self-employed, expenses, pension ─────────
 describe('calcScenario1 vs calculateTax parity', () => {
-  const incomes = [0, 5_000, 12_570, 20_000, 35_000, 50_270, 75_000, 99_999, 100_000, 120_000, 125_140, 150_000, 250_000]
+  const incomes = [
+    0, 5_000, 12_570, 20_000, 35_000, 50_270, 75_000, 99_999, 100_000, 120_000, 125_140, 150_000,
+    250_000,
+  ]
   const expenseRatios = [0, 0.1, 0.25]
   const pensions = [0, 2_400, 10_000]
   const empTypes: Array<'employed' | 'self-employed'> = ['employed', 'self-employed']
@@ -54,7 +57,12 @@ describe('calcScenario1 vs calculateTax parity', () => {
           cases.push({
             name: `£${income} ${empType} expenses=${expenses} pension=${pension}`,
             s1: { grossIncome: income, expenses, employmentType: empType, pension },
-            t:  baseInput({ grossRevenue: income, allowableExpenses: expenses, pensionContribution: pension, employmentType: empType }),
+            t: baseInput({
+              grossRevenue: income,
+              allowableExpenses: expenses,
+              pensionContribution: pension,
+              employmentType: empType,
+            }),
           })
         }
       }
@@ -84,7 +92,11 @@ describe('calcScenario2 vs calculateTax parity', () => {
       cases.push({
         name: `£${income} pension=${pension}`,
         s2: { grossIncome: income, pension },
-        t:  baseInput({ grossRevenue: income, pensionContribution: pension, employmentType: 'employed' }),
+        t: baseInput({
+          grossRevenue: income,
+          pensionContribution: pension,
+          employmentType: 'employed',
+        }),
       })
     }
   }
@@ -111,15 +123,17 @@ describe('calcScenario5 vs calculateTax — canonical director parity', () => {
   const salary = 12_570
   const dividends = [0, 500, 5_000, 10_000, 30_000, 50_000, 100_000]
 
-  test.each(dividends.map(d => ({ name: `salary=£${salary} divs=£${d}`, divs: d })))(
+  test.each(dividends.map((d) => ({ name: `salary=£${salary} divs=£${d}`, divs: d })))(
     '$name',
     ({ divs }) => {
       const a = calcScenario5({ salary, dividends: divs, pension: 0 })
-      const b = calculateTax(baseInput({
-        grossRevenue: salary,
-        dividendIncome: divs,
-        employmentType: 'director',
-      }))
+      const b = calculateTax(
+        baseInput({
+          grossRevenue: salary,
+          dividendIncome: divs,
+          employmentType: 'director',
+        }),
+      )
       expect(a.personalAllowance).toBe(b.personalAllowance)
       expect(a.dividendTax).toBe(b.dividendTax)
       expect(a.incomeTax).toBe(round2(b.incomeTax + b.dividendTax))

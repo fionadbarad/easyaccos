@@ -7,23 +7,32 @@ import type { Invoice, InvoiceStatus } from '@/lib/validators'
 export type { Invoice, InvoiceStatus }
 
 export interface InvoiceFormState {
-  client:      string
-  number:      string
+  client: string
+  number: string
   description: string
-  date:        string
-  dueDate:     string
-  amount:      string
-  vat:         boolean
+  date: string
+  dueDate: string
+  amount: string
+  vat: boolean
 }
 
-function today() { return new Date().toISOString().slice(0, 10) }
-function in30()  { const d = new Date(); d.setDate(d.getDate() + 30); return d.toISOString().slice(0, 10) }
+function today() {
+  return new Date().toISOString().slice(0, 10)
+}
+function in30() {
+  const d = new Date()
+  d.setDate(d.getDate() + 30)
+  return d.toISOString().slice(0, 10)
+}
 
-export function vatTotal(inv: Invoice)  { return inv.vat ? inv.amount * 1.2 : inv.amount }
+export function vatTotal(inv: Invoice) {
+  return inv.vat ? inv.amount * 1.2 : inv.amount
+}
 
 export function isPastDue(inv: Invoice) {
-  return (inv.status === 'sent' || inv.status === 'overdue')
-    && new Date(inv.dueDate) < new Date(today())
+  return (
+    (inv.status === 'sent' || inv.status === 'overdue') && new Date(inv.dueDate) < new Date(today())
+  )
 }
 
 export function daysOverdue(inv: Invoice) {
@@ -38,7 +47,7 @@ export { fmtDec, fmtGBP as fmt } from '@/lib/formatters'
 import { fmtDec } from '@/lib/formatters'
 
 export function chaseEmail(inv: Invoice): string {
-  const days  = daysOverdue(inv)
+  const days = daysOverdue(inv)
   const total = fmtDec(vatTotal(inv))
   return `Subject: Payment Reminder — Invoice ${inv.number} (${days} days overdue)
 
@@ -63,59 +72,78 @@ Many thanks,
 }
 
 export function makeBlankForm(): InvoiceFormState {
-  return { client: '', number: '', description: '', date: today(), dueDate: in30(), amount: '', vat: false }
+  return {
+    client: '',
+    number: '',
+    description: '',
+    date: today(),
+    dueDate: in30(),
+    amount: '',
+    vat: false,
+  }
 }
 
 export function useInvoices() {
-  const { items: invoices, persist, loading, isAuthenticated } = useUserData<Invoice>(
-    'user_invoices', 'ea_invoices', [],
-  )
+  const {
+    items: invoices,
+    persist,
+    loading,
+    isAuthenticated,
+  } = useUserData<Invoice>('user_invoices', 'ea_invoices', [])
   const [showForm, setShowForm] = useState(false)
-  const [filter,   setFilter]   = useState<InvoiceStatus | 'all'>('all')
-  const [form,     setForm]     = useState<InvoiceFormState>(makeBlankForm)
+  const [filter, setFilter] = useState<InvoiceStatus | 'all'>('all')
+  const [form, setForm] = useState<InvoiceFormState>(makeBlankForm)
 
   const nextNumber = useMemo(() => {
-    const nums = invoices.map(i => parseInt(i.number.replace(/\D/g, ''), 10)).filter(Boolean)
+    const nums = invoices.map((i) => parseInt(i.number.replace(/\D/g, ''), 10)).filter(Boolean)
     return String((nums.length ? Math.max(...nums) : 0) + 1).padStart(4, '0')
   }, [invoices])
 
   // Auto-flip overdue invoices on every render — no ref, no stale state.
   useEffect(() => {
     if (loading) return
-    const needsFlip = invoices.some(i => i.status === 'sent' && isPastDue(i))
+    const needsFlip = invoices.some((i) => i.status === 'sent' && isPastDue(i))
     if (!needsFlip) return
-    void persist(invoices.map(i =>
-      i.status === 'sent' && isPastDue(i) ? { ...i, status: 'overdue' as InvoiceStatus } : i,
-    ))
+    void persist(
+      invoices.map((i) =>
+        i.status === 'sent' && isPastDue(i) ? { ...i, status: 'overdue' as InvoiceStatus } : i,
+      ),
+    )
   }, [loading, invoices, persist])
 
   const stats = useMemo(() => {
-    const sent    = invoices.filter(i => i.status === 'sent')
-    const overdue = invoices.filter(i => i.status === 'overdue')
-    const paid    = invoices.filter(i => i.status === 'paid')
-    const draft   = invoices.filter(i => i.status === 'draft')
+    const sent = invoices.filter((i) => i.status === 'sent')
+    const overdue = invoices.filter((i) => i.status === 'overdue')
+    const paid = invoices.filter((i) => i.status === 'paid')
+    const draft = invoices.filter((i) => i.status === 'draft')
     return {
-      outstanding:  sent.reduce((s, i) => s + vatTotal(i), 0),
-      overdue:      overdue.reduce((s, i) => s + vatTotal(i), 0),
-      paid:         paid.reduce((s, i) => s + vatTotal(i), 0),
-      draftCount:   draft.length,
+      outstanding: sent.reduce((s, i) => s + vatTotal(i), 0),
+      overdue: overdue.reduce((s, i) => s + vatTotal(i), 0),
+      paid: paid.reduce((s, i) => s + vatTotal(i), 0),
+      draftCount: draft.length,
       overdueCount: overdue.length,
     }
   }, [invoices])
 
-  const displayed = useMemo(() =>
-    filter === 'all' ? invoices : invoices.filter(i => i.status === filter),
-  [invoices, filter])
+  const displayed = useMemo(
+    () => (filter === 'all' ? invoices : invoices.filter((i) => i.status === filter)),
+    [invoices, filter],
+  )
 
   async function add(e: React.FormEvent) {
     e.preventDefault()
     const amount = parseFloat(form.amount)
     if (!amount || !form.client.trim()) return
     const inv: Invoice = {
-      id: crypto.randomUUID(), status: 'draft',
-      client: form.client, number: form.number || nextNumber,
-      description: form.description, date: form.date,
-      dueDate: form.dueDate, amount, vat: form.vat,
+      id: crypto.randomUUID(),
+      status: 'draft',
+      client: form.client,
+      number: form.number || nextNumber,
+      description: form.description,
+      date: form.date,
+      dueDate: form.dueDate,
+      amount,
+      vat: form.vat,
     }
     await persist([inv, ...invoices])
     setForm(makeBlankForm())
@@ -123,19 +151,28 @@ export function useInvoices() {
   }
 
   async function update(id: string, patch: Partial<Invoice>) {
-    await persist(invoices.map(i => i.id === id ? { ...i, ...patch } : i))
+    await persist(invoices.map((i) => (i.id === id ? { ...i, ...patch } : i)))
   }
 
   async function remove(id: string) {
-    await persist(invoices.filter(i => i.id !== id))
+    await persist(invoices.filter((i) => i.id !== id))
   }
 
   return {
-    invoices, displayed, loading, isAuthenticated,
-    showForm, setShowForm,
-    filter, setFilter,
-    form, setForm,
-    nextNumber, stats,
-    add, update, remove,
+    invoices,
+    displayed,
+    loading,
+    isAuthenticated,
+    showForm,
+    setShowForm,
+    filter,
+    setFilter,
+    form,
+    setForm,
+    nextNumber,
+    stats,
+    add,
+    update,
+    remove,
   }
 }

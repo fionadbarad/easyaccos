@@ -7,14 +7,15 @@ UK Self Assessment + Making Tax Digital app for the **2026/27** tax year. End-to
 ---
 
 ## What's in the box
-| Area | What it does | Where it lives |
-| --- | --- | --- |
-| **Tax engine** | 2026/27 UK personal tax — Income Tax, Class 1/2/4 NI, dividend tax, student loans (Plans 1/2/4/5/PG), Scottish bands, PA taper, 60% trap detection | `src/lib/tax-engine.ts` |
-| **HMRC MTD-IT** | Submit Self-Employment periodic summary (quarterly) to HMRC sandbox with all 13 required Fraud Prevention Headers | `src/app/api/hmrc/mtd/it/submit/` |
-| **HMRC MTD-VAT** | Submit 9-box VAT return with client-side arithmetic invariants pre-validated before send | `src/app/api/hmrc/mtd/vat/submit/` |
-| **OAuth2 flow** | Authorization-code with CSRF `state`, AES-256-GCM encrypted HttpOnly cookie token storage, auto-refresh 60s before expiry | `src/app/api/hmrc/auth/` |
-| **Validation page** | Public `/validation` — five HMRC 2026/27 scenarios worked by hand alongside live engine output, every assertion side-by-side | `src/app/validation/page.tsx` |
-| **Dashboard** | Invoices, expenses, P&L, tax estimator, MTD submission panels with full audit pane showing exact fraud headers sent | `src/app/dashboard/` |
+
+| Area                | What it does                                                                                                                                       | Where it lives                     |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| **Tax engine**      | 2026/27 UK personal tax — Income Tax, Class 1/2/4 NI, dividend tax, student loans (Plans 1/2/4/5/PG), Scottish bands, PA taper, 60% trap detection | `src/lib/tax-engine.ts`            |
+| **HMRC MTD-IT**     | Submit Self-Employment periodic summary (quarterly) to HMRC sandbox with all 13 required Fraud Prevention Headers                                  | `src/app/api/hmrc/mtd/it/submit/`  |
+| **HMRC MTD-VAT**    | Submit 9-box VAT return with client-side arithmetic invariants pre-validated before send                                                           | `src/app/api/hmrc/mtd/vat/submit/` |
+| **OAuth2 flow**     | Authorization-code with CSRF `state`, AES-256-GCM encrypted HttpOnly cookie token storage, auto-refresh 60s before expiry                          | `src/app/api/hmrc/auth/`           |
+| **Validation page** | Public `/validation` — five HMRC 2026/27 scenarios worked by hand alongside live engine output, every assertion side-by-side                       | `src/app/validation/page.tsx`      |
+| **Dashboard**       | Invoices, expenses, P&L, tax estimator, MTD submission panels with full audit pane showing exact fraud headers sent                                | `src/app/dashboard/`               |
 
 ---
 

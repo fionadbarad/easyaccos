@@ -5,10 +5,7 @@ import {
   readBackupFromFile,
   type BackupFile,
 } from '@/lib/storage/backup'
-import {
-  encryptWithPassphrase,
-  decryptWithPassphrase,
-} from '@/lib/storage/crypto'
+import { encryptWithPassphrase, decryptWithPassphrase } from '@/lib/storage/crypto'
 
 // Exercise the backup codec — envelope shape, integrity on round-trip, and
 // error paths. Does not touch IndexedDB (absent in vitest's node env); the
@@ -16,8 +13,8 @@ import {
 
 function stubPlainBackup(records: Record<string, unknown>): BackupFile {
   return {
-    format:    'easyacco-backup',
-    version:   1,
+    format: 'easyacco-backup',
+    version: 1,
     createdAt: new Date().toISOString(),
     encrypted: false,
     records,
@@ -30,8 +27,8 @@ async function stubEncryptedBackup(
 ): Promise<BackupFile> {
   const envelope = await encryptWithPassphrase(passphrase, JSON.stringify(records))
   return {
-    format:    'easyacco-backup',
-    version:   1,
+    format: 'easyacco-backup',
+    version: 1,
     createdAt: new Date().toISOString(),
     encrypted: true,
     envelope,
@@ -51,8 +48,14 @@ describe('backup format guard', () => {
         createdAt: new Date().toISOString(),
         encrypted: true,
         envelope: {
-          v: 1, kdf: 'PBKDF2', hash: 'SHA-256', iterations: 310000,
-          salt: 'AAAA', cipher: 'AES-GCM', iv: 'AAAA', ct: 'AAAA',
+          v: 1,
+          kdf: 'PBKDF2',
+          hash: 'SHA-256',
+          iterations: 310000,
+          salt: 'AAAA',
+          cipher: 'AES-GCM',
+          iv: 'AAAA',
+          ct: 'AAAA',
         },
       }),
     ).toBe(true)
@@ -70,8 +73,8 @@ describe('backup — encrypted round-trip', () => {
   it('preserves record integrity through encrypt, serialise, parse, decrypt', async () => {
     const original = {
       'user_expenses:guest': [
-        { id: '1', date: '2026-04-06', description: 'Train', category: 'Travel', amount: 42.50 },
-        { id: '2', date: '2026-04-07', description: 'Coffee', category: 'Meals', amount: 3.20 },
+        { id: '1', date: '2026-04-06', description: 'Train', category: 'Travel', amount: 42.5 },
+        { id: '2', date: '2026-04-07', description: 'Coffee', category: 'Meals', amount: 3.2 },
       ],
       'user_invoices:guest': [
         { id: 'inv-1', number: '0001', client: 'Acme', amount: 1_000, vat: true, status: 'sent' },
@@ -80,20 +83,21 @@ describe('backup — encrypted round-trip', () => {
     const backup = await stubEncryptedBackup('correct horse battery staple', original)
     const roundTripped = JSON.parse(JSON.stringify(backup)) as BackupFile
     if (!roundTripped.encrypted) throw new Error('expected encrypted')
-    const plaintext = await decryptWithPassphrase('correct horse battery staple', roundTripped.envelope)
+    const plaintext = await decryptWithPassphrase(
+      'correct horse battery staple',
+      roundTripped.envelope,
+    )
     expect(JSON.parse(plaintext)).toEqual(original)
   }, 15_000)
 
   it('rejects restore when the passphrase is wrong', async () => {
     const file = await stubEncryptedBackup('right', { k: [1, 2, 3] })
-    await expect(restoreBackup(file, 'merge', 'wrong'))
-      .rejects.toThrow(/passphrase|corrupted/i)
+    await expect(restoreBackup(file, 'merge', 'wrong')).rejects.toThrow(/passphrase|corrupted/i)
   }, 15_000)
 
   it('rejects restore of an encrypted backup with no passphrase supplied', async () => {
     const file = await stubEncryptedBackup('x', { k: [1] })
-    await expect(restoreBackup(file, 'merge'))
-      .rejects.toThrow(/passphrase required/i)
+    await expect(restoreBackup(file, 'merge')).rejects.toThrow(/passphrase required/i)
   }, 15_000)
 })
 
@@ -105,11 +109,11 @@ describe('backup — plain file restore', () => {
 
   it('throws on a payload whose records field is not an object', async () => {
     const file: BackupFile = {
-      format:    'easyacco-backup',
-      version:   1,
+      format: 'easyacco-backup',
+      version: 1,
       createdAt: new Date().toISOString(),
       encrypted: false,
-      records:   null as unknown as Record<string, unknown>,
+      records: null as unknown as Record<string, unknown>,
     }
     await expect(restoreBackup(file, 'merge')).rejects.toThrow(/schema validation/i)
   })
@@ -127,7 +131,6 @@ describe('backup — readBackupFromFile', () => {
 
   it('throws on a file that is not an EasyAcco backup', async () => {
     const blob = new File(['{"hello":"world"}'], 'other.json', { type: 'application/json' })
-    await expect(readBackupFromFile(blob))
-      .rejects.toThrow(/not a valid easyacco backup/i)
+    await expect(readBackupFromFile(blob)).rejects.toThrow(/not a valid easyacco backup/i)
   })
 })

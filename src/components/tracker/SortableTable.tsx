@@ -31,22 +31,23 @@ export function SortableTable<T extends { id: string }>({
 
   const sorted = useMemo(() => {
     if (!sort) return rows
-    const col = columns.find(c => c.key === sort.key)
+    const col = columns.find((c) => c.key === sort.key)
     if (!col) return rows
     const copy = [...rows]
     copy.sort((a, b) => {
       const av = col.accessor(a)
       const bv = col.accessor(b)
-      const cmp = typeof av === 'number' && typeof bv === 'number'
-        ? av - bv
-        : String(av).localeCompare(String(bv))
+      const cmp =
+        typeof av === 'number' && typeof bv === 'number'
+          ? av - bv
+          : String(av).localeCompare(String(bv))
       return sort.dir === 'asc' ? cmp : -cmp
     })
     return copy
   }, [rows, sort, columns])
 
   function toggleSort(key: string) {
-    setSort(prev => {
+    setSort((prev) => {
       if (!prev || prev.key !== key) return { key, dir: 'asc' }
       if (prev.dir === 'asc') return { key, dir: 'desc' }
       return null
@@ -55,28 +56,44 @@ export function SortableTable<T extends { id: string }>({
 
   if (rows.length === 0) {
     return (
-      <div style={{
-        background: C.surface, border: `1px solid ${C.border}`, borderRadius: 6,
-        padding: '3rem', textAlign: 'center', color: C.muted, fontSize: '0.85rem',
-      }}>
+      <div
+        style={{
+          background: C.surface,
+          border: `1px solid ${C.border}`,
+          borderRadius: 6,
+          padding: '3rem',
+          textAlign: 'center',
+          color: C.muted,
+          fontSize: '0.85rem',
+        }}
+      >
         {empty ?? 'No results.'}
       </div>
     )
   }
 
   return (
-    <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 6, overflow: 'hidden' }}>
+    <div
+      style={{
+        background: C.surface,
+        border: `1px solid ${C.border}`,
+        borderRadius: 6,
+        overflow: 'hidden',
+      }}
+    >
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
           <thead>
             <tr style={{ borderBottom: `1px solid ${C.border}` }}>
-              {columns.map(col => {
+              {columns.map((col) => {
                 const active = sort?.key === col.key
                 const Icon = !col.sortable
                   ? null
                   : !active
                     ? ChevronsUpDown
-                    : sort!.dir === 'asc' ? ArrowUp : ArrowDown
+                    : sort!.dir === 'asc'
+                      ? ArrowUp
+                      : ArrowDown
                 return (
                   <th
                     key={col.key}
@@ -85,18 +102,24 @@ export function SortableTable<T extends { id: string }>({
                       padding: '10px 13px',
                       textAlign: col.align ?? 'left',
                       color: active ? C.white : C.muted,
-                      fontWeight: 600, fontSize: '0.62rem',
-                      textTransform: 'uppercase', letterSpacing: '0.07em',
+                      fontWeight: 600,
+                      fontSize: '0.62rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.07em',
                       whiteSpace: 'nowrap',
                       cursor: col.sortable ? 'pointer' : 'default',
                       userSelect: 'none',
                       width: col.width,
                     }}
                   >
-                    <span style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 5,
-                      flexDirection: col.align === 'right' ? 'row-reverse' : 'row',
-                    }}>
+                    <span
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 5,
+                        flexDirection: col.align === 'right' ? 'row-reverse' : 'row',
+                      }}
+                    >
                       {col.header}
                       {Icon && <Icon size={10} style={{ color: active ? C.white : C.dim }} />}
                     </span>
@@ -109,9 +132,12 @@ export function SortableTable<T extends { id: string }>({
             {sorted.map((row, idx) => (
               <tr
                 key={row.id}
-                style={{ borderBottom: idx < sorted.length - 1 ? `1px solid rgba(244,245,248,0.04)` : 'none' }}
+                style={{
+                  borderBottom:
+                    idx < sorted.length - 1 ? `1px solid rgba(244,245,248,0.04)` : 'none',
+                }}
               >
-                {columns.map(col => (
+                {columns.map((col) => (
                   <td
                     key={col.key}
                     style={{

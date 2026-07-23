@@ -1,4 +1,3 @@
-
 'use client'
 
 import Link from 'next/link'
@@ -20,13 +19,13 @@ export default function UserMenu({ user, onSignOut, onNavClick }: UserMenuProps)
             {user.email?.[0]?.toUpperCase() ?? '?'}
           </div>
           <div className="overflow-hidden flex-1">
-            <div className="text-white text-[0.82rem] font-medium truncate">
-              {user.email}
+            <div className="text-white text-[0.82rem] font-medium truncate">{user.email}</div>
+            <div className="text-[rgba(244,245,248,0.55)] text-[0.7rem] font-mono">
+              authenticated
             </div>
-            <div className="text-[rgba(244,245,248,0.55)] text-[0.7rem] font-mono">authenticated</div>
           </div>
         </div>
-        <button 
+        <button
           onClick={onSignOut}
           className="flex items-center gap-1.5 text-[rgba(244,245,248,0.55)] hover:text-white bg-transparent border-none cursor-pointer text-[0.82rem] py-0.5 transition-colors duration-100"
         >
@@ -41,8 +40,8 @@ export default function UserMenu({ user, onSignOut, onNavClick }: UserMenuProps)
       <div className="text-[rgba(244,245,248,0.55)] text-[0.78rem] mb-[7px] font-mono">
         guest · all features active
       </div>
-      <Link 
-        href="/auth/login" 
+      <Link
+        href="/auth/login"
         onClick={onNavClick}
         className="flex items-center gap-1.5 text-white no-underline text-[0.85rem] font-medium"
       >

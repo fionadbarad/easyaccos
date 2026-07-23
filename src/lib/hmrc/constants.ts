@@ -1,0 +1,10 @@
+// HMRC Sandbox Integration Constants
+export const HMRC_DEFAULT_PERIOD_START = '2024-04-06'
+export const HMRC_DEFAULT_PERIOD_END = '2024-07-05'
+export const HMRC_DEFAULT_TURNOVER = '5000'
+export const HMRC_DEFAULT_ADMIN_COSTS = '250'
+export const HMRC_VAT_DEFAULT_PERIOD_KEY = 'A001'
+export const HMRC_VAT_DEFAULT_DUE_SALES = '100.00'
+export const HMRC_VAT_DEFAULT_RECLAIMED = '25.00'
+export const HMRC_VAT_DEFAULT_TOTAL_SALES = '500'
+export const HMRC_VAT_DEFAULT_TOTAL_PURCHASES = '125'

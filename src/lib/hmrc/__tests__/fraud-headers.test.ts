@@ -30,9 +30,7 @@ describe('extractClientIp', () => {
   })
 
   test('trims whitespace around x-forwarded-for first entry', () => {
-    expect(extractClientIp(mockReq({ 'x-forwarded-for': '  198.51.100.5  ' }))).toBe(
-      '198.51.100.5',
-    )
+    expect(extractClientIp(mockReq({ 'x-forwarded-for': '  198.51.100.5  ' }))).toBe('198.51.100.5')
   })
 
   test('falls back to x-real-ip when x-forwarded-for is absent', () => {
@@ -88,7 +86,11 @@ describe('buildForwardedHeader', () => {
     expect(result).toContain('&')
     expect(result).toContain('=')
     // Decoding the value side should give us back the original IPv6
-    const forPart = result.split('&').find((p) => p.startsWith('for='))?.slice(4) ?? ''
+    const forPart =
+      result
+        .split('&')
+        .find((p) => p.startsWith('for='))
+        ?.slice(4) ?? ''
     expect(decodeURIComponent(forPart)).toBe('2001:db8::1')
   })
 })

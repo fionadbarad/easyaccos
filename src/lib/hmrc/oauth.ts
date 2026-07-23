@@ -48,8 +48,7 @@ type TokenResponse = {
 }
 
 export type TokenExchangeResult =
-  | { ok: true; tokens: StoredTokens }
-  | { ok: false; status: number; body: unknown; message: string }
+  { ok: true; tokens: StoredTokens } | { ok: false; status: number; body: unknown; message: string }
 
 function tokensFromResponse(json: TokenResponse): StoredTokens | null {
   if (!json.access_token || !json.refresh_token || typeof json.expires_in !== 'number') {
@@ -167,5 +166,10 @@ export async function getValidAccessToken(
     }
   }
   setTokensCookie(res, refreshed.tokens)
-  return { ok: true, accessToken: refreshed.tokens.accessToken, tokens: refreshed.tokens, refreshed: true }
+  return {
+    ok: true,
+    accessToken: refreshed.tokens.accessToken,
+    tokens: refreshed.tokens,
+    refreshed: true,
+  }
 }

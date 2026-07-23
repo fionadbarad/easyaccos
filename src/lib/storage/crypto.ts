@@ -14,8 +14,8 @@ const KDF_SALT_BYTES = 16
 const IV_BYTES = 12
 
 type CipherEnvelope = {
-  iv: string    // base64
-  ct: string    // base64
+  iv: string // base64
+  ct: string // base64
 }
 
 export type PassphraseEnvelope = {
@@ -23,14 +23,15 @@ export type PassphraseEnvelope = {
   kdf: 'PBKDF2'
   hash: typeof KDF_HASH
   iterations: number
-  salt: string  // base64
+  salt: string // base64
   cipher: 'AES-GCM'
-  iv: string    // base64
-  ct: string    // base64
+  iv: string // base64
+  ct: string // base64
 }
 
 function subtle(): SubtleCrypto {
-  const g: Crypto | undefined = typeof globalThis !== 'undefined' ? (globalThis.crypto as Crypto) : undefined
+  const g: Crypto | undefined =
+    typeof globalThis !== 'undefined' ? (globalThis.crypto as Crypto) : undefined
   if (!g?.subtle) throw new Error('WebCrypto unavailable in this environment')
   return g.subtle
 }
@@ -70,7 +71,9 @@ export async function generateDeviceKey(): Promise<CryptoKey> {
 
 export async function encryptWithKey(key: CryptoKey, plaintext: string): Promise<CipherEnvelope> {
   const iv = randomBytes(IV_BYTES)
-  const ct = new Uint8Array(await subtle().encrypt({ name: 'AES-GCM', iv: buf(iv) }, key, buf(enc.encode(plaintext))))
+  const ct = new Uint8Array(
+    await subtle().encrypt({ name: 'AES-GCM', iv: buf(iv) }, key, buf(enc.encode(plaintext))),
+  )
   return { iv: bytesToB64(iv), ct: bytesToB64(ct) }
 }
 
@@ -81,8 +84,14 @@ export async function decryptWithKey(key: CryptoKey, env: CipherEnvelope): Promi
 }
 
 // ── Passphrase-derived key (for backup files) ─────────────────────────────
-async function deriveKey(passphrase: string, salt: Uint8Array, iterations: number): Promise<CryptoKey> {
-  const material = await subtle().importKey('raw', buf(enc.encode(passphrase)), 'PBKDF2', false, ['deriveKey'])
+async function deriveKey(
+  passphrase: string,
+  salt: Uint8Array,
+  iterations: number,
+): Promise<CryptoKey> {
+  const material = await subtle().importKey('raw', buf(enc.encode(passphrase)), 'PBKDF2', false, [
+    'deriveKey',
+  ])
   return subtle().deriveKey(
     { name: 'PBKDF2', salt: buf(salt), iterations, hash: KDF_HASH },
     material,
@@ -92,12 +101,17 @@ async function deriveKey(passphrase: string, salt: Uint8Array, iterations: numbe
   )
 }
 
-export async function encryptWithPassphrase(passphrase: string, plaintext: string): Promise<PassphraseEnvelope> {
+export async function encryptWithPassphrase(
+  passphrase: string,
+  plaintext: string,
+): Promise<PassphraseEnvelope> {
   if (!passphrase) throw new Error('Passphrase required')
   const salt = randomBytes(KDF_SALT_BYTES)
   const iv = randomBytes(IV_BYTES)
   const key = await deriveKey(passphrase, salt, KDF_ITERATIONS)
-  const ct = new Uint8Array(await subtle().encrypt({ name: 'AES-GCM', iv: buf(iv) }, key, buf(enc.encode(plaintext))))
+  const ct = new Uint8Array(
+    await subtle().encrypt({ name: 'AES-GCM', iv: buf(iv) }, key, buf(enc.encode(plaintext))),
+  )
   return {
     v: 1,
     kdf: 'PBKDF2',
@@ -110,7 +124,10 @@ export async function encryptWithPassphrase(passphrase: string, plaintext: strin
   }
 }
 
-export async function decryptWithPassphrase(passphrase: string, env: PassphraseEnvelope): Promise<string> {
+export async function decryptWithPassphrase(
+  passphrase: string,
+  env: PassphraseEnvelope,
+): Promise<string> {
   if (env.v !== 1 || env.kdf !== 'PBKDF2' || env.cipher !== 'AES-GCM') {
     throw new Error('Unsupported backup format')
   }
@@ -118,7 +135,11 @@ export async function decryptWithPassphrase(passphrase: string, env: PassphraseE
   const iv = b64ToBytes(env.iv)
   const key = await deriveKey(passphrase, salt, env.iterations)
   try {
-    const pt = await subtle().decrypt({ name: 'AES-GCM', iv: buf(iv) }, key, buf(b64ToBytes(env.ct)))
+    const pt = await subtle().decrypt(
+      { name: 'AES-GCM', iv: buf(iv) },
+      key,
+      buf(b64ToBytes(env.ct)),
+    )
     return dec.decode(pt)
   } catch {
     throw new Error('Incorrect passphrase or corrupted backup')

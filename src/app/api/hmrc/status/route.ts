@@ -5,8 +5,7 @@ export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 type StatusBody =
-  | { connected: false }
-  | { connected: true; scope: string; expiresAt: number; expiresInMs: number }
+  { connected: false } | { connected: true; scope: string; expiresAt: number; expiresInMs: number }
 
 export async function GET(req: NextRequest): Promise<NextResponse<StatusBody>> {
   const tokens = readTokensCookie(req)

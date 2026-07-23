@@ -2,9 +2,11 @@
 // Tracker feature. Kept framework-agnostic so aggregates.ts can import freely.
 
 export const TAX_YEAR_START = new Date('2026-04-06')
-export const TAX_YEAR_END   = new Date('2027-04-05')
-export const SA_DEADLINE    = new Date('2028-01-31')
-export const TAX_YEAR_DAYS  = Math.ceil((TAX_YEAR_END.getTime() - TAX_YEAR_START.getTime()) / 86400000)
+export const TAX_YEAR_END = new Date('2027-04-05')
+export const SA_DEADLINE = new Date('2028-01-31')
+export const TAX_YEAR_DAYS = Math.ceil(
+  (TAX_YEAR_END.getTime() - TAX_YEAR_START.getTime()) / 86400000,
+)
 
 export { fmtAbs as fmt } from '@/lib/formatters'
 

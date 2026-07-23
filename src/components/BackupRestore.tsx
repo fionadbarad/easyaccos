@@ -16,15 +16,14 @@ import { reportError } from '@/lib/monitor'
 type Status =
   | { kind: 'idle' }
   | { kind: 'working'; msg: string }
-  | { kind: 'ok';      msg: string }
-  | { kind: 'error';   msg: string }
+  | { kind: 'ok'; msg: string }
+  | { kind: 'error'; msg: string }
 
 const inputCls =
   'w-full rounded bg-[var(--sa-gray)] border border-[var(--sa-border)] ' +
   'text-sa-white text-sm px-3 py-2 outline-none focus:border-[rgba(244,245,248,0.18)]'
 const labelCls =
-  'block uppercase tracking-[0.07em] text-xs font-semibold ' +
-  'text-[var(--sa-muted)] mb-1.5'
+  'block uppercase tracking-[0.07em] text-xs font-semibold ' + 'text-[var(--sa-muted)] mb-1.5'
 const btnPrimary =
   'inline-flex items-center gap-2 rounded bg-sa-white text-[#181818] ' +
   'font-bold text-sm px-5 py-2 transition-opacity hover:opacity-90 disabled:opacity-50'
@@ -34,10 +33,10 @@ const btnGhost =
 
 export function BackupRestore() {
   const fileRef = useRef<HTMLInputElement | null>(null)
-  const [exportPw,    setExportPw]    = useState('')
-  const [status,      setStatus]      = useState<Status>({ kind: 'idle' })
-  const [pending,     setPending]     = useState<BackupFile | null>(null)
-  const [restorePw,   setRestorePw]   = useState('')
+  const [exportPw, setExportPw] = useState('')
+  const [status, setStatus] = useState<Status>({ kind: 'idle' })
+  const [pending, setPending] = useState<BackupFile | null>(null)
+  const [restorePw, setRestorePw] = useState('')
   const [restoreMode, setRestoreMode] = useState<'merge' | 'replace'>('merge')
 
   async function onExport() {
@@ -89,16 +88,17 @@ export function BackupRestore() {
   }
 
   const statusColor =
-    status.kind === 'ok'    ? 'text-[var(--sa-green)]'
-    : status.kind === 'error' ? 'text-[var(--sa-red)]'
-    : 'text-[var(--sa-muted)]'
+    status.kind === 'ok'
+      ? 'text-[var(--sa-green)]'
+      : status.kind === 'error'
+        ? 'text-[var(--sa-red)]'
+        : 'text-[var(--sa-muted)]'
 
   return (
     <div className="flex flex-col gap-6">
       <p className="text-sm leading-relaxed text-[var(--sa-muted)]">
-        Your local data is encrypted on this device. Use backup to move your data between
-        devices or keep an off-device copy. An optional passphrase encrypts the backup file
-        itself.
+        Your local data is encrypted on this device. Use backup to move your data between devices or
+        keep an off-device copy. An optional passphrase encrypts the backup file itself.
       </p>
 
       {/* ── Export ───────────────────────────────────────────────────── */}
@@ -139,7 +139,8 @@ export function BackupRestore() {
           <div className="mt-3.5 flex flex-col gap-3 rounded-md border border-[var(--sa-border)] bg-[var(--sa-gray)] p-3.5">
             <div className="text-sm text-sa-white">
               Backup from <strong>{new Date(pending.createdAt).toLocaleString('en-GB')}</strong>
-              {' · '}{pending.encrypted ? 'encrypted' : 'unencrypted'}
+              {' · '}
+              {pending.encrypted ? 'encrypted' : 'unencrypted'}
             </div>
 
             {pending.encrypted && (
@@ -178,9 +179,14 @@ export function BackupRestore() {
             </div>
 
             <div className="flex gap-2.5">
-              <button onClick={onConfirmRestore} className={btnPrimary}>Restore</button>
+              <button onClick={onConfirmRestore} className={btnPrimary}>
+                Restore
+              </button>
               <button
-                onClick={() => { setPending(null); setRestorePw('') }}
+                onClick={() => {
+                  setPending(null)
+                  setRestorePw('')
+                }}
                 className={btnGhost}
               >
                 Cancel
@@ -194,8 +200,8 @@ export function BackupRestore() {
       {status.kind !== 'idle' && (
         <div role="status" className={`inline-flex items-center gap-2 text-sm ${statusColor}`}>
           {status.kind === 'working' && <Loader2 size={15} className="animate-spin" />}
-          {status.kind === 'ok'      && <CheckCircle size={15} />}
-          {status.kind === 'error'   && <AlertCircle size={15} />}
+          {status.kind === 'ok' && <CheckCircle size={15} />}
+          {status.kind === 'error' && <AlertCircle size={15} />}
           <span>{status.msg}</span>
         </div>
       )}

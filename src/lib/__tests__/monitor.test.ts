@@ -47,7 +47,9 @@ describe('monitor', () => {
   })
 
   test('a throwing transport does not propagate', () => {
-    setMonitorTransport(() => { throw new Error('sink died') })
+    setMonitorTransport(() => {
+      throw new Error('sink died')
+    })
     expect(() => reportError('x', new Error('y'))).not.toThrow()
   })
 })

@@ -11,9 +11,9 @@
 
 const DB_NAME = 'easyacco'
 const DB_VERSION = 2
-export const STORE_KV      = 'kv'
+export const STORE_KV = 'kv'
 export const STORE_RECORDS = 'records'
-export const STORE_AUDIT   = 'audit_log'
+export const STORE_AUDIT = 'audit_log'
 
 export type StoreName = typeof STORE_KV | typeof STORE_RECORDS | typeof STORE_AUDIT
 
@@ -30,11 +30,11 @@ function openDB(): Promise<IDBDatabase> {
     const req = indexedDB.open(DB_NAME, DB_VERSION)
     req.onupgradeneeded = () => {
       const db = req.result
-      if (!db.objectStoreNames.contains(STORE_KV))      db.createObjectStore(STORE_KV)
+      if (!db.objectStoreNames.contains(STORE_KV)) db.createObjectStore(STORE_KV)
       if (!db.objectStoreNames.contains(STORE_RECORDS)) db.createObjectStore(STORE_RECORDS)
       if (!db.objectStoreNames.contains(STORE_AUDIT)) {
         const s = db.createObjectStore(STORE_AUDIT, { keyPath: 'id' })
-        s.createIndex('ts',     'ts',     { unique: false })
+        s.createIndex('ts', 'ts', { unique: false })
         s.createIndex('entity', 'entity', { unique: false })
       }
     }
@@ -44,7 +44,11 @@ function openDB(): Promise<IDBDatabase> {
   return dbPromise
 }
 
-function tx<T>(store: StoreName, mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRequest<T>): Promise<T> {
+function tx<T>(
+  store: StoreName,
+  mode: IDBTransactionMode,
+  fn: (s: IDBObjectStore) => IDBRequest<T>,
+): Promise<T> {
   return openDB().then(
     (db) =>
       new Promise<T>((resolve, reject) => {
@@ -59,7 +63,11 @@ function tx<T>(store: StoreName, mode: IDBTransactionMode, fn: (s: IDBObjectStor
 export async function idbGet<T>(store: StoreName, key: IDBValidKey): Promise<T | undefined> {
   if (!hasIDB()) return undefined
   try {
-    return await tx<T | undefined>(store, 'readonly', (s) => s.get(key) as IDBRequest<T | undefined>)
+    return await tx<T | undefined>(
+      store,
+      'readonly',
+      (s) => s.get(key) as IDBRequest<T | undefined>,
+    )
   } catch {
     return undefined
   }
@@ -69,8 +77,8 @@ export async function idbSet(store: StoreName, key: IDBValidKey, value: unknown)
   if (!hasIDB()) return
   try {
     await tx<IDBValidKey>(store, 'readwrite', (s) => s.put(value, key) as IDBRequest<IDBValidKey>)
-  } catch {
-    /* swallow — caller falls back */
+  } catch (err) {
+    console.error(`IndexedDB set error [${store}]:`, err)
   }
 }
 
@@ -78,15 +86,19 @@ export async function idbDelete(store: StoreName, key: IDBValidKey): Promise<voi
   if (!hasIDB()) return
   try {
     await tx<undefined>(store, 'readwrite', (s) => s.delete(key) as IDBRequest<undefined>)
-  } catch {
-    /* swallow */
+  } catch (err) {
+    console.error(`IndexedDB delete error [${store}]:`, err)
   }
 }
 
 export async function idbKeys(store: StoreName): Promise<IDBValidKey[]> {
   if (!hasIDB()) return []
   try {
-    return await tx<IDBValidKey[]>(store, 'readonly', (s) => s.getAllKeys() as IDBRequest<IDBValidKey[]>)
+    return await tx<IDBValidKey[]>(
+      store,
+      'readonly',
+      (s) => s.getAllKeys() as IDBRequest<IDBValidKey[]>,
+    )
   } catch {
     return []
   }
@@ -96,8 +108,8 @@ export async function idbClear(store: StoreName): Promise<void> {
   if (!hasIDB()) return
   try {
     await tx<undefined>(store, 'readwrite', (s) => s.clear() as IDBRequest<undefined>)
-  } catch {
-    /* swallow */
+  } catch (err) {
+    console.error(`IndexedDB clear error [${store}]:`, err)
   }
 }
 

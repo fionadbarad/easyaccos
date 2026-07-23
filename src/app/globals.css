@@ -1,47 +1,65 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* ── System Auditor Design System ── Quiet Luxury · Nordic Monochrome ───── */
 :root {
-  --font-inter: "Inter";
-  --font-geist-mono: "Geist Mono";
+  --font-inter: 'Inter';
+  --font-geist-mono: 'Geist Mono';
 
-  --sa-black:    #181818;
-  --sa-surface:  #1C1D20;
-  --sa-gray:     #222326;
-  --sa-white:    #F4F5F8;
-  --sa-muted:    rgba(244,245,248,0.55);   /* raised from 0.42 — meets WCAG AA on #181818 */
-  --sa-border:   rgba(244,245,248,0.07);
-  --sa-active:   rgba(244,245,248,0.06);
-  --sa-hover:    rgba(244,245,248,0.04);
-  --sa-green:    #4ADE80;
-  --sa-red:      #F87171;
+  --sa-black: #181818;
+  --sa-surface: #1c1d20;
+  --sa-gray: #222326;
+  --sa-white: #f4f5f8;
+  --sa-muted: rgba(244, 245, 248, 0.55); /* raised from 0.42 — meets WCAG AA on #181818 */
+  --sa-border: rgba(244, 245, 248, 0.07);
+  --sa-active: rgba(244, 245, 248, 0.06);
+  --sa-hover: rgba(244, 245, 248, 0.04);
+  --sa-green: #4ade80;
+  --sa-red: #f87171;
 
   /* Legacy aliases — keep for components not yet migrated */
-  --bg:         var(--sa-black);
-  --bg-deep:    var(--sa-black);
-  --card:       var(--sa-surface);
-  --text:       var(--sa-white);
+  --bg: var(--sa-black);
+  --bg-deep: var(--sa-black);
+  --card: var(--sa-surface);
+  --text: var(--sa-white);
   --text-muted: var(--sa-muted);
-  --border:     var(--sa-border);
-  --radius:     6px;
+  --border: var(--sa-border);
+  --radius: 6px;
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-html { -webkit-text-size-adjust: 100%; font-size: 16px; }
+html {
+  -webkit-text-size-adjust: 100%;
+  font-size: 16px;
+}
 
 body {
   background: var(--sa-black);
   color: var(--sa-white);
-  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
+  font-family:
+    var(--font-inter),
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'ss01';
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 /* ── Typography scale ───────────────────────────────────────────────── */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-inter), sans-serif;
   font-weight: 600;
   letter-spacing: -0.02em;
@@ -50,19 +68,37 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ── Monospace override for technical identifiers ─────────────────── */
-.mono, code, pre, .font-mono {
-  font-family: var(--font-geist-mono), "Fira Code", monospace;
-  font-feature-settings: "liga" 0, "calt" 0;
+.mono,
+code,
+pre,
+.font-mono {
+  font-family: var(--font-geist-mono), 'Fira Code', monospace;
+  font-feature-settings:
+    'liga' 0,
+    'calt' 0;
 }
 
 /* ── Scrollbar ───────────────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(244,245,248,0.12); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(244,245,248,0.22); }
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(244, 245, 248, 0.12);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(244, 245, 248, 0.22);
+}
 
 /* ── Selection ───────────────────────────────────────────────────────── */
-::selection { background: rgba(244,245,248,0.15); color: var(--sa-white); }
+::selection {
+  background: rgba(244, 245, 248, 0.15);
+  color: var(--sa-white);
+}
 
 /* ── Buttons ─────────────────────────────────────────────────────────── */
 .ui-btn-primary {
@@ -77,7 +113,9 @@ h1, h2, h3, h4, h5, h6 {
   cursor: pointer;
   transition: opacity 0.15s ease;
 }
-.ui-btn-primary:hover { opacity: 0.88; }
+.ui-btn-primary:hover {
+  opacity: 0.88;
+}
 
 .ui-btn-secondary {
   background: transparent;
@@ -90,7 +128,9 @@ h1, h2, h3, h4, h5, h6 {
   cursor: pointer;
   transition: border-color 0.15s ease;
 }
-.ui-btn-secondary:hover { border-color: rgba(244,245,248,0.3); }
+.ui-btn-secondary:hover {
+  border-color: rgba(244, 245, 248, 0.3);
+}
 
 .ui-btn-ghost {
   background: transparent;
@@ -100,7 +140,9 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.875rem;
   transition: color 0.15s ease;
 }
-.ui-btn-ghost:hover { color: var(--sa-white); }
+.ui-btn-ghost:hover {
+  color: var(--sa-white);
+}
 
 /* ── Cards ───────────────────────────────────────────────────────────── */
 .ui-card {
@@ -109,8 +151,16 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid var(--sa-border);
   padding: 1.2rem;
 }
-.ui-card-title { margin: 0 0 0.5rem; color: var(--sa-white); font-weight: 600; font-size: 0.95rem; }
-.ui-card-body { color: var(--sa-muted); font-size: 0.875rem; }
+.ui-card-title {
+  margin: 0 0 0.5rem;
+  color: var(--sa-white);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.ui-card-body {
+  color: var(--sa-muted);
+  font-size: 0.875rem;
+}
 
 /* ── Inputs ──────────────────────────────────────────────────────────── */
 .ui-input {
@@ -124,8 +174,12 @@ h1, h2, h3, h4, h5, h6 {
   outline: none;
   transition: border-color 0.15s ease;
 }
-.ui-input:focus { border-color: rgba(244,245,248,0.3); }
-.ui-input::placeholder { color: var(--sa-muted); }
+.ui-input:focus {
+  border-color: rgba(244, 245, 248, 0.3);
+}
+.ui-input::placeholder {
+  color: var(--sa-muted);
+}
 
 /* ── Dashboard layout utilities ─────────────────────────────────────── */
 .dashboard-page {
@@ -154,10 +208,18 @@ h1, h2, h3, h4, h5, h6 {
   cursor: pointer;
 }
 
-.dashboard-card:hover { background: var(--sa-gray); }
+.dashboard-card:hover {
+  background: var(--sa-gray);
+}
 
-.dashboard-icon { color: var(--sa-muted); flex-shrink: 0; margin-top: 1px; }
-.dashboard-card:hover .dashboard-icon { color: var(--sa-white); }
+.dashboard-icon {
+  color: var(--sa-muted);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.dashboard-card:hover .dashboard-icon {
+  color: var(--sa-white);
+}
 
 .dashboard-title {
   color: var(--sa-white);
@@ -174,34 +236,45 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ── Stat divider rule ───────────────────────────────────────────────── */
-.sa-divider { border: none; border-top: 1px solid var(--sa-border); }
+.sa-divider {
+  border: none;
+  border-top: 1px solid var(--sa-border);
+}
 
 /* ── AI suggestion chips ────────────────────────────────────────────── */
 .ai-suggestion-btn {
-  display:         flex;
-  align-items:     center;
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  gap:             6px;
-  padding:         8px 11px;
-  background:      var(--sa-surface);
-  border:          1px solid var(--sa-border);
-  border-radius:   4px;
-  color:           var(--sa-muted);
-  font-size:       0.82rem;
-  cursor:          pointer;
-  text-align:      left;
-  transition:      border-color 0.1s ease, color 0.1s ease;
-  letter-spacing:  -0.01em;
+  gap: 6px;
+  padding: 8px 11px;
+  background: var(--sa-surface);
+  border: 1px solid var(--sa-border);
+  border-radius: 4px;
+  color: var(--sa-muted);
+  font-size: 0.82rem;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 0.1s ease,
+    color 0.1s ease;
+  letter-spacing: -0.01em;
 }
 .ai-suggestion-btn:hover {
-  border-color: rgba(244,245,248,0.18);
-  color:        var(--sa-white);
+  border-color: rgba(244, 245, 248, 0.18);
+  color: var(--sa-white);
 }
 
 /* ── Fade-in animation (replaces framer-motion for simple mounts) ─── */
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .animate-fade-in-up {
   animation: fadeInUp 0.5s ease-out both;

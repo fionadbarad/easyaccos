@@ -13,7 +13,7 @@ export const runtime = 'nodejs'
 
 type RequestBody = {
   vrn: string
-  periodKey: string  // 4 alphanumeric chars, may include '#'
+  periodKey: string // 4 alphanumeric chars, may include '#'
   vatDueSales: number
   vatDueAcquisitions: number
   totalVatDue: number
@@ -80,7 +80,7 @@ function validate(body: Partial<RequestBody>): string[] {
 // VAT_TOTAL_VALUE / VAT_NET_VALUE, which is the same outcome but slower.
 function arithmeticErrors(body: RequestBody): string[] {
   const errors: string[] = []
-  const tolerance = 0.005  // monetary fields have 2 dp precision; tolerate sub-penny rounding
+  const tolerance = 0.005 // monetary fields have 2 dp precision; tolerate sub-penny rounding
   const expectedTotal = body.vatDueSales + body.vatDueAcquisitions
   if (Math.abs(body.totalVatDue - expectedTotal) > tolerance) {
     errors.push(

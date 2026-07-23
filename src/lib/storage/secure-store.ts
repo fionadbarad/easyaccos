@@ -7,20 +7,8 @@
  * when IndexedDB is unavailable.
  */
 
-import {
-  STORE_KV,
-  STORE_RECORDS,
-  idbGet,
-  idbSet,
-  idbDelete,
-  idbKeys,
-  isIDBAvailable,
-} from './idb'
-import {
-  generateDeviceKey,
-  encryptWithKey,
-  decryptWithKey,
-} from './crypto'
+import { STORE_KV, STORE_RECORDS, idbGet, idbSet, idbDelete, idbKeys, isIDBAvailable } from './idb'
+import { generateDeviceKey, encryptWithKey, decryptWithKey } from './crypto'
 import { reportError } from '@/lib/monitor'
 
 const DEVICE_KEY_ID = 'device-key'
@@ -42,14 +30,21 @@ async function getDeviceKey(): Promise<CryptoKey> {
 type CipherBlob = { iv: string; ct: string }
 
 function isCipherBlob(x: unknown): x is CipherBlob {
-  return !!x && typeof x === 'object'
-    && typeof (x as CipherBlob).iv === 'string'
-    && typeof (x as CipherBlob).ct === 'string'
+  return (
+    !!x &&
+    typeof x === 'object' &&
+    typeof (x as CipherBlob).iv === 'string' &&
+    typeof (x as CipherBlob).ct === 'string'
+  )
 }
 
 /** Read + decrypt a record. Falls back to `localStorage[legacyKey]` once, then
  *  re-saves it encrypted so subsequent reads are clean. */
-export async function secureRead<T>(recordKey: string, legacyLocalKey: string | null, fallback: T): Promise<T> {
+export async function secureRead<T>(
+  recordKey: string,
+  legacyLocalKey: string | null,
+  fallback: T,
+): Promise<T> {
   if (!isIDBAvailable()) {
     return readLegacy<T>(legacyLocalKey, fallback)
   }
@@ -65,7 +60,11 @@ export async function secureRead<T>(recordKey: string, legacyLocalKey: string | 
     if (legacy !== undefined) {
       await secureWrite(recordKey, legacy)
       if (legacyLocalKey && typeof localStorage !== 'undefined') {
-        try { localStorage.removeItem(legacyLocalKey) } catch { /* noop */ }
+        try {
+          localStorage.removeItem(legacyLocalKey)
+        } catch {
+          /* noop */
+        }
       }
       return legacy
     }
@@ -140,7 +139,10 @@ export async function secureDumpAll(): Promise<Record<string, unknown>> {
  * snapshot is truly deleted from IndexedDB rather than overwritten with an
  * empty array. This keeps the encrypted store consistent with the backup
  * file and avoids ghost records lingering after a restore. */
-export async function secureRestoreAll(records: Record<string, unknown>, mode: 'merge' | 'replace'): Promise<void> {
+export async function secureRestoreAll(
+  records: Record<string, unknown>,
+  mode: 'merge' | 'replace',
+): Promise<void> {
   if (!isIDBAvailable()) return
   if (mode === 'replace') {
     const keys = await idbKeys(STORE_RECORDS)

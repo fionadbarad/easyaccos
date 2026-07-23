@@ -13,8 +13,8 @@ export type BrowserFraudData = {
     colourDepth: number
   }>
   windowSize: { width: number; height: number }
-  timezone: string  // UTC±hh:mm, e.g. "UTC+01:00" or "UTC-05:30"
-  deviceId: string  // UUIDv4 stored in localStorage, stable per device
+  timezone: string // UTC±hh:mm, e.g. "UTC+01:00" or "UTC-05:30"
+  deviceId: string // UUIDv4 stored in localStorage, stable per device
 }
 
 // Percent-encode a value per HMRC spec: encode the value, NOT the key=value
@@ -36,7 +36,7 @@ export function extractClientIp(req: NextRequest): string {
 export function buildScreensHeader(screens: BrowserFraudData['screens']): string {
   return screens
     .map(
-      s =>
+      (s) =>
         `width=${s.width}&height=${s.height}&scaling-factor=${s.scalingFactor}&colour-depth=${s.colourDepth}`,
     )
     .join(',')

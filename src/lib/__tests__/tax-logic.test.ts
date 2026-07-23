@@ -41,7 +41,7 @@ describe('rUK additional-rate threshold (exact figures)', () => {
     const r = calculateTax(seInput(125_140))
     expect(r.personalAllowance).toBe(0)
     expect(r.incomeTax).toBe(42_516)
-    expect(r.taxBands.map(b => b.rate)).not.toContain(45)
+    expect(r.taxBands.map((b) => b.rate)).not.toContain(45)
   })
 
   it('£150,000 income → £53,703 income tax (HMRC published figure)', () => {
@@ -68,10 +68,10 @@ describe('round2', () => {
 // ── Personal Allowance taper ──────────────────────────────────────────────────
 describe('calcPA', () => {
   it('full PA below taper start', () => expect(calcPA(99_999)).toBe(12_570))
-  it('full PA at zero income',    () => expect(calcPA(0)).toBe(12_570))
+  it('full PA at zero income', () => expect(calcPA(0)).toBe(12_570))
   it('partial taper at £110,000', () => expect(calcPA(110_000)).toBe(7_570))
-  it('zero PA at £125,140',       () => expect(calcPA(125_140)).toBe(0))
-  it('zero PA above £125,140',    () => expect(calcPA(200_000)).toBe(0))
+  it('zero PA at £125,140', () => expect(calcPA(125_140)).toBe(0))
+  it('zero PA above £125,140', () => expect(calcPA(200_000)).toBe(0))
   it('taper: £1 above threshold reduces by £0', () => {
     // £100,001 → reduction = floor(1/2) = 0 → PA = 12,570
     expect(calcPA(100_001)).toBe(12_570)
@@ -92,7 +92,7 @@ describe('rUK income tax', () => {
   it('basic rate only at £30,000', () => {
     const r = calculateTax(seInput(30_000))
     // taxable = 30,000 − 12,570 = 17,430 — all basic rate
-    expect(r.incomeTax).toBe(round2(17_430 * 0.20))
+    expect(r.incomeTax).toBe(round2(17_430 * 0.2))
     expect(r.taxBands).toHaveLength(1)
     expect(r.taxBands[0]!.rate).toBe(20)
   })
@@ -107,14 +107,14 @@ describe('rUK income tax', () => {
 
   it('higher rate kicks in above £50,270', () => {
     const r = calculateTax(seInput(60_000))
-    const bands = r.taxBands.map(b => b.rate)
+    const bands = r.taxBands.map((b) => b.rate)
     expect(bands).toContain(20)
     expect(bands).toContain(40)
   })
 
   it('additional rate above £125,140', () => {
     const r = calculateTax(seInput(150_000))
-    const bands = r.taxBands.map(b => b.rate)
+    const bands = r.taxBands.map((b) => b.rate)
     expect(bands).toContain(45)
   })
 
@@ -162,7 +162,7 @@ describe('NI Class 4 (self-employed)', () => {
 
   it('2% rate above UEL (£50,270)', () => {
     const r = calculateTax(seInput(60_000))
-    const main  = (50_270 - 12_570) * 0.06
+    const main = (50_270 - 12_570) * 0.06
     const upper = (60_000 - 50_270) * 0.02
     expect(r.niClass4).toBe(round2(main + upper))
   })
@@ -283,19 +283,31 @@ describe('Dividend tax', () => {
   it('allowance uses up basic band: £50k employed + £10k divs → £3,396.25', () => {
     // taxable non-div = 37,430 → only £270 of basic band left; the £500 allowance
     // consumes it, so all £9,500 taxable dividends are higher-rate (35.75%).
-    const r = calculateTax({ ...seInput(50_000), employmentType: 'employed', dividendIncome: 10_000 })
+    const r = calculateTax({
+      ...seInput(50_000),
+      employmentType: 'employed',
+      dividendIncome: 10_000,
+    })
     expect(r.dividendTax).toBe(3_396.25)
   })
 
   it('LITRG worked example: £40,650 earnings + £10k divs → £1,116.25', () => {
     // £9,120 @ 10.75% (£980.40) + £380 @ 35.75% (£135.85). Ref: LITRG Tax on dividends.
-    const r = calculateTax({ ...seInput(40_650), employmentType: 'employed', dividendIncome: 10_000 })
+    const r = calculateTax({
+      ...seInput(40_650),
+      employmentType: 'employed',
+      dividendIncome: 10_000,
+    })
     expect(r.dividendTax).toBe(1_116.25)
   })
 
   it('director optimal: £12,570 salary + £50k divs → £8,396.25', () => {
     // allowance uses £500 of basic band: 37,200 @ 10.75% (3,999.00) + 12,300 @ 35.75% (4,397.25).
-    const r = calculateTax({ ...seInput(12_570), employmentType: 'director', dividendIncome: 50_000 })
+    const r = calculateTax({
+      ...seInput(12_570),
+      employmentType: 'director',
+      dividendIncome: 50_000,
+    })
     expect(r.dividendTax).toBe(8_396.25)
   })
 

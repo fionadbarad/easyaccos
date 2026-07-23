@@ -38,7 +38,13 @@ export async function GET(): Promise<NextResponse<SuccessBody | FailureBody>> {
   }
 
   let tokenRes: Response
-  let tokenJson: { access_token?: string; scope?: string; expires_in?: number; error?: string; error_description?: string }
+  let tokenJson: {
+    access_token?: string
+    scope?: string
+    expires_in?: number
+    error?: string
+    error_description?: string
+  }
   try {
     tokenRes = await fetch(`${base}/oauth/token`, {
       method: 'POST',

@@ -28,11 +28,11 @@ This sounds obvious. It is not what most people do with AI. Most people ask "bui
 
 HMRC's spec defines 16 `Gov-Client-*` / `Gov-Vendor-*` headers. For a `WEB_APP_VIA_SERVER` connection, three of those headers must be **omitted entirely** when the underlying data doesn't apply:
 
-| Header | When to omit | Why AI gets this wrong |
-| --- | --- | --- |
-| `Gov-Client-Multi-Factor` | When MFA was not used in the user's login | AI defaults to "always include all headers" |
-| `Gov-Client-Public-Port` | Excluded by spec for standard HTTPS:443 | Tutorials describe it as "always send the source port" |
-| `Gov-Vendor-License-IDs` | When no third-party licensed software is involved | Sample code in HMRC's own dev hub includes it unconditionally |
+| Header                    | When to omit                                      | Why AI gets this wrong                                        |
+| ------------------------- | ------------------------------------------------- | ------------------------------------------------------------- |
+| `Gov-Client-Multi-Factor` | When MFA was not used in the user's login         | AI defaults to "always include all headers"                   |
+| `Gov-Client-Public-Port`  | Excluded by spec for standard HTTPS:443           | Tutorials describe it as "always send the source port"        |
+| `Gov-Vendor-License-IDs`  | When no third-party licensed software is involved | Sample code in HMRC's own dev hub includes it unconditionally |
 
 If you send these with empty / placeholder values, HMRC rejects with header validation errors. If you send all 16, you don't get partial credit — you get refused.
 
@@ -45,6 +45,7 @@ Implementation: [`src/lib/hmrc/fraud-headers.ts`](src/lib/hmrc/fraud-headers.ts)
 The Phase 2 OAuth flow worked perfectly on localhost. In production on Vercel it failed every time with `missing_params` at the callback. The state cookie set by `/api/hmrc/auth/start` was not arriving at `/api/hmrc/auth/callback`.
 
 Initial AI-written code:
+
 ```ts
 const response = NextResponse.redirect(authorizeUrl)
 response.cookies.set('hmrc_state', state, { httpOnly: true, secure: true, ... })

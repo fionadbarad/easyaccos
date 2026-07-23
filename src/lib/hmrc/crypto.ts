@@ -18,7 +18,7 @@ function readKey(): Buffer {
   if (key.length !== KEY_BYTES) {
     throw new Error(
       `HMRC_COOKIE_SECRET must decode to ${KEY_BYTES} bytes (got ${key.length}). ` +
-        'Generate with: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'base64\'))"',
+        "Generate with: node -e \"console.log(require('crypto').randomBytes(32).toString('base64'))\"",
     )
   }
   return key

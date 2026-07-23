@@ -3,6 +3,8 @@ import { GoogleGenAI } from '@google/genai'
 import { buildContextPrompt } from '@/lib/acco/context'
 import { ChatRequestSchema } from '@/app/api/ai/schemas'
 import { reportError } from '@/lib/monitor'
+import { getSupabaseBrowserClient } from '@/lib/supabase-client-singleton'
+import { createClient } from '@/lib/supabase-server'
 import { fmtGBP } from '@/lib/formatters'
 import {
   PA_BASE,
@@ -28,7 +30,7 @@ import {
 
 // All numeric values below resolve at module load from bands-2026.ts so this
 // prompt — and the offline canned replies — can never drift from the engine.
-const pct = (n: number) => `${(n * 100).toFixed(n * 100 % 1 === 0 ? 0 : 2)}%`
+const pct = (n: number) => `${(n * 100).toFixed((n * 100) % 1 === 0 ? 0 : 2)}%`
 
 const BASE_SYSTEM = `You are EasyAcco's personal tax advisor — aligned to HMRC rules for the 2026/27 UK fiscal year. You are a conversational advisor, not a text box, with a voice and a memory of the conversation so far. Do not introduce yourself with a name; simply speak as a knowledgeable UK tax advisor.
 
@@ -130,13 +132,15 @@ const OFFLINE = {
 
 function offlineReply(query: string): string {
   const q = query.toLowerCase()
-  if (q.includes('allowance') || q.includes('personal') || q.includes('12570'))      return OFFLINE.allowance
-  if (q.includes('pension')   || q.includes('sipp'))                                  return OFFLINE.pension
-  if (q.includes('dividend'))                                                          return OFFLINE.dividend
-  if (q.includes('mileage')   || q.includes('miles') || q.includes('car'))            return OFFLINE.mileage
-  if (q.includes('expense')   || q.includes('claim') || q.includes('deduct'))         return OFFLINE.expense
-  if (q.includes('national insurance') || q.includes(' ni ') || q.includes('class'))  return OFFLINE.ni
-  if (q.includes('60%')       || q.includes('trap')  || q.includes('100,000'))        return OFFLINE.trap
+  if (q.includes('allowance') || q.includes('personal') || q.includes('12570'))
+    return OFFLINE.allowance
+  if (q.includes('pension') || q.includes('sipp')) return OFFLINE.pension
+  if (q.includes('dividend')) return OFFLINE.dividend
+  if (q.includes('mileage') || q.includes('miles') || q.includes('car')) return OFFLINE.mileage
+  if (q.includes('expense') || q.includes('claim') || q.includes('deduct')) return OFFLINE.expense
+  if (q.includes('national insurance') || q.includes(' ni ') || q.includes('class'))
+    return OFFLINE.ni
+  if (q.includes('60%') || q.includes('trap') || q.includes('100,000')) return OFFLINE.trap
   return (
     'The Tax Estimator on the Tax page gives you a full HMRC-accurate 2026/27 breakdown. ' +
     'Enter your income and expenses there for exact figures. ' +
@@ -148,7 +152,7 @@ function offlineReply(query: string): string {
 // (The old gemini-1.5-flash model and the @google/generative-ai SDK are
 // both retired — that combo would fail even with a valid key and silently
 // drop back to the offline canned replies below.)
-const MODEL = 'gemini-2.5-flash'
+const MODEL = 'gemini-1.5-flash'
 
 let _ai: GoogleGenAI | null = null
 function getAI(apiKey: string): GoogleGenAI {
@@ -157,6 +161,18 @@ function getAI(apiKey: string): GoogleGenAI {
 }
 
 export async function POST(request: NextRequest) {
+  // 1. Auth check
+  const supabase = await createClient()
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // 2. Simple rate limiting (using IP-based check or similar if possible,
+  // but for now let's at least ensure they are logged in)
+
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
 
   let raw: unknown
@@ -184,12 +200,19 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const chat = getAI(apiKey).chats.create({
+    const model = getAI(apiKey).getGenerativeModel({
       model: MODEL,
-      config: { systemInstruction: systemPrompt },
-      history: (validatedHistory ?? []).slice(-20),
+      systemInstruction: systemPrompt,
     })
-    const result = await chat.sendMessageStream({ message: query })
+    const chat = model.startChat({
+      history: (validatedHistory ?? [])
+        .map((h) => ({
+          role: h.role === 'user' ? 'user' : 'model',
+          parts: [{ text: h.content }],
+        }))
+        .slice(-20),
+    })
+    const result = await chat.sendMessageStream(query)
 
     const stream = new ReadableStream({
       async start(controller) {
@@ -207,7 +230,7 @@ export async function POST(request: NextRequest) {
     return new Response(stream, {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
-        'X-Streaming':  'true',
+        'X-Streaming': 'true',
         'Cache-Control': 'no-store',
       },
     })

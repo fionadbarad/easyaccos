@@ -69,17 +69,19 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   const state = sp.get('state')
   const storedState = readStateCookie(req)
   if (!code || !state || !storedState) {
-    const cookieNames = req.cookies.getAll().map((c) => c.name).join(',') || '(none)'
+    const cookieNames =
+      req.cookies
+        .getAll()
+        .map((c) => c.name)
+        .join(',') || '(none)'
     const queryKeys = Array.from(sp.keys()).join(',') || '(none)'
     const host = req.headers.get('host') ?? '(unknown)'
     const referer = req.headers.get('referer') ?? '(none)'
     const diag = `code=${code ? 'present' : 'MISSING'} state=${state ? 'present' : 'MISSING'} cookie=${storedState ? 'present' : 'MISSING'} | host=${host} | cookies=[${cookieNames}] | query=[${queryKeys}] | referer=${referer}`
     console.error('[hmrc/callback] missing_params', diag)
-    return redirectDashboard(
-      req,
-      { hmrc_error: 'missing_params', detail: diag },
-      [stateClearCookie()],
-    )
+    return redirectDashboard(req, { hmrc_error: 'missing_params', detail: diag }, [
+      stateClearCookie(),
+    ])
   }
 
   if (!safeEqual(state, storedState)) {
@@ -92,11 +94,9 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
   const result = await exchangeCodeForTokens(env, code)
   if (!result.ok) {
-    return redirectDashboard(
-      req,
-      { hmrc_error: 'token_exchange_failed', detail: result.message },
-      [stateClearCookie()],
-    )
+    return redirectDashboard(req, { hmrc_error: 'token_exchange_failed', detail: result.message }, [
+      stateClearCookie(),
+    ])
   }
 
   return redirectDashboard(req, { hmrc_connected: '1' }, [

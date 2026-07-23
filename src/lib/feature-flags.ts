@@ -35,5 +35,9 @@ export function isFlagEnabled(name: FlagName): boolean {
 
 export function setFlag(name: FlagName, on: boolean): void {
   if (typeof window === 'undefined') return
-  try { localStorage.setItem(`ea:flags:${name}`, on ? '1' : '0') } catch { /* ignore */ }
+  try {
+    localStorage.setItem(`ea:flags:${name}`, on ? '1' : '0')
+  } catch {
+    /* ignore */
+  }
 }

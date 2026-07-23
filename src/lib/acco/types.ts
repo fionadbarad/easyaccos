@@ -14,14 +14,14 @@ export interface TaxBreakdown {
 
 /** Live user financial state injected into the advisory system prompt. */
 export interface AccoContext {
-  currentMonth: string        // e.g. "April 2026"
-  taxYear: string             // "2026/27"
-  personalAllowance: number   // £12,570
-  basicRateLimit: number      // £37,700 (width)
-  higherRateTaper: number     // £100,000
-  topRateTaper: number        // £125,140
-  totalExpensesYTD?: number   // sum of logged expenses this tax year
-  estimatedProfit?: number    // user-supplied or derived
+  currentMonth: string // e.g. "April 2026"
+  taxYear: string // "2026/27"
+  personalAllowance: number // £12,570
+  basicRateLimit: number // £37,700 (width)
+  higherRateTaper: number // £100,000
+  topRateTaper: number // £125,140
+  totalExpensesYTD?: number // sum of logged expenses this tax year
+  estimatedProfit?: number // user-supplied or derived
   estimatedTaxLiability?: number
   taxBand?: string
 }

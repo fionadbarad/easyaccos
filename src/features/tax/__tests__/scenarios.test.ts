@@ -36,10 +36,12 @@ describe('isFullEngineScenario', () => {
 
 describe('buildTaxInput — employed', () => {
   test('copies gross salary; suppresses expenses and dividends', () => {
-    const i = buildTaxInput(draft({ scenario: 'employed', grossRevenue: 60_000, allowableExpenses: 9_999 }))!
+    const i = buildTaxInput(
+      draft({ scenario: 'employed', grossRevenue: 60_000, allowableExpenses: 9_999 }),
+    )!
     expect(i.employmentType).toBe('employed')
     expect(i.grossRevenue).toBe(60_000)
-    expect(i.allowableExpenses).toBe(0)      // employees can't deduct expenses here
+    expect(i.allowableExpenses).toBe(0) // employees can't deduct expenses here
     expect(i.dividendIncome).toBe(0)
   })
 
@@ -51,7 +53,9 @@ describe('buildTaxInput — employed', () => {
 
 describe('buildTaxInput — self-employed', () => {
   test('passes expenses through; no dividends', () => {
-    const i = buildTaxInput(draft({ scenario: 'self-employed', grossRevenue: 80_000, allowableExpenses: 12_000 }))!
+    const i = buildTaxInput(
+      draft({ scenario: 'self-employed', grossRevenue: 80_000, allowableExpenses: 12_000 }),
+    )!
     expect(i.employmentType).toBe('self-employed')
     expect(i.allowableExpenses).toBe(12_000)
     expect(i.dividendIncome).toBe(0)
@@ -60,12 +64,14 @@ describe('buildTaxInput — self-employed', () => {
 
 describe('buildTaxInput — director', () => {
   test('collapses salary + dividends into grossRevenue; sets dividendIncome; forces voluntaryClass2NI=false', () => {
-    const i = buildTaxInput(draft({
-      scenario: 'director',
-      dirSalary: 12_570,
-      dirDividends: 50_000,
-      voluntaryClass2NI: true,    // should be overridden
-    }))!
+    const i = buildTaxInput(
+      draft({
+        scenario: 'director',
+        dirSalary: 12_570,
+        dirDividends: 50_000,
+        voluntaryClass2NI: true, // should be overridden
+      }),
+    )!
     expect(i.employmentType).toBe('director')
     expect(i.grossRevenue).toBe(62_570)
     expect(i.dividendIncome).toBe(50_000)
@@ -85,11 +91,13 @@ describe('buildTaxInput — non-full-engine scenarios', () => {
 
 describe('buildTaxInput — allowances pass through', () => {
   test('marriage + blind-persons + pension flow into output', () => {
-    const i = buildTaxInput(draft({
-      marriageAllowance: true,
-      blindPersonsAllowance: true,
-      pensionContribution: 8_000,
-    }))!
+    const i = buildTaxInput(
+      draft({
+        marriageAllowance: true,
+        blindPersonsAllowance: true,
+        pensionContribution: 8_000,
+      }),
+    )!
     expect(i.marriageAllowance).toBe(true)
     expect(i.blindPersonsAllowance).toBe(true)
     expect(i.pensionContribution).toBe(8_000)

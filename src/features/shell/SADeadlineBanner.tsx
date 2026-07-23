@@ -18,14 +18,30 @@ const DEADLINES: Array<{
   label: string
   detail: (ty: string) => string
 }> = [
-  { month: 10, day: 5,  label: 'Register for Self Assessment',
-    detail: (ty) => `Deadline to register if you became self-employed during ${ty}.` },
-  { month: 10, day: 31, label: 'Paper Self Assessment return deadline',
-    detail: (ty) => `Deadline to submit your paper tax return for ${ty}.` },
-  { month: 1,  day: 31, label: 'Online return + tax payment due',
-    detail: (ty) => `Deadline to file online and pay any tax owed for ${ty}.` },
-  { month: 7,  day: 31, label: 'Second payment on account due',
-    detail: (ty) => `Second instalment of advance tax payments for ${ty}.` },
+  {
+    month: 10,
+    day: 5,
+    label: 'Register for Self Assessment',
+    detail: (ty) => `Deadline to register if you became self-employed during ${ty}.`,
+  },
+  {
+    month: 10,
+    day: 31,
+    label: 'Paper Self Assessment return deadline',
+    detail: (ty) => `Deadline to submit your paper tax return for ${ty}.`,
+  },
+  {
+    month: 1,
+    day: 31,
+    label: 'Online return + tax payment due',
+    detail: (ty) => `Deadline to file online and pay any tax owed for ${ty}.`,
+  },
+  {
+    month: 7,
+    day: 31,
+    label: 'Second payment on account due',
+    detail: (ty) => `Second instalment of advance tax payments for ${ty}.`,
+  },
 ]
 
 function getNextDeadline(now: Date) {
@@ -36,9 +52,10 @@ function getNextDeadline(now: Date) {
       return { date, label, detail: detail(taxYearLabel(date)) }
     })
   })
-  return candidates
-    .filter((c) => c.date > now)
-    .sort((a, b) => a.date.getTime() - b.date.getTime())[0] ?? null
+  return (
+    candidates.filter((c) => c.date > now).sort((a, b) => a.date.getTime() - b.date.getTime())[0] ??
+    null
+  )
 }
 
 function daysUntil(date: Date) {
@@ -47,7 +64,11 @@ function daysUntil(date: Date) {
 
 function readDismissed(): string | null {
   if (typeof window === 'undefined') return null
-  try { return window.localStorage.getItem(DISMISS_KEY) } catch { return null }
+  try {
+    return window.localStorage.getItem(DISMISS_KEY)
+  } catch {
+    return null
+  }
 }
 
 export default function SADeadlineBanner() {
@@ -59,7 +80,9 @@ export default function SADeadlineBanner() {
 
   const handleDismiss = () => {
     setDismissed(true)
-    try { window.localStorage.setItem(DISMISS_KEY, dismissId) } catch {}
+    try {
+      window.localStorage.setItem(DISMISS_KEY, dismissId)
+    } catch {}
   }
 
   if (!next || dismissed) return null
@@ -68,12 +91,19 @@ export default function SADeadlineBanner() {
   if (days > 60) return null
 
   const urgent = days <= 14
-  const dateStr = next.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+  const dateStr = next.date.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
 
   return (
     <NoticeBanner variant={urgent ? 'urgent' : 'info'} icon={Bell} onDismiss={handleDismiss}>
-      <strong style={{ fontWeight: 600 }}>HMRC deadline in {days} day{days !== 1 ? 's' : ''}</strong>
-      {' — '}{next.label} · {dateStr}
+      <strong style={{ fontWeight: 600 }}>
+        HMRC deadline in {days} day{days !== 1 ? 's' : ''}
+      </strong>
+      {' — '}
+      {next.label} · {dateStr}
       <span style={{ opacity: 0.65 }}> · {next.detail}</span>
     </NoticeBanner>
   )

@@ -24,29 +24,29 @@ export type SyncStatus = 'idle' | 'syncing' | 'synced' | 'offline' | 'error'
 
 const RESTORE_EVENT = 'easyacco:restored'
 
-interface AuditableRow { id: string; updated_at?: string }
+interface AuditableRow {
+  id: string
+  updated_at?: string
+}
 
-export function useUserData<T extends AuditableRow>(
-  table: Table,
-  localKey: string,
-  seed: T[],
-) {
+export function useUserData<T extends AuditableRow>(table: Table, localKey: string, seed: T[]) {
   const supabase = useMemo(() => getSupabaseBrowserClient(), [])
 
-  const [items,      setItems]      = useState<T[]>([])
-  const [user,       setUser]       = useState<User | null>(null)
-  const [loading,    setLoading]    = useState(true)
+  const [items, setItems] = useState<T[]>([])
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
   const [syncStatus, setSyncStatus] = useState<SyncStatus>(supabase ? 'idle' : 'offline')
 
   // ── Track auth state ──────────────────────────────────────────────────────
   useEffect(() => {
     if (!supabase) return
-    
+
     let mounted = true
     let debounceTimer: NodeJS.Timeout
 
     // Check current session
-    supabase.auth.getSession()
+    supabase.auth
+      .getSession()
       .then(({ data }) => {
         if (mounted) setUser(data.session?.user ?? null)
       })
@@ -55,9 +55,11 @@ export function useUserData<T extends AuditableRow>(
         if (mounted) setUser(null)
       })
 
-    // Subscribe to auth changes with a small debounce to avoid rapid re-renders 
+    // Subscribe to auth changes with a small debounce to avoid rapid re-renders
     // during multi-step auth flows
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_, session) => {
       clearTimeout(debounceTimer)
       debounceTimer = setTimeout(() => {
         if (mounted) setUser(session?.user ?? null)
@@ -91,19 +93,38 @@ export function useUserData<T extends AuditableRow>(
           if (error) {
             reportError('useUserData.load', error, { table, userId: user.id })
             setSyncStatus('error')
-            await loadLocalSnapshot<T>(table, user.id, localKey, seed, cancelled, setItems, setLoading)
+            await loadLocalSnapshot<T>(
+              table,
+              user.id,
+              localKey,
+              seed,
+              cancelled,
+              setItems,
+              setLoading,
+            )
             return
           }
           setItems((rows ?? []) as T[])
           setSyncStatus('synced')
-          try { await secureWrite(`${table}:${user.id}`, rows ?? []) }
-          catch (err) { reportError('useUserData.cacheWrite', err, { table }) }
+          try {
+            await secureWrite(`${table}:${user.id}`, rows ?? [])
+          } catch (err) {
+            reportError('useUserData.cacheWrite', err, { table })
+          }
           setLoading(false)
         } catch (err) {
           if (cancelled) return
           reportError('useUserData.load.exception', err, { table })
           setSyncStatus('error')
-          await loadLocalSnapshot<T>(table, user.id, localKey, seed, cancelled, setItems, setLoading)
+          await loadLocalSnapshot<T>(
+            table,
+            user.id,
+            localKey,
+            seed,
+            cancelled,
+            setItems,
+            setLoading,
+          )
         }
       } else if (user === null) {
         await loadLocalSnapshot<T>(table, null, localKey, seed, cancelled, setItems, setLoading)
@@ -111,48 +132,81 @@ export function useUserData<T extends AuditableRow>(
     }
 
     load()
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [user, table, localKey, seed, supabase])
 
   // ── Persist ───────────────────────────────────────────────────────────────
-  const persist = useCallback(async (next: T[]) => {
-    const now      = new Date().toISOString()
-    const prevMap  = new Map(items.map(i => [i.id, i]))
+  const persist = useCallback(
+    async (next: T[]) => {
+      const now = new Date().toISOString()
+      const prevMap = new Map(items.map((i) => [i.id, i]))
 
-    // Stamp updated_at on rows whose contents changed
-    const stamped: T[] = next.map((item) => {
-      const before = prevMap.get(item.id)
-      const changed = !before || JSON.stringify(before) !== JSON.stringify(item)
-      return changed ? { ...item, updated_at: now } : item
-    })
+      // Stamp updated_at on rows whose contents changed
+      const stamped: T[] = next.map((item) => {
+        const before = prevMap.get(item.id)
+        const changed = !before || JSON.stringify(before) !== JSON.stringify(item)
+        return changed ? { ...item, updated_at: now } : item
+      })
 
-    emitAuditDiff(table, prevMap, stamped, user, supabase)
-    setItems(stamped)
+      emitAuditDiff(table, prevMap, stamped, user, supabase)
+      setItems(stamped)
 
-    if (user && supabase) {
-      setSyncStatus('syncing')
-      const ok = await syncSupabaseRows(supabase, table, user.id, stamped, now, setItems)
-      setSyncStatus(ok ? 'synced' : 'error')
-      try { await secureWrite(`${table}:${user.id}`, stamped) }
-      catch (err) { reportError('useUserData.localCache', err, { table }) }
-    } else {
-      try { await secureWrite(`${table}:guest`, stamped) }
-      catch (err) { reportError('useUserData.persist.guest', err, { table }) }
-    }
-  }, [user, table, supabase, items])
+      if (user && supabase) {
+        setSyncStatus('syncing')
 
-  return { items, persist, loading, isAuthenticated: !!user, syncStatus }
+        const MAX_RETRIES = 3
+        let ok = false
+        let attempt = 0
+
+        while (attempt < MAX_RETRIES && !ok) {
+          ok = await syncSupabaseRows(supabase, table, user.id, stamped, now, setItems)
+          if (!ok) {
+            attempt++
+            if (attempt < MAX_RETRIES) {
+              await new Promise((r) => setTimeout(r, Math.pow(2, attempt) * 1000))
+            }
+          }
+        }
+
+        setSyncStatus(ok ? 'synced' : 'error')
+        try {
+          await secureWrite(`${table}:${user.id}`, stamped)
+        } catch (err) {
+          reportError('useUserData.localCache', err, { table })
+        }
+      } else {
+        try {
+          await secureWrite(`${table}:guest`, stamped)
+        } catch (err) {
+          reportError('useUserData.persist.guest', err, { table })
+        }
+      }
+    },
+    [user, table, supabase, items],
+  )
+
+  const lastSynced = useMemo(() => {
+    const newest = items.reduce((acc, i) => {
+      if (!i.updated_at) return acc
+      return !acc || i.updated_at > acc ? i.updated_at : acc
+    }, '')
+    return newest ? new Date(newest).toLocaleString() : null
+  }, [items])
+
+  return { items, persist, loading, isAuthenticated: !!user, syncStatus, lastSynced }
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 async function loadLocalSnapshot<T extends AuditableRow>(
-  table:    Table,
-  userId:   string | null,
+  table: Table,
+  userId: string | null,
   localKey: string,
-  seed:     T[],
+  seed: T[],
   cancelled: boolean,
-  setItems:  (xs: T[]) => void,
+  setItems: (xs: T[]) => void,
   setLoading: (b: boolean) => void,
 ): Promise<void> {
   try {
@@ -172,35 +226,43 @@ async function loadLocalSnapshot<T extends AuditableRow>(
 }
 
 function emitAuditDiff<T extends AuditableRow>(
-  table:    Table,
-  prevMap:  Map<string, T>,
-  stamped:  T[],
-  user:     User | null,
+  table: Table,
+  prevMap: Map<string, T>,
+  stamped: T[],
+  user: User | null,
   supabase: SupabaseClient | null,
 ): void {
-  const nextMap = new Map(stamped.map(i => [i.id, i]))
-  const actor   = user?.email ?? 'guest'
-  const entity  = table.replace(/^user_/, '')
+  const nextMap = new Map(stamped.map((i) => [i.id, i]))
+  const actor = user?.email ?? 'guest'
+  const entity = table.replace(/^user_/, '')
 
   for (const [id, after] of nextMap) {
     const before = prevMap.get(id)
     const op = before ? 'update' : 'create'
     if (op === 'update' && JSON.stringify(before) === JSON.stringify(after)) continue
-    void appendAuditLog({ entity, entityId: id, op, before: before ?? null, after, actor }, supabase, user?.id)
+    void appendAuditLog(
+      { entity, entityId: id, op, before: before ?? null, after, actor },
+      supabase,
+      user?.id,
+    )
   }
   for (const [id, before] of prevMap) {
     if (!nextMap.has(id)) {
-      void appendAuditLog({ entity, entityId: id, op: 'delete', before, after: null, actor }, supabase, user?.id)
+      void appendAuditLog(
+        { entity, entityId: id, op: 'delete', before, after: null, actor },
+        supabase,
+        user?.id,
+      )
     }
   }
 }
 
 async function syncSupabaseRows<T extends AuditableRow>(
   supabase: SupabaseClient,
-  table:    Table,
-  userId:   string,
-  stamped:  T[],
-  now:      string,
+  table: Table,
+  userId: string,
+  stamped: T[],
+  now: string,
   setItems: (updater: (prev: T[]) => T[]) => void,
 ): Promise<boolean> {
   try {
@@ -225,12 +287,19 @@ async function syncSupabaseRows<T extends AuditableRow>(
     const upsertable: T[] = []
     for (const item of stamped) {
       const serverTs = existingMap.get(item.id)
-      const localTs  = item.updated_at
+      const localTs = item.updated_at
       if (serverTs && localTs && serverTs > localTs) {
         // Server has newer data — fetch the full row and merge into local state.
-        reportWarn('useUserData.persist.conflict', 'server row newer than local — fetching and merging', {
-          table, id: item.id, serverTs, localTs,
-        })
+        reportWarn(
+          'useUserData.persist.conflict',
+          'server row newer than local — fetching and merging',
+          {
+            table,
+            id: item.id,
+            serverTs,
+            localTs,
+          },
+        )
         try {
           const { data: serverRow, error: fetchErr } = await supabase
             .from(table)
@@ -260,7 +329,11 @@ async function syncSupabaseRows<T extends AuditableRow>(
 
     if (upsertable.length > 0) {
       const { error: upErr } = await supabase.from(table).upsert(
-        upsertable.map((item) => ({ ...item, user_id: userId, updated_at: item.updated_at ?? now })),
+        upsertable.map((item) => ({
+          ...item,
+          user_id: userId,
+          updated_at: item.updated_at ?? now,
+        })),
         { onConflict: 'id' },
       )
       if (upErr) throw upErr

@@ -7,7 +7,13 @@ export default defineConfig({
     globals: true,
     // Git worktree + scratch dirs hold stale duplicate copies of the suite;
     // exclude them so vitest reports the real project's tests, not N× inflated.
-    exclude: [...configDefaults.exclude, '**/.claude/**', '**/.claire/**', '**/.clone/**', '**/scratch/**'],
+    exclude: [
+      ...configDefaults.exclude,
+      '**/.claude/**',
+      '**/.claire/**',
+      '**/.clone/**',
+      '**/scratch/**',
+    ],
   },
   resolve: {
     alias: {

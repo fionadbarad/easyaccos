@@ -29,7 +29,9 @@ describe('CategoriseRequestSchema', () => {
 
   test('rejects NaN/Infinity amount', () => {
     expect(CategoriseRequestSchema.safeParse({ description: 'X', amount: NaN }).success).toBe(false)
-    expect(CategoriseRequestSchema.safeParse({ description: 'X', amount: Infinity }).success).toBe(false)
+    expect(CategoriseRequestSchema.safeParse({ description: 'X', amount: Infinity }).success).toBe(
+      false,
+    )
   })
 
   test('rejects non-string description', () => {
@@ -47,7 +49,7 @@ describe('ChatRequestSchema', () => {
     const r = ChatRequestSchema.safeParse({
       message: 'follow-up',
       history: [
-        { role: 'user',  parts: [{ text: 'first message' }] },
+        { role: 'user', parts: [{ text: 'first message' }] },
         { role: 'model', parts: [{ text: 'first response' }] },
       ],
     })
@@ -81,7 +83,10 @@ describe('ChatRequestSchema', () => {
   })
 
   test('rejects history over 50 turns', () => {
-    const history = Array.from({ length: 51 }, () => ({ role: 'user' as const, parts: [{ text: 'x' }] }))
+    const history = Array.from({ length: 51 }, () => ({
+      role: 'user' as const,
+      parts: [{ text: 'x' }],
+    }))
     expect(ChatRequestSchema.safeParse({ message: 'x', history }).success).toBe(false)
   })
 })

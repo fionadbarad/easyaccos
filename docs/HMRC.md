@@ -4,13 +4,13 @@ This doc covers running easyacco against HMRC's sandbox APIs locally.
 
 ## Phases
 
-| Phase | What | Auth flow | Endpoint |
-| --- | --- | --- | --- |
-| 1 | Connectivity probe | `client_credentials` | `GET /hello/application` |
-| 2 | User-delegated login | `authorization_code` | `GET /hello/user` |
-| 3a | MTD-IT periodic summary | `authorization_code` | `POST /individuals/business/self-employment/{nino}/{businessId}/period` |
-| 3b | MTD-VAT return | `authorization_code` | `POST /organisations/vat/{vrn}/returns` |
-| 4 | Validation page + polish | n/a | n/a |
+| Phase | What                     | Auth flow            | Endpoint                                                                |
+| ----- | ------------------------ | -------------------- | ----------------------------------------------------------------------- |
+| 1     | Connectivity probe       | `client_credentials` | `GET /hello/application`                                                |
+| 2     | User-delegated login     | `authorization_code` | `GET /hello/user`                                                       |
+| 3a    | MTD-IT periodic summary  | `authorization_code` | `POST /individuals/business/self-employment/{nino}/{businessId}/period` |
+| 3b    | MTD-VAT return           | `authorization_code` | `POST /organisations/vat/{vrn}/returns`                                 |
+| 4     | Validation page + polish | n/a                  | n/a                                                                     |
 
 ## One-time setup
 
@@ -30,6 +30,7 @@ This doc covers running easyacco against HMRC's sandbox APIs locally.
    Put the output in `HMRC_COOKIE_SECRET`.
 
 `.env.local` should end up looking like (see `.env.example` for the full list):
+
 ```
 HMRC_API_BASE=https://test-api.service.hmrc.gov.uk
 HMRC_LOGIN_BASE=https://test-www.tax.service.gov.uk
@@ -84,8 +85,8 @@ production submissions without them.
 
 One-time sandbox setup:
 
-1. Developer Hub → **Create Test User** → **Individual** → tick *Self
-   Assessment* → click create.
+1. Developer Hub → **Create Test User** → **Individual** → tick _Self
+   Assessment_ → click create.
 2. HMRC returns a NINO (e.g. `AA999999A`) and a self-employment business id
    (e.g. `XBIS12345678901`). Save these.
 3. Make sure your app is subscribed to **Self Employment Business (MTD)**.
@@ -144,16 +145,16 @@ tokens cookie. Status returns to `not connected`.
 
 ## Endpoints in this app
 
-| Route | Method | What |
-| --- | --- | --- |
-| `/api/hmrc/hello` | GET | Phase 1 application probe |
-| `/api/hmrc/auth/start` | GET | Builds HMRC authorize URL, sets state cookie, 302s the browser |
-| `/api/hmrc/auth/callback` | GET | Verifies state, swaps code for tokens, sets encrypted cookie |
-| `/api/hmrc/auth/disconnect` | POST | Clears tokens + state cookies |
-| `/api/hmrc/status` | GET | `{ connected, scope, expiresAt, expiresInMs }` — no tokens leaked |
-| `/api/hmrc/me` | GET | Calls `/hello/user` with the user's access token; auto-refreshes if near expiry |
-| `/api/hmrc/mtd/it/submit` | POST | Phase 3a — submits a Self-Employment periodic summary to MTD-IT with fraud prevention headers |
-| `/api/hmrc/mtd/vat/submit` | POST | Phase 3b — submits a VAT return to MTD-VAT with fraud prevention headers |
+| Route                       | Method | What                                                                                          |
+| --------------------------- | ------ | --------------------------------------------------------------------------------------------- |
+| `/api/hmrc/hello`           | GET    | Phase 1 application probe                                                                     |
+| `/api/hmrc/auth/start`      | GET    | Builds HMRC authorize URL, sets state cookie, 302s the browser                                |
+| `/api/hmrc/auth/callback`   | GET    | Verifies state, swaps code for tokens, sets encrypted cookie                                  |
+| `/api/hmrc/auth/disconnect` | POST   | Clears tokens + state cookies                                                                 |
+| `/api/hmrc/status`          | GET    | `{ connected, scope, expiresAt, expiresInMs }` — no tokens leaked                             |
+| `/api/hmrc/me`              | GET    | Calls `/hello/user` with the user's access token; auto-refreshes if near expiry               |
+| `/api/hmrc/mtd/it/submit`   | POST   | Phase 3a — submits a Self-Employment periodic summary to MTD-IT with fraud prevention headers |
+| `/api/hmrc/mtd/vat/submit`  | POST   | Phase 3b — submits a VAT return to MTD-VAT with fraud prevention headers                      |
 
 ## Fraud Prevention Headers (Phase 3)
 

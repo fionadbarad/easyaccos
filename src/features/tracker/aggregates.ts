@@ -4,8 +4,13 @@
 
 import { TAX_YEAR_DAYS, TAX_YEAR_START, clamp, inTaxYear } from './shared'
 
-export interface DatedAmount { date: string; amount: number }
-export interface TypedTx extends DatedAmount { type: string }
+export interface DatedAmount {
+  date: string
+  amount: number
+}
+export interface TypedTx extends DatedAmount {
+  type: string
+}
 
 export function daysElapsedAt(now: Date = new Date()): number {
   const raw = Math.ceil((now.getTime() - TAX_YEAR_START.getTime()) / 86400000)
@@ -26,14 +31,12 @@ export function daysToDeadlineAt(deadline: Date, now: Date = new Date()): number
 
 export function yearlyIncome(transactions: TypedTx[]): number {
   return transactions
-    .filter(t => t.type === 'income' && inTaxYear(t.date))
+    .filter((t) => t.type === 'income' && inTaxYear(t.date))
     .reduce((s, t) => s + Number(t.amount), 0)
 }
 
 export function yearlyExpenses(expenses: DatedAmount[]): number {
-  return expenses
-    .filter(e => inTaxYear(e.date))
-    .reduce((s, e) => s + Number(e.amount), 0)
+  return expenses.filter((e) => inTaxYear(e.date)).reduce((s, e) => s + Number(e.amount), 0)
 }
 
 /** Projects a partial-year total to a full year. Returns 0 if no months elapsed. */

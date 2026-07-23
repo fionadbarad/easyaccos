@@ -6,14 +6,18 @@ import type { TaxInput, EmploymentType, StudentLoanPlan, TaxRegion } from '@/lib
 export type ScenarioKey = 'employed' | 'self-employed' | 'director' | 'welfare' | 'jobloss'
 
 export const SCENARIOS: { key: ScenarioKey; label: string; desc: string; icon: string }[] = [
-  { key: 'employed',       label: 'Employed',          desc: 'PAYE salary, 8% NI',             icon: '💼' },
-  { key: 'self-employed',  label: 'Self-Employed',     desc: 'Sole trader, 6% NI Class 4',     icon: '🔧' },
-  { key: 'director',       label: 'Director',          desc: 'Salary + Dividends',              icon: '🏢' },
-  { key: 'welfare',        label: 'Welfare & Support', desc: 'UC, JSA, Carer\'s Allowance',     icon: '🤝' },
-  { key: 'jobloss',        label: 'Job Loss',          desc: '£30k exemption & PAYE refund',    icon: '⚡' },
+  { key: 'employed', label: 'Employed', desc: 'PAYE salary, 8% NI', icon: '💼' },
+  { key: 'self-employed', label: 'Self-Employed', desc: 'Sole trader, 6% NI Class 4', icon: '🔧' },
+  { key: 'director', label: 'Director', desc: 'Salary + Dividends', icon: '🏢' },
+  { key: 'welfare', label: 'Welfare & Support', desc: "UC, JSA, Carer's Allowance", icon: '🤝' },
+  { key: 'jobloss', label: 'Job Loss', desc: '£30k exemption & PAYE refund', icon: '⚡' },
 ]
 
-export const FULL_ENGINE_SCENARIOS: ReadonlyArray<ScenarioKey> = ['employed', 'self-employed', 'director']
+export const FULL_ENGINE_SCENARIOS: ReadonlyArray<ScenarioKey> = [
+  'employed',
+  'self-employed',
+  'director',
+]
 
 export function isFullEngineScenario(k: ScenarioKey): boolean {
   return FULL_ENGINE_SCENARIOS.includes(k)
@@ -48,29 +52,29 @@ export function buildTaxInput(d: TaxInputDraft): TaxInput | null {
 
   if (d.scenario === 'director') {
     return {
-      grossRevenue:          d.dirSalary + d.dirDividends,
-      allowableExpenses:     0,
-      dividendIncome:        d.dirDividends,
-      employmentType:        'director' as EmploymentType,
-      taxRegion:             d.taxRegion,
-      studentLoanPlan:       d.studentLoanPlan,
-      voluntaryClass2NI:     false,
-      marriageAllowance:     d.marriageAllowance,
+      grossRevenue: d.dirSalary + d.dirDividends,
+      allowableExpenses: 0,
+      dividendIncome: d.dirDividends,
+      employmentType: 'director' as EmploymentType,
+      taxRegion: d.taxRegion,
+      studentLoanPlan: d.studentLoanPlan,
+      voluntaryClass2NI: false,
+      marriageAllowance: d.marriageAllowance,
       blindPersonsAllowance: d.blindPersonsAllowance,
-      pensionContribution:   d.pensionContribution,
+      pensionContribution: d.pensionContribution,
     }
   }
 
   return {
-    grossRevenue:          d.grossRevenue,
-    allowableExpenses:     d.scenario === 'self-employed' ? d.allowableExpenses : 0,
-    dividendIncome:        0,
-    employmentType:        d.scenario as EmploymentType,
-    taxRegion:             d.taxRegion,
-    studentLoanPlan:       d.studentLoanPlan,
-    voluntaryClass2NI:     d.voluntaryClass2NI,
-    marriageAllowance:     d.marriageAllowance,
+    grossRevenue: d.grossRevenue,
+    allowableExpenses: d.scenario === 'self-employed' ? d.allowableExpenses : 0,
+    dividendIncome: 0,
+    employmentType: d.scenario as EmploymentType,
+    taxRegion: d.taxRegion,
+    studentLoanPlan: d.studentLoanPlan,
+    voluntaryClass2NI: d.voluntaryClass2NI,
+    marriageAllowance: d.marriageAllowance,
     blindPersonsAllowance: d.blindPersonsAllowance,
-    pensionContribution:   d.pensionContribution,
+    pensionContribution: d.pensionContribution,
   }
 }

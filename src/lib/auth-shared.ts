@@ -11,13 +11,16 @@ import { cookies } from 'next/headers'
 export const getCachedUser = cache(async () => {
   const cookieStore = await cookies()
   const sessionCookie = cookieStore.get('sb-access-token')?.value || 'anonymous'
-  
+
   // We use the session cookie value as part of the cache key to ensure users don't get each other's cached data
   return unstable_cache(
     async () => {
       try {
         const supabase = await createClient()
-        const { data: { user }, error } = await supabase.auth.getUser()
+        const {
+          data: { user },
+          error,
+        } = await supabase.auth.getUser()
         if (error || !user) return null
         return user
       } catch (e) {
@@ -27,7 +30,7 @@ export const getCachedUser = cache(async () => {
     ['supabase-user', sessionCookie],
     {
       revalidate: 60, // Cache for 60 seconds
-      tags: ['auth']
-    }
+      tags: ['auth'],
+    },
   )()
 })

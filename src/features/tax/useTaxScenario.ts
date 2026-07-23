@@ -4,13 +4,13 @@
 // purely presentational — pass props through, render panels.
 
 import { useState, useMemo } from 'react'
+import { calculateTax, type TaxResult, type StudentLoanPlan, type TaxRegion } from '@/lib/tax-logic'
 import {
-  calculateTax,
-  type TaxResult, type StudentLoanPlan, type TaxRegion,
-} from '@/lib/tax-logic'
-import {
-  calcScenario3, calcScenario4,
-  type ScenarioResult, type S3Input, type S4Input,
+  calcScenario3,
+  calcScenario4,
+  type ScenarioResult,
+  type S3Input,
+  type S4Input,
 } from '@/lib/tax-scenarios'
 import { DIRECTOR_OPTIMAL_SALARY } from '@/lib/tax/bands-2026'
 import { buildTaxInput, isFullEngineScenario, type ScenarioKey } from './scenarios'
@@ -23,38 +23,52 @@ import { buildTaxInput, isFullEngineScenario, type ScenarioKey } from './scenari
 //   s3                         — claimant on JSA + Carer's + low otherIncome
 //   s4                         — mid-career redundancy mid-tax-year
 const DEFAULT_INPUTS = {
-  scenario:        'employed' as ScenarioKey,
-  showMonthly:     false,
-  sliderIncome:    45_000,
-  taxRegion:       'ruk' as TaxRegion,
-  grossRevenue:    45_000,
-  allowableExpenses:    0,
-  pensionContribution:  0,
+  scenario: 'employed' as ScenarioKey,
+  showMonthly: false,
+  sliderIncome: 45_000,
+  taxRegion: 'ruk' as TaxRegion,
+  grossRevenue: 45_000,
+  allowableExpenses: 0,
+  pensionContribution: 0,
   studentLoanPlan: 'none' as StudentLoanPlan,
-  marriageAllowance:     false,
+  marriageAllowance: false,
   blindPersonsAllowance: false,
-  voluntaryClass2NI:     false,
-  dirSalary:    DIRECTOR_OPTIMAL_SALARY,   // £12,570 — bands-2026
+  voluntaryClass2NI: false,
+  dirSalary: DIRECTOR_OPTIMAL_SALARY, // £12,570 — bands-2026
   dirDividends: 50_000,
-  s3: { universalCredit: 6_000, jsaAmount: 4_000, carersAllowance: 2_400, otherIncome: 0 } satisfies S3Input,
-  s4: { annualSalary:    42_000, monthsWorked: 6, redundancyPayment: 35_000, payeTaxPaid: 4_200 } satisfies S4Input,
+  s3: {
+    universalCredit: 6_000,
+    jsaAmount: 4_000,
+    carersAllowance: 2_400,
+    otherIncome: 0,
+  } satisfies S3Input,
+  s4: {
+    annualSalary: 42_000,
+    monthsWorked: 6,
+    redundancyPayment: 35_000,
+    payeTaxPaid: 4_200,
+  } satisfies S4Input,
 }
 
 export function useTaxScenario() {
-  const [scenario, setScenario]     = useState<ScenarioKey>(DEFAULT_INPUTS.scenario)
+  const [scenario, setScenario] = useState<ScenarioKey>(DEFAULT_INPUTS.scenario)
   const [showMonthly, setShowMonthly] = useState(DEFAULT_INPUTS.showMonthly)
   const [sliderIncome, setSliderIncome] = useState(DEFAULT_INPUTS.sliderIncome)
 
-  const [taxRegion, setTaxRegion]                 = useState<TaxRegion>(DEFAULT_INPUTS.taxRegion)
-  const [grossRevenue, setGrossRevenue]           = useState(DEFAULT_INPUTS.grossRevenue)
+  const [taxRegion, setTaxRegion] = useState<TaxRegion>(DEFAULT_INPUTS.taxRegion)
+  const [grossRevenue, setGrossRevenue] = useState(DEFAULT_INPUTS.grossRevenue)
   const [allowableExpenses, setAllowableExpenses] = useState(DEFAULT_INPUTS.allowableExpenses)
   const [pensionContribution, setPensionContribution] = useState(DEFAULT_INPUTS.pensionContribution)
-  const [studentLoanPlan, setStudentLoanPlan]     = useState<StudentLoanPlan>(DEFAULT_INPUTS.studentLoanPlan)
+  const [studentLoanPlan, setStudentLoanPlan] = useState<StudentLoanPlan>(
+    DEFAULT_INPUTS.studentLoanPlan,
+  )
   const [marriageAllowance, setMarriageAllowance] = useState(DEFAULT_INPUTS.marriageAllowance)
-  const [blindPersonsAllowance, setBlindPersonsAllowance] = useState(DEFAULT_INPUTS.blindPersonsAllowance)
+  const [blindPersonsAllowance, setBlindPersonsAllowance] = useState(
+    DEFAULT_INPUTS.blindPersonsAllowance,
+  )
   const [voluntaryClass2NI, setVoluntaryClass2NI] = useState(DEFAULT_INPUTS.voluntaryClass2NI)
 
-  const [dirSalary, setDirSalary]       = useState(DEFAULT_INPUTS.dirSalary)
+  const [dirSalary, setDirSalary] = useState(DEFAULT_INPUTS.dirSalary)
   const [dirDividends, setDirDividends] = useState(DEFAULT_INPUTS.dirDividends)
 
   const [s3, setS3] = useState<S3Input>(DEFAULT_INPUTS.s3)
@@ -66,22 +80,46 @@ export function useTaxScenario() {
     setSliderIncome(v)
     if (scenario === 'employed' || scenario === 'self-employed') setGrossRevenue(v)
     else if (scenario === 'director') setDirDividends(v)
-    else if (scenario === 'jobloss') setS4(p => ({ ...p, annualSalary: v }))
+    else if (scenario === 'jobloss') setS4((p) => ({ ...p, annualSalary: v }))
   }
 
-  const taxInput = useMemo(() => buildTaxInput({
-    scenario, grossRevenue, allowableExpenses, pensionContribution,
-    dirSalary, dirDividends, taxRegion, studentLoanPlan,
-    marriageAllowance, blindPersonsAllowance, voluntaryClass2NI,
-  }), [
-    scenario, grossRevenue, allowableExpenses, pensionContribution,
-    dirSalary, dirDividends, taxRegion, studentLoanPlan,
-    marriageAllowance, blindPersonsAllowance, voluntaryClass2NI,
-  ])
+  const taxInput = useMemo(
+    () =>
+      buildTaxInput({
+        scenario,
+        grossRevenue,
+        allowableExpenses,
+        pensionContribution,
+        dirSalary,
+        dirDividends,
+        taxRegion,
+        studentLoanPlan,
+        marriageAllowance,
+        blindPersonsAllowance,
+        voluntaryClass2NI,
+      }),
+    [
+      scenario,
+      grossRevenue,
+      allowableExpenses,
+      pensionContribution,
+      dirSalary,
+      dirDividends,
+      taxRegion,
+      studentLoanPlan,
+      marriageAllowance,
+      blindPersonsAllowance,
+      voluntaryClass2NI,
+    ],
+  )
 
   const fullResult: TaxResult | null = useMemo(() => {
     if (!taxInput) return null
-    try { return calculateTax(taxInput) } catch { return null }
+    try {
+      return calculateTax(taxInput)
+    } catch {
+      return null
+    }
   }, [taxInput])
 
   const legacyResult: ScenarioResult | null = useMemo(() => {
@@ -89,29 +127,46 @@ export function useTaxScenario() {
     try {
       if (scenario === 'welfare') return calcScenario3(s3)
       if (scenario === 'jobloss') return calcScenario4(s4)
-    } catch { return null }
+    } catch {
+      return null
+    }
     return null
   }, [fullEngine, scenario, s3, s4])
 
   return {
-    scenario, setScenario,
-    showMonthly, setShowMonthly,
-    sliderIncome, applySlider,
+    scenario,
+    setScenario,
+    showMonthly,
+    setShowMonthly,
+    sliderIncome,
+    applySlider,
 
-    taxRegion, setTaxRegion,
-    grossRevenue, setGrossRevenue,
-    allowableExpenses, setAllowableExpenses,
-    pensionContribution, setPensionContribution,
-    studentLoanPlan, setStudentLoanPlan,
-    marriageAllowance, setMarriageAllowance,
-    blindPersonsAllowance, setBlindPersonsAllowance,
-    voluntaryClass2NI, setVoluntaryClass2NI,
+    taxRegion,
+    setTaxRegion,
+    grossRevenue,
+    setGrossRevenue,
+    allowableExpenses,
+    setAllowableExpenses,
+    pensionContribution,
+    setPensionContribution,
+    studentLoanPlan,
+    setStudentLoanPlan,
+    marriageAllowance,
+    setMarriageAllowance,
+    blindPersonsAllowance,
+    setBlindPersonsAllowance,
+    voluntaryClass2NI,
+    setVoluntaryClass2NI,
 
-    dirSalary, setDirSalary,
-    dirDividends, setDirDividends,
+    dirSalary,
+    setDirSalary,
+    dirDividends,
+    setDirDividends,
 
-    s3, setS3,
-    s4, setS4,
+    s3,
+    setS3,
+    s4,
+    setS4,
 
     fullEngine,
     fullResult,

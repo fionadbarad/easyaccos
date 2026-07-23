@@ -11,7 +11,7 @@ import {
   Calendar,
 } from 'lucide-react'
 import { useUserData } from '@/lib/use-user-data'
-import { buildBaseContext, buildContextPrompt } from '@/lib/acco/context'
+import { buildBaseContext } from '@/lib/acco/context'
 import type { AccoContext, AccoMessage } from '@/lib/acco/types'
 
 const FETCH_TIMEOUT = 30_000

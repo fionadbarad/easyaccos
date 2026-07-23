@@ -3,7 +3,6 @@ import { GoogleGenAI } from '@google/genai'
 import { buildContextPrompt } from '@/lib/acco/context'
 import { ChatRequestSchema } from '@/app/api/ai/schemas'
 import { reportError } from '@/lib/monitor'
-import { getSupabaseBrowserClient } from '@/lib/supabase-client-singleton'
 import { createClient } from '@/lib/supabase-server'
 import { fmtGBP } from '@/lib/formatters'
 import {
@@ -152,7 +151,7 @@ function offlineReply(query: string): string {
 // (The old gemini-1.5-flash model and the @google/generative-ai SDK are
 // both retired — that combo would fail even with a valid key and silently
 // drop back to the offline canned replies below.)
-const MODEL = 'gemini-1.5-flash'
+const MODEL = 'gemini-2.5-flash'
 
 let _ai: GoogleGenAI | null = null
 function getAI(apiKey: string): GoogleGenAI {

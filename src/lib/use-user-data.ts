@@ -12,7 +12,6 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { getSupabaseBrowserClient } from '@/lib/supabase-client-singleton'
-import { isSupabaseConfigured } from '@/lib/supabase-browser'
 import { secureRead, secureWrite } from '@/lib/storage/secure-store'
 import { appendAuditLog } from '@/lib/audit'
 import { reportError, reportWarn } from '@/lib/monitor'

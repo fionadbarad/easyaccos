@@ -10,13 +10,25 @@ export {
   calculateTax,
   calcPA,
   calcRukTax,
-  calcScoTax,
-  calcNiClass1,
-  calcNiClass2,
-  calcNiClass4,
+  calcScotlandTax,
+  calcClass1NI,
+  calcClass4NI,
   calcDividendTax,
   calcStudentLoan,
-  calcEmployerNi,
+  validateTaxInput,
+  round2,
+} from './tax-logic'
+export type {
+  TaxInput,
+  TaxResult,
+  TaxBand,
+  TaxRegion,
+  EmploymentType,
+  StudentLoanPlan,
+  OptimizationTip,
+  BreakdownStep,
+  MonthlyBreakdown,
+  ValidationErrors,
 } from './tax-logic'
 
 export {

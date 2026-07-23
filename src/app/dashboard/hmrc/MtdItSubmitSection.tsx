@@ -118,7 +118,7 @@ export function MtdItSubmitSection() {
   const [adminCosts, setAdminCosts] = useState(HMRC_DEFAULT_ADMIN_COSTS)
   const [govScenario, setGovScenario] = useState('')
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<any>(null)
+  const [result, setResult] = useState<Record<string, unknown> | null>(null)
   const [sentFraudHeaders, setSentFraudHeaders] = useState<Record<string, string> | null>(null)
 
   async function submit() {

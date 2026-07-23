@@ -22,9 +22,11 @@ function MtdVatSubmitSection() {
   )
 }
 
+type ProbeResult = { ok: boolean; stage?: string; message?: string; [key: string]: unknown }
+
 function AppAuthSection() {
   const [loading, setLoading] = React.useState(false)
-  const [result, setResult] = React.useState<any>(null)
+  const [result, setResult] = React.useState<ProbeResult | null>(null)
 
   async function runProbe() {
     setLoading(true)

@@ -18,7 +18,6 @@ export default function ExpensesPage() {
     filtered,
     loading,
     isAuthenticated,
-    lastSynced,
     showForm,
     setShowForm,
     form,
@@ -171,13 +170,6 @@ export default function ExpensesPage() {
             {!loading && (
               <span style={{ color: C.white }}>
                 £{total.toLocaleString('en-GB', { minimumFractionDigits: 2 })}
-              </span>
-            )}
-            {!loading && lastSynced && (
-              <span
-                style={{ display: 'block', fontSize: '0.65rem', opacity: 0.6, marginTop: '2px' }}
-              >
-                Last synced: {lastSynced}
               </span>
             )}
           </p>

@@ -50,7 +50,7 @@ export class ErrorBoundary extends Component<Props, State> {
           >
             <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Something went wrong</h2>
             <p style={{ color: C.muted, fontSize: '0.875rem', marginBottom: '1.5rem' }}>
-              An unexpected error occurred. We've been notified and are looking into it.
+              An unexpected error occurred. We&apos;ve been notified and are looking into it.
             </p>
             <button
               onClick={() => this.setState({ hasError: false })}
@@ -72,6 +72,6 @@ export class ErrorBoundary extends Component<Props, State> {
       )
     }
 
-    return this.children
+    return this.props.children
   }
 }

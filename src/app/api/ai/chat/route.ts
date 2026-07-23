@@ -200,20 +200,18 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const model = getAI(apiKey).getGenerativeModel({
+    const chat = getAI(apiKey).chats.create({
       model: MODEL,
-      systemInstruction: systemPrompt,
-    })
-    const chat = model.startChat({
+      config: { systemInstruction: systemPrompt },
       history: (validatedHistory ?? [])
         .map((h) => ({
           role: h.role === 'user' ? 'user' : 'model',
-          parts: [{ text: h.content || (h.parts && h.parts[0]?.text) || '' }],
+          parts: h.parts.map((p) => ({ text: p.text })),
         }))
-        .filter((h) => h.parts[0].text !== '')
+        .filter((turn) => turn.parts.some((p) => p.text !== ''))
         .slice(-20),
     })
-    const result = await chat.sendMessageStream(query)
+    const result = await chat.sendMessageStream({ message: query })
 
     const stream = new ReadableStream({
       async start(controller) {

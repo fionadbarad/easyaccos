@@ -16,8 +16,9 @@ export const CategoriseRequestSchema = z.object({
 export type CategoriseRequest = z.infer<typeof CategoriseRequestSchema>
 
 const HistoryTurnSchema = z.object({
-  role: z.enum(['user', 'model']),
-  parts: z.array(z.object({ text: z.string() })).min(1),
+  role: z.string(),
+  content: z.string().optional(),
+  parts: z.array(z.object({ text: z.string() })).optional(),
 })
 export type HistoryTurn = z.infer<typeof HistoryTurnSchema>
 

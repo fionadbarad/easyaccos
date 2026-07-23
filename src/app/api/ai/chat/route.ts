@@ -208,8 +208,9 @@ export async function POST(request: NextRequest) {
       history: (validatedHistory ?? [])
         .map((h) => ({
           role: h.role === 'user' ? 'user' : 'model',
-          parts: [{ text: h.content }],
+          parts: [{ text: h.content || (h.parts && h.parts[0]?.text) || '' }],
         }))
+        .filter((h) => h.parts[0].text !== '')
         .slice(-20),
     })
     const result = await chat.sendMessageStream(query)

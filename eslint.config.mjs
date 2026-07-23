@@ -18,7 +18,18 @@ const eslintConfig = defineConfig([
   {
     rules: {
       '@next/next/no-img-element': 'error',
-      'no-unused-vars': 'warn',
+      // The base `no-unused-vars` rule misreads parameter names in type
+      // signatures (e.g. `set: (v: number) => void`) as unused. Disable it in
+      // favour of the type-aware rule, per typescript-eslint guidance.
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
     },
   },
 ])

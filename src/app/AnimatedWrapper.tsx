@@ -1,6 +1,6 @@
 'use client'
 
-import { type ReactNode, useEffect, useRef, useState, useCallback } from 'react'
+import { type ReactNode, useEffect, useRef, useState } from 'react'
 
 // Lightweight fade-in wrapper using IntersectionObserver + CSS transitions.
 // Avoids importing framer-motion on the landing page's initial JS bundle.

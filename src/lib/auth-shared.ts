@@ -23,7 +23,7 @@ export const getCachedUser = cache(async () => {
         } = await supabase.auth.getUser()
         if (error || !user) return null
         return user
-      } catch (e) {
+      } catch {
         return null
       }
     },

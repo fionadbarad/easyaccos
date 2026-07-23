@@ -19,7 +19,6 @@ import {
   calcScenario5,
   type S1Input,
   type S2Input,
-  type S5Input,
 } from '../tax-scenarios'
 
 function baseInput(over: Partial<TaxInput> = {}): TaxInput {

@@ -1,14 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  calculateTax,
-  validateTaxInput,
-  round2,
-  calcPA,
-  PA_BASE,
-  PA_TAPER_START,
-  PA_TAPER_END,
-  RUK_HIGHER_LIMIT,
-} from '../tax-logic'
+import { calculateTax, validateTaxInput, round2, calcPA, RUK_HIGHER_LIMIT } from '../tax-logic'
 import type { TaxInput } from '../tax-logic'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

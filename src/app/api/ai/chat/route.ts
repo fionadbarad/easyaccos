@@ -3,7 +3,6 @@ import { GoogleGenAI } from '@google/genai'
 import { buildContextPrompt } from '@/lib/acco/context'
 import { ChatRequestSchema } from '@/app/api/ai/schemas'
 import { reportError } from '@/lib/monitor'
-import { getSupabaseBrowserClient } from '@/lib/supabase-client-singleton'
 import { createClient } from '@/lib/supabase-server'
 import { fmtGBP } from '@/lib/formatters'
 import {

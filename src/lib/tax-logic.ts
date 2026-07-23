@@ -474,7 +474,17 @@ export function calculateTax(input: TaxInput): TaxResult {
   const niClass2 = niClass2Voluntary ? round2(NI_C2_WEEKLY * 52) : 0
 
   // ── 7. Dividend tax ────────────────────────────────────────────────────────
-  const dividendTax = dividendIncome > 0 ? calcDividendTax(dividendIncome, taxableIncome) : 0
+  // Any Personal Allowance NOT used up by non-dividend income is set against
+  // dividends before they are taxed. HMRC allocates PA to whichever income is
+  // most beneficial, so when profit is below the PA the surplus covers
+  // dividends pound-for-pound (they sit in PA space and consume no rate band).
+  // Only the remainder — after this surplus and the £500 dividend allowance,
+  // which calcDividendTax applies internally — is taxable. When
+  // adjustedProfit >= personalAllowance (the usual case, incl. the optimal
+  // director salary = PA) unusedAllowance is 0 and this is a no-op.
+  const unusedAllowance = Math.max(0, personalAllowance - adjustedProfit)
+  const taxableDividends = Math.max(0, dividendIncome - unusedAllowance)
+  const dividendTax = taxableDividends > 0 ? calcDividendTax(taxableDividends, taxableIncome) : 0
 
   // ── 8. Student loan ────────────────────────────────────────────────────────
   // Base = grossProfit (after expenses, BEFORE pension deduction)

@@ -311,6 +311,25 @@ describe('Dividend tax', () => {
     expect(r.dividendTax).toBe(8_396.25)
   })
 
+  // ── Unused Personal Allowance covers dividends (HMRC PA allocation) ──────────
+  // When profit is below the PA, the surplus allowance is set against dividends
+  // before the £500 nil-rate band. Regression guard for the bug where dividends
+  // were stacked from £0 without the surplus PA, over-taxing low-profit traders.
+  it('low profit + divs: £8,000 profit + £10k divs → surplus PA covers £4,570', () => {
+    // Unused PA = 12,570 − 8,000 = 4,570. Taxable divs = 10,000 − 4,570 = 5,430.
+    // £500 nil-rate, remaining £4,930 @ 10.75% (all basic band).
+    const r = calculateTax({ ...seInput(8_000), dividendIncome: 10_000 })
+    expect(r.dividendTax).toBe(round2((10_000 - (PA_BASE - 8_000) - 500) * 0.1075))
+    expect(r.dividendTax).toBe(529.98)
+  })
+
+  it('dividends fully within surplus PA are tax-free: £5,000 profit + £3k divs', () => {
+    // Unused PA = 7,570 > 3,000, so every pound of dividend is covered by PA.
+    const r = calculateTax({ ...seInput(5_000), dividendIncome: 3_000 })
+    expect(r.dividendTax).toBe(0)
+    expect(r.incomeTax).toBe(0)
+  })
+
   it('dividends use UK bands, not Scottish: Scotland == rUK for identical inputs', () => {
     // Scottish bands apply only to non-dividend income (gov.uk/scottish-income-tax).
     const ruk = calculateTax({ ...seInput(40_000), dividendIncome: 10_000, taxRegion: 'ruk' })

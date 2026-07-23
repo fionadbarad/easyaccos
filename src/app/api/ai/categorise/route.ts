@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenAI } from '@google/genai'
 import { CategoriseRequestSchema } from '@/app/api/ai/schemas'
 import { reportError } from '@/lib/monitor'
+import { createClient } from '@/lib/supabase-server'
 
 const CATEGORIES = [
   'Office & Equipment',
@@ -85,6 +86,19 @@ export async function POST(request: NextRequest) {
 
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
   if (!apiKey) {
+    return NextResponse.json({ category: heuristic(description), source: 'heuristic' })
+  }
+
+  // Auth gate for the PAID path only. The regex heuristic above is free and
+  // stays open to guest/offline users, but the Gemini call must not be
+  // publicly reachable — middleware only covers /dashboard/*, so an
+  // unauthenticated caller could otherwise burn API quota at will. Anyone
+  // without a session falls back to the same free heuristic.
+  const supabase = await createClient()
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+  if (!session) {
     return NextResponse.json({ category: heuristic(description), source: 'heuristic' })
   }
 

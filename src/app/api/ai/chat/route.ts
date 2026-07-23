@@ -208,6 +208,7 @@ export async function POST(request: NextRequest) {
           role: h.role === 'user' ? 'user' : 'model',
           parts: h.parts.map((p) => ({ text: p.text })),
         }))
+        .filter((turn) => turn.parts.some((p) => p.text !== ''))
         .slice(-20),
     })
     const result = await chat.sendMessageStream({ message: query })

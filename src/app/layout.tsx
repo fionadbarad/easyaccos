@@ -1,8 +1,27 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { SpeedInsights } from '@vercel/speed-insights/next';
-import { Analytics } from '@vercel/analytics/next';
-import PWARegister from '@/components/PWARegister';
+import { Inter } from 'next/font/google'
+import { Geist_Mono } from 'next/font/google'
+import Script from 'next/script'
+import VercelAnalytics from '@/components/VercelAnalytics'
+
+// Preload Inter with optimized subsets — only loads weights 400, 500, 600
+// and Latin subset. Preconnected to Google Fonts CDN.
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  display: 'swap',
+  variable: '--font-inter',
+  preload: true,
+})
+
+const geistMono = Geist_Mono({
+  subsets: ['latin'],
+  weight: ['400'],
+  display: 'swap',
+  variable: '--font-geist-mono',
+  preload: false, // monospace font not critical for FCP
+})
 
 export const metadata: Metadata = {
   title: "System Auditor — UK Compliance Operating System 2026/27",
@@ -25,13 +44,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${geistMono.variable}`}>
       <body className="antialiased" suppressHydrationWarning>
         {children}
-        <PWARegister />
-        <SpeedInsights />
-        <Analytics />
+        {/* Vercel analytics — deferred to not block FCP */}
+        <VercelAnalytics />
+        {/* Service worker registration — only in production, loaded after page is idle */}
+        <Script
+          src="/sw-register.js"
+          strategy="lazyOnload"
+        />
       </body>
     </html>
-  );
+  )
 }

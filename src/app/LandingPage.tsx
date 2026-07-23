@@ -1,8 +1,13 @@
-'use client'
-
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import dynamic from 'next/dynamic'
 import { ArrowRight, Calculator, BarChart2, MessageCircle, Shield, BookOpen, Receipt, CheckCircle2, FileText, Car } from 'lucide-react'
+
+// Lazy-load the animated wrapper — this keeps the landing page SSR-renderable
+// and defers framer-motion (and its ~40KB gzip payload) until after FCP.
+const AnimatedWrapper = dynamic(
+  () => import('./AnimatedWrapper').then(m => ({ default: m.default })),
+  { ssr: true, loading: () => null }
+)
 
 const MODULES = [
   { icon: Calculator,    label: 'HMRC Tax Engine',      desc: '2026/27-accurate income tax, NI, dividends, and pension relief across all UK regions and employment types.' },
@@ -95,8 +100,8 @@ export default function LandingPage() {
         </div>
         <div className="absolute top-[20%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(244,245,248,0.04)_0%,transparent_70%)]" />
 
-        <div className="relative z-10 max-w-[800px] mx-auto w-full">
-          <motion.div initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }} suppressHydrationWarning>
+        <AnimatedWrapper delay={0}>
+          <div className="relative z-10 max-w-[800px] mx-auto w-full">
 
             <div className="inline-flex items-center gap-[6px] px-3 py-1 border border-[var(--sa-border)] rounded-[3px] text-[rgba(244,245,248,0.35)] text-[0.72rem] tracking-[0.15em] uppercase mb-8 font-mono">
               UK Tax Platform · 2026/27 · HMRC-Accurate · Free
@@ -136,14 +141,14 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
-          </motion.div>
-        </div>
+          </div>
+        </AnimatedWrapper>
       </section>
 
       {/* ── PROBLEM / SOLUTION ── */}
       <section className="px-6 py-20 border-t border-[var(--sa-border)] bg-[rgba(244,245,248,0.01)]">
         <div className="max-w-[760px] mx-auto">
-          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          <AnimatedWrapper delay={0.05}>
             <div className="text-[rgba(244,245,248,0.18)] text-[0.72rem] uppercase tracking-[0.15em] mb-3 font-mono">
               the problem
             </div>
@@ -156,39 +161,38 @@ export default function LandingPage() {
             <p className="text-[var(--sa-muted)] text-[0.95rem] leading-[1.8]">
               EasyAcco changes that. Every calculation follows the exact HMRC rules for 2026/27 — the same rules your accountant uses, without the hourly rate.
             </p>
-          </motion.div>
+          </AnimatedWrapper>
         </div>
       </section>
 
       {/* ── MODULES ── */}
       <section className="px-6 py-20 border-t border-[var(--sa-border)]">
         <div className="max-w-[1120px] mx-auto">
-          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-12">
-            <div className="text-[rgba(244,245,248,0.18)] text-[0.72rem] uppercase tracking-[0.15em] mb-2 font-mono">
-              what&apos;s included
+          <AnimatedWrapper delay={0.1}>
+            <div className="mb-12">
+              <div className="text-[rgba(244,245,248,0.18)] text-[0.72rem] uppercase tracking-[0.15em] mb-2 font-mono">
+                what&apos;s included
+              </div>
+              <h2 className="text-[var(--sa-white)] text-[clamp(1.5rem,3vw,2rem)] font-semibold tracking-[-0.03em] m-0">
+                Every tool a sole trader needs.
+              </h2>
+              <p className="text-[var(--sa-muted)] text-[0.95rem] mt-2 max-w-[32rem]">
+                Built to the same standard as Big 4 tax software — without the enterprise price tag.
+              </p>
             </div>
-            <h2 className="text-[var(--sa-white)] text-[clamp(1.5rem,3vw,2rem)] font-semibold tracking-[-0.03em] m-0">
-              Every tool a sole trader needs.
-            </h2>
-            <p className="text-[var(--sa-muted)] text-[0.95rem] mt-2 max-w-[32rem]">
-              Built to the same standard as Big 4 tax software — without the enterprise price tag.
-            </p>
-          </motion.div>
+          </AnimatedWrapper>
 
           <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-px border border-[var(--sa-border)] rounded-[6px] overflow-hidden bg-[var(--sa-border)]">
             {MODULES.map(({ icon: Icon, label, desc }, i) => (
-              <motion.div
-                key={label}
-                initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.05 }}
-                className="bg-[var(--sa-surface)] p-6"
-              >
-                <div className="flex items-center gap-[9px] mb-[0.65rem]">
-                  <Icon size={14} strokeWidth={1.5} className="text-[var(--sa-muted)]" />
-                  <span className="text-[var(--sa-white)] text-[0.9rem] font-semibold tracking-[-0.01em]">{label}</span>
+              <AnimatedWrapper key={label} delay={i * 0.05}>
+                <div className="bg-[var(--sa-surface)] p-6">
+                  <div className="flex items-center gap-[9px] mb-[0.65rem]">
+                    <Icon size={14} strokeWidth={1.5} className="text-[var(--sa-muted)]" />
+                    <span className="text-[var(--sa-white)] text-[0.9rem] font-semibold tracking-[-0.01em]">{label}</span>
+                  </div>
+                  <p className="text-[var(--sa-muted)] text-[0.85rem] leading-[1.6] m-0">{desc}</p>
                 </div>
-                <p className="text-[var(--sa-muted)] text-[0.85rem] leading-[1.6] m-0">{desc}</p>
-              </motion.div>
+              </AnimatedWrapper>
             ))}
           </div>
         </div>
@@ -196,31 +200,33 @@ export default function LandingPage() {
 
       {/* ── CTA ── */}
       <section className="px-6 py-20 border-t border-[var(--sa-border)]">
-        <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="max-w-[580px] mx-auto">
-          <div className="text-[rgba(244,245,248,0.18)] text-[0.72rem] uppercase tracking-[0.15em] mb-3 font-mono">
-            get started
+        <AnimatedWrapper delay={0.15}>
+          <div className="max-w-[580px] mx-auto">
+            <div className="text-[rgba(244,245,248,0.18)] text-[0.72rem] uppercase tracking-[0.15em] mb-3 font-mono">
+              get started
+            </div>
+            <h2 className="text-[var(--sa-white)] text-[clamp(1.5rem,3vw,2rem)] font-semibold tracking-[-0.03em] mb-3">
+              Know your tax bill before January.
+            </h2>
+            <p className="text-[var(--sa-muted)] text-[0.9rem] leading-[1.7] mb-8">
+              Open the dashboard in seconds — no account, no setup, no cost. Sign in only when you want your data to sync across devices.
+            </p>
+            <div className="flex flex-wrap gap-3 items-center">
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center gap-[9px] px-8 py-[13px] bg-[var(--sa-white)] text-[var(--sa-black)] font-semibold text-[0.9rem] no-underline rounded-[4px] tracking-[-0.01em]"
+              >
+                Open Dashboard — Free <ArrowRight size={16} />
+              </Link>
+              <Link href="/auth/login" className="text-[var(--sa-muted)] text-[0.875rem] no-underline">
+                Sign in to sync →
+              </Link>
+            </div>
+            <p className="text-[rgba(244,245,248,0.18)] text-[0.78rem] mt-5 font-mono">
+              No credit card · No account required · AES-256 encrypted
+            </p>
           </div>
-          <h2 className="text-[var(--sa-white)] text-[clamp(1.5rem,3vw,2rem)] font-semibold tracking-[-0.03em] mb-3">
-            Know your tax bill before January.
-          </h2>
-          <p className="text-[var(--sa-muted)] text-[0.9rem] leading-[1.7] mb-8">
-            Open the dashboard in seconds — no account, no setup, no cost. Sign in only when you want your data to sync across devices.
-          </p>
-          <div className="flex flex-wrap gap-3 items-center">
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-[9px] px-8 py-[13px] bg-[var(--sa-white)] text-[var(--sa-black)] font-semibold text-[0.9rem] no-underline rounded-[4px] tracking-[-0.01em]"
-            >
-              Open Dashboard — Free <ArrowRight size={16} />
-            </Link>
-            <Link href="/auth/login" className="text-[var(--sa-muted)] text-[0.875rem] no-underline">
-              Sign in to sync →
-            </Link>
-          </div>
-          <p className="text-[rgba(244,245,248,0.18)] text-[0.78rem] mt-5 font-mono">
-            No credit card · No account required · AES-256 encrypted
-          </p>
-        </motion.div>
+        </AnimatedWrapper>
       </section>
 
       {/* ── FOOTER ── */}

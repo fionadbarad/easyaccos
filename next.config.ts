@@ -6,6 +6,26 @@ import path from "node:path";
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: path.resolve(__dirname),
+
+  // ── Performance optimizations ──
+  experimental: {
+    optimizePackageImports: [
+      'lucide-react',
+      'framer-motion',
+      'recharts',
+    ],
+  },
+
+  // Use Turbopack for build (faster + better tree-shaking)
+  turbopack: {
+    rules: {},
+  },
+
+  images: {
+    // Enable modern image formats
+    formats: ['image/avif', 'image/webp'],
+  },
+
   async headers() {
     return [
       {
@@ -28,7 +48,22 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        // Cache static assets aggressively
+        source: "/_next/static/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
     ];
+  },
+
+  // Reduce unused CSS and optimize for production
+  compiler: {
+    // Enable styled-components and emotion optimization if used
   },
 };
 

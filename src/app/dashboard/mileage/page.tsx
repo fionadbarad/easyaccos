@@ -19,7 +19,7 @@ import { fmtGBP } from '@/lib/formatters'
 
 import { C } from '@/styles/palette'
 // HMRC 2026/27 approved mileage rates
-const RATE_CAR_FIRST = 0.45 // First 10,000 miles
+const RATE_CAR_FIRST = 0.55 // First 10,000 miles (AMAP raised 45p→55p from 6 Apr 2026)
 const RATE_CAR_EXCESS = 0.25 // Above 10,000 miles
 const RATE_BIKE = 0.2
 const RATE_MOTORCYCLE = 0.24
@@ -174,7 +174,7 @@ function RatePanel({ open, onToggle }: { open: boolean; onToggle: () => void }) 
             </thead>
             <tbody>
               {[
-                ['Car / Van', '45p per mile', '25p per mile'],
+                ['Car / Van', '55p per mile', '25p per mile'],
                 ['Motorcycle', '24p per mile', '24p per mile'],
                 ['Bicycle', '20p per mile', '20p per mile'],
               ].map(([v, r1, r2]) => (
@@ -500,7 +500,7 @@ export default function MileagePage() {
         />
         <Stat
           label="Rate"
-          value={carMiles >= CAR_THRESHOLD ? '25p/mi' : '45p/mi'}
+          value={carMiles >= CAR_THRESHOLD ? '25p/mi' : '55p/mi'}
           sub={
             carMiles >= CAR_THRESHOLD
               ? 'excess rate active'
@@ -531,7 +531,7 @@ export default function MileagePage() {
                 fontFamily: 'var(--font-geist-mono, monospace)',
               }}
             >
-              Car mileage threshold (45p → 25p)
+              Car mileage threshold (55p → 25p)
             </span>
             <span
               style={{

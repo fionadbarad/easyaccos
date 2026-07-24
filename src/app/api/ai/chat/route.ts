@@ -113,10 +113,10 @@ const OFFLINE = {
     `Above that: **${pct(DIV_BASIC)}** in the basic rate band, **${pct(DIV_HIGHER)}** in the higher rate band. ` +
     `Optimal structure is a salary at the NI threshold (${fmtGBP(NI_PT)}) plus dividends.`,
   mileage:
-    'You can claim **45p per business mile** for the first 10,000 miles, then **25p/mile**. ' +
+    'You can claim **55p per business mile** for the first 10,000 miles, then **25p/mile**. ' +
     'Keep a log with dates, destinations and business purpose.',
   expense:
-    'Common allowable expenses: Use of Home (£6/wk flat rate), mileage (45p/mile), ' +
+    'Common allowable expenses: Use of Home (£6/wk flat rate), mileage (55p/mile), ' +
     'equipment, training, professional subscriptions, pension contributions. ' +
     'Enter your expenses in the Tax Estimator to see the exact reduction.',
   ni:
@@ -142,7 +142,7 @@ function offlineReply(query: string): string {
     return OFFLINE.ni
   if (q.includes('60%') || q.includes('trap') || q.includes('100,000')) return OFFLINE.trap
   return (
-    'The Tax Estimator on the Tax page gives you a full HMRC-accurate 2026/27 breakdown. ' +
+    'The Tax Estimator on the Tax page gives you a full 2026/27 breakdown using published HMRC rates. ' +
     'Enter your income and expenses there for exact figures. ' +
     'Ask me anything specific about Personal Allowance, NI, dividends, or expenses.'
   )

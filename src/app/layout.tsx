@@ -27,7 +27,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'System Auditor — UK Compliance Operating System 2026/27',
   description:
-    'Precision tax engine, MTD ITSA compliance, and audit-ready financial reporting for UK sole traders, landlords, and directors. 2026/27 HMRC-accurate.',
+    'Tax engine, MTD ITSA tooling, and financial reporting for UK sole traders, landlords, and directors, using 2026/27 UK rates. Estimates only, not a substitute for professional advice.',
   manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,

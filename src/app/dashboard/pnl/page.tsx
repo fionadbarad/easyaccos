@@ -350,7 +350,7 @@ export default function PnLPage() {
               fontFamily: 'var(--font-geist-mono), monospace',
             }}
           >
-            2026/27 · GBP · HMRC-compliant
+            2026/27 · GBP · estimate only
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
@@ -460,7 +460,11 @@ export default function PnLPage() {
               { label: 'Total Revenue', value: fmt(totalRevenue), trend: 'up' as const },
               { label: 'Total Expenses', value: fmt(opEx + costOfSales), trend: 'down' as const },
               { label: 'Net Profit', value: fmt(netProfit), sub: `${margin.toFixed(1)}% margin` },
-              { label: 'Tax Provision', value: fmt(taxProvision), sub: '2026/27 HMRC liability' },
+              {
+                label: 'Tax Provision',
+                value: fmt(taxProvision),
+                sub: 'estimated 2026/27 liability',
+              },
               { label: 'Profit After Tax', value: fmt(profitAfterTax) },
             ].map((s) => (
               <div key={s.label} style={{ background: C.surface, padding: '1rem 1.15rem' }}>
@@ -847,7 +851,7 @@ export default function PnLPage() {
                 fontFamily: 'var(--font-geist-mono), monospace',
               }}
             >
-              2026/27 HMRC compliant · tax calculations run client-side
+              2026/27 estimate · not a substitute for professional advice
             </div>
           </div>
         </div>

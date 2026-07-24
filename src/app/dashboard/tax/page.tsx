@@ -31,7 +31,7 @@ export default function TaxPage() {
           Tax Calculator
         </h1>
         <p style={{ color: C.muted, fontSize: '0.84rem', lineHeight: 1.65, maxWidth: '560px' }}>
-          Five HMRC-accurate scenarios. Hard-coded 2026/27 rates — no API latency. Use the{' '}
+          Five scenarios using 2026/27 rates — hard-coded, no API latency. Estimates only. Use the{' '}
           <strong style={{ color: C.white, fontWeight: 500 }}>What-If slider</strong> for real-time
           sensitivity analysis.
         </p>

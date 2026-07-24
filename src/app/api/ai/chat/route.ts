@@ -148,10 +148,8 @@ function offlineReply(query: string): string {
   )
 }
 
-// gemini-2.5-flash: current-gen, free-tier eligible, not a preview model.
-// (The old gemini-1.5-flash model and the @google/generative-ai SDK are
-// both retired — that combo would fail even with a valid key and silently
-// drop back to the offline canned replies below.)
+// Do not downgrade to gemini-1.5-flash: it is retired and fails silently,
+// dropping back to the offline replies below even with a valid API key.
 const MODEL = 'gemini-2.5-flash'
 
 let _ai: GoogleGenAI | null = null
@@ -161,7 +159,6 @@ function getAI(apiKey: string): GoogleGenAI {
 }
 
 export async function POST(request: NextRequest) {
-  // 1. Auth check
   const supabase = await createClient()
   const {
     data: { session },
@@ -196,10 +193,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ answer: offlineReply(query), offline: true })
   }
 
-  // Rate limit the PAID Gemini path per user. Offline canned replies above are
-  // free and intentionally not limited. 20 messages/minute is generous for a
-  // real conversation but stops render loops and casual abuse from running up
-  // the API bill.
+  // Rate-limit the PAID path per user (offline replies above are free/unlimited).
+  // 20/min is generous for a real conversation but stops loops and casual abuse.
   const limit = rateLimit(`ai-chat:${session.user.id}`, 20, 60_000)
   if (!limit.ok) {
     return NextResponse.json(

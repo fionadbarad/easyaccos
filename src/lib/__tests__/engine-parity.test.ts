@@ -112,10 +112,13 @@ describe('calcScenario2 vs calculateTax parity', () => {
 })
 
 // ─── Scenario 5 parity: canonical director (salary = £12,570 PT) + dividends ─
-// calcScenario5 applies PA to salary only and stacks dividends on top — correct
-// when salary >= PA (the optimal director pattern). Below-PA salary is outside
-// the scenario's intended use (HMRC lets unused PA cover dividends) and is not
-// diff-tested here.
+// Parity holds at salary >= PA (the optimal director pattern), which is what
+// this suite tests. Below-PA salary is deliberately not diff-tested: the two
+// diverge there because legacy calcScenario5 applies PA to salary only, whereas
+// calculateTax now sets surplus PA against dividends per HMRC. The production
+// director scenario uses calculateTax (see features/tax/scenarios.ts), so the
+// correct below-PA behaviour is the one users get; calcScenario5 is retained
+// only as this reference calculator.
 //
 // calcScenario5 also reports `incomeTax` as the combined salary+dividend tax,
 // so we compare against the SUM of calculateTax.incomeTax + .dividendTax.

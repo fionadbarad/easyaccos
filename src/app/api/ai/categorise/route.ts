@@ -90,11 +90,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ category: heuristic(description), source: 'heuristic' })
   }
 
-  // Auth gate for the PAID path only. The regex heuristic above is free and
-  // stays open to guest/offline users, but the Gemini call must not be
-  // publicly reachable — middleware only covers /dashboard/*, so an
-  // unauthenticated caller could otherwise burn API quota at will. Anyone
-  // without a session falls back to the same free heuristic.
+  // Auth-gate the PAID path only: middleware covers just /dashboard/*, so the
+  // Gemini call would otherwise be publicly reachable. Guests without a session
+  // keep the free heuristic above.
   const supabase = await createClient()
   const {
     data: { session },
@@ -103,10 +101,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ category: heuristic(description), source: 'heuristic' })
   }
 
-  // Rate limit the PAID Gemini path per user. Exceeding the limit is not an
-  // error here — the caller just gets the free regex heuristic instead, so
-  // categorisation keeps working, only without the AI refinement. 40/minute
-  // comfortably covers bulk expense entry while capping runaway usage.
+  // Rate-limit the PAID path per user; over the limit we fall back to the free
+  // heuristic rather than erroring. 40/min covers bulk entry, caps runaway use.
   const limit = rateLimit(`ai-categorise:${session.user.id}`, 40, 60_000)
   if (!limit.ok) {
     return NextResponse.json({ category: heuristic(description), source: 'heuristic-ratelimited' })

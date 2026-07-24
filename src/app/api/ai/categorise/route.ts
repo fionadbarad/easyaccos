@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenAI } from '@google/genai'
 import { CategoriseRequestSchema } from '@/app/api/ai/schemas'
 import { reportError } from '@/lib/monitor'
+import { rateLimit, clientIpKey } from '@/lib/rate-limit'
 
 const CATEGORIES = [
   'Office & Equipment',
@@ -67,6 +68,17 @@ ${CATEGORIES.join('\n')}
 If unsure, answer "Other".`
 
 export async function POST(request: NextRequest) {
+  // This route is usable by guests (categorisation works in guest mode), so we
+  // rate-limit by client IP rather than requiring auth — enough to stop anyone
+  // burning the Gemini quota. See docs/AUDIT.md SEC-6.
+  const limit = rateLimit(`ai:categorise:${clientIpKey(request)}`, 60, 60_000)
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please slow down.' },
+      { status: 429, headers: { 'Retry-After': String(limit.retryAfterSec) } },
+    )
+  }
+
   let raw: unknown
   try {
     raw = await request.json()

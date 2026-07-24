@@ -3,8 +3,8 @@ import { GoogleGenAI } from '@google/genai'
 import { buildContextPrompt } from '@/lib/acco/context'
 import { ChatRequestSchema } from '@/app/api/ai/schemas'
 import { reportError } from '@/lib/monitor'
-import { getSupabaseBrowserClient } from '@/lib/supabase-client-singleton'
 import { createClient } from '@/lib/supabase-server'
+import { rateLimit } from '@/lib/rate-limit'
 import { fmtGBP } from '@/lib/formatters'
 import {
   PA_BASE,
@@ -161,17 +161,25 @@ function getAI(apiKey: string): GoogleGenAI {
 }
 
 export async function POST(request: NextRequest) {
-  // 1. Auth check
+  // 1. Auth check — getUser() validates the session against Supabase's auth
+  //    server (getSession() only reads the cookie). See docs/AUDIT.md SEC-8.
   const supabase = await createClient()
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
-  if (!session) {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // 2. Simple rate limiting (using IP-based check or similar if possible,
-  // but for now let's at least ensure they are logged in)
+  // 2. Per-user rate limit — 30 messages/min. Caps runaway Gemini spend if a
+  //    session hammers the endpoint (docs/AUDIT.md SEC-6).
+  const limit = rateLimit(`ai:chat:${user.id}`, 30, 60_000)
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please slow down.' },
+      { status: 429, headers: { 'Retry-After': String(limit.retryAfterSec) } },
+    )
+  }
 
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
 

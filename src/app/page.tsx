@@ -4,7 +4,7 @@ import LandingPage from './LandingPage'
 export const metadata: Metadata = {
   title: 'EasyAcco — Free UK Tax Software for Sole Traders & Freelancers 2026/27',
   description:
-    'HMRC-accurate income tax and NI calculations, expense tracking, invoice management, and AI tax advisory — all free, no account required. Built for UK sole traders, freelancers, and directors. 2026/27 compliant.',
+    'Income tax and NI estimates using 2026/27 UK rates, expense tracking, invoice management, and AI tax guidance — all free, no account required. Built for UK sole traders, freelancers, and directors. Estimates only, not tax advice.',
   keywords: [
     'UK tax software',
     'sole trader accounting',
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'EasyAcco — Free UK Tax Software for Sole Traders 2026/27',
     description:
-      'HMRC-accurate tax calculations, expense tracking, and AI tax advisory. Free for UK sole traders and freelancers.',
+      'Tax estimates using 2026/27 UK rates, expense tracking, and AI tax guidance. Free for UK sole traders and freelancers.',
     type: 'website',
     locale: 'en_GB',
   },

@@ -3,6 +3,7 @@ import { GoogleGenAI } from '@google/genai'
 import { CategoriseRequestSchema } from '@/app/api/ai/schemas'
 import { reportError } from '@/lib/monitor'
 import { createClient } from '@/lib/supabase-server'
+import { rateLimit } from '@/lib/rate-limit'
 
 const CATEGORIES = [
   'Office & Equipment',
@@ -100,6 +101,15 @@ export async function POST(request: NextRequest) {
   } = await supabase.auth.getSession()
   if (!session) {
     return NextResponse.json({ category: heuristic(description), source: 'heuristic' })
+  }
+
+  // Rate limit the PAID Gemini path per user. Exceeding the limit is not an
+  // error here — the caller just gets the free regex heuristic instead, so
+  // categorisation keeps working, only without the AI refinement. 40/minute
+  // comfortably covers bulk expense entry while capping runaway usage.
+  const limit = rateLimit(`ai-categorise:${session.user.id}`, 40, 60_000)
+  if (!limit.ok) {
+    return NextResponse.json({ category: heuristic(description), source: 'heuristic-ratelimited' })
   }
 
   try {

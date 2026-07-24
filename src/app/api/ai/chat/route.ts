@@ -4,6 +4,7 @@ import { buildContextPrompt } from '@/lib/acco/context'
 import { ChatRequestSchema } from '@/app/api/ai/schemas'
 import { reportError } from '@/lib/monitor'
 import { createClient } from '@/lib/supabase-server'
+import { rateLimit } from '@/lib/rate-limit'
 import { fmtGBP } from '@/lib/formatters'
 import {
   PA_BASE,
@@ -169,9 +170,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // 2. Simple rate limiting (using IP-based check or similar if possible,
-  // but for now let's at least ensure they are logged in)
-
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
 
   let raw: unknown
@@ -196,6 +194,18 @@ export async function POST(request: NextRequest) {
 
   if (!apiKey) {
     return NextResponse.json({ answer: offlineReply(query), offline: true })
+  }
+
+  // Rate limit the PAID Gemini path per user. Offline canned replies above are
+  // free and intentionally not limited. 20 messages/minute is generous for a
+  // real conversation but stops render loops and casual abuse from running up
+  // the API bill.
+  const limit = rateLimit(`ai-chat:${session.user.id}`, 20, 60_000)
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: 'Too many requests — please wait a moment and try again.' },
+      { status: 429, headers: { 'Retry-After': String(limit.retryAfterSec) } },
+    )
   }
 
   try {

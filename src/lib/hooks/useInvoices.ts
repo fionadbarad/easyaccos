@@ -25,8 +25,12 @@ function in30() {
   return d.toISOString().slice(0, 10)
 }
 
+// VAT-inclusive total. Standard-rated (20%) when `vat` is set. Rounded to whole
+// pence so downstream sums and fmtDec never surface sub-penny artefacts.
+// NOTE: only the 20% standard rate is modelled — zero/reduced/exempt/reverse-charge
+// are not yet supported (see docs/AUDIT.md TAX-4).
 export function vatTotal(inv: Invoice) {
-  return inv.vat ? inv.amount * 1.2 : inv.amount
+  return inv.vat ? Math.round(inv.amount * 1.2 * 100) / 100 : inv.amount
 }
 
 export function isPastDue(inv: Invoice) {

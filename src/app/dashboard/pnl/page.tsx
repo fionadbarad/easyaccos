@@ -793,7 +793,7 @@ export default function PnLPage() {
           <ISLine label="Total OpEx" value={opEx} bold negative />
           <ISLine separator />
 
-          <ISLine label="NET PROFIT (EBITDA)" value={ebitda} bold highlight />
+          <ISLine label="PROFIT BEFORE TAX" value={ebitda} bold highlight />
           <ISLine separator />
 
           <ISLine label="TAX PROVISION" bold />

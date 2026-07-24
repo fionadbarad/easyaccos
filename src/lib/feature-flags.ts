@@ -15,6 +15,14 @@ const ENV_MAP: Record<FlagName, string | undefined> = {
   [FLAG_AUDIT]: process.env.NEXT_PUBLIC_EA_AUDIT,
 }
 
+// Default state when neither a localStorage override nor an env var is set.
+// The audit trail is ON by default — accounting software should record changes
+// unless someone deliberately turns it off (docs/AUDIT.md AUD-1).
+const DEFAULTS: Record<FlagName, boolean> = {
+  [FLAG_GAAP]: false,
+  [FLAG_AUDIT]: true,
+}
+
 function truthy(v: string | null | undefined): boolean {
   if (!v) return false
   return v === '1' || v.toLowerCase() === 'true' || v.toLowerCase() === 'on'
@@ -30,7 +38,10 @@ export function isFlagEnabled(name: FlagName): boolean {
       /* ignore */
     }
   }
-  return truthy(ENV_MAP[name])
+  // Explicit env var wins over the default; otherwise fall back to DEFAULTS.
+  const env = ENV_MAP[name]
+  if (env !== undefined && env !== '') return truthy(env)
+  return DEFAULTS[name]
 }
 
 export function setFlag(name: FlagName, on: boolean): void {

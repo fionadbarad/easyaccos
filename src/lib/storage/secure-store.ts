@@ -9,7 +9,7 @@
 
 import { STORE_KV, STORE_RECORDS, idbGet, idbSet, idbDelete, idbKeys, isIDBAvailable } from './idb'
 import { generateDeviceKey, encryptWithKey, decryptWithKey } from './crypto'
-import { reportError } from '@/lib/monitor'
+import { reportError, reportWarn } from '@/lib/monitor'
 
 const DEVICE_KEY_ID = 'device-key'
 
@@ -126,8 +126,14 @@ export async function secureDumpAll(): Promise<Record<string, unknown>> {
     if (!isCipherBlob(blob)) continue
     try {
       out[k] = JSON.parse(await decryptWithKey(key, blob))
-    } catch {
-      /* skip corrupt record */
+    } catch (err) {
+      // Skip records that won't decrypt/parse so one bad blob can't abort the
+      // whole backup — but warn, because a corrupt record is real data loss the
+      // user should be able to find out about.
+      reportWarn('secureStore.dumpCorruptRecord', 'skipped undecryptable record during backup', {
+        recordKey: k,
+        error: err instanceof Error ? err.message : String(err),
+      })
     }
   }
   return out

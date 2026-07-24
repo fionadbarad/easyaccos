@@ -26,6 +26,7 @@
 import { isFlagEnabled, FLAG_AUDIT } from './feature-flags'
 import { idbSet, STORE_AUDIT, isIDBAvailable, idbAuditRange } from './storage/idb'
 import { isSupabaseConfigured } from './supabase-browser'
+import { reportWarn } from './monitor'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 export type AuditOp = 'create' | 'update' | 'delete'
@@ -58,8 +59,15 @@ export async function appendAuditLog(
   if (isIDBAvailable()) {
     try {
       await idbSet(STORE_AUDIT, full.id, full)
-    } catch {
-      /* best-effort */
+    } catch (err) {
+      // Best-effort: never block the user action on an audit-log write. But a
+      // dropped audit entry matters for record-keeping, so warn rather than
+      // swallow — a persistent failure here should be visible in monitoring.
+      reportWarn('audit.idbWrite', 'failed to persist audit entry to IndexedDB', {
+        entity: full.entity,
+        op: full.op,
+        error: err instanceof Error ? err.message : String(err),
+      })
     }
   }
 

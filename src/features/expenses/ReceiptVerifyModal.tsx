@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { X, Camera, Sparkles, Loader2, CheckCircle2 } from 'lucide-react'
 import type { PendingScan } from '@/lib/hooks/useExpenses'
 import { CATEGORIES } from '@/lib/hooks/useExpenses'
+import { reportError } from '@/lib/monitor'
 
 import { C } from '@/styles/palette'
 const inputS: React.CSSProperties = {
@@ -58,8 +59,11 @@ export function ReceiptVerifyModal({
       if (data.category && CATEGORIES.includes(data.category)) {
         setForm((f) => ({ ...f, category: data.category }))
       }
-    } catch {
-      /* silent */
+    } catch (err) {
+      // Non-fatal: the AI suggestion is optional, so the user can still pick a
+      // category by hand. But log it — a failing categorise call should be
+      // visible, not swallowed.
+      reportError('receiptVerify.suggestCategory', err)
     } finally {
       setSugging(false)
     }

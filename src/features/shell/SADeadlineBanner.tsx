@@ -82,7 +82,10 @@ export default function SADeadlineBanner() {
     setDismissed(true)
     try {
       window.localStorage.setItem(DISMISS_KEY, dismissId)
-    } catch {}
+    } catch {
+      // localStorage blocked (e.g. private browsing) — the banner just won't
+      // stay dismissed across reloads. Expected, not worth logging.
+    }
   }
 
   if (!next || dismissed) return null

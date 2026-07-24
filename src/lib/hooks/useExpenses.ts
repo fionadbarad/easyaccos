@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import { useUserData } from '@/lib/use-user-data'
+import { reportError } from '@/lib/monitor'
 import type { ReceiptExtract } from '@/components/ReceiptScanner'
 import {
   emptyFilter,
@@ -131,8 +132,10 @@ export function useExpenses() {
       if (data.category && CATEGORIES.includes(data.category)) {
         setForm((f) => ({ ...f, category: data.category }))
       }
-    } catch {
-      /* silent */
+    } catch (err) {
+      // Non-fatal: the user can still choose a category manually. Logged rather
+      // than swallowed so a broken categorise endpoint surfaces in monitoring.
+      reportError('useExpenses.suggestCategory', err)
     } finally {
       setSuggesting(false)
     }

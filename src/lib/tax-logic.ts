@@ -2,7 +2,8 @@
 // Audit complete. All calculations use correct bases, 2dp rounding throughout.
 //
 // BUGS FIXED vs v2:
-//   - Plan 2 student loan threshold corrected: £28,470 -> £27,295
+//   - Plan 2 student loan threshold set to the confirmed 2026/27 figure:
+//     £29,385/yr (HMRC "Student loan and postgraduate loan repayment thresholds")
 //   - Student loan now uses grossProfit (HMRC applies repayment on profit
 //     before pension relief, not after)
 //   - Floating point errors eliminated: round2() applied to all outputs

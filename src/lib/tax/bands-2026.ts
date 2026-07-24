@@ -1,6 +1,15 @@
 // HMRC 2026/27 single source of truth.
 // Update this file when 2027/28 figures are announced — all engines and
 // scenario calculators import from here, so there's only one place to change.
+//
+// Figures verified against the 2026/27 (6 Apr 2026 – 5 Apr 2027) rate research.
+// Primary sources (gov.uk unless noted):
+//   [IT]  Income Tax rates and Personal Allowances
+//   [SCO] Scottish income tax — Current rates 6 Apr 2026–5 Apr 2027 (mygov.scot)
+//   [NI]  Rates and allowances: National Insurance contributions
+//   [DIV] Check if you have to pay tax on dividends
+//   [SL]  Student loan and postgraduate loan repayment thresholds
+// Plan 2 SL threshold £29,385/yr confirmed against HMRC (2026/27).
 
 // ── Income Tax — Personal Allowance ─────────────────────────────────────────
 export const PA_BASE = 12_570
@@ -17,7 +26,7 @@ export const RUK_BASIC_RATE_WIDTH = 37_700 // £12,571 – £50,270 at 20%
 export const RUK_BASIC_LIMIT = 50_270
 export const RUK_HIGHER_LIMIT = 125_140 // taxable income above this: 45%
 
-// ── Income Tax — Scotland band ceilings (absolute gross income) ─────────────
+// ── Income Tax — Scotland band ceilings (absolute gross income) [SCO] ───────
 export const SCO_STARTER_END = 16_537 // 19%
 export const SCO_BASIC_END = 29_526 // 20%
 export const SCO_INTERMEDIATE_END = 43_662 // 21%
@@ -25,7 +34,7 @@ export const SCO_HIGHER_END = 75_000 // 42%
 export const SCO_ADVANCED_END = 125_140 // 45%
 // above: 48%
 
-// ── National Insurance ──────────────────────────────────────────────────────
+// ── National Insurance [NI] ─────────────────────────────────────────────────
 export const NI_PT = 12_570 // Primary Threshold
 export const NI_UEL = 50_270 // Upper Earnings Limit
 export const NI_C1_MAIN = 0.08 // Employee Class 1 main
@@ -39,15 +48,15 @@ export const NI_CLASS2_SPT = 7_105 // Class 2 Small Profits Threshold
 export const EMPLOYER_NI_RATE = 0.15 // was 13.8%
 export const EMPLOYER_NI_THRESH = 5_000 // Secondary Threshold
 
-// ── Dividends — 2026/27 hike (effective 6 April 2026) ──────────────────────
+// ── Dividends — 2026/27 (effective 6 April 2026) [DIV] ─────────────────────
 export const DIV_ALLOWANCE = 500
 export const DIV_BASIC = 0.1075 // 10.75% (was 8.75%)
 export const DIV_HIGHER = 0.3575 // 35.75% (was 33.75%)
 export const DIV_ADDL = 0.3935 // 39.35%
 
-// ── Student Loans 2026/27 ───────────────────────────────────────────────────
+// ── Student Loans 2026/27 [SL] ──────────────────────────────────────────────
 export const SL_PLAN1_THRESH = 26_900
-export const SL_PLAN2_THRESH = 29_385
+export const SL_PLAN2_THRESH = 29_385 // £29,385/yr — confirmed HMRC 2026/27
 export const SL_PLAN4_THRESH = 33_795 // Scotland
 export const SL_PLAN5_THRESH = 25_000 // post-Aug 2023
 export const SL_POSTGRAD_THRESH = 21_000

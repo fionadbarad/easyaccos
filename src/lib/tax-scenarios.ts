@@ -175,7 +175,10 @@ export function calcScenario3(inp: S3Input): ScenarioResult {
   const pa = calcPA(taxableIncome)
   const taxable = Math.max(0, taxableIncome - pa)
   const itax = rukIncomeTax(taxable)
-  const ni = calcClass1NI(taxableIncome)
+  // National Insurance is charged on EARNINGS only. JSA and Carer's Allowance are
+  // taxable social-security benefits, not earnings, so they attract no NI — only
+  // the earned `otherIncome` (e.g. part-time work) forms the NI base (TAX-7).
+  const ni = calcClass1NI(inp.otherIncome)
   const total = round2(itax + ni)
   const totalIncoming = taxableIncome + inp.universalCredit
   const takeHome = round2(Math.max(0, totalIncoming - total))

@@ -145,6 +145,27 @@ describe('Scotland income tax', () => {
     const r = calculateTax({ ...seInput(12_570), taxRegion: 'scotland' })
     expect(r.incomeTax).toBe(0)
   })
+
+  // ── Band edges track the ACTUAL (tapered) PA (TAX-9) ────────────────────────
+  // For a Scot over £100k the PA tapers, so more income is taxable. The prior
+  // code seeded band edges off the hardcoded £12,570, leaving £(12,570 − actual
+  // PA) of income in no band at all. Every pound of taxable income must land in
+  // exactly one band.
+  it('taxes every pound of taxable income when PA is tapered', () => {
+    const r = calculateTax({ ...seInput(120_000), taxRegion: 'scotland' })
+    expect(r.personalAllowance).toBe(2_570) // 12,570 − (20,000 / 2)
+    const banded = r.taxBands.reduce((s, b) => s + b.amount, 0)
+    expect(round2(banded)).toBe(r.taxableIncome)
+    expect(r.taxableIncome).toBe(117_430)
+  })
+
+  it('£120,000 Scotland → £44,377.85 income tax (full-width bands from actual PA)', () => {
+    // taxable 117,430 sliced by fixed band widths:
+    // 3,967@19 + 12,989@20 + 14,136@21 + 31,338@42 + 50,140@45 + 4,860@48.
+    const r = calculateTax({ ...seInput(120_000), taxRegion: 'scotland' })
+    expect(r.incomeTax).toBe(44_377.85)
+    expect(r.taxBands.map((b) => b.rate)).toContain(48)
+  })
 })
 
 // ── NI Class 4 ────────────────────────────────────────────────────────────────
@@ -201,30 +222,39 @@ describe('NI Class 2', () => {
 })
 
 // ── Student loan plans ────────────────────────────────────────────────────────
+// HMRC floors student-loan repayments to whole pounds (the pence are never
+// collected). Expected values therefore use Math.floor, not round2 (TAX-6).
 describe('Student loan repayment', () => {
   it('Plan 1: 9% on income above £26,900', () => {
     const r = calculateTax({ ...seInput(40_000), studentLoanPlan: 'plan1' })
-    expect(r.studentLoanRepayment).toBe(round2((40_000 - 26_900) * 0.09))
+    expect(r.studentLoanRepayment).toBe(Math.floor((40_000 - 26_900) * 0.09))
   })
 
   it('Plan 2: 9% on income above £29,385', () => {
     const r = calculateTax({ ...seInput(40_000), studentLoanPlan: 'plan2' })
-    expect(r.studentLoanRepayment).toBe(round2((40_000 - 29_385) * 0.09))
+    expect(r.studentLoanRepayment).toBe(Math.floor((40_000 - 29_385) * 0.09))
   })
 
   it('Plan 4: 9% on income above £33,795', () => {
     const r = calculateTax({ ...seInput(50_000), studentLoanPlan: 'plan4' })
-    expect(r.studentLoanRepayment).toBe(round2((50_000 - 33_795) * 0.09))
+    expect(r.studentLoanRepayment).toBe(Math.floor((50_000 - 33_795) * 0.09))
   })
 
   it('Plan 5: 9% on income above £25,000', () => {
     const r = calculateTax({ ...seInput(40_000), studentLoanPlan: 'plan5' })
-    expect(r.studentLoanRepayment).toBe(round2((40_000 - 25_000) * 0.09))
+    expect(r.studentLoanRepayment).toBe(Math.floor((40_000 - 25_000) * 0.09))
   })
 
   it('Postgraduate: 6% on income above £21,000', () => {
     const r = calculateTax({ ...seInput(35_000), studentLoanPlan: 'postgraduate' })
-    expect(r.studentLoanRepayment).toBe(round2((35_000 - 21_000) * 0.06))
+    expect(r.studentLoanRepayment).toBe(Math.floor((35_000 - 21_000) * 0.06))
+  })
+
+  it('floors the repayment to whole pounds (no pence)', () => {
+    // Plan 2 on £40,000: (40,000 − 29,385) × 9% = £955.35 → floored to £955.
+    const r = calculateTax({ ...seInput(40_000), studentLoanPlan: 'plan2' })
+    expect(r.studentLoanRepayment).toBe(955)
+    expect(Number.isInteger(r.studentLoanRepayment)).toBe(true)
   })
 
   it('no repayment below threshold', () => {
@@ -240,7 +270,7 @@ describe('Student loan repayment', () => {
       pensionContribution: 10_000,
     })
     expect(r.studentLoanBase).toBe(50_000)
-    expect(r.studentLoanRepayment).toBe(round2((50_000 - 29_385) * 0.09))
+    expect(r.studentLoanRepayment).toBe(Math.floor((50_000 - 29_385) * 0.09))
   })
 })
 
@@ -438,23 +468,34 @@ describe('Allowable expenses', () => {
     expect(r.grossProfit).toBe(40_000)
   })
 
-  it('negative profit is clamped to zero', () => {
+  it('reports a trading loss as negative profit with zero tax (TAX-11)', () => {
+    // Expenses exceed revenue → a real loss year. The signed profit is kept so
+    // the breakdown shows the loss; every tax/NIC base floors at 0, so nothing
+    // is charged.
     const r = calculateTax(seInput(10_000, 15_000))
-    expect(r.grossProfit).toBe(0)
+    expect(r.grossProfit).toBe(-5_000)
+    expect(r.adjustedProfit).toBe(0)
+    expect(r.taxableIncome).toBe(0)
+    expect(r.incomeTax).toBe(0)
+    expect(r.niClass4).toBe(0)
+    expect(r.studentLoanRepayment).toBe(0)
+    expect(r.totalDeductions).toBe(0)
     expect(r.netTakeHome).toBe(0)
   })
 })
 
 // ── Validation ────────────────────────────────────────────────────────────────
 describe('validateTaxInput', () => {
-  it('rejects zero gross revenue', () => {
-    const e = validateTaxInput(seInput(0))
+  it('rejects negative gross revenue', () => {
+    const e = validateTaxInput(seInput(-1))
     expect(e.grossRevenue).toBeDefined()
   })
 
-  it('rejects expenses ≥ revenue', () => {
+  it('allows expenses ≥ revenue — a trading loss is valid input (TAX-11)', () => {
     const e = validateTaxInput(seInput(50_000, 50_000))
-    expect(e.allowableExpenses).toBeDefined()
+    expect(e.allowableExpenses).toBeUndefined()
+    const loss = validateTaxInput(seInput(50_000, 80_000))
+    expect(loss.allowableExpenses).toBeUndefined()
   })
 
   it('rejects negative dividend income', () => {

@@ -15,6 +15,10 @@
 export type EmploymentType = 'employed' | 'self-employed' | 'director'
 export type StudentLoanPlan = 'none' | 'plan1' | 'plan2' | 'plan4' | 'plan5' | 'postgraduate'
 export type TaxRegion = 'ruk' | 'scotland'
+// Which side of a Marriage Allowance claim the user is on (TAX-8):
+//   'transferor' — gives £1,260 of their own PA away (their PA drops)
+//   'recipient'  — receives it as a ~£252 tax reducer (their PA is unchanged)
+export type MarriageAllowanceRole = 'transferor' | 'recipient'
 
 export interface TaxInput {
   grossRevenue: number
@@ -24,7 +28,8 @@ export interface TaxInput {
   taxRegion: TaxRegion
   studentLoanPlan: StudentLoanPlan
   voluntaryClass2NI: boolean // only applies when profit < SPT (£7,105)
-  marriageAllowance: boolean // transfer £1,260 PA to partner
+  marriageAllowance: boolean // Marriage Allowance claim active
+  marriageAllowanceRole?: MarriageAllowanceRole // defaults to 'transferor' (back-compat)
   blindPersonsAllowance: boolean // additional £3,250 PA
   pensionContribution: number // annual SIPP — reduces adjusted net income
 }
@@ -74,8 +79,9 @@ export interface TaxResult {
   taxableIncome: number // max(0, adjustedProfit - personalAllowance)
 
   // ── Income tax ────────────────────────────────────────────────────────
-  incomeTax: number
+  incomeTax: number // net of any Marriage Allowance recipient reducer
   taxBands: TaxBand[]
+  marriageAllowanceReducer: number // £ knocked off tax as MA recipient (0 if n/a)
 
   // ── National Insurance ───────────────────────────────────────────────
   niClass1: number // employed / director
@@ -441,6 +447,7 @@ export function calculateTax(input: TaxInput): TaxResult {
     studentLoanPlan,
     voluntaryClass2NI,
     marriageAllowance,
+    marriageAllowanceRole = 'transferor',
     blindPersonsAllowance,
     pensionContribution,
   } = input
@@ -456,7 +463,11 @@ export function calculateTax(input: TaxInput): TaxResult {
   // ── 3. Personal Allowance ──────────────────────────────────────────────────
   // Taper uses adjusted_net_income = adjustedProfit + dividendIncome
   const paRaw = calcPA(adjustedProfit + dividendIncome)
-  const paMarr = marriageAllowance ? Math.max(0, paRaw - MARRIAGE_ALLOWANCE_XFER) : paRaw
+  // Marriage Allowance TRANSFEROR gives £1,260 of PA away → their PA drops.
+  // RECIPIENT keeps full PA and instead gets a tax reducer applied after the
+  // income-tax bands (see step 5). MA off, or role=recipient, leaves PA intact.
+  const isMaTransferor = marriageAllowance && marriageAllowanceRole === 'transferor'
+  const paMarr = isMaTransferor ? Math.max(0, paRaw - MARRIAGE_ALLOWANCE_XFER) : paRaw
   const pa = blindPersonsAllowance ? paMarr + BLIND_PERSONS_ALLOWANCE : paMarr
   // PA is never negative
   const personalAllowance = Math.max(0, pa)
@@ -469,7 +480,21 @@ export function calculateTax(input: TaxInput): TaxResult {
     taxRegion === 'scotland'
       ? calcScotlandTax(adjustedProfit, personalAllowance)
       : calcRukTax(taxableIncome)
-  const incomeTax = round2(incomeTaxRaw)
+
+  // Marriage Allowance RECIPIENT relief: a tax reducer of 20% × £1,260 = £252
+  // (given at the rUK basic rate even for Scottish taxpayers), non-refundable so
+  // capped at the tax due. Only available if the recipient is NOT a higher-/
+  // additional-rate payer — rUK basic (20%), or Scotland up to intermediate
+  // (21%). Ineligible → £0 (TAX-8).
+  const maxEligibleRate = taxRegion === 'scotland' ? 21 : 20
+  const maRecipientEligible =
+    marriageAllowance &&
+    marriageAllowanceRole === 'recipient' &&
+    !taxBands.some((b) => b.rate > maxEligibleRate)
+  const marriageAllowanceReducer = maRecipientEligible
+    ? Math.min(round2(incomeTaxRaw), round2(MARRIAGE_ALLOWANCE_XFER * 0.2))
+    : 0
+  const incomeTax = round2(Math.max(0, incomeTaxRaw - marriageAllowanceReducer))
 
   // ── 6. National Insurance ──────────────────────────────────────────────────
   // Class 1: employed / director — on adjusted profit (salary)
@@ -583,6 +608,15 @@ export function calculateTax(input: TaxInput): TaxResult {
       value: taxableIncome,
       note: 'The amount subject to Income Tax rates (Personal Allowance is subtracted above)',
     },
+    ...(marriageAllowanceReducer > 0
+      ? [
+          {
+            label: 'Marriage Allowance (received)',
+            value: -marriageAllowanceReducer,
+            note: 'Tax reducer of 20% × £1,260 for the receiving partner (basic-rate only)',
+          },
+        ]
+      : []),
   ]
 
   return {
@@ -595,6 +629,7 @@ export function calculateTax(input: TaxInput): TaxResult {
     taxableIncome,
     incomeTax,
     taxBands,
+    marriageAllowanceReducer,
     niClass1,
     niClass4,
     niClass2,

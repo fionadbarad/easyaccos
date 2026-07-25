@@ -16,6 +16,7 @@ function draft(over: Partial<TaxInputDraft> = {}): TaxInputDraft {
     taxRegion: 'ruk',
     studentLoanPlan: 'none',
     marriageAllowance: false,
+    marriageAllowanceRole: 'recipient',
     blindPersonsAllowance: false,
     voluntaryClass2NI: false,
     ...over,

@@ -46,6 +46,8 @@ export default function TaxCalculator() {
         setStudentLoanPlan={s.setStudentLoanPlan}
         marriageAllowance={s.marriageAllowance}
         setMarriageAllowance={s.setMarriageAllowance}
+        marriageAllowanceRole={s.marriageAllowanceRole}
+        setMarriageAllowanceRole={s.setMarriageAllowanceRole}
         blindPersonsAllowance={s.blindPersonsAllowance}
         setBlindPersonsAllowance={s.setBlindPersonsAllowance}
         voluntaryClass2NI={s.voluntaryClass2NI}

@@ -4,7 +4,13 @@
 // purely presentational — pass props through, render panels.
 
 import { useState, useMemo } from 'react'
-import { calculateTax, type TaxResult, type StudentLoanPlan, type TaxRegion } from '@/lib/tax-logic'
+import {
+  calculateTax,
+  type TaxResult,
+  type StudentLoanPlan,
+  type TaxRegion,
+  type MarriageAllowanceRole,
+} from '@/lib/tax-logic'
 import {
   calcScenario3,
   calcScenario4,
@@ -32,6 +38,7 @@ const DEFAULT_INPUTS = {
   pensionContribution: 0,
   studentLoanPlan: 'none' as StudentLoanPlan,
   marriageAllowance: false,
+  marriageAllowanceRole: 'recipient' as MarriageAllowanceRole, // most claimants receive
   blindPersonsAllowance: false,
   voluntaryClass2NI: false,
   dirSalary: DIRECTOR_OPTIMAL_SALARY, // £12,570 — bands-2026
@@ -63,6 +70,9 @@ export function useTaxScenario() {
     DEFAULT_INPUTS.studentLoanPlan,
   )
   const [marriageAllowance, setMarriageAllowance] = useState(DEFAULT_INPUTS.marriageAllowance)
+  const [marriageAllowanceRole, setMarriageAllowanceRole] = useState<MarriageAllowanceRole>(
+    DEFAULT_INPUTS.marriageAllowanceRole,
+  )
   const [blindPersonsAllowance, setBlindPersonsAllowance] = useState(
     DEFAULT_INPUTS.blindPersonsAllowance,
   )
@@ -95,6 +105,7 @@ export function useTaxScenario() {
         taxRegion,
         studentLoanPlan,
         marriageAllowance,
+        marriageAllowanceRole,
         blindPersonsAllowance,
         voluntaryClass2NI,
       }),
@@ -108,6 +119,7 @@ export function useTaxScenario() {
       taxRegion,
       studentLoanPlan,
       marriageAllowance,
+      marriageAllowanceRole,
       blindPersonsAllowance,
       voluntaryClass2NI,
     ],
@@ -153,6 +165,8 @@ export function useTaxScenario() {
     setStudentLoanPlan,
     marriageAllowance,
     setMarriageAllowance,
+    marriageAllowanceRole,
+    setMarriageAllowanceRole,
     blindPersonsAllowance,
     setBlindPersonsAllowance,
     voluntaryClass2NI,

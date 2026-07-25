@@ -8,7 +8,11 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Info } from 'lucide-react'
 import { C } from '@/styles/palette'
-import { STUDENT_LOAN_LABELS, type StudentLoanPlan } from '@/lib/tax-logic'
+import {
+  STUDENT_LOAN_LABELS,
+  type StudentLoanPlan,
+  type MarriageAllowanceRole,
+} from '@/lib/tax-logic'
 import type { S3Input, S4Input } from '@/lib/tax-scenarios'
 import { cardStyle, selectStyle, fmt } from './tokens'
 import { Field, NumInput, Toggle } from './primitives'
@@ -38,6 +42,8 @@ export interface ScenarioFormProps {
   setStudentLoanPlan: (p: StudentLoanPlan) => void
   marriageAllowance: boolean
   setMarriageAllowance: (v: boolean) => void
+  marriageAllowanceRole: MarriageAllowanceRole
+  setMarriageAllowanceRole: (v: MarriageAllowanceRole) => void
   blindPersonsAllowance: boolean
   setBlindPersonsAllowance: (v: boolean) => void
   voluntaryClass2NI: boolean
@@ -258,10 +264,27 @@ export default function ScenarioForm(p: ScenarioFormProps) {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <Toggle
-                label="Marriage Allowance (−£1,260 PA)"
+                label="Marriage Allowance"
                 active={p.marriageAllowance}
                 onChange={p.setMarriageAllowance}
               />
+              {p.marriageAllowance && (
+                <select
+                  aria-label="Marriage Allowance role"
+                  value={p.marriageAllowanceRole}
+                  onChange={(e) =>
+                    p.setMarriageAllowanceRole(e.target.value as MarriageAllowanceRole)
+                  }
+                  style={selectStyle}
+                >
+                  <option value="recipient" style={{ background: C.deep, color: C.text }}>
+                    I receive it (−£252 tax, basic-rate only)
+                  </option>
+                  <option value="transferor" style={{ background: C.deep, color: C.text }}>
+                    I transfer it away (−£1,260 allowance)
+                  </option>
+                </select>
+              )}
               <Toggle
                 label="Blind Person's Allowance (+£3,250)"
                 active={p.blindPersonsAllowance}

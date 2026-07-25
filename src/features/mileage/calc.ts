@@ -14,7 +14,7 @@ import {
 export function calcRate(vehicle: VehicleType, milesBefore: number, miles: number): number {
   if (vehicle === 'bike') return miles * RATE_BIKE
   if (vehicle === 'motorcycle') return miles * RATE_MOTORCYCLE
-  // Car: split at the 10,000-mile threshold (45p then 25p).
+  // Car: split at the 10,000-mile threshold (55p then 25p).
   const firstBand = Math.max(0, Math.min(miles, Math.max(0, CAR_THRESHOLD - milesBefore)))
   const excessBand = miles - firstBand
   return firstBand * RATE_CAR_FIRST + excessBand * RATE_CAR_EXCESS

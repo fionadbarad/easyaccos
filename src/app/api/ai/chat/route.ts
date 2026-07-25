@@ -4,6 +4,7 @@ import { buildContextPrompt } from '@/lib/acco/context'
 import { ChatRequestSchema } from '@/app/api/ai/schemas'
 import { reportError } from '@/lib/monitor'
 import { createClient } from '@/lib/supabase-server'
+import { rateLimit } from '@/lib/rate-limit'
 import { fmtGBP } from '@/lib/formatters'
 import {
   PA_BASE,
@@ -112,10 +113,10 @@ const OFFLINE = {
     `Above that: **${pct(DIV_BASIC)}** in the basic rate band, **${pct(DIV_HIGHER)}** in the higher rate band. ` +
     `Optimal structure is a salary at the NI threshold (${fmtGBP(NI_PT)}) plus dividends.`,
   mileage:
-    'You can claim **45p per business mile** for the first 10,000 miles, then **25p/mile**. ' +
+    'You can claim **55p per business mile** for the first 10,000 miles, then **25p/mile**. ' +
     'Keep a log with dates, destinations and business purpose.',
   expense:
-    'Common allowable expenses: Use of Home (£6/wk flat rate), mileage (45p/mile), ' +
+    'Common allowable expenses: Use of Home (£6/wk flat rate), mileage (55p/mile), ' +
     'equipment, training, professional subscriptions, pension contributions. ' +
     'Enter your expenses in the Tax Estimator to see the exact reduction.',
   ni:
@@ -141,7 +142,7 @@ function offlineReply(query: string): string {
     return OFFLINE.ni
   if (q.includes('60%') || q.includes('trap') || q.includes('100,000')) return OFFLINE.trap
   return (
-    'The Tax Estimator on the Tax page gives you a full HMRC-accurate 2026/27 breakdown. ' +
+    'The Tax Estimator on the Tax page gives you a full 2026/27 breakdown using published HMRC rates. ' +
     'Enter your income and expenses there for exact figures. ' +
     'Ask me anything specific about Personal Allowance, NI, dividends, or expenses.'
   )
@@ -151,7 +152,7 @@ function offlineReply(query: string): string {
 // (The old gemini-1.5-flash model and the @google/generative-ai SDK are
 // both retired — that combo would fail even with a valid key and silently
 // drop back to the offline canned replies below.)
-const MODEL = 'gemini-1.5-flash'
+const MODEL = 'gemini-2.5-flash'
 
 let _ai: GoogleGenAI | null = null
 function getAI(apiKey: string): GoogleGenAI {
@@ -160,17 +161,25 @@ function getAI(apiKey: string): GoogleGenAI {
 }
 
 export async function POST(request: NextRequest) {
-  // 1. Auth check
+  // 1. Auth check — getUser() validates the session against Supabase's auth
+  //    server (getSession() only reads the cookie). See docs/AUDIT.md SEC-8.
   const supabase = await createClient()
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
-  if (!session) {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // 2. Simple rate limiting (using IP-based check or similar if possible,
-  // but for now let's at least ensure they are logged in)
+  // 2. Per-user rate limit — 30 messages/min. Caps runaway Gemini spend if a
+  //    session hammers the endpoint (docs/AUDIT.md SEC-6).
+  const limit = rateLimit(`ai:chat:${user.id}`, 30, 60_000)
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please slow down.' },
+      { status: 429, headers: { 'Retry-After': String(limit.retryAfterSec) } },
+    )
+  }
 
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY
 

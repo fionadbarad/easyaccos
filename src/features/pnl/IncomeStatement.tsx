@@ -197,7 +197,7 @@ export function IncomeStatement({
       <ISLine label="Total OpEx" value={opEx} bold negative />
       <ISLine separator />
 
-      <ISLine label="NET PROFIT (EBITDA)" value={ebitda} bold highlight />
+      <ISLine label="PROFIT BEFORE TAX" value={ebitda} bold highlight />
       <ISLine separator />
 
       <ISLine label="TAX PROVISION" bold />
@@ -251,7 +251,7 @@ export function IncomeStatement({
             fontFamily: 'var(--font-geist-mono), monospace',
           }}
         >
-          2026/27 HMRC compliant · tax calculations run client-side
+          2026/27 estimate · not a substitute for professional advice
         </div>
       </div>
     </div>

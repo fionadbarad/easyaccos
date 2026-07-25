@@ -333,7 +333,7 @@ const TILES = [
     href: '/dashboard/tax',
     label: 'Tax Engine',
     Icon: Calculator,
-    desc: 'HMRC-accurate 2026/27 · 5 scenarios',
+    desc: '2026/27 rates · 5 scenarios',
   },
   {
     href: '/dashboard/expenses',
@@ -444,7 +444,7 @@ export default function DashboardUI({ displayName }: DashboardUIProps) {
           fontFamily: 'var(--font-geist-mono), monospace',
         }}
       >
-        HMRC-compliant · 2026/27 fiscal year · Tax calculations run client-side
+        2026/27 fiscal year · estimates only · tax calculations run client-side
       </p>
     </div>
   )

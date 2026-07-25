@@ -1,36 +1,27 @@
 import { cache } from 'react'
-import { unstable_cache } from 'next/cache'
 import { createClient } from './supabase-server'
-import { cookies } from 'next/headers'
 
 /**
- * Fetch the current user from Supabase with multiple layers of caching:
- * 1. React 'cache()' - memoizes the promise within a single request (avoids duplicate network calls if called multiple times in one render)
- * 2. Next.js 'unstable_cache' - memoizes the result across requests for 60 seconds (avoids hitting Supabase Auth server on every page load)
+ * Fetch the current authenticated user from Supabase.
+ *
+ * Memoized with React `cache()` so repeated calls within a SINGLE request/render
+ * hit the network only once. We deliberately do NOT cache across requests:
+ * `getUser()` validates the session against Supabase's auth server, and any
+ * cross-request cache of an authenticated `User` risks serving one user's
+ * identity to another. (The previous implementation keyed a 60s `unstable_cache`
+ * on a cookie name Supabase never sets — so the key was constant and the first
+ * user's identity leaked to everyone. See docs/AUDIT.md SEC-1.)
  */
 export const getCachedUser = cache(async () => {
-  const cookieStore = await cookies()
-  const sessionCookie = cookieStore.get('sb-access-token')?.value || 'anonymous'
-
-  // We use the session cookie value as part of the cache key to ensure users don't get each other's cached data
-  return unstable_cache(
-    async () => {
-      try {
-        const supabase = await createClient()
-        const {
-          data: { user },
-          error,
-        } = await supabase.auth.getUser()
-        if (error || !user) return null
-        return user
-      } catch {
-        return null
-      }
-    },
-    ['supabase-user', sessionCookie],
-    {
-      revalidate: 60, // Cache for 60 seconds
-      tags: ['auth'],
-    },
-  )()
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser()
+    if (error || !user) return null
+    return user
+  } catch {
+    return null
+  }
 })

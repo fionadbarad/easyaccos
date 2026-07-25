@@ -167,7 +167,7 @@ export default function PnLPage() {
               fontFamily: 'var(--font-geist-mono), monospace',
             }}
           >
-            2026/27 · GBP · HMRC-compliant
+            2026/27 · GBP · estimate only
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>

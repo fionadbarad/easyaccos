@@ -12,7 +12,7 @@ export interface MileageEntry {
 }
 
 // HMRC 2026/27 approved mileage rates
-export const RATE_CAR_FIRST = 0.45 // First 10,000 miles
+export const RATE_CAR_FIRST = 0.55 // First 10,000 miles (AMAP raised 45p→55p from 6 Apr 2026)
 export const RATE_CAR_EXCESS = 0.25 // Above 10,000 miles
 export const RATE_BIKE = 0.2
 export const RATE_MOTORCYCLE = 0.24

@@ -16,7 +16,9 @@ export function fmtGBP(n: number): string {
 }
 
 export function fmtDec(n: number): string {
-  return '\u00a3' + n.toLocaleString('en-GB', { minimumFractionDigits: 2 })
+  return (
+    '\u00a3' + n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  )
 }
 
 export function fmtAbs(n: number): string {
@@ -24,7 +26,10 @@ export function fmtAbs(n: number): string {
 }
 
 export function fmtDecAbs(n: number): string {
-  return '\u00a3' + Math.abs(n).toLocaleString('en-GB', { minimumFractionDigits: 2 })
+  return (
+    '\u00a3' +
+    Math.abs(n).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  )
 }
 
 export function pct1(n: number): string {

@@ -149,6 +149,14 @@ export function useUserData<T extends AuditableRow>(table: Table, localKey: stri
         return changed ? { ...item, updated_at: now } : item
       })
 
+      // Deletions are only rows the caller had loaded and then removed
+      // (prev − next). We must NOT infer deletions from the server/local
+      // difference: `items` can legitimately be a partial view (a second tab,
+      // a failed load that fell back to a snapshot, an auth race where items is
+      // still empty), and deleting the server rows missing from that partial
+      // view would destroy real records. See DAT-1.
+      const deletedIds = diffDeletedIds(items, next)
+
       emitAuditDiff(table, prevMap, stamped, user, supabase)
       setItems(stamped)
 
@@ -160,7 +168,7 @@ export function useUserData<T extends AuditableRow>(table: Table, localKey: stri
         let attempt = 0
 
         while (attempt < MAX_RETRIES && !ok) {
-          ok = await syncSupabaseRows(supabase, table, user.id, stamped, now, setItems)
+          ok = await syncSupabaseRows(supabase, table, user.id, stamped, deletedIds, now, setItems)
           if (!ok) {
             attempt++
             if (attempt < MAX_RETRIES) {
@@ -256,11 +264,23 @@ function emitAuditDiff<T extends AuditableRow>(
   }
 }
 
-async function syncSupabaseRows<T extends AuditableRow>(
+/**
+ * Rows the caller explicitly removed: present in `prev` (the last loaded
+ * state) and absent from `next` (the desired state). This is the only safe
+ * source of deletions — deriving them from the server/local difference lets a
+ * partial local view delete real server rows (DAT-1).
+ */
+export function diffDeletedIds<T extends AuditableRow>(prev: T[], next: T[]): string[] {
+  const nextIds = new Set(next.map((i) => i.id))
+  return prev.filter((i) => !nextIds.has(i.id)).map((i) => i.id)
+}
+
+export async function syncSupabaseRows<T extends AuditableRow>(
   supabase: SupabaseClient,
   table: Table,
   userId: string,
   stamped: T[],
+  deletedIds: string[],
   now: string,
   setItems: (updater: (prev: T[]) => T[]) => void,
 ): Promise<boolean> {
@@ -275,11 +295,17 @@ async function syncSupabaseRows<T extends AuditableRow>(
     const existingMap = new Map<string, string | null>(
       (existing ?? []).map((r: { id: string; updated_at: string | null }) => [r.id, r.updated_at]),
     )
-    const nextIds = new Set<string>(stamped.map((i) => i.id))
 
-    const toDelete = [...existingMap.keys()].filter((id) => !nextIds.has(id))
+    // Delete only rows the caller intentionally removed AND that exist on the
+    // server. A row on the server that was never in the caller's local view is
+    // never touched here, so a stale/partial local state cannot wipe records.
+    const toDelete = deletedIds.filter((id) => existingMap.has(id))
     if (toDelete.length > 0) {
-      const { error: delErr } = await supabase.from(table).delete().in('id', toDelete)
+      const { error: delErr } = await supabase
+        .from(table)
+        .delete()
+        .eq('user_id', userId)
+        .in('id', toDelete)
       if (delErr) throw delErr
     }
 

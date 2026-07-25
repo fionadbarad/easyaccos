@@ -65,7 +65,7 @@ export function RatePanel({ open, onToggle }: { open: boolean; onToggle: () => v
             </thead>
             <tbody>
               {[
-                ['Car / Van', '45p per mile', '25p per mile'],
+                ['Car / Van', '55p per mile', '25p per mile'],
                 ['Motorcycle', '24p per mile', '24p per mile'],
                 ['Bicycle', '20p per mile', '20p per mile'],
               ].map(([v, r1, r2]) => (

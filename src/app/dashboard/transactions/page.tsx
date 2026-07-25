@@ -615,7 +615,7 @@ export default function TransactionsPage() {
           fontFamily: 'var(--font-geist-mono), monospace',
         }}
       >
-        2026/27 HMRC compliant · digitally linked records
+        2026/27 estimates · digitally linked records
       </p>
     </div>
   )

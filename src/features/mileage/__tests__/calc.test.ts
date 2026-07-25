@@ -22,17 +22,17 @@ describe('calcRate', () => {
     expect(calcRate('motorcycle', 9_999, 100)).toBeCloseTo(24)
   })
 
-  it('car under the threshold is 45p/mile', () => {
-    expect(calcRate('car', 0, 1_000)).toBeCloseTo(450)
+  it('car under the threshold is 55p/mile', () => {
+    expect(calcRate('car', 0, 1_000)).toBeCloseTo(550)
   })
 
   it('car above the threshold is 25p/mile', () => {
     expect(calcRate('car', CAR_THRESHOLD, 1_000)).toBeCloseTo(250)
   })
 
-  it('car straddling the threshold splits 45p / 25p', () => {
-    // 500 miles before → 9,500 at 45p (= 4,275) + 500 at 25p (= 125)
-    expect(calcRate('car', 9_500, 1_000)).toBeCloseTo(9_500 * 0 + 500 * 0.45 + 500 * 0.25)
+  it('car straddling the threshold splits 55p / 25p', () => {
+    // 500 miles before → 500 at 55p (= 275) + 500 at 25p (= 125)
+    expect(calcRate('car', 9_500, 1_000)).toBeCloseTo(9_500 * 0 + 500 * 0.55 + 500 * 0.25)
   })
 })
 
@@ -41,8 +41,8 @@ describe('computeTotals', () => {
     const totals = computeTotals([entry({ id: 'a', miles: 9_800 }), entry({ id: 'b', miles: 400 })])
     expect(totals.carMiles).toBe(10_200)
     expect(totals.totalMiles).toBe(10_200)
-    // First journey all at 45p; second: 200 @ 45p + 200 @ 25p.
-    const expected = 9_800 * 0.45 + (200 * 0.45 + 200 * 0.25)
+    // First journey all at 55p; second: 200 @ 55p + 200 @ 25p.
+    const expected = 9_800 * 0.55 + (200 * 0.55 + 200 * 0.25)
     expect(totals.totalClaim).toBeCloseTo(expected)
   })
 
@@ -52,7 +52,7 @@ describe('computeTotals', () => {
       entry({ id: 'b', vehicle: 'car', miles: 100 }),
     ])
     expect(totals.carMiles).toBe(100)
-    expect(totals.totalClaim).toBeCloseTo(10_000 * 0.2 + 100 * 0.45)
+    expect(totals.totalClaim).toBeCloseTo(10_000 * 0.2 + 100 * 0.55)
   })
 
   it('empty input yields zeroed totals', () => {

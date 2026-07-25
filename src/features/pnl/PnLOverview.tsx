@@ -40,7 +40,7 @@ export function PnLOverview({
     { label: 'Total Revenue', value: fmt(totalRevenue), trend: 'up' as const },
     { label: 'Total Expenses', value: fmt(opEx + costOfSales), trend: 'down' as const },
     { label: 'Net Profit', value: fmt(netProfit), sub: `${margin.toFixed(1)}% margin` },
-    { label: 'Tax Provision', value: fmt(taxProvision), sub: '2026/27 HMRC liability' },
+    { label: 'Tax Provision', value: fmt(taxProvision), sub: 'estimated 2026/27 liability' },
     { label: 'Profit After Tax', value: fmt(profitAfterTax) },
   ]
 

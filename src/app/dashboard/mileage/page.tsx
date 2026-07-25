@@ -180,7 +180,7 @@ export default function MileagePage() {
         />
         <MileageStat
           label="Rate"
-          value={carMiles >= CAR_THRESHOLD ? '25p/mi' : '45p/mi'}
+          value={carMiles >= CAR_THRESHOLD ? '25p/mi' : '55p/mi'}
           sub={
             carMiles >= CAR_THRESHOLD
               ? 'excess rate active'
@@ -211,7 +211,7 @@ export default function MileagePage() {
                 fontFamily: 'var(--font-geist-mono, monospace)',
               }}
             >
-              Car mileage threshold (45p → 25p)
+              Car mileage threshold (55p → 25p)
             </span>
             <span
               style={{

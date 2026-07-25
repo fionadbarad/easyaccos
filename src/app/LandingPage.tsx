@@ -49,7 +49,7 @@ const MODULES = [
   {
     icon: Car,
     label: 'Mileage Tracker',
-    desc: 'Log business journeys at HMRC-approved rates (45p first 10k miles, 25p after). Auto-totals for your Self Assessment.',
+    desc: 'Log business journeys at HMRC-approved rates (55p first 10k miles, 25p after). Auto-totals for your Self Assessment.',
   },
   {
     icon: Shield,
@@ -77,7 +77,7 @@ const JSON_LD = {
   name: 'EasyAcco',
   url: 'https://easyacco.vercel.app',
   description:
-    'Free HMRC-accurate tax software for UK sole traders, freelancers, and directors. Covers income tax, NI, expenses, invoices, and MTD compliance for the 2026/27 tax year.',
+    'Free tax-estimate software for UK sole traders, freelancers, and directors. Covers income tax, NI, expenses, invoices, and MTD for the 2026/27 tax year, using published HMRC rates.',
   applicationCategory: 'FinanceApplication',
   operatingSystem: 'Web',
   offers: {
@@ -95,7 +95,7 @@ const JSON_LD = {
     'Sole trader expense tracker with receipt OCR scanning',
     'Invoice lifecycle management with VAT support',
     'Making Tax Digital (MTD) deadline tracker',
-    'Mileage claim tracker (45p/25p HMRC rates)',
+    'Mileage claim tracker (55p/25p HMRC rates)',
     'Encrypted local-first data storage',
     'Profit & Loss reports',
     'Self Assessment preparation tools',
@@ -167,14 +167,14 @@ export default function LandingPage() {
             </h1>
 
             <p className="text-[var(--sa-muted)] text-[1.05rem] leading-[1.75] max-w-[38rem] mb-4">
-              Stop guessing your Self Assessment bill. EasyAcco gives you Big 4-grade tax accuracy —
-              income tax, National Insurance, dividends, pension relief, MTD compliance — completely
-              free, running in your browser.
+              Stop guessing your Self Assessment bill. EasyAcco estimates your income tax, National
+              Insurance, dividends, and pension relief using 2026/27 UK rates — completely free,
+              running in your browser. Estimates only, not a substitute for professional advice.
             </p>
 
             <p className="text-[rgba(244,245,248,0.35)] text-[0.85rem] leading-[1.6] max-w-[36rem] mb-10">
-              Trusted by UK freelancers, contractors, and sole traders who want HMRC-accurate
-              figures without the accountancy fees.
+              Built for UK freelancers, contractors, and sole traders who want quick 2026/27 tax
+              estimates without the accountancy fees.
             </p>
 
             <div className="flex flex-wrap gap-3 items-center mb-10">
@@ -245,7 +245,7 @@ export default function LandingPage() {
                 Every tool a sole trader needs.
               </h2>
               <p className="text-[var(--sa-muted)] text-[0.95rem] mt-2 max-w-[32rem]">
-                Built to the same standard as Big 4 tax software — without the enterprise price tag.
+                Everything you need to estimate your 2026/27 tax — free, in your browser.
               </p>
             </div>
           </AnimatedWrapper>

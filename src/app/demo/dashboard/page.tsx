@@ -1,6 +1,7 @@
-﻿import Link from 'next/link'
+import Link from 'next/link'
 
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 const mock = {
   income: 42000,
   expenses: 8600,
@@ -24,7 +25,7 @@ export default function DemoDashboardPage() {
             gap: '1rem',
           }}
         >
-          <h1 style={{ fontSize: '1.7rem', fontWeight: 700 }}>Demo Dashboard (No login)</h1>
+          <h1 style={{ fontSize: T.display, fontWeight: 700 }}>Demo Dashboard (No login)</h1>
           <Link
             href="/auth/signup"
             style={{
@@ -65,10 +66,10 @@ export default function DemoDashboardPage() {
                 padding: '1rem',
               }}
             >
-              <p style={{ color: C.muted, fontSize: '0.8rem', marginBottom: '0.5rem' }}>
+              <p style={{ color: C.muted, fontSize: T.meta, marginBottom: '0.5rem' }}>
                 {item.label}
               </p>
-              <p style={{ fontSize: '1.25rem', fontWeight: 700 }}>{item.value}</p>
+              <p style={{ fontSize: T.title, fontWeight: 700 }}>{item.value}</p>
             </div>
           ))}
         </section>
@@ -81,7 +82,7 @@ export default function DemoDashboardPage() {
             padding: '1.2rem',
           }}
         >
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '.75rem' }}>How this demo works</h2>
+          <h2 style={{ fontSize: T.title, marginBottom: '.75rem' }}>How this demo works</h2>
           <ul style={{ color: C.muted, lineHeight: 1.6, paddingLeft: '1.2rem' }}>
             <li>Instant calculations from your income and expenses</li>
             <li>HMRC-style tax bands (20/40/45%) with personal allowance</li>
@@ -100,7 +101,7 @@ export default function DemoDashboardPage() {
           }}
         >
           <p style={{ color: C.muted, marginBottom: '0.35rem' }}>Trust signals:</p>
-          <p style={{ fontSize: '0.95rem', color: C.text }}>
+          <p style={{ fontSize: T.lead, color: C.text }}>
             Secure & encrypted · Built for UK freelancers · Your data stays private
           </p>
         </div>

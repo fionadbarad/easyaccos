@@ -11,6 +11,7 @@ import { C } from '@/styles/palette'
 import type { TaxResult } from '@/lib/tax-logic'
 import { round2 } from '@/lib/tax-scenarios'
 import { cardStyle, toggleStyle, fmt, pct } from './tokens'
+import { T } from '@/styles/type'
 
 export default function FullResultPanel({
   result,
@@ -45,10 +46,10 @@ export default function FullResultPanel({
         >
           <AlertTriangle size={16} style={{ color: '#FB923C', flexShrink: 0, marginTop: '2px' }} />
           <div>
-            <div style={{ color: '#FB923C', fontWeight: 700, fontSize: '0.85rem' }}>
+            <div style={{ color: '#FB923C', fontWeight: 700, fontSize: T.body }}>
               60% Tax Trap Active
             </div>
-            <div style={{ color: C.text, fontSize: '0.8rem', marginTop: '2px', lineHeight: 1.5 }}>
+            <div style={{ color: C.text, fontSize: T.meta, marginTop: '2px', lineHeight: 1.5 }}>
               Income between £100k–£125,140. Each £2 earned = £1 of PA lost. Pension contributions
               are the escape route.
             </div>
@@ -69,7 +70,7 @@ export default function FullResultPanel({
           }}
         >
           <Info size={14} style={{ color: C.blue, flexShrink: 0, marginTop: '2px' }} />
-          <div style={{ color: C.text, fontSize: '0.8rem', lineHeight: 1.5 }}>
+          <div style={{ color: C.text, fontSize: T.meta, lineHeight: 1.5 }}>
             <strong style={{ color: C.blue }}>MTD for Income Tax</strong> — Gross revenue over £50k
             means you must file quarterly via Making Tax Digital from April 2026.
           </div>
@@ -130,7 +131,7 @@ export default function FullResultPanel({
             <div
               style={{
                 color: C.muted,
-                fontSize: '0.68rem',
+                fontSize: T.micro,
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
                 marginBottom: '4px',
@@ -138,7 +139,7 @@ export default function FullResultPanel({
             >
               {s.label}
             </div>
-            <div style={{ color: s.color, fontWeight: 700, fontSize: '1.1rem' }}>{s.value}</div>
+            <div style={{ color: s.color, fontWeight: 700, fontSize: T.title }}>{s.value}</div>
           </div>
         ))}
       </div>
@@ -161,7 +162,7 @@ export default function FullResultPanel({
           <span
             style={{
               color: C.muted,
-              fontSize: '0.78rem',
+              fontSize: T.caption,
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
             }}
@@ -343,7 +344,7 @@ export default function FullResultPanel({
                     <span
                       style={{
                         color: line.bold ? C.text : C.muted,
-                        fontSize: line.bold ? '0.87rem' : '0.82rem',
+                        fontSize: line.bold ? T.body : T.meta,
                         fontWeight: line.bold ? 700 : 400,
                       }}
                     >
@@ -354,7 +355,7 @@ export default function FullResultPanel({
                         color:
                           line.bold && !line.negative ? C.white : line.negative ? C.red : C.text,
                         fontWeight: line.bold ? 700 : 500,
-                        fontSize: line.bold ? '1rem' : '0.85rem',
+                        fontSize: line.bold ? T.lead : T.body,
                       }}
                     >
                       {line.negative && line.value > 0 ? '-' : ''}
@@ -387,7 +388,7 @@ export default function FullResultPanel({
             <span
               style={{
                 color: C.green,
-                fontSize: '0.78rem',
+                fontSize: T.caption,
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
                 display: 'flex',
@@ -429,14 +430,14 @@ export default function FullResultPanel({
                         marginBottom: '4px',
                       }}
                     >
-                      <span style={{ color: C.green, fontWeight: 700, fontSize: '0.85rem' }}>
+                      <span style={{ color: C.green, fontWeight: 700, fontSize: T.body }}>
                         {tip.title}
                       </span>
                       {tip.saving > 0 && (
                         <span
                           style={{
                             color: C.green,
-                            fontSize: '0.78rem',
+                            fontSize: T.caption,
                             display: 'flex',
                             alignItems: 'center',
                             gap: '3px',
@@ -446,7 +447,7 @@ export default function FullResultPanel({
                         </span>
                       )}
                     </div>
-                    <p style={{ color: C.text, fontSize: '0.8rem', lineHeight: 1.55, margin: 0 }}>
+                    <p style={{ color: C.text, fontSize: T.meta, lineHeight: 1.55, margin: 0 }}>
                       {tip.description}
                     </p>
                   </div>
@@ -457,7 +458,7 @@ export default function FullResultPanel({
         </div>
       )}
 
-      <p style={{ color: C.muted, fontSize: '0.68rem', textAlign: 'center', marginTop: '1rem' }}>
+      <p style={{ color: C.muted, fontSize: T.micro, textAlign: 'center', marginTop: '1rem' }}>
         2026/27 HMRC Compliant
       </p>
     </motion.div>

@@ -11,6 +11,7 @@ import { ExpenseForm } from '@/features/expenses/ExpenseForm'
 
 import { C } from '@/styles/palette'
 import { Badge, LoadingSpinner } from '@/components/ui/Base'
+import { T } from '@/styles/type'
 
 export default function ExpensesPage() {
   const {
@@ -48,7 +49,7 @@ export default function ExpensesPage() {
             style={{
               color: C.muted,
               fontFamily: 'var(--font-geist-mono), monospace',
-              fontSize: '0.75rem',
+              fontSize: T.caption,
             }}
           >
             {e.date}
@@ -58,7 +59,7 @@ export default function ExpensesPage() {
               title="Scanned via OCR"
               style={{ display: 'inline-flex', alignItems: 'center', color: C.blue, opacity: 0.8 }}
             >
-              <Camera size={10} strokeWidth={1.5} />
+              <Camera size={12} strokeWidth={1.5} />
             </span>
           )}
         </span>
@@ -70,7 +71,7 @@ export default function ExpensesPage() {
       header: 'Category',
       sortable: true,
       accessor: (e) => e.category,
-      render: (e) => <span style={{ color: C.muted, fontSize: '0.75rem' }}>{e.category}</span>,
+      render: (e) => <span style={{ color: C.muted, fontSize: T.caption }}>{e.category}</span>,
     },
     {
       key: 'amount',
@@ -110,14 +111,14 @@ export default function ExpensesPage() {
             display: 'inline-flex',
           }}
         >
-          <Trash2 size={13} strokeWidth={1.5} />
+          <Trash2 size={12} strokeWidth={1.5} />
         </button>
       ),
     },
   ]
 
   return (
-    <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)', maxWidth: '900px' }}>
+    <div className="page-shell">
       {pendingScan && (
         <ReceiptVerifyModal scan={pendingScan} onConfirm={confirmScan} onCancel={cancelScan} />
       )}
@@ -136,7 +137,7 @@ export default function ExpensesPage() {
           <div
             style={{
               color: C.muted,
-              fontSize: '0.62rem',
+              fontSize: T.micro,
               textTransform: 'uppercase',
               letterSpacing: '0.12em',
               marginBottom: '5px',
@@ -148,7 +149,7 @@ export default function ExpensesPage() {
           <h1
             style={{
               color: C.white,
-              fontSize: 'clamp(1.4rem,3vw,1.9rem)',
+              fontSize: T.h2,
               fontWeight: 600,
               letterSpacing: '-0.03em',
               margin: 0,
@@ -159,7 +160,7 @@ export default function ExpensesPage() {
           <p
             style={{
               color: C.muted,
-              fontSize: '0.75rem',
+              fontSize: T.caption,
               marginTop: '4px',
               fontFamily: 'var(--font-geist-mono), monospace',
             }}
@@ -181,7 +182,7 @@ export default function ExpensesPage() {
               alignItems: 'center',
               gap: '5px',
               color: C.muted,
-              fontSize: '0.68rem',
+              fontSize: T.micro,
               fontFamily: 'var(--font-geist-mono), monospace',
               padding: '6px 10px',
               border: `1px solid ${C.border}`,
@@ -190,11 +191,11 @@ export default function ExpensesPage() {
           >
             {isAuthenticated ? (
               <>
-                <Cloud size={11} style={{ color: C.green }} /> synced
+                <Cloud size={12} style={{ color: C.green }} /> synced
               </>
             ) : (
               <>
-                <CloudOff size={11} /> local only
+                <CloudOff size={12} /> local only
               </>
             )}
           </div>
@@ -210,7 +211,7 @@ export default function ExpensesPage() {
               border: 'none',
               borderRadius: '4px',
               padding: '8px 16px',
-              fontSize: '0.8rem',
+              fontSize: T.meta,
               fontWeight: 600,
               cursor: 'pointer',
               minHeight: '36px',
@@ -237,14 +238,14 @@ export default function ExpensesPage() {
             gap: '0.5rem',
           }}
         >
-          <span style={{ color: C.amber, fontSize: '0.75rem' }}>
+          <span style={{ color: C.amber, fontSize: T.caption }}>
             Data is saved in this browser only — sign in to sync across devices.
           </span>
           <a
             href="/auth/login"
             style={{
               color: C.amber,
-              fontSize: '0.72rem',
+              fontSize: T.caption,
               fontWeight: 600,
               textDecoration: 'none',
               borderBottom: '1px solid rgba(251,191,36,0.4)',
@@ -292,13 +293,13 @@ export default function ExpensesPage() {
             textAlign: 'center',
           }}
         >
-          <p style={{ color: C.muted, fontSize: '0.84rem', margin: 0 }}>
+          <p style={{ color: C.muted, fontSize: T.meta, margin: 0 }}>
             No expenses yet. Add your first one above.
           </p>
           <p
             style={{
               color: 'rgba(244,245,248,0.2)',
-              fontSize: '0.72rem',
+              fontSize: T.caption,
               marginTop: '6px',
               fontFamily: 'var(--font-geist-mono), monospace',
             }}
@@ -323,18 +324,18 @@ export default function ExpensesPage() {
             gap: '5px',
             marginTop: '0.6rem',
             color: 'rgba(147,197,253,0.5)',
-            fontSize: '0.62rem',
+            fontSize: T.micro,
             fontFamily: 'var(--font-geist-mono), monospace',
           }}
         >
-          <Camera size={9} /> = scanned via OCR
+          <Camera size={12} /> = scanned via OCR
         </div>
       )}
 
       <p
         style={{
           color: 'rgba(244,245,248,0.18)',
-          fontSize: '0.62rem',
+          fontSize: T.micro,
           marginTop: '0.75rem',
           textAlign: 'right',
           fontFamily: 'var(--font-geist-mono), monospace',

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { T } from '@/styles/type'
 
 const STORAGE_KEY = 'easyacco_cookie_consent'
 
@@ -57,12 +58,12 @@ export default function CookieConsent() {
         gap: '0.75rem',
       }}
     >
-      <p style={{ color: '#F4F5F8', fontSize: '0.82rem', lineHeight: 1.6, margin: 0 }}>
+      <p style={{ color: '#F4F5F8', fontSize: T.meta, lineHeight: 1.6, margin: 0 }}>
         EasyAcco uses essential cookies to keep your session active. We do not use advertising or
         tracking cookies. Your data is never sold.{' '}
         <Link
           href="/privacy"
-          style={{ color: '#F4F5F8', textDecoration: 'underline', fontSize: '0.82rem' }}
+          style={{ color: '#F4F5F8', textDecoration: 'underline', fontSize: T.meta }}
         >
           Privacy Policy
         </Link>
@@ -77,7 +78,7 @@ export default function CookieConsent() {
             border: 'none',
             borderRadius: '5px',
             fontWeight: 700,
-            fontSize: '0.82rem',
+            fontSize: T.meta,
             cursor: 'pointer',
             minHeight: '36px',
           }}
@@ -92,7 +93,7 @@ export default function CookieConsent() {
             color: 'rgba(244,245,248,0.42)',
             border: '1px solid rgba(244,245,248,0.1)',
             borderRadius: '5px',
-            fontSize: '0.82rem',
+            fontSize: T.meta,
             cursor: 'pointer',
             minHeight: '36px',
           }}

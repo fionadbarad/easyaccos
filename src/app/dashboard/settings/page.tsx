@@ -7,6 +7,7 @@ import type { User } from '@supabase/supabase-js'
 import { BackupRestore } from '@/components/BackupRestore'
 
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 const inputStyle = {
   width: '100%',
   background: C.deep,
@@ -14,14 +15,14 @@ const inputStyle = {
   borderRadius: '4px',
   padding: '9px 13px',
   color: C.text,
-  fontSize: '0.9rem',
+  fontSize: T.body,
   outline: 'none',
   boxSizing: 'border-box' as const,
 }
 const labelStyle = {
   display: 'block',
   color: C.muted,
-  fontSize: '0.75rem',
+  fontSize: T.caption,
   textTransform: 'uppercase' as const,
   letterSpacing: '0.07em',
   marginBottom: '0.35rem',
@@ -38,7 +39,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
         marginBottom: '1.25rem',
       }}
     >
-      <h2 style={{ color: C.white, fontSize: '1.05rem', fontWeight: 700, marginBottom: '1.4rem' }}>
+      <h2 style={{ color: C.white, fontSize: T.lead, fontWeight: 700, marginBottom: '1.4rem' }}>
         {title}
       </h2>
       {children}
@@ -103,18 +104,18 @@ export default function SettingsPage() {
   const initial = user?.email?.[0]?.toUpperCase() ?? '…'
 
   return (
-    <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)', maxWidth: '680px' }}>
+    <div className="page-shell is-narrow">
       <h1
         style={{
           color: C.text,
-          fontSize: 'clamp(1.5rem,3vw,2rem)',
+          fontSize: T.h2,
           fontWeight: 700,
           marginBottom: '0.3rem',
         }}
       >
         Settings
       </h1>
-      <p style={{ color: C.muted, fontSize: '0.875rem', marginBottom: '2rem' }}>
+      <p style={{ color: C.muted, fontSize: T.body, marginBottom: '2rem' }}>
         Manage your profile and account preferences
       </p>
 
@@ -131,7 +132,7 @@ export default function SettingsPage() {
             alignItems: 'center',
             justifyContent: 'center',
             color: C.white,
-            fontSize: '1.3rem',
+            fontSize: T.heading,
             fontWeight: 700,
           }}
         >
@@ -139,7 +140,7 @@ export default function SettingsPage() {
         </div>
         <div>
           <div style={{ color: C.text, fontWeight: 600 }}>{name || user?.email}</div>
-          <div style={{ color: C.muted, fontSize: '0.82rem' }}>{user?.email}</div>
+          <div style={{ color: C.muted, fontSize: T.meta }}>{user?.email}</div>
         </div>
       </div>
 
@@ -180,13 +181,13 @@ export default function SettingsPage() {
                 padding: '9px 22px',
                 fontWeight: 700,
                 cursor: saving ? 'not-allowed' : 'pointer',
-                fontSize: '0.875rem',
+                fontSize: T.body,
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
               }}
             >
-              {saving ? <Loader2 size={15} className="animate-spin" /> : null}
+              {saving ? <Loader2 size={14} className="animate-spin" /> : null}
               {saving ? 'Saving…' : 'Save Profile'}
             </button>
             {saved && (
@@ -196,10 +197,10 @@ export default function SettingsPage() {
                   alignItems: 'center',
                   gap: '5px',
                   color: '#4ADE80',
-                  fontSize: '0.85rem',
+                  fontSize: T.body,
                 }}
               >
-                <CheckCircle size={15} /> Saved
+                <CheckCircle size={14} /> Saved
               </span>
             )}
           </div>
@@ -246,7 +247,7 @@ export default function SettingsPage() {
                   : 'rgba(248,113,113,0.1)',
                 border: `1px solid ${pwMsg.includes('success') ? 'rgba(74,222,128,0.3)' : 'rgba(248,113,113,0.3)'}`,
                 color: pwMsg.includes('success') ? '#4ADE80' : '#F87171',
-                fontSize: '0.85rem',
+                fontSize: T.body,
               }}
             >
               {pwMsg}
@@ -263,14 +264,14 @@ export default function SettingsPage() {
               padding: '9px 22px',
               fontWeight: 700,
               cursor: pwSaving ? 'not-allowed' : 'pointer',
-              fontSize: '0.875rem',
+              fontSize: T.body,
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
               width: 'fit-content',
             }}
           >
-            {pwSaving ? <Loader2 size={15} className="animate-spin" /> : null}
+            {pwSaving ? <Loader2 size={14} className="animate-spin" /> : null}
             {pwSaving ? 'Updating…' : 'Update Password'}
           </button>
         </form>
@@ -307,11 +308,11 @@ export default function SettingsPage() {
                 borderBottom: `1px solid rgba(244,245,248,0.06)`,
               }}
             >
-              <span style={{ color: C.muted, fontSize: '0.875rem' }}>{label}</span>
+              <span style={{ color: C.muted, fontSize: T.body }}>{label}</span>
               <span
                 style={{
                   color: label === 'Plan' ? C.white : C.text,
-                  fontSize: '0.875rem',
+                  fontSize: T.body,
                   maxWidth: '200px',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',

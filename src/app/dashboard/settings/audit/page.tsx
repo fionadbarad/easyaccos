@@ -6,6 +6,7 @@ import { isFlagEnabled, setFlag, FLAG_AUDIT } from '@/lib/feature-flags'
 import { RefreshCw, ShieldCheck, ToggleLeft, ToggleRight } from 'lucide-react'
 
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 const OP_COLORS: Record<string, string> = {
   create: C.green,
   update: C.blue,
@@ -44,12 +45,12 @@ export default function AuditPage() {
   }
 
   return (
-    <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)', maxWidth: 960 }}>
+    <div className="page-shell is-wide">
       <div style={{ marginBottom: '1.75rem' }}>
         <div
           style={{
             color: C.dim,
-            fontSize: '0.6rem',
+            fontSize: T.micro,
             textTransform: 'uppercase',
             letterSpacing: '0.12em',
             fontFamily: 'var(--font-geist-mono),monospace',
@@ -61,7 +62,7 @@ export default function AuditPage() {
         <h1
           style={{
             color: C.white,
-            fontSize: 'clamp(1.3rem,3vw,1.8rem)',
+            fontSize: T.h2,
             fontWeight: 600,
             letterSpacing: '-0.03em',
             margin: '0 0 4px',
@@ -69,7 +70,7 @@ export default function AuditPage() {
         >
           Audit Trail
         </h1>
-        <p style={{ color: C.muted, fontSize: '0.78rem', margin: 0, lineHeight: 1.55 }}>
+        <p style={{ color: C.muted, fontSize: T.caption, margin: 0, lineHeight: 1.55 }}>
           Every create, update, and delete logged locally. Enable to start recording.
         </p>
       </div>
@@ -95,12 +96,12 @@ export default function AuditPage() {
             color: enabled ? C.green : C.muted,
             borderRadius: 4,
             padding: '7px 14px',
-            fontSize: '0.8rem',
+            fontSize: T.meta,
             cursor: 'pointer',
             fontWeight: 500,
           }}
         >
-          {enabled ? <ToggleRight size={15} /> : <ToggleLeft size={15} />}
+          {enabled ? <ToggleRight size={14} /> : <ToggleLeft size={14} />}
           Audit logging {enabled ? 'on' : 'off'}
         </button>
         <button
@@ -114,11 +115,11 @@ export default function AuditPage() {
             color: C.muted,
             borderRadius: 4,
             padding: '7px 12px',
-            fontSize: '0.8rem',
+            fontSize: T.meta,
             cursor: 'pointer',
           }}
         >
-          <RefreshCw size={13} /> Refresh
+          <RefreshCw size={12} /> Refresh
         </button>
       </div>
 
@@ -134,7 +135,7 @@ export default function AuditPage() {
             alignItems: 'center',
             gap: 8,
             color: C.amber,
-            fontSize: '0.8rem',
+            fontSize: T.meta,
           }}
         >
           <ShieldCheck size={14} />
@@ -151,7 +152,7 @@ export default function AuditPage() {
             padding: '3rem',
             textAlign: 'center',
             color: C.muted,
-            fontSize: '0.84rem',
+            fontSize: T.meta,
           }}
         >
           Loading…
@@ -165,7 +166,7 @@ export default function AuditPage() {
             padding: '3rem',
             textAlign: 'center',
             color: C.muted,
-            fontSize: '0.84rem',
+            fontSize: T.meta,
           }}
         >
           No audit entries yet.
@@ -181,7 +182,7 @@ export default function AuditPage() {
           }}
         >
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: T.meta }}>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${C.border}` }}>
                   {['Timestamp', 'Entity', 'Op', 'ID', 'Actor', ''].map((h, i) => (
@@ -192,7 +193,7 @@ export default function AuditPage() {
                         textAlign: 'left',
                         color: C.muted,
                         fontWeight: 600,
-                        fontSize: '0.6rem',
+                        fontSize: T.micro,
                         textTransform: 'uppercase',
                         letterSpacing: '0.07em',
                         whiteSpace: 'nowrap',
@@ -222,7 +223,7 @@ export default function AuditPage() {
                             padding: '8px 12px',
                             color: C.muted,
                             fontFamily: 'var(--font-geist-mono),monospace',
-                            fontSize: '0.72rem',
+                            fontSize: T.caption,
                             whiteSpace: 'nowrap',
                           }}
                         >
@@ -234,7 +235,7 @@ export default function AuditPage() {
                             style={{
                               color: OP_COLORS[e.op] ?? C.muted,
                               fontFamily: 'var(--font-geist-mono),monospace',
-                              fontSize: '0.72rem',
+                              fontSize: T.caption,
                               fontWeight: 600,
                             }}
                           >
@@ -246,15 +247,15 @@ export default function AuditPage() {
                             padding: '8px 12px',
                             color: C.dim,
                             fontFamily: 'var(--font-geist-mono),monospace',
-                            fontSize: '0.68rem',
+                            fontSize: T.micro,
                           }}
                         >
                           {e.entityId.slice(0, 8)}…
                         </td>
-                        <td style={{ padding: '8px 12px', color: C.muted, fontSize: '0.72rem' }}>
+                        <td style={{ padding: '8px 12px', color: C.muted, fontSize: T.caption }}>
                           {e.actor ?? '—'}
                         </td>
-                        <td style={{ padding: '8px 12px', color: C.dim, fontSize: '0.7rem' }}>
+                        <td style={{ padding: '8px 12px', color: C.dim, fontSize: T.micro }}>
                           {isOpen ? '▲' : '▼'}
                         </td>
                       </tr>
@@ -275,7 +276,7 @@ export default function AuditPage() {
                                 <div
                                   style={{
                                     color: C.dim,
-                                    fontSize: '0.58rem',
+                                    fontSize: T.micro,
                                     textTransform: 'uppercase',
                                     letterSpacing: '0.07em',
                                     marginBottom: 4,
@@ -290,7 +291,7 @@ export default function AuditPage() {
                                     borderRadius: 4,
                                     padding: '8px 10px',
                                     color: C.muted,
-                                    fontSize: '0.68rem',
+                                    fontSize: T.micro,
                                     overflowX: 'auto',
                                     margin: 0,
                                     whiteSpace: 'pre-wrap',
@@ -304,7 +305,7 @@ export default function AuditPage() {
                                 <div
                                   style={{
                                     color: C.dim,
-                                    fontSize: '0.58rem',
+                                    fontSize: T.micro,
                                     textTransform: 'uppercase',
                                     letterSpacing: '0.07em',
                                     marginBottom: 4,
@@ -319,7 +320,7 @@ export default function AuditPage() {
                                     borderRadius: 4,
                                     padding: '8px 10px',
                                     color: C.muted,
-                                    fontSize: '0.68rem',
+                                    fontSize: T.micro,
                                     overflowX: 'auto',
                                     margin: 0,
                                     whiteSpace: 'pre-wrap',
@@ -344,7 +345,7 @@ export default function AuditPage() {
               padding: '8px 12px',
               borderTop: `1px solid ${C.border}`,
               color: C.dim,
-              fontSize: '0.68rem',
+              fontSize: T.micro,
               fontFamily: 'var(--font-geist-mono),monospace',
             }}
           >

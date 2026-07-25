@@ -17,6 +17,7 @@ interface Props {
 }
 
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 function parseReceipt(raw: string): Omit<ReceiptExtract, 'raw' | 'imageUrl' | 'fileType'> {
   const text = raw.replace(/\r/g, '')
   const lines = text
@@ -161,13 +162,13 @@ export default function ReceiptScanner({ onExtract }: Props) {
           border: `1px solid ${C.border}`,
           borderRadius: '4px',
           padding: '8px 14px',
-          fontSize: '0.78rem',
+          fontSize: T.caption,
           fontWeight: 500,
           cursor: 'pointer',
           minHeight: '36px',
         }}
       >
-        <Camera size={13} /> Scan Receipt
+        <Camera size={12} /> Scan Receipt
       </button>
 
       {open && (
@@ -202,10 +203,10 @@ export default function ReceiptScanner({ onExtract }: Props) {
               }}
             >
               <div>
-                <h3 style={{ color: C.white, fontSize: '0.95rem', fontWeight: 600, margin: 0 }}>
+                <h3 style={{ color: C.white, fontSize: T.lead, fontWeight: 600, margin: 0 }}>
                   Scan a receipt
                 </h3>
-                <p style={{ color: C.muted, fontSize: '0.72rem', margin: '4px 0 0' }}>
+                <p style={{ color: C.muted, fontSize: T.caption, margin: '4px 0 0' }}>
                   Runs client-side. Nothing is uploaded.
                 </p>
               </div>
@@ -234,7 +235,7 @@ export default function ReceiptScanner({ onExtract }: Props) {
                   padding: '2rem 1rem',
                   cursor: 'pointer',
                   color: C.muted,
-                  fontSize: '0.8rem',
+                  fontSize: T.meta,
                 }}
               >
                 <Camera size={24} />
@@ -256,13 +257,13 @@ export default function ReceiptScanner({ onExtract }: Props) {
                   size={20}
                   style={{ color: C.white, animation: 'spin 1s linear infinite' }}
                 />
-                <div style={{ color: C.white, fontSize: '0.82rem', marginTop: '0.75rem' }}>
+                <div style={{ color: C.white, fontSize: T.meta, marginTop: '0.75rem' }}>
                   {status}
                 </div>
                 <div
                   style={{
                     color: C.muted,
-                    fontSize: '0.72rem',
+                    fontSize: T.caption,
                     marginTop: '4px',
                     fontFamily: 'var(--font-geist-mono), monospace',
                   }}
@@ -291,7 +292,7 @@ export default function ReceiptScanner({ onExtract }: Props) {
             )}
 
             {error && (
-              <div style={{ color: C.red, fontSize: '0.75rem', marginTop: '0.75rem' }}>{error}</div>
+              <div style={{ color: C.red, fontSize: T.caption, marginTop: '0.75rem' }}>{error}</div>
             )}
 
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>

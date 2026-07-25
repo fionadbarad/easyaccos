@@ -26,6 +26,7 @@ import {
   type DatedAmount,
 } from './aggregates'
 import { Label, Select, Row, inputStyle } from './controls'
+import { T } from '@/styles/type'
 
 interface Transaction extends TypedTx {
   id: string
@@ -118,7 +119,7 @@ export default function YearTracker() {
             <span
               style={{
                 color: C.white,
-                fontSize: '0.9rem',
+                fontSize: T.body,
                 fontWeight: 600,
                 letterSpacing: '-0.02em',
               }}
@@ -126,7 +127,7 @@ export default function YearTracker() {
               2026/27 Tax Year Tracker
             </span>
           </div>
-          <div style={{ color: C.muted, fontSize: '0.72rem' }}>
+          <div style={{ color: C.muted, fontSize: T.caption }}>
             Live projection of your January 2028 Self Assessment bill
           </div>
         </div>
@@ -139,7 +140,7 @@ export default function YearTracker() {
             padding: '5px 10px',
             cursor: 'pointer',
             color: C.muted,
-            fontSize: '0.72rem',
+            fontSize: T.caption,
             fontFamily: 'var(--font-geist-mono), monospace',
             textTransform: 'uppercase',
             letterSpacing: '0.08em',
@@ -240,7 +241,7 @@ export default function YearTracker() {
             <span
               style={{
                 color: C.dim,
-                fontSize: '0.65rem',
+                fontSize: T.micro,
                 fontFamily: 'var(--font-geist-mono), monospace',
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
@@ -251,7 +252,7 @@ export default function YearTracker() {
             <span
               style={{
                 color: C.white,
-                fontSize: '0.65rem',
+                fontSize: T.micro,
                 fontFamily: 'var(--font-geist-mono), monospace',
                 fontWeight: 600,
               }}
@@ -277,7 +278,7 @@ export default function YearTracker() {
             <span
               style={{
                 color: C.dim,
-                fontSize: '0.6rem',
+                fontSize: T.micro,
                 fontFamily: 'var(--font-geist-mono), monospace',
               }}
             >
@@ -286,7 +287,7 @@ export default function YearTracker() {
             <span
               style={{
                 color: C.dim,
-                fontSize: '0.6rem',
+                fontSize: T.micro,
                 fontFamily: 'var(--font-geist-mono), monospace',
               }}
             >
@@ -299,7 +300,7 @@ export default function YearTracker() {
           <div
             style={{
               color: C.dim,
-              fontSize: '0.78rem',
+              fontSize: T.caption,
               fontFamily: 'var(--font-geist-mono), monospace',
             }}
           >
@@ -346,7 +347,7 @@ export default function YearTracker() {
                   <div
                     style={{
                       color: C.dim,
-                      fontSize: '0.58rem',
+                      fontSize: T.micro,
                       textTransform: 'uppercase',
                       letterSpacing: '0.08em',
                       fontWeight: 600,
@@ -359,7 +360,7 @@ export default function YearTracker() {
                   <div
                     style={{
                       color: C.white,
-                      fontSize: '1.15rem',
+                      fontSize: T.title,
                       fontWeight: 600,
                       letterSpacing: '-0.03em',
                       fontVariantNumeric: 'tabular-nums',
@@ -368,7 +369,7 @@ export default function YearTracker() {
                   >
                     {value}
                   </div>
-                  <div style={{ color: C.dim, fontSize: '0.6rem', marginTop: '4px' }}>{sub}</div>
+                  <div style={{ color: C.dim, fontSize: T.micro, marginTop: '4px' }}>{sub}</div>
                 </div>
               ))}
             </div>
@@ -391,7 +392,7 @@ export default function YearTracker() {
                 <div
                   style={{
                     color: C.dim,
-                    fontSize: '0.6rem',
+                    fontSize: T.micro,
                     textTransform: 'uppercase',
                     letterSpacing: '0.1em',
                     fontWeight: 600,
@@ -406,7 +407,7 @@ export default function YearTracker() {
                     <div
                       style={{
                         color: C.white,
-                        fontSize: '1.8rem',
+                        fontSize: T.display,
                         fontWeight: 600,
                         letterSpacing: '-0.04em',
                         lineHeight: 1,
@@ -434,11 +435,11 @@ export default function YearTracker() {
                           paddingTop: '8px',
                         }}
                       >
-                        <span style={{ color: C.muted, fontSize: '0.72rem' }}>Effective rate</span>
+                        <span style={{ color: C.muted, fontSize: T.caption }}>Effective rate</span>
                         <span
                           style={{
                             color: C.white,
-                            fontSize: '0.72rem',
+                            fontSize: T.caption,
                             fontFamily: 'var(--font-geist-mono), monospace',
                           }}
                         >
@@ -459,17 +460,17 @@ export default function YearTracker() {
                         }}
                       >
                         <AlertTriangle
-                          size={11}
+                          size={12}
                           style={{ color: C.amber, flexShrink: 0, marginTop: '1px' }}
                         />
-                        <span style={{ color: C.amber, fontSize: '0.7rem', lineHeight: 1.5 }}>
+                        <span style={{ color: C.amber, fontSize: T.micro, lineHeight: 1.5 }}>
                           60% trap zone. Consider a pension contribution.
                         </span>
                       </div>
                     )}
                   </>
                 ) : (
-                  <div style={{ color: C.dim, fontSize: '0.78rem', lineHeight: 1.6 }}>
+                  <div style={{ color: C.dim, fontSize: T.caption, lineHeight: 1.6 }}>
                     No transactions logged yet.
                     <br />
                     Add income to the Ledger to see your projection.
@@ -491,7 +492,7 @@ export default function YearTracker() {
                 <div
                   style={{
                     color: C.dim,
-                    fontSize: '0.6rem',
+                    fontSize: T.micro,
                     textTransform: 'uppercase',
                     letterSpacing: '0.1em',
                     fontWeight: 600,
@@ -515,7 +516,7 @@ export default function YearTracker() {
                     }
                     onBlur={(e) => ((e.target as HTMLInputElement).style.borderColor = C.border)}
                   />
-                  <div style={{ color: C.dim, fontSize: '0.65rem', marginTop: '5px' }}>
+                  <div style={{ color: C.dim, fontSize: T.micro, marginTop: '5px' }}>
                     Enter what&apos;s currently in your tax savings pot
                   </div>
                 </div>
@@ -530,11 +531,11 @@ export default function YearTracker() {
                           marginBottom: '6px',
                         }}
                       >
-                        <span style={{ color: C.muted, fontSize: '0.7rem' }}>Pot filled</span>
+                        <span style={{ color: C.muted, fontSize: T.micro }}>Pot filled</span>
                         <span
                           style={{
                             color: C.white,
-                            fontSize: '0.7rem',
+                            fontSize: T.micro,
                             fontFamily: 'var(--font-geist-mono), monospace',
                           }}
                         >
@@ -607,14 +608,14 @@ export default function YearTracker() {
                             <div
                               style={{
                                 color: C.green,
-                                fontSize: '0.82rem',
+                                fontSize: T.meta,
                                 fontWeight: 600,
                                 marginBottom: '2px',
                               }}
                             >
                               You&apos;re covered
                             </div>
-                            <div style={{ color: C.muted, fontSize: '0.72rem', lineHeight: 1.5 }}>
+                            <div style={{ color: C.muted, fontSize: T.caption, lineHeight: 1.5 }}>
                               Surplus of {fmt(Math.abs(gap))} — you have more than enough set aside.
                             </div>
                           </>
@@ -623,14 +624,14 @@ export default function YearTracker() {
                             <div
                               style={{
                                 color: C.red,
-                                fontSize: '0.82rem',
+                                fontSize: T.meta,
                                 fontWeight: 600,
                                 marginBottom: '2px',
                               }}
                             >
                               Shortfall: {fmt(gap)}
                             </div>
-                            <div style={{ color: C.muted, fontSize: '0.72rem', lineHeight: 1.5 }}>
+                            <div style={{ color: C.muted, fontSize: T.caption, lineHeight: 1.5 }}>
                               {monthsRemaining > 0 ? (
                                 <>
                                   Save{' '}
@@ -670,7 +671,7 @@ export default function YearTracker() {
                 <div
                   style={{
                     color: C.dim,
-                    fontSize: '0.6rem',
+                    fontSize: T.micro,
                     textTransform: 'uppercase',
                     letterSpacing: '0.1em',
                     fontWeight: 600,
@@ -683,7 +684,7 @@ export default function YearTracker() {
                 <div
                   style={{
                     color: C.white,
-                    fontSize: '0.9rem',
+                    fontSize: T.body,
                     fontWeight: 600,
                     letterSpacing: '-0.02em',
                   }}
@@ -695,7 +696,7 @@ export default function YearTracker() {
                 <div
                   style={{
                     color: daysToDeadline < 30 ? C.red : daysToDeadline < 90 ? C.amber : C.green,
-                    fontSize: '1.4rem',
+                    fontSize: T.heading,
                     fontWeight: 600,
                     letterSpacing: '-0.03em',
                     fontVariantNumeric: 'tabular-nums',
@@ -703,7 +704,7 @@ export default function YearTracker() {
                 >
                   {daysToDeadline.toLocaleString('en-GB')}
                 </div>
-                <div style={{ color: C.muted, fontSize: '0.65rem' }}>days remaining</div>
+                <div style={{ color: C.muted, fontSize: T.micro }}>days remaining</div>
               </div>
             </div>
           </>

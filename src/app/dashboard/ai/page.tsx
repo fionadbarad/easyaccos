@@ -13,6 +13,7 @@ import {
 import { useUserData } from '@/lib/use-user-data'
 import { buildBaseContext, buildContextPrompt } from '@/lib/acco/context'
 import type { AccoContext, AccoMessage } from '@/lib/acco/types'
+import { T } from '@/styles/type'
 
 const FETCH_TIMEOUT = 30_000
 
@@ -97,7 +98,7 @@ function renderInline(text: string): React.ReactNode[] {
             background: 'rgba(244,245,248,0.08)',
             borderRadius: '3px',
             padding: '1px 5px',
-            fontSize: '0.875rem',
+            fontSize: T.body,
             fontFamily: 'var(--font-geist-mono), monospace',
           }}
         >
@@ -126,7 +127,7 @@ function MarkdownBlock({ text }: { text: string }) {
             key={i}
             style={{
               color: 'var(--sa-white)',
-              fontSize: '0.9375rem',
+              fontSize: T.body,
               lineHeight: 1.75,
               position: 'relative',
               paddingLeft: '0.75rem',
@@ -156,7 +157,7 @@ function MarkdownBlock({ text }: { text: string }) {
             key={nodes.length}
             style={{
               color: 'rgba(244,245,248,0.5)',
-              fontSize: '0.72rem',
+              fontSize: T.caption,
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
               fontFamily: 'var(--font-geist-mono), monospace',
@@ -173,7 +174,7 @@ function MarkdownBlock({ text }: { text: string }) {
             key={nodes.length}
             style={{
               color: 'var(--sa-white)',
-              fontSize: '1rem',
+              fontSize: T.lead,
               fontWeight: 600,
               margin: '0.75rem 0 0.25rem',
               letterSpacing: '-0.02em',
@@ -188,7 +189,7 @@ function MarkdownBlock({ text }: { text: string }) {
             key={nodes.length}
             style={{
               color: 'var(--sa-white)',
-              fontSize: '0.9375rem',
+              fontSize: T.body,
               lineHeight: 1.75,
               margin: '0.2rem 0',
             }}
@@ -217,7 +218,7 @@ function UserMessage({ msg }: { msg: AccoMessage }) {
             borderRadius: '6px 6px 2px 6px',
             padding: '10px 14px',
             color: 'var(--sa-white)',
-            fontSize: '0.9375rem',
+            fontSize: T.body,
             lineHeight: 1.65,
           }}
         >
@@ -228,7 +229,7 @@ function UserMessage({ msg }: { msg: AccoMessage }) {
             textAlign: 'right',
             marginTop: '4px',
             color: 'rgba(244,245,248,0.2)',
-            fontSize: '0.72rem',
+            fontSize: T.caption,
             fontFamily: 'var(--font-geist-mono), monospace',
           }}
         >
@@ -264,7 +265,7 @@ function AssistantMessage({
         <div
           style={{
             color: 'rgba(244,245,248,0.3)',
-            fontSize: '0.72rem',
+            fontSize: T.caption,
             fontFamily: 'var(--font-geist-mono), monospace',
             letterSpacing: '0.08em',
             marginBottom: '6px',
@@ -283,7 +284,7 @@ function AssistantMessage({
               padding: '8px 12px',
               marginBottom: '10px',
               color: '#FACC15',
-              fontSize: '0.8rem',
+              fontSize: T.meta,
               lineHeight: 1.45,
               fontFamily: 'var(--font-geist-mono), monospace',
             }}
@@ -307,7 +308,7 @@ function AssistantMessage({
                   border: '1px solid rgba(244,245,248,0.1)',
                   borderRadius: '3px',
                   color: 'rgba(244,245,248,0.45)',
-                  fontSize: '0.75rem',
+                  fontSize: T.caption,
                   padding: '4px 10px',
                   cursor: 'pointer',
                   fontFamily: 'var(--font-geist-mono), monospace',
@@ -352,7 +353,7 @@ function ThinkingIndicator() {
         <div
           style={{
             color: 'rgba(244,245,248,0.3)',
-            fontSize: '0.72rem',
+            fontSize: T.caption,
             fontFamily: 'var(--font-geist-mono), monospace',
             letterSpacing: '0.08em',
             marginBottom: '8px',
@@ -563,7 +564,7 @@ export default function AIPage() {
           <h1
             style={{
               color: 'var(--sa-white)',
-              fontSize: 'clamp(1.2rem,2.5vw,1.5rem)',
+              fontSize: T.h3,
               fontWeight: 600,
               letterSpacing: '-0.03em',
               margin: 0,
@@ -574,7 +575,7 @@ export default function AIPage() {
           <p
             style={{
               color: 'var(--sa-muted)',
-              fontSize: '0.8rem',
+              fontSize: T.meta,
               margin: '3px 0 0',
               fontFamily: 'var(--font-geist-mono), monospace',
             }}
@@ -592,13 +593,13 @@ export default function AIPage() {
             border: '1px solid var(--sa-border)',
             borderRadius: '4px',
             color: 'var(--sa-muted)',
-            fontSize: '0.8rem',
+            fontSize: T.meta,
             padding: '6px 11px',
             cursor: 'pointer',
             letterSpacing: '-0.01em',
           }}
         >
-          <RefreshCw size={11} /> New session
+          <RefreshCw size={12} /> New session
         </button>
       </div>
 
@@ -626,7 +627,7 @@ export default function AIPage() {
               borderRadius: '4px',
               padding: '10px 14px',
               color: '#F87171',
-              fontSize: '0.85rem',
+              fontSize: T.body,
               marginBottom: '1.5rem',
             }}
           >
@@ -642,7 +643,7 @@ export default function AIPage() {
           <div
             style={{
               color: 'rgba(244,245,248,0.2)',
-              fontSize: '0.7rem',
+              fontSize: T.micro,
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
               fontFamily: 'var(--font-geist-mono), monospace',
@@ -661,7 +662,7 @@ export default function AIPage() {
             {SUGGESTED.map((s) => (
               <button key={s.label} onClick={() => send(s.q)} className="ai-suggestion-btn">
                 <span>{s.label}</span>
-                <ChevronRight size={11} style={{ flexShrink: 0, opacity: 0.4 }} />
+                <ChevronRight size={12} style={{ flexShrink: 0, opacity: 0.4 }} />
               </button>
             ))}
           </div>
@@ -693,7 +694,7 @@ export default function AIPage() {
             border: 'none',
             padding: '12px 14px 4px',
             color: 'var(--sa-white)',
-            fontSize: '0.9375rem',
+            fontSize: T.body,
             outline: 'none',
             resize: 'none',
             lineHeight: 1.6,
@@ -712,7 +713,7 @@ export default function AIPage() {
           <span
             style={{
               color: 'rgba(244,245,248,0.15)',
-              fontSize: '0.72rem',
+              fontSize: T.caption,
               fontFamily: 'var(--font-geist-mono), monospace',
               marginRight: 'auto',
             }}
@@ -731,7 +732,7 @@ export default function AIPage() {
               borderRadius: '4px',
               padding: '6px 12px',
               color: canSend ? 'var(--sa-black)' : 'var(--sa-muted)',
-              fontSize: '0.82rem',
+              fontSize: T.meta,
               fontWeight: 600,
               cursor: canSend ? 'pointer' : 'default',
               transition: 'all 0.1s',

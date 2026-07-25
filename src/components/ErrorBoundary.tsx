@@ -3,6 +3,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react'
 import { reportError } from '@/lib/monitor'
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 
 interface Props {
   children: ReactNode
@@ -48,8 +49,8 @@ export class ErrorBoundary extends Component<Props, State> {
               margin: '1rem',
             }}
           >
-            <h2 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>Something went wrong</h2>
-            <p style={{ color: C.muted, fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+            <h2 style={{ fontSize: T.title, marginBottom: '0.5rem' }}>Something went wrong</h2>
+            <p style={{ color: C.muted, fontSize: T.body, marginBottom: '1.5rem' }}>
               An unexpected error occurred. We&apos;ve been notified and are looking into it.
             </p>
             <button
@@ -60,7 +61,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 border: 'none',
                 padding: '0.5rem 1rem',
                 borderRadius: '4px',
-                fontSize: '0.875rem',
+                fontSize: T.body,
                 fontWeight: 600,
                 cursor: 'pointer',
               }}

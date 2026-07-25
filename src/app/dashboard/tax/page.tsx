@@ -3,14 +3,15 @@
 import TaxCalculator from '@/features/tax/TaxCalculator'
 
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 export default function TaxPage() {
   return (
-    <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)' }}>
+    <div className="page-shell">
       <div style={{ maxWidth: '820px', marginBottom: '1.75rem' }}>
         <div
           style={{
             color: C.muted,
-            fontSize: '0.62rem',
+            fontSize: T.micro,
             textTransform: 'uppercase',
             letterSpacing: '0.12em',
             marginBottom: '6px',
@@ -22,7 +23,7 @@ export default function TaxPage() {
         <h1
           style={{
             color: C.white,
-            fontSize: 'clamp(1.4rem,3vw,1.9rem)',
+            fontSize: T.h2,
             fontWeight: 600,
             letterSpacing: '-0.03em',
             marginBottom: '0.4rem',
@@ -30,7 +31,7 @@ export default function TaxPage() {
         >
           Tax Calculator
         </h1>
-        <p style={{ color: C.muted, fontSize: '0.84rem', lineHeight: 1.65, maxWidth: '560px' }}>
+        <p style={{ color: C.muted, fontSize: T.meta, lineHeight: 1.65, maxWidth: '560px' }}>
           Five scenarios using 2026/27 rates — hard-coded, no API latency. Estimates only. Use the{' '}
           <strong style={{ color: C.white, fontWeight: 500 }}>What-If slider</strong> for real-time
           sensitivity analysis.
@@ -42,7 +43,7 @@ export default function TaxPage() {
             background: 'rgba(244,245,248,0.04)',
             border: `1px solid ${C.border}`,
             borderRadius: '4px',
-            fontSize: '0.72rem',
+            fontSize: T.caption,
             color: C.muted,
             fontFamily: 'var(--font-geist-mono), monospace',
             display: 'inline-flex',

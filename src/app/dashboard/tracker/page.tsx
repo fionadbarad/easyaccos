@@ -3,15 +3,16 @@
 import { C } from '@/styles/palette'
 import TaxPotCalculator from '@/features/tracker/TaxPotCalculator'
 import YearTracker from '@/features/tracker/YearTracker'
+import { T } from '@/styles/type'
 
 export default function TrackerPage() {
   return (
-    <div style={{ padding: 'clamp(1.5rem, 4vw, 2.5rem)', maxWidth: '960px' }}>
+    <div className="page-shell is-wide">
       <div style={{ marginBottom: '2rem' }}>
         <div
           style={{
             color: 'rgba(244,245,248,0.18)',
-            fontSize: '0.6rem',
+            fontSize: T.micro,
             textTransform: 'uppercase',
             letterSpacing: '0.15em',
             fontFamily: 'var(--font-geist-mono), monospace',
@@ -23,7 +24,7 @@ export default function TrackerPage() {
         <h1
           style={{
             color: C.white,
-            fontSize: 'clamp(1.4rem, 3vw, 1.85rem)',
+            fontSize: T.h2,
             fontWeight: 600,
             letterSpacing: '-0.04em',
             lineHeight: 1.1,
@@ -35,7 +36,7 @@ export default function TrackerPage() {
         <p
           style={{
             color: C.muted,
-            fontSize: '0.875rem',
+            fontSize: T.body,
             lineHeight: 1.6,
             margin: 0,
             maxWidth: '48ch',

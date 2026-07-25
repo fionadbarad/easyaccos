@@ -14,7 +14,7 @@ export default function TaxCalculator() {
   const s = useTaxScenario()
 
   return (
-    <div style={{ maxWidth: '820px', margin: '0 auto' }}>
+    <div>
       <ScenarioPicker
         scenario={s.scenario}
         setScenario={s.setScenario}

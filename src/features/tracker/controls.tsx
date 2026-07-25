@@ -6,6 +6,7 @@
 import { ChevronDown } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 
 export const inputStyle: React.CSSProperties = {
   width: '100%',
@@ -14,7 +15,7 @@ export const inputStyle: React.CSSProperties = {
   borderRadius: '4px',
   color: C.white,
   padding: '10px 12px',
-  fontSize: '0.875rem',
+  fontSize: T.body,
   outline: 'none',
   fontFamily: 'var(--font-geist-mono), monospace',
   fontVariantNumeric: 'tabular-nums',
@@ -26,7 +27,7 @@ export function Label({ children }: { children: React.ReactNode }) {
     <div
       style={{
         color: C.dim,
-        fontSize: '0.62rem',
+        fontSize: T.micro,
         textTransform: 'uppercase',
         letterSpacing: '0.1em',
         fontWeight: 600,
@@ -62,7 +63,7 @@ export function Select({
         ))}
       </select>
       <ChevronDown
-        size={13}
+        size={12}
         style={{
           position: 'absolute',
           right: '10px',
@@ -95,12 +96,12 @@ export function Row({
         borderBottom: `1px solid ${C.border}`,
       }}
     >
-      <span style={{ color: C.muted, fontSize: '0.82rem' }}>{label}</span>
+      <span style={{ color: C.muted, fontSize: T.meta }}>{label}</span>
       <span
         style={{
           color: highlight ? C.white : C.muted,
           fontWeight: highlight ? 600 : 400,
-          fontSize: '0.82rem',
+          fontSize: T.meta,
           fontFamily: 'var(--font-geist-mono), monospace',
           fontVariantNumeric: 'tabular-nums',
         }}
@@ -127,7 +128,7 @@ export function BigStat({
       <div
         style={{
           color: C.dim,
-          fontSize: '0.6rem',
+          fontSize: T.micro,
           textTransform: 'uppercase',
           letterSpacing: '0.1em',
           fontWeight: 600,
@@ -144,7 +145,7 @@ export function BigStat({
         transition={{ duration: 0.2 }}
         style={{
           color,
-          fontSize: '1.65rem',
+          fontSize: T.display,
           fontWeight: 600,
           letterSpacing: '-0.04em',
           lineHeight: 1,
@@ -153,7 +154,7 @@ export function BigStat({
       >
         {value}
       </motion.div>
-      {sub && <div style={{ color: C.muted, fontSize: '0.7rem', marginTop: '4px' }}>{sub}</div>}
+      {sub && <div style={{ color: C.muted, fontSize: T.micro, marginTop: '4px' }}>{sub}</div>}
     </div>
   )
 }

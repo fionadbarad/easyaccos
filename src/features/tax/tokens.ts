@@ -3,6 +3,7 @@
 
 import { fmtGBP, pct1 } from '@/lib/formatters'
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 
 export const fmt = fmtGBP
 export const pct = pct1
@@ -10,7 +11,7 @@ export const pct = pct1
 export const labelStyle: React.CSSProperties = {
   display: 'block',
   color: C.muted,
-  fontSize: '0.72rem',
+  fontSize: T.caption,
   letterSpacing: '0.08em',
   textTransform: 'uppercase',
   marginBottom: '0.4rem',
@@ -23,7 +24,7 @@ export const inp: React.CSSProperties = {
   borderRadius: '6px',
   padding: '10px 13px',
   color: C.text,
-  fontSize: '0.9rem',
+  fontSize: T.body,
   outline: 'none',
   boxSizing: 'border-box',
   minHeight: '44px',
@@ -50,7 +51,7 @@ export const toggleStyle = (active: boolean): React.CSSProperties => ({
   padding: '6px 14px',
   borderRadius: '6px',
   cursor: 'pointer',
-  fontSize: '0.78rem',
+  fontSize: T.caption,
   fontWeight: 600,
   minHeight: '36px',
   background: active ? 'rgba(244,245,248,0.1)' : 'transparent',

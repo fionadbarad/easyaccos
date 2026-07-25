@@ -9,6 +9,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Lock, X } from 'lucide-react'
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 
 const SEEN_KEY = 'ea_crypto_onboard_seen_v1'
 
@@ -87,7 +88,7 @@ export default function EncryptionOnboardingDialog() {
             </div>
             <h2
               id="ea-crypto-onboard-title"
-              style={{ color: C.white, fontSize: '1.1rem', fontWeight: 700, margin: 0 }}
+              style={{ color: C.white, fontSize: T.title, fontWeight: 700, margin: 0 }}
             >
               Your data stays on this device
             </h2>
@@ -104,15 +105,15 @@ export default function EncryptionOnboardingDialog() {
               borderRadius: '6px',
             }}
           >
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
 
-        <p style={{ color: C.text, fontSize: '0.9rem', lineHeight: 1.65, margin: '0 0 0.75rem' }}>
+        <p style={{ color: C.text, fontSize: T.body, lineHeight: 1.65, margin: '0 0 0.75rem' }}>
           EasyAcco encrypts your expenses, invoices, and mileage on this device with a key that
           never leaves your browser. We can&apos;t read it — and neither can anyone else.
         </p>
-        <p style={{ color: C.muted, fontSize: '0.85rem', lineHeight: 1.65, margin: '0 0 1.25rem' }}>
+        <p style={{ color: C.muted, fontSize: T.body, lineHeight: 1.65, margin: '0 0 1.25rem' }}>
           <strong style={{ color: C.text }}>The trade-off:</strong> if you clear site data or switch
           devices without a backup, your records are gone. Take a passphrase-protected backup now so
           you&apos;re covered.
@@ -130,7 +131,7 @@ export default function EncryptionOnboardingDialog() {
               padding: '8px 14px',
               borderRadius: '8px',
               cursor: 'pointer',
-              fontSize: '0.85rem',
+              fontSize: T.body,
             }}
           >
             Got it
@@ -143,7 +144,7 @@ export default function EncryptionOnboardingDialog() {
               color: C.bg,
               padding: '8px 14px',
               borderRadius: '8px',
-              fontSize: '0.85rem',
+              fontSize: T.body,
               fontWeight: 600,
               textDecoration: 'none',
             }}

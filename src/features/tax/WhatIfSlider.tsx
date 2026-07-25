@@ -7,6 +7,7 @@ import { useState, useRef, useEffect } from 'react'
 import { C } from '@/styles/palette'
 import { cardStyle, fmt } from './tokens'
 import { useDebounce } from './primitives'
+import { T } from '@/styles/type'
 
 export default function WhatIfSlider({
   income,
@@ -42,14 +43,14 @@ export default function WhatIfSlider({
         <span
           style={{
             color: C.muted,
-            fontSize: '0.78rem',
+            fontSize: T.caption,
             textTransform: 'uppercase',
             letterSpacing: '0.08em',
           }}
         >
           What-If Income Slider
         </span>
-        <span style={{ color: C.white, fontWeight: 700, fontSize: '1.1rem' }}>
+        <span style={{ color: C.white, fontWeight: 700, fontSize: T.title }}>
           {fmt(sliderValue)}
         </span>
       </div>
@@ -73,7 +74,7 @@ export default function WhatIfSlider({
           display: 'flex',
           justifyContent: 'space-between',
           color: C.muted,
-          fontSize: '0.7rem',
+          fontSize: T.micro,
           marginTop: '4px',
         }}
       >
@@ -92,7 +93,7 @@ export default function WhatIfSlider({
             border: '1px solid rgba(251,146,60,0.4)',
             borderRadius: '6px',
             color: '#FB923C',
-            fontSize: '0.78rem',
+            fontSize: T.caption,
           }}
         >
           60% Tax Trap active — every £2 over £100k costs £1 of Personal Allowance

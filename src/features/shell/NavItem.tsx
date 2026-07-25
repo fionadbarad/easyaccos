@@ -23,15 +23,15 @@ export default function NavItem({ href, label, Icon, active, onClick }: NavItemP
       onClick={onClick}
       className={`
         flex items-center gap-[9px] px-3 py-2 rounded-sm no-underline transition-all duration-150 ease-in-out
-        text-[0.875rem] tracking-[-0.005em] border-l-2
+        text-body tracking-[-0.005em] border-l-2
         ${
           active
-            ? 'bg-[rgba(244,245,248,0.08)] text-white border-white font-medium'
-            : 'text-[rgba(244,245,248,0.55)] border-transparent font-normal hover:text-white hover:bg-[rgba(244,245,248,0.03)]'
+            ? 'bg-sa-selected text-white border-white font-medium'
+            : 'text-sa-muted border-transparent font-normal hover:text-white hover:bg-sa-tint'
         }
       `}
     >
-      <Icon size={15} className={`shrink-0 ${active ? 'stroke-[2px]' : 'stroke-[1.5px]'}`} />
+      <Icon size={14} className={`shrink-0 ${active ? 'stroke-[2px]' : 'stroke-[1.5px]'}`} />
       <span>{label}</span>
     </Link>
   )

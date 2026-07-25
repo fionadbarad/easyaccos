@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Calendar, ChevronDown, Search, X } from 'lucide-react'
 
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 export type DateRange =
   | { kind: 'all' }
   | { kind: 'month'; ym: string } // "2026-04"
@@ -42,14 +43,14 @@ const inputS: React.CSSProperties = {
   borderRadius: 4,
   padding: '7px 10px',
   color: C.white,
-  fontSize: '0.8rem',
+  fontSize: T.meta,
   outline: 'none',
   boxSizing: 'border-box',
   fontFamily: 'var(--font-geist-mono), monospace',
 }
 const labelS: React.CSSProperties = {
   color: C.dim,
-  fontSize: '0.58rem',
+  fontSize: T.micro,
   textTransform: 'uppercase',
   letterSpacing: '0.08em',
   fontWeight: 600,
@@ -209,7 +210,7 @@ export function FilterBar({
             }}
           >
             {categories.length === 0 && (
-              <div style={{ color: C.muted, fontSize: '0.75rem', padding: 6 }}>No categories</div>
+              <div style={{ color: C.muted, fontSize: T.caption, padding: 6 }}>No categories</div>
             )}
             {categories.map((c) => {
               const on = selected.includes(c)
@@ -225,7 +226,7 @@ export function FilterBar({
                     cursor: 'pointer',
                     background: on ? 'rgba(244,245,248,0.05)' : 'transparent',
                     color: on ? C.white : C.muted,
-                    fontSize: '0.78rem',
+                    fontSize: T.caption,
                   }}
                 >
                   <input
@@ -254,7 +255,7 @@ export function FilterBar({
                   border: `1px solid ${C.border}`,
                   borderRadius: 3,
                   padding: '5px 8px',
-                  fontSize: '0.72rem',
+                  fontSize: T.caption,
                   cursor: 'pointer',
                 }}
               >
@@ -327,14 +328,14 @@ export function FilterBar({
             border: `1px solid ${C.border}`,
             borderRadius: 4,
             padding: '7px 12px',
-            fontSize: '0.75rem',
+            fontSize: T.caption,
             cursor: 'pointer',
             display: 'inline-flex',
             alignItems: 'center',
             gap: 5,
           }}
         >
-          <Calendar size={11} /> Reset
+          <Calendar size={12} /> Reset
         </button>
       )}
     </div>

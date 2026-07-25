@@ -344,22 +344,22 @@ export default function ValidationPage() {
   const totalCodes = Object.keys(HMRC_ERROR_MESSAGES).length
 
   return (
-    <div className="min-h-screen bg-[#181818] text-[#F4F5F8] py-[clamp(2rem,5vw,4rem)] px-[clamp(1.5rem,5vw,3rem)]">
+    <div className="min-h-screen bg-sa-black text-sa-white py-[clamp(2rem,5vw,4rem)] px-[clamp(1.5rem,5vw,3rem)]">
       <div className="max-w-[960px] mx-auto">
         <Link
           href="/"
-          className="inline-block text-[rgba(244,245,248,0.55)] text-[0.78rem] no-underline mb-6 hover:text-[#F4F5F8]"
+          className="inline-block text-sa-muted text-caption no-underline mb-6 hover:text-sa-white"
         >
           ← EasyAcco
         </Link>
 
         <div className="flex items-center gap-4 mb-3">
-          <div className="w-[52px] h-[52px] rounded-xl bg-[rgba(244,245,248,0.06)] border border-[rgba(244,245,248,0.1)] flex items-center justify-center">
-            <ShieldCheck size={26} className="text-[#F4F5F8]" />
+          <div className="w-[52px] h-[52px] rounded-xl bg-sa-hover border border-sa-border flex items-center justify-center">
+            <ShieldCheck size={24} className="text-sa-white" />
           </div>
           <div>
-            <h1 className="text-[clamp(1.6rem,3.5vw,2.2rem)] font-bold m-0">Engine Validation</h1>
-            <p className="text-[rgba(244,245,248,0.55)] text-[0.875rem] m-0 mt-1">
+            <h1 className="text-h2 font-bold m-0">Engine Validation</h1>
+            <p className="text-sa-muted text-body m-0 mt-1">
               Five HMRC 2026/27 scenarios worked by hand vs the live engine
             </p>
           </div>
@@ -368,30 +368,28 @@ export default function ValidationPage() {
         <div
           className={`rounded-xl border p-6 mb-8 flex items-center gap-4
           ${
-            allPass
-              ? 'bg-[rgba(74,222,128,0.06)] border-[rgba(74,222,128,0.25)]'
-              : 'bg-[rgba(248,113,113,0.06)] border-[rgba(248,113,113,0.25)]'
+            allPass ? 'bg-sa-green-tint border-sa-green-line' : 'bg-sa-red-tint border-sa-red-line'
           }`}
         >
           {allPass ? (
-            <CheckCircle2 size={28} className="text-[#4ADE80]" />
+            <CheckCircle2 size={24} className="text-sa-green" />
           ) : (
-            <AlertCircle size={28} className="text-[#F87171]" />
+            <AlertCircle size={24} className="text-sa-red" />
           )}
           <div>
-            <div className="font-bold text-[1rem]">
+            <div className="font-bold text-lead">
               {allPass
                 ? 'All assertions pass'
                 : `${totalChecks - passingChecks} of ${totalChecks} assertions failing`}
             </div>
-            <div className="text-[rgba(244,245,248,0.55)] text-[0.82rem] mt-0.5">
+            <div className="text-sa-muted text-meta mt-0.5">
               {passingChecks} / {totalChecks} hand-worked figures match engine output to the penny.
               Computed server-side on every request — no stale snapshots.
             </div>
           </div>
         </div>
 
-        <p className="text-[rgba(244,245,248,0.55)] text-[0.85rem] leading-[1.7] mb-10">
+        <p className="text-sa-muted text-body leading-[1.7] mb-10">
           The five scenarios below were chosen to cover the worst edge cases in UK personal tax: the
           60% trap, full PA withdrawal, Scottish bands, director salary-plus-dividends optimisation,
           and a three-layer additional-rate mix with dividends. Each shows the HMRC calculation
@@ -401,35 +399,30 @@ export default function ValidationPage() {
         </p>
 
         {results.map(({ scenario: s, result, checks }) => (
-          <section
-            key={s.id}
-            className="mb-10 border-b border-[rgba(244,245,248,0.07)] pb-10 last:border-0"
-          >
-            <h2 className="text-[1.15rem] font-semibold mb-2">{s.title}</h2>
-            <p className="text-[rgba(244,245,248,0.55)] text-[0.82rem] leading-[1.65] mb-5 max-w-[620px]">
-              {s.why}
-            </p>
+          <section key={s.id} className="mb-10 border-b border-sa-border pb-10 last:border-0">
+            <h2 className="text-title font-semibold mb-2">{s.title}</h2>
+            <p className="text-sa-muted text-meta leading-[1.65] mb-5 max-w-[620px]">{s.why}</p>
 
             <div className="grid md:grid-cols-2 gap-4 mb-5">
-              <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-lg p-4">
-                <div className="text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.12em] font-mono mb-3">
+              <div className="bg-sa-surface border border-sa-border rounded-lg p-4">
+                <div className="text-sa-muted text-micro uppercase tracking-[0.12em] font-mono mb-3">
                   Manual HMRC calculation
                 </div>
-                <div className="flex flex-col gap-[6px] font-mono text-[0.8rem]">
+                <div className="flex flex-col gap-[6px] font-mono text-meta">
                   {s.manual.map((row) => (
                     <div key={row.label} className="flex justify-between gap-4">
-                      <span className="text-[rgba(244,245,248,0.7)]">{row.label}</span>
+                      <span className="text-sa-muted">{row.label}</span>
                       <span className="tabular-nums">{fmtVal(row.value)}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-lg p-4">
-                <div className="text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.12em] font-mono mb-3">
+              <div className="bg-sa-surface border border-sa-border rounded-lg p-4">
+                <div className="text-sa-muted text-micro uppercase tracking-[0.12em] font-mono mb-3">
                   EasyAcco engine output
                 </div>
-                <div className="flex flex-col gap-[6px] font-mono text-[0.8rem]">
+                <div className="flex flex-col gap-[6px] font-mono text-meta">
                   <Row label="Personal Allowance" value={fmtVal(result.personalAllowance)} />
                   <Row label="Taxable income" value={fmtVal(result.taxableIncome)} />
                   <Row label="Income tax" value={fmtVal(result.incomeTax)} />
@@ -441,99 +434,97 @@ export default function ValidationPage() {
               </div>
             </div>
 
-            <div className="bg-[rgba(244,245,248,0.02)] border border-[rgba(244,245,248,0.07)] rounded-lg p-4">
-              <div className="text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.12em] font-mono mb-3">
+            <div className="bg-sa-tint border border-sa-border rounded-lg p-4">
+              <div className="text-sa-muted text-micro uppercase tracking-[0.12em] font-mono mb-3">
                 Assertions
               </div>
-              <table className="w-full font-mono text-[0.78rem]">
-                <thead>
-                  <tr className="text-[rgba(244,245,248,0.42)] text-left">
-                    <th className="font-normal pb-2">Field</th>
-                    <th className="font-normal pb-2">Expected</th>
-                    <th className="font-normal pb-2">Engine</th>
-                    <th className="font-normal pb-2"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {checks.map((c) => (
-                    <tr key={c.path} className="border-t border-[rgba(244,245,248,0.05)]">
-                      <td className="py-2 text-[rgba(244,245,248,0.7)]">{c.path}</td>
-                      <td className="py-2 tabular-nums">{fmtVal(c.expected)}</td>
-                      <td className="py-2 tabular-nums">{fmtVal(c.actual)}</td>
-                      <td className="py-2">
-                        {c.match ? (
-                          <span className="text-[#4ADE80] inline-flex items-center gap-1">
-                            <CheckCircle2 size={12} /> pass
-                          </span>
-                        ) : (
-                          <span className="text-[#F87171] inline-flex items-center gap-1">
-                            <AlertCircle size={12} /> fail
-                          </span>
-                        )}
-                      </td>
+              {/* The four assertion columns are wider than a phone screen —
+                  scroll the table itself rather than the whole page. */}
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[420px] font-mono text-caption">
+                  <thead>
+                    <tr className="text-sa-muted text-left">
+                      <th className="font-normal pb-2">Field</th>
+                      <th className="font-normal pb-2">Expected</th>
+                      <th className="font-normal pb-2">Engine</th>
+                      <th className="font-normal pb-2"></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {checks.map((c) => (
+                      <tr key={c.path} className="border-t border-sa-border">
+                        <td className="py-2 text-sa-muted">{c.path}</td>
+                        <td className="py-2 tabular-nums">{fmtVal(c.expected)}</td>
+                        <td className="py-2 tabular-nums">{fmtVal(c.actual)}</td>
+                        <td className="py-2">
+                          {c.match ? (
+                            <span className="text-sa-green inline-flex items-center gap-1">
+                              <CheckCircle2 size={12} /> pass
+                            </span>
+                          ) : (
+                            <span className="text-sa-red inline-flex items-center gap-1">
+                              <AlertCircle size={12} /> fail
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </section>
         ))}
 
-        <div className="flex items-center gap-4 mb-3 mt-16 pt-12 border-t border-[rgba(244,245,248,0.07)]">
-          <div className="w-[52px] h-[52px] rounded-xl bg-[rgba(244,245,248,0.06)] border border-[rgba(244,245,248,0.1)] flex items-center justify-center">
-            <Network size={26} className="text-[#F4F5F8]" />
+        <div className="flex items-center gap-4 mb-3 mt-16 pt-12 border-t border-sa-border">
+          <div className="w-[52px] h-[52px] rounded-xl bg-sa-hover border border-sa-border flex items-center justify-center">
+            <Network size={24} className="text-sa-white" />
           </div>
           <div>
-            <h2 className="text-[clamp(1.4rem,3vw,1.9rem)] font-bold m-0">HMRC error handling</h2>
-            <p className="text-[rgba(244,245,248,0.55)] text-[0.875rem] m-0 mt-1">
+            <h2 className="text-h2 font-bold m-0">HMRC error handling</h2>
+            <p className="text-sa-muted text-body m-0 mt-1">
               Sandbox <code className="font-mono">Gov-Test-Scenario</code> edge cases → the message
               easyacco shows
             </p>
           </div>
         </div>
 
-        <p className="text-[rgba(244,245,248,0.55)] text-[0.85rem] leading-[1.7] mb-8 mt-6">
+        <p className="text-sa-muted text-body leading-[1.7] mb-8 mt-6">
           HMRC&rsquo;s sandbox lets you force specific failures with the{' '}
-          <code className="font-mono text-[rgba(244,245,248,0.7)]">Gov-Test-Scenario</code> request
-          header. Each row below sends a real HMRC error body through{' '}
-          <code className="font-mono text-[rgba(244,245,248,0.7)]">mapHmrcError()</code> — the exact
-          mapper the live submission routes use — so the friendly message shown is the one a user
-          would actually see. The point: HMRC&rsquo;s coded errors never reach the user raw, and
-          never collapse into a generic &ldquo;submission failed&rdquo;.
+          <code className="font-mono text-sa-muted">Gov-Test-Scenario</code> request header. Each
+          row below sends a real HMRC error body through{' '}
+          <code className="font-mono text-sa-muted">mapHmrcError()</code> — the exact mapper the
+          live submission routes use — so the friendly message shown is the one a user would
+          actually see. The point: HMRC&rsquo;s coded errors never reach the user raw, and never
+          collapse into a generic &ldquo;submission failed&rdquo;.
         </p>
 
         {hmrcResults.map((r) => (
           <section
             key={r.govTestScenario}
-            className="mb-6 bg-[#1C1D20] border border-[rgba(244,245,248,0.07)] rounded-lg p-5"
+            className="mb-6 bg-sa-surface border border-sa-border rounded-lg p-5"
           >
             <div className="flex items-center justify-between gap-4 flex-wrap mb-3">
-              <code className="font-mono text-[0.8rem] text-[#F4F5F8] bg-[rgba(244,245,248,0.06)] px-2 py-1 rounded">
+              <code className="font-mono text-meta text-sa-white bg-sa-hover px-2 py-1 rounded">
                 Gov-Test-Scenario: {r.govTestScenario}
               </code>
               <div className="flex items-center gap-2">
-                <span className="text-[rgba(244,245,248,0.42)] text-[0.7rem] font-mono uppercase tracking-[0.1em]">
+                <span className="text-sa-muted text-micro font-mono uppercase tracking-[0.1em]">
                   {r.surface}
                 </span>
-                <span className="text-[#F87171] text-[0.72rem] font-mono">
-                  HTTP {r.responseStatus}
-                </span>
+                <span className="text-sa-red text-caption font-mono">HTTP {r.responseStatus}</span>
               </div>
             </div>
-            <p className="text-[rgba(244,245,248,0.55)] text-[0.8rem] leading-[1.6] mb-4 max-w-[680px]">
-              {r.why}
-            </p>
-            <div className="flex flex-col gap-[6px] font-mono text-[0.78rem]">
-              <div className="flex gap-3">
-                <span className="text-[rgba(244,245,248,0.42)] w-[120px] shrink-0">HMRC code</span>
-                <span className="text-[#F87171]">{r.rawCode}</span>
+            <p className="text-sa-muted text-meta leading-[1.6] mb-4 max-w-[680px]">{r.why}</p>
+            <div className="flex flex-col gap-[6px] font-mono text-caption">
+              <div className="flex flex-wrap gap-x-3 gap-y-1">
+                <span className="text-sa-muted w-[120px] shrink-0">HMRC code</span>
+                <span className="text-sa-red">{r.rawCode}</span>
               </div>
-              <div className="flex gap-3">
-                <span className="text-[rgba(244,245,248,0.42)] w-[120px] shrink-0">
-                  easyacco shows
-                </span>
-                <span className="text-[#F4F5F8] inline-flex items-start gap-1.5">
-                  <CheckCircle2 size={13} className="text-[#4ADE80] mt-[3px] shrink-0" />
+              <div className="flex flex-wrap gap-x-3 gap-y-1">
+                <span className="text-sa-muted w-[120px] shrink-0">easyacco shows</span>
+                <span className="text-sa-white inline-flex items-start gap-1.5">
+                  <CheckCircle2 size={12} className="text-sa-green mt-[3px] shrink-0" />
                   <span>{r.friendly}</span>
                 </span>
               </div>
@@ -541,8 +532,8 @@ export default function ValidationPage() {
           </section>
         ))}
 
-        <div className="bg-[rgba(244,245,248,0.02)] border border-[rgba(244,245,248,0.07)] rounded-lg p-5 mt-8">
-          <div className="text-[rgba(244,245,248,0.42)] text-[0.62rem] uppercase tracking-[0.12em] font-mono mb-4">
+        <div className="bg-sa-tint border border-sa-border rounded-lg p-5 mt-8">
+          <div className="text-sa-muted text-micro uppercase tracking-[0.12em] font-mono mb-4">
             Full coverage — {totalCodes} HMRC codes mapped, zero generic fallbacks
           </div>
           <div className="grid md:grid-cols-2 gap-x-8 gap-y-6">
@@ -550,14 +541,12 @@ export default function ValidationPage() {
               .filter((b) => b.entries.length > 0)
               .map((b) => (
                 <div key={b.label}>
-                  <div className="text-[rgba(244,245,248,0.7)] text-[0.72rem] font-semibold mb-2">
-                    {b.label}
-                  </div>
+                  <div className="text-sa-muted text-caption font-semibold mb-2">{b.label}</div>
                   <div className="flex flex-col gap-2">
                     {b.entries.map(([code, msg]) => (
-                      <div key={code} className="font-mono text-[0.72rem] leading-[1.5]">
-                        <span className="text-[#F87171]">{code}</span>
-                        <span className="text-[rgba(244,245,248,0.55)] block">{msg}</span>
+                      <div key={code} className="font-mono text-caption leading-[1.5]">
+                        <span className="text-sa-red">{code}</span>
+                        <span className="text-sa-muted block">{msg}</span>
                       </div>
                     ))}
                   </div>
@@ -566,14 +555,14 @@ export default function ValidationPage() {
           </div>
         </div>
 
-        <p className="text-[rgba(244,245,248,0.42)] text-[0.72rem] leading-[1.6] mt-12">
+        <p className="text-sa-muted text-caption leading-[1.6] mt-12">
           Tax calculations executed on the server using the production engine exported from
-          <code className="font-mono text-[rgba(244,245,248,0.7)] px-1">@/lib/tax-engine</code>.
-          2026/27 HMRC rates. Class 2 NI is deemed paid above the Small Profits Threshold of £7,105.
-          Scotland band ranges use the Holyrood-set thresholds for non-savings, non-dividend income.
-          HMRC error messages mapped by{' '}
-          <code className="font-mono text-[rgba(244,245,248,0.7)] px-1">@/lib/hmrc/mtd-errors</code>
-          ; codes sourced from HMRC&rsquo;s published OpenAPI specs.
+          <code className="font-mono text-sa-muted px-1">@/lib/tax-engine</code>. 2026/27 HMRC
+          rates. Class 2 NI is deemed paid above the Small Profits Threshold of £7,105. Scotland
+          band ranges use the Holyrood-set thresholds for non-savings, non-dividend income. HMRC
+          error messages mapped by{' '}
+          <code className="font-mono text-sa-muted px-1">@/lib/hmrc/mtd-errors</code>; codes sourced
+          from HMRC&rsquo;s published OpenAPI specs.
         </p>
       </div>
     </div>
@@ -583,7 +572,7 @@ export default function ValidationPage() {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between gap-4">
-      <span className="text-[rgba(244,245,248,0.7)]">{label}</span>
+      <span className="text-sa-muted">{label}</span>
       <span className="tabular-nums">{value}</span>
     </div>
   )

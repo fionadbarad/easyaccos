@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { SkeletonRows } from './Skeleton'
+import { T } from '@/styles/type'
 
 type Props = {
   loading: boolean
@@ -28,7 +29,7 @@ export function AsyncBoundary({ loading, error, fallback, children }: Props) {
           border: '1px solid rgba(248,113,113,0.3)',
           background: 'rgba(248,113,113,0.08)',
           color: '#F87171',
-          fontSize: '0.88rem',
+          fontSize: T.body,
         }}
       >
         {error}

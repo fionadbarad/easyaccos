@@ -18,6 +18,7 @@ import { useUserData } from '@/lib/use-user-data'
 import { fmtGBP } from '@/lib/formatters'
 
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 // HMRC 2026/27 approved mileage rates
 const RATE_CAR_FIRST = 0.55 // First 10,000 miles (AMAP raised 45p→55p from 6 Apr 2026)
 const RATE_CAR_EXCESS = 0.25 // Above 10,000 miles
@@ -85,7 +86,7 @@ function Stat({
       <div
         style={{
           color: C.muted,
-          fontSize: '0.68rem',
+          fontSize: T.micro,
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
           marginBottom: '6px',
@@ -97,7 +98,7 @@ function Stat({
       <div
         style={{
           color: accent ?? C.white,
-          fontSize: '1.4rem',
+          fontSize: T.heading,
           fontWeight: 700,
           letterSpacing: '-0.03em',
           fontFamily: 'var(--font-geist-mono, monospace)',
@@ -105,7 +106,7 @@ function Stat({
       >
         {value}
       </div>
-      {sub && <div style={{ color: C.muted, fontSize: '0.68rem', marginTop: '4px' }}>{sub}</div>}
+      {sub && <div style={{ color: C.muted, fontSize: T.micro, marginTop: '4px' }}>{sub}</div>}
     </div>
   )
 }
@@ -133,15 +134,15 @@ function RatePanel({ open, onToggle }: { open: boolean; onToggle: () => void }) 
           border: 'none',
           color: C.white,
           cursor: 'pointer',
-          fontSize: '0.78rem',
+          fontSize: T.caption,
           fontWeight: 500,
         }}
       >
         <span style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-          <Info size={13} style={{ color: C.muted }} />
+          <Info size={12} style={{ color: C.muted }} />
           HMRC Approved Mileage Rates 2026/27
         </span>
-        {open ? <ChevronUp size={13} color={C.muted} /> : <ChevronDown size={13} color={C.muted} />}
+        {open ? <ChevronUp size={12} color={C.muted} /> : <ChevronDown size={12} color={C.muted} />}
       </button>
       {open && (
         <div style={{ padding: '0 1rem 1rem', borderTop: `1px solid ${C.border}` }}>
@@ -149,7 +150,7 @@ function RatePanel({ open, onToggle }: { open: boolean; onToggle: () => void }) 
             style={{
               width: '100%',
               borderCollapse: 'collapse',
-              fontSize: '0.78rem',
+              fontSize: T.caption,
               marginTop: '0.75rem',
             }}
           >
@@ -163,7 +164,7 @@ function RatePanel({ open, onToggle }: { open: boolean; onToggle: () => void }) 
                       color: C.muted,
                       fontWeight: 500,
                       padding: '4px 8px 8px 0',
-                      fontSize: '0.68rem',
+                      fontSize: T.micro,
                       letterSpacing: '0.04em',
                     }}
                   >
@@ -202,7 +203,7 @@ function RatePanel({ open, onToggle }: { open: boolean; onToggle: () => void }) 
               ))}
             </tbody>
           </table>
-          <p style={{ color: C.muted, fontSize: '0.68rem', marginTop: '10px', lineHeight: 1.5 }}>
+          <p style={{ color: C.muted, fontSize: T.micro, marginTop: '10px', lineHeight: 1.5 }}>
             Use these HMRC-approved rates instead of claiming actual vehicle costs. The car
             threshold resets each tax year (6 April). Only business journeys qualify — commuting to
             a regular workplace does not.
@@ -232,14 +233,14 @@ function EntryRow({
         gap: '8px',
         padding: '10px 12px',
         borderBottom: `1px solid ${C.border}`,
-        fontSize: '0.78rem',
+        fontSize: T.caption,
       }}
     >
       <span
         style={{
           color: C.muted,
           fontFamily: 'var(--font-geist-mono, monospace)',
-          fontSize: '0.7rem',
+          fontSize: T.micro,
         }}
       >
         {entry.date}
@@ -254,7 +255,7 @@ function EntryRow({
       >
         {entry.description}
       </span>
-      <span style={{ color: C.muted, fontSize: '0.7rem' }}>{VEHICLE_LABELS[entry.vehicle]}</span>
+      <span style={{ color: C.muted, fontSize: T.micro }}>{VEHICLE_LABELS[entry.vehicle]}</span>
       <span
         style={{
           color: C.white,
@@ -289,7 +290,7 @@ function EntryRow({
         onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = C.red)}
         onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = C.dim)}
       >
-        <Trash2 size={13} />
+        <Trash2 size={12} />
       </button>
     </div>
   )
@@ -382,7 +383,7 @@ export default function MileagePage() {
         <span
           style={{
             color: C.muted,
-            fontSize: '0.8rem',
+            fontSize: T.meta,
             fontFamily: 'var(--font-geist-mono, monospace)',
           }}
         >
@@ -393,15 +394,7 @@ export default function MileagePage() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: C.bg,
-        padding: '2rem 1.5rem 4rem',
-        maxWidth: '820px',
-        margin: '0 auto',
-      }}
-    >
+    <div className="page-shell">
       {/* Header */}
       <div
         style={{
@@ -415,11 +408,11 @@ export default function MileagePage() {
       >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-            <Car size={18} style={{ color: C.white }} />
+            <Car size={16} style={{ color: C.white }} />
             <h1
               style={{
                 color: C.white,
-                fontSize: '1.1rem',
+                fontSize: T.title,
                 fontWeight: 600,
                 letterSpacing: '-0.03em',
                 margin: 0,
@@ -428,7 +421,7 @@ export default function MileagePage() {
               Mileage Tracker
             </h1>
           </div>
-          <p style={{ color: C.muted, fontSize: '0.75rem', margin: 0 }}>
+          <p style={{ color: C.muted, fontSize: T.caption, margin: 0 }}>
             HMRC approved mileage — 2026/27 tax year
           </p>
         </div>
@@ -439,16 +432,16 @@ export default function MileagePage() {
               alignItems: 'center',
               gap: '5px',
               color: C.muted,
-              fontSize: '0.68rem',
+              fontSize: T.micro,
             }}
           >
             {isAuthenticated ? (
               <>
-                <Cloud size={11} style={{ color: C.green }} /> synced
+                <Cloud size={12} style={{ color: C.green }} /> synced
               </>
             ) : (
               <>
-                <CloudOff size={11} /> guest
+                <CloudOff size={12} /> guest
               </>
             )}
           </div>
@@ -463,12 +456,12 @@ export default function MileagePage() {
               border: 'none',
               borderRadius: '4px',
               padding: '7px 14px',
-              fontSize: '0.78rem',
+              fontSize: T.caption,
               fontWeight: 600,
               cursor: 'pointer',
             }}
           >
-            <Plus size={13} /> Log Journey
+            <Plus size={12} /> Log Journey
           </button>
         </div>
       </div>
@@ -525,7 +518,7 @@ export default function MileagePage() {
             <span
               style={{
                 color: C.muted,
-                fontSize: '0.7rem',
+                fontSize: T.micro,
                 letterSpacing: '0.04em',
                 textTransform: 'uppercase',
                 fontFamily: 'var(--font-geist-mono, monospace)',
@@ -536,7 +529,7 @@ export default function MileagePage() {
             <span
               style={{
                 color: C.white,
-                fontSize: '0.7rem',
+                fontSize: T.micro,
                 fontFamily: 'var(--font-geist-mono, monospace)',
               }}
             >
@@ -557,7 +550,7 @@ export default function MileagePage() {
             />
           </div>
           {thresholdPct >= 100 && (
-            <p style={{ color: C.amber, fontSize: '0.68rem', marginTop: '6px' }}>
+            <p style={{ color: C.amber, fontSize: T.micro, marginTop: '6px' }}>
               10,000 mile threshold reached — remaining car journeys claim at 25p/mile.
             </p>
           )}
@@ -580,7 +573,7 @@ export default function MileagePage() {
             marginBottom: '1.25rem',
           }}
         >
-          <h3 style={{ color: C.white, fontSize: '0.85rem', fontWeight: 600, margin: '0 0 1rem' }}>
+          <h3 style={{ color: C.white, fontSize: T.body, fontWeight: 600, margin: '0 0 1rem' }}>
             Log Journey
           </h3>
           <div
@@ -597,7 +590,7 @@ export default function MileagePage() {
                 style={{
                   display: 'block',
                   color: C.muted,
-                  fontSize: '0.68rem',
+                  fontSize: T.micro,
                   marginBottom: '4px',
                   textTransform: 'uppercase',
                   letterSpacing: '0.06em',
@@ -616,7 +609,7 @@ export default function MileagePage() {
                   borderRadius: '4px',
                   color: C.white,
                   padding: '7px 10px',
-                  fontSize: '0.78rem',
+                  fontSize: T.caption,
                   boxSizing: 'border-box',
                 }}
               />
@@ -628,7 +621,7 @@ export default function MileagePage() {
                 style={{
                   display: 'block',
                   color: C.muted,
-                  fontSize: '0.68rem',
+                  fontSize: T.micro,
                   marginBottom: '4px',
                   textTransform: 'uppercase',
                   letterSpacing: '0.06em',
@@ -646,7 +639,7 @@ export default function MileagePage() {
                   borderRadius: '4px',
                   color: C.white,
                   padding: '7px 10px',
-                  fontSize: '0.78rem',
+                  fontSize: T.caption,
                   boxSizing: 'border-box',
                 }}
               >
@@ -662,7 +655,7 @@ export default function MileagePage() {
                 style={{
                   display: 'block',
                   color: C.muted,
-                  fontSize: '0.68rem',
+                  fontSize: T.micro,
                   marginBottom: '4px',
                   textTransform: 'uppercase',
                   letterSpacing: '0.06em',
@@ -684,7 +677,7 @@ export default function MileagePage() {
                   borderRadius: '4px',
                   color: C.white,
                   padding: '7px 10px',
-                  fontSize: '0.78rem',
+                  fontSize: T.caption,
                   boxSizing: 'border-box',
                 }}
               />
@@ -697,7 +690,7 @@ export default function MileagePage() {
               style={{
                 display: 'block',
                 color: C.muted,
-                fontSize: '0.68rem',
+                fontSize: T.micro,
                 marginBottom: '4px',
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
@@ -718,7 +711,7 @@ export default function MileagePage() {
                 borderRadius: '4px',
                 color: C.white,
                 padding: '7px 10px',
-                fontSize: '0.78rem',
+                fontSize: T.caption,
                 boxSizing: 'border-box',
               }}
             />
@@ -737,7 +730,7 @@ export default function MileagePage() {
                 alignItems: 'center',
               }}
             >
-              <span style={{ color: C.muted, fontSize: '0.72rem' }}>
+              <span style={{ color: C.muted, fontSize: T.caption }}>
                 Estimated claim for this journey
               </span>
               <span
@@ -763,7 +756,7 @@ export default function MileagePage() {
                 borderRadius: '4px',
                 color: C.muted,
                 padding: '7px 14px',
-                fontSize: '0.78rem',
+                fontSize: T.caption,
                 cursor: 'pointer',
               }}
             >
@@ -778,7 +771,7 @@ export default function MileagePage() {
                 border: 'none',
                 borderRadius: '4px',
                 padding: '7px 14px',
-                fontSize: '0.78rem',
+                fontSize: T.caption,
                 fontWeight: 600,
                 cursor: 'pointer',
                 opacity: !description.trim() || !miles || parseFloat(miles) <= 0 ? 0.4 : 1,
@@ -815,7 +808,7 @@ export default function MileagePage() {
               key={i}
               style={{
                 color: C.muted,
-                fontSize: '0.65rem',
+                fontSize: T.micro,
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
                 textAlign: i >= 3 ? 'right' : 'left',
@@ -828,9 +821,9 @@ export default function MileagePage() {
 
         {enriched.length === 0 ? (
           <div style={{ padding: '3rem', textAlign: 'center' }}>
-            <MapPin size={28} style={{ color: C.dim, marginBottom: '12px' }} />
-            <p style={{ color: C.muted, fontSize: '0.8rem', margin: 0 }}>No journeys logged yet.</p>
-            <p style={{ color: C.dim, fontSize: '0.72rem', marginTop: '4px' }}>
+            <MapPin size={24} style={{ color: C.dim, marginBottom: '12px' }} />
+            <p style={{ color: C.muted, fontSize: T.meta, margin: 0 }}>No journeys logged yet.</p>
+            <p style={{ color: C.dim, fontSize: T.caption, marginTop: '4px' }}>
               Log your first business trip to start tracking your HMRC mileage claim.
             </p>
           </div>
@@ -858,14 +851,14 @@ export default function MileagePage() {
             }}
           >
             <span />
-            <span style={{ color: C.muted, fontSize: '0.7rem' }}>Total claim</span>
+            <span style={{ color: C.muted, fontSize: T.micro }}>Total claim</span>
             <span />
             <span
               style={{
                 color: C.white,
                 textAlign: 'right',
                 fontFamily: 'var(--font-geist-mono, monospace)',
-                fontSize: '0.78rem',
+                fontSize: T.caption,
                 fontWeight: 600,
               }}
             >
@@ -876,7 +869,7 @@ export default function MileagePage() {
                 color: C.green,
                 textAlign: 'right',
                 fontFamily: 'var(--font-geist-mono, monospace)',
-                fontSize: '0.78rem',
+                fontSize: T.caption,
                 fontWeight: 700,
               }}
             >
@@ -903,10 +896,10 @@ export default function MileagePage() {
         >
           <TrendingUp size={14} style={{ color: C.green, flexShrink: 0, marginTop: '2px' }} />
           <div>
-            <p style={{ color: C.white, fontSize: '0.75rem', fontWeight: 500, margin: '0 0 3px' }}>
+            <p style={{ color: C.white, fontSize: T.caption, fontWeight: 500, margin: '0 0 3px' }}>
               Tax saving: approx. {fmtGBP(totalClaim * 0.2)}–{fmtGBP(totalClaim * 0.4)}
             </p>
-            <p style={{ color: C.muted, fontSize: '0.7rem', margin: 0 }}>
+            <p style={{ color: C.muted, fontSize: T.micro, margin: 0 }}>
               Add {fmtGBP(totalClaim)} to your allowable expenses on your Self Assessment. At 20%
               basic rate this saves {fmtGBP(totalClaim * 0.2)}, at 40% higher rate{' '}
               {fmtGBP(totalClaim * 0.4)}.

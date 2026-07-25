@@ -3,6 +3,7 @@
 import type { LucideIcon } from 'lucide-react'
 import { X } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { ICON } from '@/styles/type'
 
 type Variant = 'info' | 'urgent' | 'warning'
 
@@ -41,38 +42,21 @@ export default function NoticeBanner({
 
   return (
     <div
-      style={{
-        display: 'flex',
-        alignItems: 'flex-start',
-        gap: '10px',
-        padding: '10px 16px',
-        background: c.bg,
-        borderBottom: `1px solid ${c.border}`,
-        color: c.text,
-        fontSize: '0.85rem',
-        fontFamily: 'var(--font-mono, monospace)',
-      }}
+      // pl-14 on md+ keeps the text clear of the fixed sidebar toggle, which
+      // floats over the top-left corner of the content column.
+      className="flex items-start gap-2.5 py-2.5 px-4 md:pl-14 text-body font-mono border-b"
+      style={{ background: c.bg, borderBottomColor: c.border, color: c.text }}
     >
-      <Icon size={13} style={{ flexShrink: 0, marginTop: 1 }} />
-      <span style={{ flex: 1 }}>{children}</span>
+      <Icon size={ICON.xs} className="shrink-0 mt-0.5" />
+      <span className="flex-1">{children}</span>
       {onDismiss && (
         <button
           onClick={onDismiss}
           title={dismissLabel}
           aria-label={dismissLabel}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            color: 'inherit',
-            opacity: 0.6,
-            padding: 0,
-            flexShrink: 0,
-            display: 'flex',
-            alignItems: 'center',
-          }}
+          className="flex items-center shrink-0 p-0 bg-transparent border-none text-inherit opacity-60 hover:opacity-100 cursor-pointer transition-opacity"
         >
-          <X size={13} />
+          <X size={ICON.xs} />
         </button>
       )}
     </div>

@@ -6,13 +6,14 @@ import type { PendingScan } from '@/lib/hooks/useExpenses'
 import { CATEGORIES } from '@/lib/hooks/useExpenses'
 
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 const inputS: React.CSSProperties = {
   background: C.gray,
   border: `1px solid ${C.border}`,
   borderRadius: '4px',
   padding: '9px 11px',
   color: C.white,
-  fontSize: '0.84rem',
+  fontSize: T.meta,
   outline: 'none',
   boxSizing: 'border-box',
   width: '100%',
@@ -22,7 +23,7 @@ const inputS: React.CSSProperties = {
 const labelS: React.CSSProperties = {
   display: 'block',
   color: C.muted,
-  fontSize: '0.62rem',
+  fontSize: T.micro,
   textTransform: 'uppercase',
   letterSpacing: '0.08em',
   marginBottom: '4px',
@@ -104,7 +105,7 @@ export function ReceiptVerifyModal({
             <div
               style={{
                 color: C.muted,
-                fontSize: '0.6rem',
+                fontSize: T.micro,
                 textTransform: 'uppercase',
                 letterSpacing: '0.1em',
                 fontFamily: 'var(--font-geist-mono), monospace',
@@ -113,7 +114,7 @@ export function ReceiptVerifyModal({
             >
               OCR · Split-View Verification
             </div>
-            <h3 style={{ color: C.white, fontSize: '0.95rem', fontWeight: 600, margin: 0 }}>
+            <h3 style={{ color: C.white, fontSize: T.lead, fontWeight: 600, margin: 0 }}>
               Verify Receipt Details
             </h3>
           </div>
@@ -172,7 +173,7 @@ export function ReceiptVerifyModal({
               >
                 <Camera size={32} strokeWidth={1.2} />
                 <span
-                  style={{ fontSize: '0.75rem', fontFamily: 'var(--font-geist-mono), monospace' }}
+                  style={{ fontSize: T.caption, fontFamily: 'var(--font-geist-mono), monospace' }}
                 >
                   PDF receipt
                 </span>
@@ -202,11 +203,11 @@ export function ReceiptVerifyModal({
                   alignSelf: 'flex-start',
                 }}
               >
-                <Camera size={10} style={{ color: C.blue }} />
+                <Camera size={12} style={{ color: C.blue }} />
                 <span
                   style={{
                     color: C.blue,
-                    fontSize: '0.68rem',
+                    fontSize: T.micro,
                     fontFamily: 'var(--font-geist-mono), monospace',
                   }}
                 >
@@ -247,7 +248,7 @@ export function ReceiptVerifyModal({
                     color: suggesting ? C.muted : C.white,
                     borderRadius: 3,
                     padding: '1px 6px',
-                    fontSize: '0.58rem',
+                    fontSize: T.micro,
                     cursor: form.description.trim() && !suggesting ? 'pointer' : 'default',
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -256,9 +257,9 @@ export function ReceiptVerifyModal({
                   }}
                 >
                   {suggesting ? (
-                    <Loader2 size={9} style={{ animation: 'spin 1s linear infinite' }} />
+                    <Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} />
                   ) : (
-                    <Sparkles size={9} />
+                    <Sparkles size={12} />
                   )}
                   {suggesting ? 'thinking' : 'suggest'}
                 </button>
@@ -292,7 +293,7 @@ export function ReceiptVerifyModal({
               <summary
                 style={{
                   color: C.muted,
-                  fontSize: '0.68rem',
+                  fontSize: T.micro,
                   cursor: 'pointer',
                   fontFamily: 'var(--font-geist-mono), monospace',
                   letterSpacing: '0.04em',
@@ -303,7 +304,7 @@ export function ReceiptVerifyModal({
               <pre
                 style={{
                   color: 'rgba(244,245,248,0.3)',
-                  fontSize: '0.65rem',
+                  fontSize: T.micro,
                   marginTop: '0.5rem',
                   whiteSpace: 'pre-wrap',
                   wordBreak: 'break-word',
@@ -340,7 +341,7 @@ export function ReceiptVerifyModal({
               borderRadius: '4px',
               padding: '8px 16px',
               cursor: 'pointer',
-              fontSize: '0.8rem',
+              fontSize: T.meta,
             }}
           >
             Cancel
@@ -358,10 +359,10 @@ export function ReceiptVerifyModal({
               padding: '8px 18px',
               fontWeight: 600,
               cursor: 'pointer',
-              fontSize: '0.8rem',
+              fontSize: T.meta,
             }}
           >
-            <CheckCircle2 size={13} /> Confirm & Add
+            <CheckCircle2 size={12} /> Confirm & Add
           </button>
         </div>
       </div>

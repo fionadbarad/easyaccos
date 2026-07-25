@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react'
 import { C } from '@/styles/palette'
 import { labelStyle, inp } from './tokens'
+import { T } from '@/styles/type'
 
 export function useDebounce<T>(value: T, ms: number): T {
   const [debounced, setDebounced] = useState(value)
@@ -80,7 +81,7 @@ export function Toggle({
         background: active ? 'rgba(74,222,128,0.08)' : 'transparent',
         border: `1px solid ${active ? C.green : C.border}`,
         color: active ? C.green : C.muted,
-        fontSize: '0.8rem',
+        fontSize: T.meta,
         fontWeight: 500,
         transition: 'all 0.15s',
         minHeight: '40px',
@@ -99,7 +100,7 @@ export function Toggle({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '10px',
+          fontSize: T.micro,
           color: '#181818',
         }}
       >

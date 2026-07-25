@@ -20,6 +20,7 @@ import { useUserData } from '@/lib/use-user-data'
 import { TRANSACTIONS_SEED, type Transaction } from '@/lib/transactions/seed'
 
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
@@ -87,7 +88,7 @@ function ISLine({
       <span
         style={{
           color: bold ? C.white : C.muted,
-          fontSize: bold ? '0.82rem' : '0.78rem',
+          fontSize: bold ? T.meta : T.caption,
           fontWeight: bold ? 600 : 400,
         }}
       >
@@ -98,7 +99,7 @@ function ISLine({
           style={{
             color: highlight ? C.white : negative ? C.red : bold ? C.white : C.muted,
             fontWeight: bold ? 600 : 400,
-            fontSize: bold ? '0.9rem' : '0.82rem',
+            fontSize: bold ? T.body : T.meta,
             fontFamily: 'var(--font-geist-mono), monospace',
             fontVariantNumeric: 'tabular-nums',
           }}
@@ -135,7 +136,7 @@ function StatCard({
       <div
         style={{
           color: C.muted,
-          fontSize: '0.65rem',
+          fontSize: T.micro,
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
           marginBottom: '6px',
@@ -145,15 +146,15 @@ function StatCard({
           fontWeight: 600,
         }}
       >
-        {trend === 'up' && <TrendingUp size={10} style={{ color: C.green }} />}
-        {trend === 'down' && <TrendingDown size={10} style={{ color: C.red }} />}
+        {trend === 'up' && <TrendingUp size={12} style={{ color: C.green }} />}
+        {trend === 'down' && <TrendingDown size={12} style={{ color: C.red }} />}
         {label}
       </div>
       <div
         style={{
           color: C.white,
           fontWeight: 600,
-          fontSize: '1.2rem',
+          fontSize: T.title,
           letterSpacing: '-0.02em',
           fontFamily: 'var(--font-geist-mono), monospace',
           fontVariantNumeric: 'tabular-nums',
@@ -161,7 +162,7 @@ function StatCard({
       >
         {value}
       </div>
-      {sub && <div style={{ color: C.muted, fontSize: '0.7rem', marginTop: '3px' }}>{sub}</div>}
+      {sub && <div style={{ color: C.muted, fontSize: T.micro, marginTop: '3px' }}>{sub}</div>}
     </div>
   )
 }
@@ -171,7 +172,7 @@ const tooltipStyle = {
   border: `1px solid rgba(244,245,248,0.1)`,
   borderRadius: '4px',
   color: C.white,
-  fontSize: '0.75rem',
+  fontSize: T.caption,
 }
 
 type View = 'overview' | 'income-statement'
@@ -318,14 +319,14 @@ export default function PnLPage() {
     padding: '7px 14px',
     borderRadius: '4px',
     cursor: 'pointer',
-    fontSize: '0.78rem',
+    fontSize: T.caption,
     fontWeight: 500,
     minHeight: '36px',
     transition: 'all 0.1s',
   }
 
   return (
-    <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)', maxWidth: '960px' }}>
+    <div className="page-shell is-wide">
       {/* Header */}
       <div
         style={{
@@ -341,7 +342,7 @@ export default function PnLPage() {
           <div
             style={{
               color: C.muted,
-              fontSize: '0.62rem',
+              fontSize: T.micro,
               textTransform: 'uppercase',
               letterSpacing: '0.12em',
               marginBottom: '5px',
@@ -353,7 +354,7 @@ export default function PnLPage() {
           <h1
             style={{
               color: C.white,
-              fontSize: 'clamp(1.4rem,3vw,1.9rem)',
+              fontSize: T.h2,
               fontWeight: 600,
               letterSpacing: '-0.03em',
               margin: 0,
@@ -364,7 +365,7 @@ export default function PnLPage() {
           <p
             style={{
               color: C.muted,
-              fontSize: '0.78rem',
+              fontSize: T.caption,
               marginTop: '4px',
               fontFamily: 'var(--font-geist-mono), monospace',
             }}
@@ -399,7 +400,7 @@ export default function PnLPage() {
               color: copied ? C.green : C.muted,
             }}
           >
-            {copied ? <CheckCheck size={13} /> : <Copy size={13} />}
+            {copied ? <CheckCheck size={12} /> : <Copy size={12} />}
             {copied ? 'Copied' : 'Export JSON'}
           </button>
           <button
@@ -415,7 +416,7 @@ export default function PnLPage() {
               color: C.muted,
             }}
           >
-            <FileText size={13} /> Export SA103 CSV
+            <FileText size={12} /> Export SA103 CSV
           </button>
         </div>
       </div>
@@ -437,7 +438,7 @@ export default function PnLPage() {
           <span
             style={{
               color: C.amber,
-              fontSize: '0.75rem',
+              fontSize: T.caption,
               fontWeight: 700,
               fontFamily: 'var(--font-geist-mono), monospace',
               flexShrink: 0,
@@ -446,10 +447,10 @@ export default function PnLPage() {
             MTD
           </span>
           <div>
-            <span style={{ color: C.amber, fontWeight: 600, fontSize: '0.82rem' }}>
+            <span style={{ color: C.amber, fontWeight: 600, fontSize: T.meta }}>
               Making Tax Digital — registration required
             </span>
-            <p style={{ color: C.muted, fontSize: '0.75rem', margin: '2px 0 0', lineHeight: 1.5 }}>
+            <p style={{ color: C.muted, fontSize: T.caption, margin: '2px 0 0', lineHeight: 1.5 }}>
               Turnover exceeds{' '}
               <span style={{ color: C.white, fontFamily: 'var(--font-geist-mono), monospace' }}>
                 £50,000
@@ -508,7 +509,7 @@ export default function PnLPage() {
                 <div
                   style={{
                     color: C.muted,
-                    fontSize: '0.63rem',
+                    fontSize: T.micro,
                     textTransform: 'uppercase',
                     letterSpacing: '0.07em',
                     fontWeight: 600,
@@ -518,15 +519,15 @@ export default function PnLPage() {
                     gap: '4px',
                   }}
                 >
-                  {s.trend === 'up' && <TrendingUp size={9} style={{ color: C.green }} />}
-                  {s.trend === 'down' && <TrendingDown size={9} style={{ color: C.red }} />}
+                  {s.trend === 'up' && <TrendingUp size={12} style={{ color: C.green }} />}
+                  {s.trend === 'down' && <TrendingDown size={12} style={{ color: C.red }} />}
                   {s.label}
                 </div>
                 <div
                   style={{
                     color: C.white,
                     fontWeight: 600,
-                    fontSize: '1.1rem',
+                    fontSize: T.title,
                     letterSpacing: '-0.02em',
                     fontFamily: 'var(--font-geist-mono), monospace',
                   }}
@@ -534,9 +535,7 @@ export default function PnLPage() {
                   {s.value}
                 </div>
                 {s.sub && (
-                  <div style={{ color: C.muted, fontSize: '0.68rem', marginTop: '2px' }}>
-                    {s.sub}
-                  </div>
+                  <div style={{ color: C.muted, fontSize: T.micro, marginTop: '2px' }}>{s.sub}</div>
                 )}
               </div>
             ))}
@@ -554,7 +553,7 @@ export default function PnLPage() {
             <h2
               style={{
                 color: C.white,
-                fontSize: '0.85rem',
+                fontSize: T.body,
                 fontWeight: 600,
                 letterSpacing: '-0.01em',
                 marginBottom: '1.1rem',
@@ -577,12 +576,12 @@ export default function PnLPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(244,245,248,0.05)" />
                 <XAxis
                   dataKey="month"
-                  tick={{ fill: C.muted, fontSize: 10 }}
+                  tick={{ fill: C.muted, fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <YAxis
-                  tick={{ fill: C.muted, fontSize: 10 }}
+                  tick={{ fill: C.muted, fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                   tickFormatter={(v) => `£${(Number(v) / 1000).toFixed(0)}k`}
@@ -591,7 +590,7 @@ export default function PnLPage() {
                   contentStyle={tooltipStyle}
                   formatter={(value) => (typeof value === 'number' ? fmt(value) : value)}
                 />
-                <Legend wrapperStyle={{ fontSize: '0.75rem', color: C.muted }} />
+                <Legend wrapperStyle={{ fontSize: T.caption, color: C.muted }} />
                 <Area
                   type="monotone"
                   dataKey="income"
@@ -623,7 +622,7 @@ export default function PnLPage() {
             <h2
               style={{
                 color: C.white,
-                fontSize: '0.85rem',
+                fontSize: T.body,
                 fontWeight: 600,
                 letterSpacing: '-0.01em',
                 marginBottom: '1.1rem',
@@ -636,12 +635,12 @@ export default function PnLPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(244,245,248,0.05)" />
                 <XAxis
                   dataKey="month"
-                  tick={{ fill: C.muted, fontSize: 10 }}
+                  tick={{ fill: C.muted, fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <YAxis
-                  tick={{ fill: C.muted, fontSize: 10 }}
+                  tick={{ fill: C.muted, fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                   tickFormatter={(v) => `£${(Number(v) / 1000).toFixed(0)}k`}
@@ -687,7 +686,7 @@ export default function PnLPage() {
               <h2
                 style={{
                   color: C.white,
-                  fontSize: '0.95rem',
+                  fontSize: T.lead,
                   fontWeight: 600,
                   letterSpacing: '-0.02em',
                   margin: 0,
@@ -698,7 +697,7 @@ export default function PnLPage() {
               <p
                 style={{
                   color: C.muted,
-                  fontSize: '0.68rem',
+                  fontSize: T.micro,
                   margin: 0,
                   fontFamily: 'var(--font-geist-mono), monospace',
                 }}
@@ -754,7 +753,7 @@ export default function PnLPage() {
                 borderRadius: '3px',
                 padding: '6px 8px',
                 color: C.white,
-                fontSize: '0.72rem',
+                fontSize: T.caption,
                 fontFamily: 'var(--font-geist-mono), monospace',
                 outline: 'none',
               }}
@@ -770,7 +769,7 @@ export default function PnLPage() {
                 borderRadius: '3px',
                 padding: '6px 8px',
                 color: C.white,
-                fontSize: '0.75rem',
+                fontSize: T.caption,
                 outline: 'none',
               }}
             />
@@ -787,7 +786,7 @@ export default function PnLPage() {
                 borderRadius: '3px',
                 padding: '6px 8px',
                 color: C.white,
-                fontSize: '0.75rem',
+                fontSize: T.caption,
                 textAlign: 'right',
                 fontFamily: 'var(--font-geist-mono), monospace',
                 outline: 'none',
@@ -801,7 +800,7 @@ export default function PnLPage() {
                 border: 'none',
                 borderRadius: '3px',
                 padding: '6px 12px',
-                fontSize: '0.72rem',
+                fontSize: T.caption,
                 fontWeight: 600,
                 cursor: 'pointer',
               }}
@@ -862,7 +861,7 @@ export default function PnLPage() {
                 style={{
                   color: C.white,
                   fontWeight: 600,
-                  fontSize: '0.85rem',
+                  fontSize: T.body,
                   letterSpacing: '-0.01em',
                 }}
               >
@@ -872,7 +871,7 @@ export default function PnLPage() {
                 style={{
                   color: profitAfterTax >= 0 ? C.white : C.red,
                   fontWeight: 600,
-                  fontSize: '1rem',
+                  fontSize: T.lead,
                   fontFamily: 'var(--font-geist-mono), monospace',
                   fontVariantNumeric: 'tabular-nums',
                 }}
@@ -883,7 +882,7 @@ export default function PnLPage() {
             <div
               style={{
                 color: C.muted,
-                fontSize: '0.65rem',
+                fontSize: T.micro,
                 marginTop: '4px',
                 fontFamily: 'var(--font-geist-mono), monospace',
               }}

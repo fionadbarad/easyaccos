@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import TaxEstimator2026 from './TaxEstimator2026'
+import { T } from '@/styles/type'
 
 interface Expense {
   id: number
@@ -101,7 +102,7 @@ export default function DemoDashboard() {
           borderBottom: '1px solid var(--sa-border)',
           padding: '10px 24px',
           textAlign: 'center',
-          fontSize: '0.8rem',
+          fontSize: T.meta,
           color: 'var(--sa-muted)',
         }}
       >
@@ -124,7 +125,7 @@ export default function DemoDashboard() {
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '2rem 1.5rem' }}>
         <h1
           style={{
-            fontSize: '1.5rem',
+            fontSize: T.heading,
             fontWeight: 700,
             marginBottom: '0.25rem',
             color: 'var(--sa-white)',
@@ -132,7 +133,7 @@ export default function DemoDashboard() {
         >
           Overview
         </h1>
-        <p style={{ color: 'var(--sa-muted)', fontSize: '0.875rem', marginBottom: '2rem' }}>
+        <p style={{ color: 'var(--sa-muted)', fontSize: T.body, marginBottom: '2rem' }}>
           Demo data — Tax Year 6 April 2026 – 5 April 2027
         </p>
 
@@ -156,7 +157,7 @@ export default function DemoDashboard() {
               <div
                 style={{
                   color: 'var(--sa-muted)',
-                  fontSize: '0.72rem',
+                  fontSize: T.caption,
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
                   marginBottom: '0.5rem',
@@ -164,7 +165,7 @@ export default function DemoDashboard() {
               >
                 {stat.label}
               </div>
-              <div style={{ fontSize: '1.4rem', fontWeight: 700, color: stat.color }}>
+              <div style={{ fontSize: T.heading, fontWeight: 700, color: stat.color }}>
                 {stat.value}
               </div>
             </motion.div>
@@ -188,7 +189,7 @@ export default function DemoDashboard() {
 
         {/* Expenses */}
         <div className="ui-card">
-          <h2 className="ui-card-title" style={{ fontSize: '1.05rem', marginBottom: '1rem' }}>
+          <h2 className="ui-card-title" style={{ fontSize: T.lead, marginBottom: '1rem' }}>
             Recent Expenses
           </h2>
           {EXPENSES.map((expense, i) => (
@@ -206,12 +207,10 @@ export default function DemoDashboard() {
               }}
             >
               <div>
-                <div
-                  style={{ fontSize: '0.875rem', color: 'var(--sa-white)', marginBottom: '2px' }}
-                >
+                <div style={{ fontSize: T.body, color: 'var(--sa-white)', marginBottom: '2px' }}>
                   {expense.description}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--sa-muted)' }}>
+                <div style={{ fontSize: T.caption, color: 'var(--sa-muted)' }}>
                   {expense.category} · {expense.date}
                 </div>
               </div>
@@ -222,7 +221,7 @@ export default function DemoDashboard() {
                 {expense.hmrcAllowable && (
                   <span
                     style={{
-                      fontSize: '0.65rem',
+                      fontSize: T.micro,
                       background: 'rgba(74,222,128,0.1)',
                       border: '1px solid rgba(74,222,128,0.25)',
                       color: 'var(--sa-green)',
@@ -271,7 +270,7 @@ export default function DemoDashboard() {
             >
               <h2
                 style={{
-                  fontSize: '1.25rem',
+                  fontSize: T.title,
                   fontWeight: 600,
                   marginBottom: '0.75rem',
                   color: 'var(--sa-white)',
@@ -282,7 +281,7 @@ export default function DemoDashboard() {
               <p
                 style={{
                   color: 'var(--sa-muted)',
-                  fontSize: '0.875rem',
+                  fontSize: T.body,
                   lineHeight: 1.7,
                   marginBottom: '1.75rem',
                 }}
@@ -313,7 +312,7 @@ export default function DemoDashboard() {
                   border: 'none',
                   color: 'var(--sa-muted)',
                   cursor: 'pointer',
-                  fontSize: '0.8rem',
+                  fontSize: T.meta,
                 }}
               >
                 Continue in demo mode

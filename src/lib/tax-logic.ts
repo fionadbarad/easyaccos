@@ -1,15 +1,16 @@
-// ─── EasyAcco 2026/27 UK Tax Engine v3 ───────────────────────────────────────
-// Audit complete. All calculations use correct bases, 2dp rounding throughout.
+// ─── EasyAcco 2026/27 UK Tax Engine ──────────────────────────────────────────
+// An estimator, not a substitute for HMRC's calculation. It models the common
+// self-employed / director cases; known simplifications remain (see
+// docs/AUDIT.md — e.g. pension relief is a flat deduction, not band-extension
+// (TAX-10); Marriage Allowance is modelled as the transferor path (TAX-8)).
 //
-// BUGS FIXED vs v2:
-//   - Plan 2 student loan threshold set to the confirmed 2026/27 figure:
-//     £29,385/yr (HMRC "Student loan and postgraduate loan repayment thresholds")
-//   - Student loan now uses grossProfit (HMRC applies repayment on profit
-//     before pension relief, not after)
-//   - Floating point errors eliminated: round2() applied to all outputs
-//   - Higher rate band guard: remaining can never go negative
-//   - Monthly breakdown added to TaxResult
-//   - effectiveTaxRate capped at 100% defensively
+// Correctness notes:
+//   - Money rounded to 2dp via round2() throughout.
+//   - Student loan uses grossProfit (HMRC repays on profit before pension relief).
+//   - Class 4 NIC uses grossProfit — a personal SIPP does not reduce it (TAX-2).
+//   - Unused Personal Allowance shelters dividends before the £500 band (TAX-1).
+//   - Plan 2 student loan threshold £29,385/yr (2026/27, HMRC).
+//   - Higher-rate band guard: remaining can never go negative.
 
 export type EmploymentType = 'employed' | 'self-employed' | 'director'
 export type StudentLoanPlan = 'none' | 'plan1' | 'plan2' | 'plan4' | 'plan5' | 'postgraduate'
@@ -299,19 +300,33 @@ export function calcClass4NI(profit: number): number {
 // STILL USE UP basic/higher rate band, pushing the dividends above the
 // allowance up into the next band. (LITRG worked example: £40,650 earnings +
 // £10,000 divs → £9,120 @ 10.75% + £380 @ 35.75% = £1,116.25.)
-export function calcDividendTax(dividends: number, taxableNonDivIncome: number): number {
+//
+// `sparePersonalAllowance` is any Personal Allowance NOT consumed by
+// non-dividend income (e.g. a £6k salary leaves £6,570 of PA spare). HMRC sets
+// unused PA against dividends first, tax-free, BEFORE the £500 nil-rate band —
+// so those dividends are sheltered and never enter the rateable stack. Omitting
+// this over-taxes low-salary/high-dividend cases (TAX-1).
+export function calcDividendTax(
+  dividends: number,
+  taxableNonDivIncome: number,
+  sparePersonalAllowance = 0,
+): number {
   if (dividends <= 0) return 0
+
+  // Dividends covered by unused PA are tax-free and drop out of the stack.
+  const rateableDividends = Math.max(0, dividends - Math.max(0, sparePersonalAllowance))
+  if (rateableDividends <= 0) return 0
 
   // Absolute taxable-income ceilings of the UK dividend bands.
   const BASIC_CEIL = RUK_BASIC_RATE_WIDTH // 37,700 taxable: dividends at 10.75%
   const HIGHER_CEIL = RUK_HIGHER_LIMIT // 125,140: above this 39.35%
 
-  // The dividend stack occupies taxable-income positions [base, base+dividends).
+  // The dividend stack occupies taxable-income positions [base, base+rateable).
   // The first £500 (allowance) is taxed at 0% but still CONSUMES band, so the
   // rateable dividends begin one allowance-width higher up the stack.
   const base = Math.max(0, taxableNonDivIncome)
-  const allowance = Math.min(dividends, DIV_ALLOWANCE)
-  const hi = base + dividends // top of the dividend stack
+  const allowance = Math.min(rateableDividends, DIV_ALLOWANCE)
+  const hi = base + rateableDividends // top of the dividend stack
   let lo = base + allowance // bottom of the RATEABLE dividends
   if (hi <= lo) return 0
 
@@ -463,8 +478,11 @@ export function calculateTax(input: TaxInput): TaxResult {
       ? calcClass1NI(adjustedProfit)
       : 0
 
-  // Class 4: self-employed — on PROFIT (correct base is adjustedProfit for NI)
-  const niClass4 = employmentType === 'self-employed' ? calcClass4NI(adjustedProfit) : 0
+  // Class 4: self-employed — on trading PROFIT before pension. A personal SIPP
+  // gets relief at source and does NOT reduce the Class 4 NIC base, so this uses
+  // grossProfit, not adjustedProfit (TAX-2). (Class 1 above is left on
+  // adjustedProfit — that modelling is out of TAX-2's scope.)
+  const niClass4 = employmentType === 'self-employed' ? calcClass4NI(grossProfit) : 0
 
   // Class 2 (2026/27 rules):
   //   Profit >= £7,105 (SPT) → deemed paid, NI record protected, ZERO actual charge
@@ -475,7 +493,11 @@ export function calculateTax(input: TaxInput): TaxResult {
   const niClass2 = niClass2Voluntary ? round2(NI_C2_WEEKLY * 52) : 0
 
   // ── 7. Dividend tax ────────────────────────────────────────────────────────
-  const dividendTax = dividendIncome > 0 ? calcDividendTax(dividendIncome, taxableIncome) : 0
+  // Personal Allowance not used by non-dividend income shelters dividends first
+  // (TAX-1). adjustedProfit is the only non-dividend income in this engine.
+  const sparePersonalAllowance = Math.max(0, personalAllowance - adjustedProfit)
+  const dividendTax =
+    dividendIncome > 0 ? calcDividendTax(dividendIncome, taxableIncome, sparePersonalAllowance) : 0
 
   // ── 8. Student loan ────────────────────────────────────────────────────────
   // Base = grossProfit (after expenses, BEFORE pension deduction)

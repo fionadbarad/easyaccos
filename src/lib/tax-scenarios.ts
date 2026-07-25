@@ -70,7 +70,10 @@ export function calcScenario1(inp: S1Input): ScenarioResult {
   const pa = calcPA(adjusted)
   const taxable = Math.max(0, adjusted - pa)
   const itax = rukIncomeTax(taxable)
-  const ni = inp.employmentType === 'employed' ? calcClass1NI(adjusted) : calcClass4NI(adjusted)
+  // Class 4 (self-employed) is charged on trading profit before pension — a
+  // personal SIPP does not reduce the NIC base (TAX-2). Class 1 (employed)
+  // modelling is unchanged.
+  const ni = inp.employmentType === 'employed' ? calcClass1NI(adjusted) : calcClass4NI(profit)
   const total = round2(itax + ni)
   const takeHome = round2(Math.max(0, adjusted - total))
   const effRate = effective(total, adjusted)
@@ -289,7 +292,9 @@ export function calcScenario5(inp: S5Input): ScenarioResult {
   // Income tax: salary consumes PA first, dividends stack on top.
   const salTaxable = Math.max(0, adjustedSal - pa)
   const itaxSal = rukIncomeTax(salTaxable)
-  const divTax = calcDividendTax(dividends, salTaxable)
+  // Unused PA (salary below PA) shelters dividends first, tax-free (TAX-1).
+  const sparePA = Math.max(0, pa - adjustedSal)
+  const divTax = calcDividendTax(dividends, salTaxable, sparePA)
   const itaxTotal = round2(itaxSal + divTax)
 
   const total = round2(itaxTotal + ni)

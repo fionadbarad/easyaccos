@@ -318,6 +318,48 @@ describe('Dividend tax', () => {
     expect(sco.dividendTax).toBe(ruk.dividendTax)
     expect(sco.dividendTax).toBe(1_021.25)
   })
+
+  // ── Unused Personal Allowance shelters dividends (TAX-1) ────────────────────
+  // Low non-dividend income leaves PA spare; HMRC sets it against dividends
+  // first, tax-free, BEFORE the £500 nil-rate band. Regression guard for the bug
+  // where dividends were taxed from £0 ignoring the spare PA.
+  it('spare PA covers dividends first: £6k profit + £15k divs → £852.48', () => {
+    // PA 12,570 − 6,000 non-div = 6,570 spare covers 6,570 of divs tax-free.
+    // Rateable divs = 15,000 − 6,570 = 8,430; £500 allowance; 7,930 @ 10.75%.
+    const r = calculateTax({ ...seInput(6_000), dividendIncome: 15_000 })
+    expect(r.dividendTax).toBe(round2((15_000 - 6_570 - 500) * 0.1075))
+    expect(r.dividendTax).toBe(852.48)
+  })
+
+  it('dividends fully within spare PA are tax-free', () => {
+    // £8k profit → £4,570 spare PA; £3,000 divs all sheltered.
+    const r = calculateTax({ ...seInput(8_000), dividendIncome: 3_000 })
+    expect(r.dividendTax).toBe(0)
+  })
+
+  it('no spare PA when non-div income already exceeds PA (unchanged)', () => {
+    // £20k profit uses all PA; £5k divs taxed as before: (5,000 − 500) @ 10.75%.
+    const r = calculateTax({ ...seInput(20_000), dividendIncome: 5_000 })
+    expect(r.dividendTax).toBe(round2((5_000 - 500) * 0.1075))
+  })
+})
+
+// ── NI Class 4 base excludes pension (TAX-2) ──────────────────────────────────
+describe('NI Class 4 base (pre-pension)', () => {
+  it('Class 4 is charged on gross profit, not reduced by a SIPP', () => {
+    // A personal pension gets relief at source and does not reduce Class 4 NIC.
+    const withPension = calculateTax({ ...seInput(50_000), pensionContribution: 10_000 })
+    const noPension = calculateTax(seInput(50_000))
+    expect(withPension.niClass4).toBe(noPension.niClass4)
+    expect(withPension.niClass4).toBe(round2((50_000 - 12_570) * 0.06))
+  })
+
+  it('income tax still uses the post-pension base (pension relief intact)', () => {
+    // Sanity: the pension still reduces income tax even though it does not reduce NI.
+    const withPension = calculateTax({ ...seInput(50_000), pensionContribution: 10_000 })
+    const noPension = calculateTax(seInput(50_000))
+    expect(withPension.incomeTax).toBeLessThan(noPension.incomeTax)
+  })
 })
 
 // ── Marriage & Blind persons allowance ───────────────────────────────────────

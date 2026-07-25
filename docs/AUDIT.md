@@ -47,8 +47,8 @@ the fix direction. Work top-down: 🔴 blockers first._
 
 | ID | Sev | Location | Problem | Fix direction |
 |----|-----|----------|---------|---------------|
-| TAX-1 | 🔴 | `src/lib/tax-logic.ts:301` (`calcDividendTax`), used `:477`, `tax-scenarios.ts:292` | Dividends stack on `taxableNonDivIncome` with only the £500 allowance — **unused Personal Allowance is never applied to dividends**. Over-taxes low-salary/high-dividend cases (e.g. £6k salary + £15k dividends). | Let spare PA cover dividends before the £500 nil-rate band. |
-| TAX-2 | 🔴 | `src/lib/tax-logic.ts:466` | Class 4 NI computed on `adjustedProfit` (**after** pension). Personal pension does not reduce Class 4. Under-charges NI for anyone with a pension. | Base Class 4 on `grossProfit`. |
+| TAX-1 | ✅ | `src/lib/tax-logic.ts` (`calcDividendTax`), `tax-scenarios.ts` | **RESOLVED.** `calcDividendTax` now takes `sparePersonalAllowance` and shelters dividends covered by unused PA tax-free, before the £500 nil-rate band. Both call sites (`calculateTax`, `calcScenario5`) compute and pass it. e.g. £6k profit + £15k divs now taxes £7,930 (was £14,500). Regression tests added; engine-parity suite still green. | Done. |
+| TAX-2 | ✅ | `src/lib/tax-logic.ts`, `tax-scenarios.ts` | **RESOLVED.** Class 4 NI is now charged on `grossProfit` (pre-pension) in both engines — a personal SIPP gets relief at source and does not reduce the NIC base. Income tax still uses the post-pension base, so pension relief is intact. Regression tests added. (Class 1 modelling left unchanged — out of scope.) | Done. |
 | TAX-3 | 🔴 | `src/lib/formatters.ts:18, 26` | `fmtDec`/`fmtDecAbs` set `minimumFractionDigits: 2` with **no** `maximumFractionDigits` → money renders with up to 3 decimals (`£119.988`). | Add `maximumFractionDigits: 2`. |
 | TAX-4 | 🔴 | `src/lib/hooks/useInvoices.ts:29` | `vatTotal = inv.amount * 1.2` — unrounded, and hardcoded 20% (no zero/reduced/exempt/reverse-charge). | Round to 2dp; support VAT rate/treatment per line. |
 | TAX-5 | ✅ | `src/lib/tax/bands-2026.ts` | **RESOLVED.** All constants reconciled against the owner's 2026/27 rate research (see gov.uk source tags in the file): dividend `10.75%/35.75%/39.35%`, Class 2 `£3.65/wk` + SPT `£7,105`, and all six Scottish bands match. Student Loan Plan 2 confirmed with HMRC at **£29,385/yr** (the doc's "£27,295" was a stale example). Source citations added to `bands-2026.ts`. | Done. Still unverified by that doc (no data present): mileage rates, marriage/blind allowances, redundancy £30k, SL Plans 1/4/5/PG. |
@@ -59,7 +59,7 @@ the fix direction. Work top-down: 🔴 blockers first._
 | TAX-10 | 🟠 | `src/lib/tax-logic.ts:437, 619` | Pension modelled as a flat income deduction; real SIPP relief is relief-at-source + basic-rate band extension. Missing tapered annual allowance (£60k→£10k) and MPAA. | Implement band-extension relief + tapered AA. |
 | TAX-11 | 🟠 | `src/lib/tax-logic.ts:606, 610` | Validation blocks `revenue ≤ 0` and `expenses ≥ revenue` — legitimate **trading losses** can't be entered. | Allow losses; compute negative profit. |
 | TAX-12 | ⚪ | `src/lib/tax-logic.ts:165` | Money held as float; `round2` (`Math.round`) misrounds edge cases (`2.675`). | Move to integer-pence or a decimal library. |
-| TAX-13 | ⚪ | `src/lib/tax-logic.ts:1-11` | Header comment claims "Audit complete… all correct" — contradicted by TAX-1/2/6/7. | Remove false assurance. |
+| TAX-13 | ✅ | `src/lib/tax-logic.ts:1` | **RESOLVED.** The "Audit complete… all correct" header is replaced with an honest "estimator, not a substitute for HMRC" note that lists the remaining known simplifications (TAX-8, TAX-10). | Done. |
 
 ## 4. Accounting Logic (P&L / reports)
 

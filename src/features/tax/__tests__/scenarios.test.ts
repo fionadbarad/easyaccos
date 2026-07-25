@@ -19,6 +19,7 @@ function draft(over: Partial<TaxInputDraft> = {}): TaxInputDraft {
     marriageAllowanceRole: 'recipient',
     blindPersonsAllowance: false,
     voluntaryClass2NI: false,
+    flexiblyAccessedPension: false,
     ...over,
   }
 }

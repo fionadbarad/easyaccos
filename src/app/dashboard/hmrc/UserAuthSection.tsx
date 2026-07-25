@@ -47,6 +47,7 @@ export function UserAuthSection() {
   const [meResult, setMeResult] = useState<MeResult | null>(null)
   const [meLoading, setMeLoading] = useState(false)
   const [disconnectLoading, setDisconnectLoading] = useState(false)
+  const [manageUrl, setManageUrl] = useState<string | null>(null)
 
   const reloadStatus = useCallback(async () => {
     try {
@@ -85,9 +86,17 @@ export function UserAuthSection() {
   async function disconnect() {
     setDisconnectLoading(true)
     try {
-      await fetch('/api/hmrc/auth/disconnect', { method: 'POST' })
+      const res = await fetch('/api/hmrc/auth/disconnect', { method: 'POST' })
+      // Clearing our token cookie stops US calling HMRC, but it does not
+      // withdraw the authorisation at HMRC's end — only their Manage
+      // authorised applications service does that. Surface the link so the
+      // user isn't left believing the grant is gone. (SEC-10)
+      const json = (await res.json()) as { manageAuthorityUrl?: string }
+      setManageUrl(json.manageAuthorityUrl ?? null)
       setMeResult(null)
       await reloadStatus()
+    } catch {
+      setManageUrl(null)
     } finally {
       setDisconnectLoading(false)
     }
@@ -175,6 +184,29 @@ export function UserAuthSection() {
             ? `connected · scope=${status.scope || '(none)'} · access token expires in ${formatExpiry(status.expiresInMs)}`
             : 'not connected'}
       </div>
+
+      {manageUrl && !status?.connected && (
+        <div
+          style={{
+            color: C.muted,
+            fontSize: '0.72rem',
+            marginTop: '0.5rem',
+            lineHeight: 1.5,
+          }}
+        >
+          Disconnected here — easyacco can no longer call HMRC for you. HMRC still holds the
+          authorisation you granted until you withdraw it on their side:{' '}
+          <a
+            href={manageUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: C.white, textDecoration: 'underline' }}
+          >
+            Manage authorised applications
+          </a>
+          .
+        </div>
+      )}
 
       {meResult && (
         <ResultPane

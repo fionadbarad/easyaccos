@@ -10,21 +10,14 @@ import {
 } from '@/lib/hmrc/constants'
 import { monoFont, C } from './theme'
 
-// Placeholder functions that would be imported from a shared lib
-function getOrCreateUserId(): string {
-  const KEY = 'hmrc_user_id'
-  try {
-    let id = window.localStorage.getItem(KEY)
-    if (!id) {
-      id = window.crypto.randomUUID()
-      window.localStorage.setItem(KEY, id)
-    }
-    return id
-  } catch {
-    return window.crypto.randomUUID()
-  }
-}
-
+// NOTE: there is deliberately no getOrCreateUserId() here any more. The value
+// for HMRC's Gov-Client-User-IDs is derived from the Supabase session on the
+// server (src/lib/hmrc/identity.ts) and is not accepted from the client — a
+// browser-generated UUID identified nobody, and letting the client set a
+// fraud-prevention header defeats the point of it. (SEC-7)
+//
+// Gov-Client-Device-ID below is different: HMRC specifies it as a client-
+// generated identifier stable per *device*, so localStorage is the right home.
 function getOrCreateDeviceId(): string {
   const KEY = 'hmrc_device_id'
   try {
@@ -135,7 +128,6 @@ export function MtdItSubmitSection() {
         income: { turnover: Number(turnover) || 0 },
         expenses: { adminCosts: Number(adminCosts) || 0 },
         browser,
-        userId: getOrCreateUserId(),
         ...(govScenario ? { govTestScenario: govScenario } : {}),
       }
       const res = await fetch('/api/hmrc/mtd/it/submit', {

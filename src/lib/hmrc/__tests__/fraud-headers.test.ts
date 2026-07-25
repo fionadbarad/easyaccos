@@ -5,11 +5,13 @@ import {
   buildFraudHeaders,
   buildScreensHeader,
   extractClientIp,
+  observeClient,
   type BrowserFraudData,
+  type ClientObservation,
 } from '../fraud-headers'
 
 // vitest runs in node; constructing a NextRequest needs Request + cast,
-// which is fine because buildFraudHeaders only reads .headers.get(...).
+// which is fine because these helpers only read .headers.get(...).
 function mockReq(headers: Record<string, string>): NextRequest {
   return new Request('https://example.com', { headers }) as unknown as NextRequest
 }
@@ -22,14 +24,58 @@ const BROWSER: BrowserFraudData = {
   deviceId: 'beec798b-b366-47fa-b1f8-92cede14a1ce',
 }
 
+const OBSERVED_AT = '2026-07-25T12:34:56.789Z'
+function obs(ip: string, observedAt = OBSERVED_AT): ClientObservation {
+  return { ip, observedAt }
+}
+
 describe('extractClientIp', () => {
-  test('reads first entry from x-forwarded-for', () => {
-    expect(extractClientIp(mockReq({ 'x-forwarded-for': '198.51.100.1, 10.0.0.1' }))).toBe(
+  afterEach(() => {
+    delete process.env.HMRC_TRUSTED_PROXY_HOPS
+  })
+
+  test('with one trusted proxy, a single x-forwarded-for entry is the client IP', () => {
+    expect(extractClientIp(mockReq({ 'x-forwarded-for': '198.51.100.1' }))).toBe('198.51.100.1')
+  })
+
+  // The security case: a caller sends their own X-Forwarded-For, our edge
+  // appends the IP it actually saw. The appended (rightmost) entry is the real
+  // one; the leftmost is attacker-controlled. (MTD-2)
+  test('ignores a client-spoofed leading x-forwarded-for entry', () => {
+    expect(extractClientIp(mockReq({ 'x-forwarded-for': '203.0.113.99, 198.51.100.1' }))).toBe(
       '198.51.100.1',
     )
   })
 
-  test('trims whitespace around x-forwarded-for first entry', () => {
+  test('ignores several spoofed leading entries', () => {
+    expect(
+      extractClientIp(mockReq({ 'x-forwarded-for': '1.1.1.1, 2.2.2.2, 3.3.3.3, 198.51.100.1' })),
+    ).toBe('198.51.100.1')
+  })
+
+  test('honours HMRC_TRUSTED_PROXY_HOPS when more proxies sit in front', () => {
+    process.env.HMRC_TRUSTED_PROXY_HOPS = '2'
+    // spoofed, real client (seen by outer proxy), outer proxy (seen by inner)
+    expect(
+      extractClientIp(mockReq({ 'x-forwarded-for': '203.0.113.99, 198.51.100.1, 10.0.0.1' })),
+    ).toBe('198.51.100.1')
+  })
+
+  test('falls back to x-real-ip when the chain is shorter than the trusted hop count', () => {
+    process.env.HMRC_TRUSTED_PROXY_HOPS = '3'
+    expect(
+      extractClientIp(mockReq({ 'x-forwarded-for': '198.51.100.1', 'x-real-ip': '198.51.100.7' })),
+    ).toBe('198.51.100.7')
+  })
+
+  test('ignores a non-numeric HMRC_TRUSTED_PROXY_HOPS and uses the default', () => {
+    process.env.HMRC_TRUSTED_PROXY_HOPS = 'banana'
+    expect(extractClientIp(mockReq({ 'x-forwarded-for': '203.0.113.99, 198.51.100.1' }))).toBe(
+      '198.51.100.1',
+    )
+  })
+
+  test('trims whitespace around entries', () => {
     expect(extractClientIp(mockReq({ 'x-forwarded-for': '  198.51.100.5  ' }))).toBe('198.51.100.5')
   })
 
@@ -39,6 +85,22 @@ describe('extractClientIp', () => {
 
   test('returns empty string when no IP header present', () => {
     expect(extractClientIp(mockReq({}))).toBe('')
+  })
+})
+
+describe('observeClient', () => {
+  test('captures the IP and a spec-shaped timestamp together', () => {
+    const observation = observeClient(mockReq({ 'x-forwarded-for': '198.51.100.1' }))
+    expect(observation.ip).toBe('198.51.100.1')
+    expect(observation.observedAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/)
+  })
+
+  // The whole point of separating observation from header-building: the
+  // timestamp must reflect when we saw the IP, even if the headers are built
+  // seconds later after a token refresh. (MTD-2)
+  test('the observed timestamp is preserved verbatim into the header', () => {
+    const headers = buildFraudHeaders(obs('198.51.100.1'), BROWSER, 'user-123')
+    expect(headers['Gov-Client-Public-IP-Timestamp']).toBe(OBSERVED_AT)
   })
 })
 
@@ -102,15 +164,16 @@ describe('buildFraudHeaders', () => {
 
   afterEach(() => {
     delete process.env.HMRC_VENDOR_PUBLIC_IP
+    delete process.env.NEXT_PUBLIC_APP_VERSION
   })
 
   test('Gov-Client-Connection-Method is always WEB_APP_VIA_SERVER', () => {
-    const headers = buildFraudHeaders(mockReq({}), BROWSER, 'user-123')
+    const headers = buildFraudHeaders(obs(''), BROWSER, 'user-123')
     expect(headers['Gov-Client-Connection-Method']).toBe('WEB_APP_VIA_SERVER')
   })
 
   test('includes all 10 unconditionally-required Gov-* headers', () => {
-    const headers = buildFraudHeaders(mockReq({}), BROWSER, 'user-123')
+    const headers = buildFraudHeaders(obs(''), BROWSER, 'user-123')
     const required = [
       'Gov-Client-Connection-Method',
       'Gov-Client-Browser-JS-User-Agent',
@@ -129,78 +192,77 @@ describe('buildFraudHeaders', () => {
   })
 
   test('Gov-Client-Public-IP-Timestamp is ISO-8601 with millisecond precision and Z suffix', () => {
-    const headers = buildFraudHeaders(mockReq({}), BROWSER, 'user-123')
+    const headers = buildFraudHeaders(observeClient(mockReq({})), BROWSER, 'user-123')
     expect(headers['Gov-Client-Public-IP-Timestamp']).toMatch(
       /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
     )
   })
 
-  test('Gov-Client-Public-IP is included when x-forwarded-for is present', () => {
-    const headers = buildFraudHeaders(
-      mockReq({ 'x-forwarded-for': '198.51.100.1' }),
-      BROWSER,
-      'user-123',
-    )
+  test('Gov-Client-Public-IP is included when the observation carries an IP', () => {
+    const headers = buildFraudHeaders(obs('198.51.100.1'), BROWSER, 'user-123')
     expect(headers['Gov-Client-Public-IP']).toBe('198.51.100.1')
   })
 
-  test('Gov-Client-Public-IP is omitted when no client IP can be determined', () => {
-    const headers = buildFraudHeaders(mockReq({}), BROWSER, 'user-123')
+  test('Gov-Client-Public-IP is omitted when no client IP could be determined', () => {
+    const headers = buildFraudHeaders(obs(''), BROWSER, 'user-123')
     expect(headers['Gov-Client-Public-IP']).toBeUndefined()
   })
 
   test('Gov-Client-User-IDs percent-encodes the user identifier', () => {
-    const headers = buildFraudHeaders(mockReq({}), BROWSER, 'alice user@example')
+    const headers = buildFraudHeaders(obs(''), BROWSER, 'alice user@example')
     // & and @ both encode, space becomes %20
     expect(headers['Gov-Client-User-IDs']).toBe('easyacco=alice%20user%40example')
   })
 
   test('Gov-Client-User-IDs keeps separators (=) literal', () => {
-    const headers = buildFraudHeaders(mockReq({}), BROWSER, 'plain-id-123')
+    const headers = buildFraudHeaders(obs(''), BROWSER, 'plain-id-123')
     expect(headers['Gov-Client-User-IDs']).toBe('easyacco=plain-id-123')
   })
 
+  test('Gov-Client-User-IDs carries a Supabase-shaped UUID unmangled', () => {
+    const headers = buildFraudHeaders(obs(''), BROWSER, '0b7f1e6a-5c3d-4a2b-9f10-6d8e2c4b7a91')
+    expect(headers['Gov-Client-User-IDs']).toBe('easyacco=0b7f1e6a-5c3d-4a2b-9f10-6d8e2c4b7a91')
+  })
+
   test('Gov-Client-Timezone passes through verbatim from browser data', () => {
-    const headers = buildFraudHeaders(
-      mockReq({}),
-      { ...BROWSER, timezone: 'UTC+05:30' },
-      'user-123',
-    )
+    const headers = buildFraudHeaders(obs(''), { ...BROWSER, timezone: 'UTC+05:30' }, 'user-123')
     expect(headers['Gov-Client-Timezone']).toBe('UTC+05:30')
   })
 
   test('Gov-Client-Window-Size matches the spec format', () => {
-    const headers = buildFraudHeaders(mockReq({}), BROWSER, 'user-123')
+    const headers = buildFraudHeaders(obs(''), BROWSER, 'user-123')
     expect(headers['Gov-Client-Window-Size']).toBe('width=1280&height=800')
   })
 
   test('Gov-Vendor-Product-Name is percent-encoded (easyacco has no special chars but encoding is still applied)', () => {
-    const headers = buildFraudHeaders(mockReq({}), BROWSER, 'user-123')
+    const headers = buildFraudHeaders(obs(''), BROWSER, 'user-123')
     expect(headers['Gov-Vendor-Product-Name']).toBe('easyacco')
   })
 
   test('Gov-Vendor-Version follows software-name=version-number format', () => {
-    const headers = buildFraudHeaders(mockReq({}), BROWSER, 'user-123')
+    const headers = buildFraudHeaders(obs(''), BROWSER, 'user-123')
     expect(headers['Gov-Vendor-Version']).toMatch(/^easyacco=[\d.]+$/)
   })
 
+  test('Gov-Vendor-Version tracks NEXT_PUBLIC_APP_VERSION when set', () => {
+    process.env.NEXT_PUBLIC_APP_VERSION = '2.4.1'
+    const headers = buildFraudHeaders(obs(''), BROWSER, 'user-123')
+    expect(headers['Gov-Vendor-Version']).toBe('easyacco=2.4.1')
+  })
+
   test('Gov-Vendor-Forwarded combines server (by) and client (for) when both known', () => {
-    const headers = buildFraudHeaders(
-      mockReq({ 'x-forwarded-for': '198.51.100.1' }),
-      BROWSER,
-      'user-123',
-    )
+    const headers = buildFraudHeaders(obs('198.51.100.1'), BROWSER, 'user-123')
     expect(headers['Gov-Vendor-Forwarded']).toBe('by=203.0.113.6&for=198.51.100.1')
   })
 
   test('Gov-Vendor-Public-IP comes from HMRC_VENDOR_PUBLIC_IP env var', () => {
-    const headers = buildFraudHeaders(mockReq({}), BROWSER, 'user-123')
+    const headers = buildFraudHeaders(obs(''), BROWSER, 'user-123')
     expect(headers['Gov-Vendor-Public-IP']).toBe('203.0.113.6')
   })
 
   test('Gov-Vendor-Public-IP is omitted when HMRC_VENDOR_PUBLIC_IP is not set', () => {
     delete process.env.HMRC_VENDOR_PUBLIC_IP
-    const headers = buildFraudHeaders(mockReq({}), BROWSER, 'user-123')
+    const headers = buildFraudHeaders(obs(''), BROWSER, 'user-123')
     expect(headers['Gov-Vendor-Public-IP']).toBeUndefined()
   })
 })

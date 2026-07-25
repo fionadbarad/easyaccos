@@ -17,9 +17,19 @@ the fix direction. Work top-down: 🔴 blockers first._
 
 > **Status reconciled against code 2026-07-25.** Several rows were stale — statuses
 > below now match what the code actually does (each ✅ says how it was verified or
-> which PR resolved it). Snapshot: **26 ✅ · 0 🔴 · 4 🟠 · 3 🟡 · 3 ⚪ · 4 🔶** of 40.
-> Genuinely-open work is now feature-sized or HMRC/compliance-sensitive (see the
-> `🔶`/severity rows), plus one decision item (SEC-4, financial figures → Gemini).
+> which PR resolved it). Snapshot: **30 ✅ · 0 🔴 · 2 🟠 · 1 🟡 · 3 ⚪ · 4 🔶** of 40.
+>
+> The HMRC trio that was deferred pending sandbox access (SEC-7, SEC-10, MTD-2) is
+> now closed. Two were real code defects fixed here; SEC-10 turned out to have no
+> endpoint to call — HMRC provides no programmatic revoke — so it is resolved by
+> clearing our own tokens and telling the user the truth about the remaining grant.
+> The fraud headers additionally ship a **live** check against HMRC's Test Fraud
+> Prevention Headers API (`fraud-headers.sandbox.test.ts`), which needs sandbox
+> credentials to run and is skipped without them — **that run has not happened yet.**
+>
+> Genuinely-open work is now feature-sized (TAX-4 per-line VAT, PL-1 COGS), one
+> decision item (SEC-4, financial figures → Gemini), and MTD-3 (the recognition
+> process itself, which is calendar time, not code).
 
 ---
 
@@ -33,10 +43,10 @@ the fix direction. Work top-down: 🔴 blockers first._
 | SEC-4 | 🟠 | `src/app/api/ai/chat/route.ts:195` + `src/lib/acco/context.ts` | The user's **real financial figures** (estimated profit, tax liability, YTD expenses, tax band) are injected into the prompt sent to **Google Gemini**. No disclosed DPA / consent / privacy-policy line. GDPR exposure; free-tier Gemini may retain data. | Use a data-protected (paid) tier, disclose in privacy policy, get consent, or strip figures from the prompt. |
 | SEC-5 | ✅ | `next.config.ts` | **RESOLVED (#43).** `headers()` now returns CSP, `Strict-Transport-Security`, `X-Frame-Options`/`frame-ancestors`, `X-Content-Type-Options`, `Referrer-Policy` and `Permissions-Policy` on every route. Verified present in code. | Done. |
 | SEC-6 | ✅ | AI routes | **RESOLVED (#43).** `chat` rate-limits per authenticated user (`ai:chat:${user.id}`, 30/min); `categorise` (guest-usable) rate-limits per client IP (60/min) via `src/lib/rate-limit.ts`. Verified in code. | Done. |
-| SEC-7 | 🟠 | `vat/submit/route.ts`, `it/submit/route.ts` | **Still open — deferred deliberately.** Submissions still take a client `userId` for `Gov-Client-User-IDs`. The correct fix (derive it from the Supabase session) needs a product decision — HMRC submission is currently gated only by the HMRC OAuth cookie, so requiring a Supabase session changes access control, and switching the fraud-header value risks HMRC's cross-submission consistency checks. Wants sandbox validation, not a blind edit. | Derive `userId` server-side; validate against HMRC sandbox. |
+| SEC-7 | ✅ | `vat/submit/route.ts`, `it/submit/route.ts`, `src/lib/hmrc/identity.ts` | **RESOLVED.** `Gov-Client-User-IDs` is no longer taken from the request body. It is derived from the Supabase session server-side (`resolveSubmissionUserId()`), and the client's `getOrCreateUserId()` localStorage UUID — which identified nobody and was caller-settable — is deleted. **Behaviour change:** submitting to HMRC now requires an authenticated easyacco session, not just the HMRC OAuth cookie. | Done (validate end-to-end in sandbox). |
 | SEC-8 | ✅ | `src/app/api/ai/chat/route.ts` | **RESOLVED (#43).** The chat route now authorizes on `supabase.auth.getUser()` (validated against Supabase's auth server), not `getSession()`. Verified in code. | Done. |
 | SEC-9 | ✅ | `.gitignore`, `.env.production` | **RESOLVED.** `.env.production` is untracked (`git rm --cached`) and the `!.env.production` force-include removed, so `.env*` is now ignored except the `.env.example` template. The two public `NEXT_PUBLIC_SUPABASE_*` values must be set as platform secrets (Vercel → Settings → Environment Variables) for production builds. | Done (set the Vercel env vars). |
-| SEC-10 | 🟡 | `src/app/api/hmrc/auth/disconnect/route.ts` | **Still open — deferred deliberately.** Disconnect still only clears cookies. HMRC's MTD OAuth is not confirmed to expose an RFC-7009 token-revoke endpoint, so I won't ship a guessed URL — this needs verification against HMRC's Developer Hub before implementing (best-effort revoke + clear cookies). | Verify HMRC revoke endpoint, then call it on disconnect. |
+| SEC-10 | ✅ | `src/app/api/hmrc/auth/disconnect/route.ts` | **RESOLVED — verified there is nothing to call.** HMRC's OAuth publishes no RFC-7009 revocation endpoint; authority is withdrawn by the user through HMRC's *Manage authorised applications* service. Disconnect therefore clears our encrypted token cookie (immediate, and all we control) and returns `manageAuthorityUrl` so the UI states plainly that the grant still stands at HMRC until withdrawn there. No guessed URL was shipped. | Done. |
 | SEC-11 | ✅ | `src/app/api/hmrc/auth/callback/route.ts` | **RESOLVED.** The full `missing_params` diagnostic (cookie names, host, referer, query keys) is now logged **server-side only** (`console.error`); the redirect URL carries a generic message, so nothing sensitive lands in the browser address bar/history. | Done. |
 | SEC-12 | ⚪ | `src/lib/hmrc/cookies.ts` | **Reviewed — `lax` is intentional, not a bug.** `sameSite: 'strict'` would break the flow: the `state` cookie must survive the cross-site return from HMRC (strict drops it), and the tokens cookie is read on top-level dashboard navigations (strict wouldn't send it on the first request). Both are already `httpOnly` + `secure` in prod. The only safe lever is a shorter TTL, which is a UX↔security tradeoff (forces earlier reconnection) — left as an owner decision. | Optional: shorten token TTL if desired. |
 | SEC-13 | ✅ | `src/lib/storage/crypto.ts` | **RESOLVED.** Added an explicit THREAT MODEL note: the device key protects only against a raw on-disk read of the IndexedDB files (stolen/unlocked device, forensic recovery, other OS user) — it is **not** a defence against same-origin script or XSS, since the key lives in the same origin. The passphrase-derived backup key is documented as the separate, genuinely-strong tier. | Done. |
@@ -91,7 +101,7 @@ the fix direction. Work top-down: 🔴 blockers first._
 | ID | Sev | Location | Problem | Fix direction |
 |----|-----|----------|---------|---------------|
 | MTD-1 | ✅ | `src/app/api/ai/chat/route.ts` | **RESOLVED (#43, verified).** `MODEL = 'gemini-2.5-flash'` in both the chat and categorise routes — the retired `gemini-1.5-flash` is gone. | Done. |
-| MTD-2 | 🟡 | `src/lib/hmrc/fraud-headers.ts` | **Still open — deferred deliberately.** These are HMRC fraud-prevention headers validated by HMRC's checker; getting the IP-observation timestamp and trusted-proxy XFF handling wrong fails real submissions. Wants validation against HMRC's "Test Fraud Prevention Headers" API, not a blind edit — best done in a focused HMRC PR alongside SEC-7/SEC-10. | Capture IP-observation time; trust XFF only from known proxies; validate with HMRC's checker. |
+| MTD-2 | ✅ | `src/lib/hmrc/fraud-headers.ts` | **RESOLVED.** Two real defects fixed: (1) `Gov-Client-Public-IP-Timestamp` was stamped when the headers were built — after a possible token-refresh round-trip — so it drifted from when the IP was actually observed; `observeClient(req)` is now the first statement in both submit handlers. (2) `extractClientIp` took the **leftmost** `X-Forwarded-For` entry, which the caller supplies and can forge — it now counts in from the right by `HMRC_TRUSTED_PROXY_HOPS` (default 1, Vercel's edge). A live check against HMRC's Test Fraud Prevention Headers API ships as `fraud-headers.sandbox.test.ts` (skipped without credentials). | Done in code; run the sandbox spec to confirm against HMRC. |
 | MTD-3 | 🟡 | process | MTD recognition is a multi-step process (sandbox test scenarios, production-credential application, fraud-header validation), not a same-day approval. | Plan for iteration before the deadline. |
 
 ## 7. Things that are genuinely good (keep / cite)

@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
-import { buildFraudHeaders, type BrowserFraudData } from '@/lib/hmrc/fraud-headers'
+import { buildFraudHeaders, observeClient, type BrowserFraudData } from '@/lib/hmrc/fraud-headers'
+import { resolveSubmissionUserId } from '@/lib/hmrc/identity'
 import { mapHmrcError } from '@/lib/hmrc/mtd-errors'
 import { getValidAccessToken, readHmrcEnv } from '@/lib/hmrc/oauth'
 
@@ -25,7 +26,6 @@ type RequestBody = {
   totalAcquisitionsExVAT: number
   finalised: boolean
   browser: BrowserFraudData
-  userId: string
   govTestScenario?: string
 }
 
@@ -69,7 +69,6 @@ function validate(body: Partial<RequestBody>): string[] {
   }
   if (typeof body.finalised !== 'boolean') missing.push('finalised')
   if (!body.browser) missing.push('browser')
-  if (!body.userId) missing.push('userId')
   return missing
 }
 
@@ -97,6 +96,12 @@ function arithmeticErrors(body: RequestBody): string[] {
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | SubmitFail>> {
+  // FIRST statement in the handler: Gov-Client-Public-IP-Timestamp must record
+  // when we observed the caller's IP, not when we get round to building the
+  // outbound headers (which is after a possible token-refresh round-trip to
+  // HMRC). (MTD-2)
+  const observation = observeClient(req)
+
   const env = readHmrcEnv()
   if ('error' in env) {
     return NextResponse.json<SubmitFail>(
@@ -151,6 +156,15 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | Su
     { status: 500 },
   )
 
+  // Who is filing, according to OUR session — never according to the body (SEC-7).
+  const identity = await resolveSubmissionUserId()
+  if (!identity.ok) {
+    return NextResponse.json<SubmitFail>(
+      { ok: false, stage: 'auth', message: identity.message },
+      { status: identity.status },
+    )
+  }
+
   const auth = await getValidAccessToken(env, req, resPlaceholder)
   if (!auth.ok) {
     return NextResponse.json<SubmitFail>(
@@ -159,7 +173,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | Su
     )
   }
 
-  const fraudHeaders = buildFraudHeaders(req, body.browser, body.userId)
+  const fraudHeaders = buildFraudHeaders(observation, body.browser, identity.userId)
 
   const hmrcRequestBody: Record<string, unknown> = {
     periodKey: body.periodKey,

@@ -17,18 +17,72 @@ export type BrowserFraudData = {
   deviceId: string // UUIDv4 stored in localStorage, stable per device
 }
 
+// A single observation of the calling client, captured at the moment the
+// request lands on our server. Both fields MUST be captured together: HMRC's
+// Gov-Client-Public-IP-Timestamp is defined as the time at which the public IP
+// in Gov-Client-Public-IP was collected, which for a WEB_APP_VIA_SERVER
+// connection is when the backend receives the request from the client — NOT
+// whenever we happen to get round to building the outbound headers. (MTD-2)
+export type ClientObservation = {
+  ip: string
+  observedAt: string // ISO-8601 UTC, ms precision: yyyy-MM-ddThh:mm:ss.sssZ
+}
+
 // Percent-encode a value per HMRC spec: encode the value, NOT the key=value
 // separators. Standard encodeURIComponent covers this correctly.
 function pct(v: string): string {
   return encodeURIComponent(v)
 }
 
-// Reads the originating client IP from the request, preferring the first entry
-// of x-forwarded-for (set by Vercel / proxies) and falling back to x-real-ip.
+// How many reverse proxies sit between the public internet and this app.
+// On Vercel that is exactly one (the edge network). Self-hosting behind an
+// extra load balancer or CDN means raising this.
+const DEFAULT_TRUSTED_PROXY_HOPS = 1
+
+function trustedProxyHops(): number {
+  const raw = process.env.HMRC_TRUSTED_PROXY_HOPS
+  if (!raw) return DEFAULT_TRUSTED_PROXY_HOPS
+  const n = Number.parseInt(raw, 10)
+  return Number.isInteger(n) && n >= 1 ? n : DEFAULT_TRUSTED_PROXY_HOPS
+}
+
+// Reads the originating client IP from the request.
+//
+// X-Forwarded-For is APPENDED to as a request crosses each proxy, so the list
+// reads `<what the client claimed>, <observed by hop 1>, <observed by hop 2>…`.
+// Only the entries our own trusted proxies appended are trustworthy: anything
+// to the left of those was supplied by the caller and is trivially forged by
+// sending an X-Forwarded-For header of their own.
+//
+// We therefore count in from the RIGHT by the number of proxies we actually run
+// (`HMRC_TRUSTED_PROXY_HOPS`, default 1 for Vercel's edge). Sending HMRC a
+// spoofed public IP in a fraud-prevention header is precisely the thing those
+// headers exist to stop, so this must not read the leftmost entry. (MTD-2)
 export function extractClientIp(req: NextRequest): string {
   const xff = req.headers.get('x-forwarded-for')
-  if (xff) return xff.split(',')[0]?.trim() ?? ''
-  return req.headers.get('x-real-ip') ?? ''
+  if (xff) {
+    const hops = xff
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+    const idx = hops.length - trustedProxyHops()
+    // idx < 0 means the request reached us with fewer hops than we expect our
+    // own infrastructure to add — the chain isn't what we assume, so we can't
+    // pick a trustworthy entry out of it. Fall through to x-real-ip.
+    if (idx >= 0 && idx < hops.length) return hops[idx]!
+  }
+  return req.headers.get('x-real-ip')?.trim() ?? ''
+}
+
+// Captures the client IP together with the timestamp of that observation.
+// Call this at the TOP of a route handler, before any awaited work (token
+// refresh, database reads) — otherwise the timestamp drifts away from the
+// moment the IP was actually seen.
+export function observeClient(req: NextRequest): ClientObservation {
+  return {
+    ip: extractClientIp(req),
+    observedAt: new Date().toISOString(),
+  }
 }
 
 // Gov-Client-Screens: comma-separated list of screen entries, one per display.
@@ -72,34 +126,37 @@ export function buildForwardedHeader(clientIp: string, serverIp: string): string
 //   Gov-Client-Multi-Factor (only if MFA was used during login)
 //   Gov-Client-Public-Port (excluded for standard HTTPS port 443)
 //   Gov-Vendor-License-IDs (no licensed third-party software involved)
+//
+// `userId` identifies the user WITHIN OUR SERVICE and must be derived from the
+// authenticated server-side session — never from the request body, or a caller
+// can put anything they like in a fraud-prevention header. (SEC-7)
 export function buildFraudHeaders(
-  req: NextRequest,
+  observation: ClientObservation,
   browser: BrowserFraudData,
   userId: string,
 ): Record<string, string> {
-  const clientIp = extractClientIp(req)
   const serverIp = process.env.HMRC_VENDOR_PUBLIC_IP ?? ''
 
   const headers: Record<string, string> = {
     'Gov-Client-Connection-Method': 'WEB_APP_VIA_SERVER',
     'Gov-Client-Browser-JS-User-Agent': browser.userAgent,
     'Gov-Client-Device-ID': browser.deviceId,
-    'Gov-Client-Public-IP-Timestamp': new Date().toISOString(),
+    'Gov-Client-Public-IP-Timestamp': observation.observedAt,
     'Gov-Client-Screens': buildScreensHeader(browser.screens),
     'Gov-Client-Timezone': browser.timezone,
     'Gov-Client-User-IDs': `easyacco=${pct(userId)}`,
     'Gov-Client-Window-Size': `width=${browser.windowSize.width}&height=${browser.windowSize.height}`,
     'Gov-Vendor-Product-Name': pct('easyacco'),
-    'Gov-Vendor-Version': `easyacco=${pct('1.0.0')}`,
+    'Gov-Vendor-Version': `easyacco=${pct(vendorVersion())}`,
   }
 
   // Gov-Client-Public-IP: conditional — include when we can determine client IP
-  if (clientIp) {
-    headers['Gov-Client-Public-IP'] = clientIp
+  if (observation.ip) {
+    headers['Gov-Client-Public-IP'] = observation.ip
   }
 
   // Gov-Vendor-Forwarded: required when IP info is available
-  const forwarded = buildForwardedHeader(clientIp, serverIp)
+  const forwarded = buildForwardedHeader(observation.ip, serverIp)
   if (forwarded) {
     headers['Gov-Vendor-Forwarded'] = forwarded
   }
@@ -110,4 +167,12 @@ export function buildFraudHeaders(
   }
 
   return headers
+}
+
+// HMRC expects the version of the software actually making the call. Kept as a
+// plain dotted version: HMRC's checker is strict about this field's shape, so
+// this deliberately does NOT append build metadata (a commit SHA etc.) until
+// that has been validated against their Test Fraud Prevention Headers API.
+function vendorVersion(): string {
+  return process.env.NEXT_PUBLIC_APP_VERSION ?? '1.0.0'
 }

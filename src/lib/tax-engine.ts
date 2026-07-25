@@ -15,6 +15,7 @@ export {
   calcClass4NI,
   calcDividendTax,
   calcStudentLoan,
+  annualAllowance,
   validateTaxInput,
   round2,
 } from './tax-logic'

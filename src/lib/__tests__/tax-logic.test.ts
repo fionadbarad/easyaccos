@@ -4,6 +4,7 @@ import {
   validateTaxInput,
   round2,
   calcPA,
+  annualAllowance,
   PA_BASE,
   PA_TAPER_START,
   PA_TAPER_END,
@@ -384,10 +385,115 @@ describe('NI Class 4 base (pre-pension)', () => {
     expect(withPension.niClass4).toBe(round2((50_000 - 12_570) * 0.06))
   })
 
-  it('income tax still uses the post-pension base (pension relief intact)', () => {
-    // Sanity: the pension still reduces income tax even though it does not reduce NI.
+  it('basic-rate SIPP relief is given at source, not off the tax bill (TAX-10)', () => {
+    // £50k earnings is all basic-rate. Under relief at source the pension does
+    // NOT reduce income tax — the 20% is added to the pot instead. The saver's
+    // income tax is unchanged; the relief shows up as the at-source top-up.
     const withPension = calculateTax({ ...seInput(50_000), pensionContribution: 10_000 })
     const noPension = calculateTax(seInput(50_000))
+    expect(withPension.incomeTax).toBe(noPension.incomeTax)
+    expect(withPension.pensionReliefAtSource).toBe(2_000) // 20% × £10,000
+    expect(withPension.pensionNetCost).toBe(8_000) // the saver pays 80%
+  })
+})
+
+// ── SIPP relief at source + tapered annual allowance (TAX-10) ─────────────────
+describe('Pension relief at source (rUK band extension)', () => {
+  it('higher-rate relief comes from a wider basic-rate band', () => {
+    // £60k earnings, £10k gross SIPP. Taxable stays 47,430 but the basic band
+    // widens to £47,700, so it is all @20% = £9,486 (was 37,700@20 + 9,730@40 =
+    // £11,432 with no pension). Relief = 20% at source + 20% band extension.
+    const r = calculateTax({ ...seInput(60_000), pensionContribution: 10_000 })
+    expect(r.taxableIncome).toBe(47_430)
+    expect(r.incomeTax).toBe(9_486)
+    expect(r.taxBands.every((b) => b.rate === 20)).toBe(true)
+    expect(r.pensionReliefAtSource).toBe(2_000)
+    expect(r.pensionNetCost).toBe(8_000)
+    expect(r.incomeTax).toBeLessThan(calculateTax(seInput(60_000)).incomeTax)
+  })
+
+  it('shifts the additional-rate threshold up by the gross contribution', () => {
+    // £150k + £20k SIPP: basic 57,700@20 + higher 87,440@40 + 4,860@45 = £48,703
+    // (vs £53,703 with no pension). The £125,140 edge rides up to £145,140.
+    const r = calculateTax({ ...seInput(150_000), pensionContribution: 20_000 })
+    expect(r.incomeTax).toBe(48_703)
+    expect(r.taxBands.map((b) => b.rate)).toContain(45)
+  })
+
+  it('take-home is unchanged vs the old model — only reclassified', () => {
+    // The saver keeps the same cash; the correction moves relief into the pot.
+    const r = calculateTax({ ...seInput(30_000), pensionContribution: 10_000 })
+    // 30,000 − incomeTax(3,486) − Class4(1,045.80) − netCost(8,000)
+    expect(r.incomeTax).toBe(round2(17_430 * 0.2))
+    expect(r.netTakeHome).toBe(round2(30_000 - 3_486 - (30_000 - 12_570) * 0.06 - 8_000))
+  })
+})
+
+describe('annualAllowance() taper + MPAA', () => {
+  it('full £60k below the thresholds', () => {
+    expect(annualAllowance({ thresholdIncome: 100_000, adjustedIncome: 150_000 })).toBe(60_000)
+  })
+  it('tapers £1 per £2 of adjusted income over £260k', () => {
+    // £300k adjusted → 60,000 − (300,000 − 260,000)/2 = £40,000
+    expect(annualAllowance({ thresholdIncome: 250_000, adjustedIncome: 300_000 })).toBe(40_000)
+  })
+  it('floors at £10k (reached by £360k adjusted income)', () => {
+    expect(annualAllowance({ thresholdIncome: 250_000, adjustedIncome: 400_000 })).toBe(10_000)
+  })
+  it('no taper unless threshold income also exceeds £200k', () => {
+    // Adjusted income is high but threshold income ≤ £200k (e.g. big pension) → full AA
+    expect(annualAllowance({ thresholdIncome: 190_000, adjustedIncome: 300_000 })).toBe(60_000)
+  })
+  it('MPAA overrides to £10k when a pot is flexibly accessed', () => {
+    expect(
+      annualAllowance({ thresholdIncome: 50_000, adjustedIncome: 50_000, flexiblyAccessed: true }),
+    ).toBe(10_000)
+  })
+})
+
+describe('Tapered annual allowance caps pension relief in calculateTax', () => {
+  it('caps the relieved contribution at the tapered AA', () => {
+    // £300k earnings, £50k requested. Threshold 250k>200k, adjusted 300k → AA £40k.
+    const r = calculateTax({ ...seInput(300_000), pensionContribution: 50_000 })
+    expect(r.annualAllowance).toBe(40_000)
+    expect(r.pensionContribution).toBe(40_000)
+    expect(r.annualAllowanceExceeded).toBe(true)
+  })
+
+  it('applies the £10k floor for the very highest earners', () => {
+    const r = calculateTax({ ...seInput(400_000), pensionContribution: 60_000 })
+    expect(r.annualAllowance).toBe(10_000)
+    expect(r.pensionContribution).toBe(10_000)
+  })
+
+  it('a large pension that pulls threshold income under £200k keeps the full £60k', () => {
+    const r = calculateTax({ ...seInput(250_000), pensionContribution: 60_000 })
+    expect(r.annualAllowance).toBe(60_000)
+    expect(r.pensionContribution).toBe(60_000)
+    expect(r.annualAllowanceExceeded).toBe(false)
+  })
+
+  it('MPAA (flexibly accessed) caps money-purchase contributions at £10k', () => {
+    const r = calculateTax({
+      ...seInput(50_000),
+      pensionContribution: 20_000,
+      flexiblyAccessedPension: true,
+    })
+    expect(r.annualAllowance).toBe(10_000)
+    expect(r.pensionContribution).toBe(10_000)
+    expect(r.annualAllowanceExceeded).toBe(true)
+  })
+})
+
+describe('Scotland keeps the documented marginal-deduction relief', () => {
+  it('a Scottish SIPP reduces income tax (deduction model), unlike rUK basic rate', () => {
+    const withPension = calculateTax({
+      ...seInput(50_000),
+      taxRegion: 'scotland',
+      pensionContribution: 10_000,
+    })
+    const noPension = calculateTax({ ...seInput(50_000), taxRegion: 'scotland' })
+    // Scotland still relieves via a lower taxable base, so income tax falls.
     expect(withPension.incomeTax).toBeLessThan(noPension.incomeTax)
   })
 })

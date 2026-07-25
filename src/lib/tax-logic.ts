@@ -1,8 +1,6 @@
 // ─── EasyAcco 2026/27 UK Tax Engine ──────────────────────────────────────────
 // An estimator, not a substitute for HMRC's calculation. It models the common
-// self-employed / director cases; known simplifications remain (see
-// docs/AUDIT.md — e.g. pension relief is a flat deduction, not band-extension
-// (TAX-10); Marriage Allowance is modelled as the transferor path (TAX-8)).
+// self-employed / director cases.
 //
 // Correctness notes:
 //   - Money rounded to 2dp via round2() throughout.
@@ -11,6 +9,12 @@
 //   - Unused Personal Allowance shelters dividends before the £500 band (TAX-1).
 //   - Plan 2 student loan threshold £29,385/yr (2026/27, HMRC).
 //   - Higher-rate band guard: remaining can never go negative.
+//   - Pension relief (TAX-10): rUK SIPPs use RELIEF AT SOURCE — the saver pays
+//     80%, the provider reclaims 20% into the pot, and higher-rate relief comes
+//     from extending the basic-rate band by the gross contribution (not a flat
+//     income deduction). The annual allowance is tapered £60k→£10k for high
+//     earners, with the £10k MPAA for flexibly-accessed pots. Scottish relief
+//     keeps the simpler marginal deduction — a documented simplification.
 
 export type EmploymentType = 'employed' | 'self-employed' | 'director'
 export type StudentLoanPlan = 'none' | 'plan1' | 'plan2' | 'plan4' | 'plan5' | 'postgraduate'
@@ -31,7 +35,8 @@ export interface TaxInput {
   marriageAllowance: boolean // Marriage Allowance claim active
   marriageAllowanceRole?: MarriageAllowanceRole // defaults to 'transferor' (back-compat)
   blindPersonsAllowance: boolean // additional £3,250 PA
-  pensionContribution: number // annual SIPP — reduces adjusted net income
+  pensionContribution: number // annual GROSS SIPP contribution (incl. the 20% top-up)
+  flexiblyAccessedPension?: boolean // triggers the £10k MPAA (defaults false)
 }
 
 export interface TaxBand {
@@ -70,7 +75,13 @@ export interface TaxResult {
   // ── Echo inputs ──────────────────────────────────────────────────────────
   grossRevenue: number
   allowableExpenses: number
-  pensionContribution: number // capped at grossProfit
+  pensionContribution: number // gross contribution, capped at relevant earnings + the (tapered) AA
+
+  // ── Pension (TAX-10) ──────────────────────────────────────────────────────
+  annualAllowance: number // the applied allowance (tapered / MPAA where relevant)
+  annualAllowanceExceeded: boolean // requested gross contribution was capped by the AA
+  pensionReliefAtSource: number // 20% of the gross contribution, added to the pot by HMRC
+  pensionNetCost: number // what the saver actually pays out of pocket (80% of gross)
 
   // ── Computed income chain ─────────────────────────────────────────────
   grossProfit: number // revenue - expenses
@@ -126,6 +137,12 @@ import {
   SCO_INTERMEDIATE_END,
   SCO_HIGHER_END,
   SCO_ADVANCED_END,
+  ANNUAL_ALLOWANCE,
+  PENSION_BASIC_RELIEF_RATE,
+  AA_TAPER_THRESHOLD_INCOME,
+  AA_TAPER_ADJUSTED_INCOME,
+  AA_TAPER_FLOOR,
+  MPAA,
   NI_PT,
   NI_UEL,
   NI_C1_MAIN,
@@ -192,20 +209,32 @@ export function calcPA(adjustedNetIncome: number): number {
 
 // ─── rUK Income Tax ───────────────────────────────────────────────────────────
 /**
- * Applied to taxableIncome = max(0, adjustedProfit - PA).
+ * Applied to taxableIncome = max(0, nonDivIncome - PA).
  * The basic rate BAND WIDTH is always £37,700 regardless of PA taper.
  * Higher rate band: from end of basic to £125,140.
  * Additional rate: above £125,140.
+ *
+ * `bandExtension` widens the basic-rate band (and shifts the higher-/additional-
+ * rate thresholds up by the same amount) to deliver SIPP relief at source: a
+ * gross pension contribution moves that slice of income from 40%/45% down to 20%
+ * (TAX-10). It never narrows the bands.
  */
-export function calcRukTax(taxableIncome: number): { tax: number; bands: TaxBand[] } {
+export function calcRukTax(
+  taxableIncome: number,
+  bandExtension = 0,
+): { tax: number; bands: TaxBand[] } {
   if (taxableIncome <= 0) return { tax: 0, bands: [] }
+
+  const ext = Math.max(0, bandExtension)
+  const basicWidth = RUK_BASIC_RATE_WIDTH + ext
+  const higherWidth = RUK_HIGHER_LIMIT - RUK_BASIC_RATE_WIDTH // £87,440 — width unchanged, only shifted
 
   const bands: TaxBand[] = []
   let remaining = taxableIncome
   let totalTax = 0
 
-  // Basic: 20% on first £37,700
-  const basicAmt = Math.min(remaining, RUK_BASIC_RATE_WIDTH)
+  // Basic: 20% on the first (£37,700 + extension)
+  const basicAmt = Math.min(remaining, basicWidth)
   if (basicAmt > 0) {
     const t = round2(basicAmt * 0.2)
     bands.push({ label: 'Basic Rate', rate: 20, amount: basicAmt, tax: t })
@@ -213,13 +242,12 @@ export function calcRukTax(taxableIncome: number): { tax: number; bands: TaxBand
     remaining = Math.max(0, remaining - basicAmt)
   }
 
-  // Higher: 40% from the end of the basic band (£37,700 taxable) up to the
-  // higher-rate limit (£125,140 taxable). The higher-rate limit is defined on
-  // TAXABLE income, so band width = £125,140 − £37,700 = £87,440 — it must NOT
-  // subtract the Personal Allowance again (doing so starts the 45% rate £12,570
-  // too early and over-taxes additional-rate payers by £628.50).
+  // Higher: 40% for the next £87,440 (the higher-rate limit rides up with the
+  // basic band, so the additional-rate threshold moves by the extension too).
+  // The width must NOT re-subtract the Personal Allowance (doing so starts the
+  // 45% rate £12,570 too early and over-taxes additional-rate payers by £628.50).
   if (remaining > 0) {
-    const higherAmt = Math.min(remaining, RUK_HIGHER_LIMIT - RUK_BASIC_RATE_WIDTH)
+    const higherAmt = Math.min(remaining, higherWidth)
     if (higherAmt > 0) {
       const t = round2(higherAmt * 0.4)
       bands.push({ label: 'Higher Rate', rate: 40, amount: higherAmt, tax: t })
@@ -228,7 +256,7 @@ export function calcRukTax(taxableIncome: number): { tax: number; bands: TaxBand
     }
   }
 
-  // Additional: 45% above £125,140
+  // Additional: 45% above (£125,140 + extension)
   if (remaining > 0) {
     const t = round2(remaining * 0.45)
     bands.push({ label: 'Additional Rate', rate: 45, amount: remaining, tax: t })
@@ -321,10 +349,14 @@ export function calcClass4NI(profit: number): number {
 // unused PA against dividends first, tax-free, BEFORE the £500 nil-rate band —
 // so those dividends are sheltered and never enter the rateable stack. Omitting
 // this over-taxes low-salary/high-dividend cases (TAX-1).
+// `bandExtension` widens the dividend band ceilings by a gross pension
+// contribution, in step with the non-dividend bands, so RAS relief also reaches
+// dividends stacked into the extended basic band (TAX-10).
 export function calcDividendTax(
   dividends: number,
   taxableNonDivIncome: number,
   sparePersonalAllowance = 0,
+  bandExtension = 0,
 ): number {
   if (dividends <= 0) return 0
 
@@ -332,9 +364,11 @@ export function calcDividendTax(
   const rateableDividends = Math.max(0, dividends - Math.max(0, sparePersonalAllowance))
   if (rateableDividends <= 0) return 0
 
-  // Absolute taxable-income ceilings of the UK dividend bands.
-  const BASIC_CEIL = RUK_BASIC_RATE_WIDTH // 37,700 taxable: dividends at 10.75%
-  const HIGHER_CEIL = RUK_HIGHER_LIMIT // 125,140: above this 39.35%
+  // Absolute taxable-income ceilings of the UK dividend bands (raised by any
+  // pension band extension).
+  const ext = Math.max(0, bandExtension)
+  const BASIC_CEIL = RUK_BASIC_RATE_WIDTH + ext // 37,700 taxable: dividends at 10.75%
+  const HIGHER_CEIL = RUK_HIGHER_LIMIT + ext // 125,140: above this 39.35%
 
   // The dividend stack occupies taxable-income positions [base, base+rateable).
   // The first £500 (allowance) is taxed at 0% but still CONSUMES band, so the
@@ -376,6 +410,27 @@ export function calcStudentLoan(grossProfit: number, plan: StudentLoanPlan): num
   // HMRC floors student-loan repayments to whole pounds — the pence are never
   // collected (SL3 guidance). round2 over-collected by up to 99p (TAX-6).
   return Math.floor(repayable * rate)
+}
+
+// ─── Pension Annual Allowance (taper + MPAA) ─────────────────────────────────
+/**
+ * The pension annual allowance for the year (TAX-10).
+ *   - Flexibly-accessed DC pot → the £10,000 MPAA (does not itself taper).
+ *   - Otherwise £60,000, TAPERED for the highest earners: reduced by £1 for
+ *     every £2 of ADJUSTED income above £260,000, but only once THRESHOLD income
+ *     also exceeds £200,000. Floored at £10,000 (reached at £360,000 adjusted).
+ * `thresholdIncome` ≈ taxable income less gross personal pension contributions;
+ * `adjustedIncome`  ≈ taxable income (personal contributions are NOT deducted).
+ */
+export function annualAllowance(opts: {
+  thresholdIncome: number
+  adjustedIncome: number
+  flexiblyAccessed?: boolean
+}): number {
+  if (opts.flexiblyAccessed) return MPAA
+  if (opts.thresholdIncome <= AA_TAPER_THRESHOLD_INCOME) return ANNUAL_ALLOWANCE
+  const excess = Math.max(0, opts.adjustedIncome - AA_TAPER_ADJUSTED_INCOME)
+  return Math.max(AA_TAPER_FLOOR, ANNUAL_ALLOWANCE - Math.floor(excess / 2))
 }
 
 // ─── Optimization Tips ────────────────────────────────────────────────────────
@@ -461,6 +516,7 @@ export function calculateTax(input: TaxInput): TaxResult {
     marriageAllowanceRole = 'transferor',
     blindPersonsAllowance,
     pensionContribution,
+    flexiblyAccessedPension = false,
   } = input
 
   // ── 1. Profit after allowable expenses ─────────────────────────────────────
@@ -469,15 +525,36 @@ export function calculateTax(input: TaxInput): TaxResult {
   // loss; every downstream tax/NIC step already floors its own base at 0, so a
   // loss correctly yields zero tax instead of a clamp that hides it (TAX-11).
   const grossProfit = grossRevenue - allowableExpenses
+  const earnings = Math.max(0, grossProfit) // relevant earnings (floor at 0 in a loss year)
 
-  // ── 2. Adjusted profit after pension contribution ──────────────────────────
-  // Pension relief is floored at 0 (a SIPP can't be relieved against a loss
-  // here) and capped at the £60,000 annual allowance.
-  const pensionCapped = Math.min(pensionContribution, Math.max(0, grossProfit), 60_000)
-  const adjustedProfit = Math.max(0, grossProfit - pensionCapped)
+  // ── 2. Pension: gross contribution, relief at source, tapered annual allowance ─
+  // The input is the GROSS contribution (the amount landing in the pot). Relief
+  // is at source: the saver pays 80%, HMRC tops up the 20% basic rate into the
+  // pot, and higher-rate relief is delivered by extending the basic-rate band in
+  // step 5 — NOT by reducing taxable income (TAX-10). Relievable up to relevant
+  // earnings and the (possibly tapered) annual allowance.
+  const requestedPension = Math.max(0, pensionContribution)
+  const adjustedIncomeForAA = earnings + dividendIncome // personal contribs not deducted here
+  const earningsCappedPension = Math.min(requestedPension, earnings)
+  const thresholdIncomeForAA = Math.max(0, adjustedIncomeForAA - earningsCappedPension)
+  const appliedAnnualAllowance = annualAllowance({
+    thresholdIncome: thresholdIncomeForAA,
+    adjustedIncome: adjustedIncomeForAA,
+    flexiblyAccessed: flexiblyAccessedPension,
+  })
+  const pensionGross = Math.min(earningsCappedPension, appliedAnnualAllowance)
+  const annualAllowanceExceeded = earningsCappedPension > appliedAnnualAllowance
+  const pensionReliefAtSource = round2(pensionGross * PENSION_BASIC_RELIEF_RATE)
+  const pensionNetCost = round2(pensionGross - pensionReliefAtSource)
+
+  // adjustedProfit keeps its historic meaning (earnings net of the gross pension)
+  // — it feeds NI/Class-2 modelling (unchanged, out of scope) and the Scottish
+  // deduction path below.
+  const adjustedProfit = Math.max(0, earnings - pensionGross)
 
   // ── 3. Personal Allowance ──────────────────────────────────────────────────
-  // Taper uses adjusted_net_income = adjustedProfit + dividendIncome
+  // Taper uses adjusted NET income = total income less the gross pension
+  // contribution (= earnings + dividends − pensionGross = adjustedProfit + divs).
   const paRaw = calcPA(adjustedProfit + dividendIncome)
   // Marriage Allowance TRANSFEROR gives £1,260 of PA away → their PA drops.
   // RECIPIENT keeps full PA and instead gets a tax reducer applied after the
@@ -488,14 +565,20 @@ export function calculateTax(input: TaxInput): TaxResult {
   // PA is never negative
   const personalAllowance = Math.max(0, pa)
 
-  // ── 4. Taxable income ──────────────────────────────────────────────────────
-  const taxableIncome = Math.max(0, adjustedProfit - personalAllowance)
+  // ── 4/5. Income tax — the relief mechanism differs by region ────────────────
+  // rUK: relief at source — the FULL earnings are taxable and the basic-rate
+  //      band is extended by the gross contribution to give higher-rate relief.
+  // Scotland: a documented simplification keeps marginal relief via deduction —
+  //      the pension reduces the taxable base, with no band extension. (Scottish
+  //      RAS band mechanics are subtler; see docs/AUDIT.md.)
+  const isScotland = taxRegion === 'scotland'
+  const nonDivIncome = isScotland ? adjustedProfit : earnings
+  const bandExtension = isScotland ? 0 : pensionGross
+  const taxableIncome = Math.max(0, nonDivIncome - personalAllowance)
 
-  // ── 5. Income tax ──────────────────────────────────────────────────────────
-  const { tax: incomeTaxRaw, bands: taxBands } =
-    taxRegion === 'scotland'
-      ? calcScotlandTax(adjustedProfit, personalAllowance)
-      : calcRukTax(taxableIncome)
+  const { tax: incomeTaxRaw, bands: taxBands } = isScotland
+    ? calcScotlandTax(nonDivIncome, personalAllowance)
+    : calcRukTax(taxableIncome, bandExtension)
 
   // Marriage Allowance RECIPIENT relief: a tax reducer of 20% × £1,260 = £252
   // (given at the rUK basic rate even for Scottish taxpayers), non-refundable so
@@ -535,10 +618,13 @@ export function calculateTax(input: TaxInput): TaxResult {
 
   // ── 7. Dividend tax ────────────────────────────────────────────────────────
   // Personal Allowance not used by non-dividend income shelters dividends first
-  // (TAX-1). adjustedProfit is the only non-dividend income in this engine.
-  const sparePersonalAllowance = Math.max(0, personalAllowance - adjustedProfit)
+  // (TAX-1). Dividends stack on the non-dividend taxable income and their bands
+  // ride up with any rUK pension band extension (TAX-10).
+  const sparePersonalAllowance = Math.max(0, personalAllowance - nonDivIncome)
   const dividendTax =
-    dividendIncome > 0 ? calcDividendTax(dividendIncome, taxableIncome, sparePersonalAllowance) : 0
+    dividendIncome > 0
+      ? calcDividendTax(dividendIncome, taxableIncome, sparePersonalAllowance, bandExtension)
+      : 0
 
   // ── 8. Student loan ────────────────────────────────────────────────────────
   // Base = grossProfit (after expenses, BEFORE pension deduction)
@@ -550,8 +636,13 @@ export function calculateTax(input: TaxInput): TaxResult {
   const totalDeductions = round2(
     incomeTax + niClass1 + niClass4 + niClass2 + dividendTax + studentLoanRepayment,
   )
-  const totalIncome = adjustedProfit + dividendIncome
-  const netTakeHome = round2(Math.max(0, totalIncome - totalDeductions))
+  // Cash position. rUK relief-at-source: you keep your full income, pay
+  // tax/NI/SL, and pay only the NET (80%) pension cost out of pocket — the 20%
+  // top-up is HMRC's money added to the pot. Scotland (deduction model): the
+  // whole gross contribution leaves pre-tax income, matching the reduced base.
+  const totalIncome = isScotland ? adjustedProfit + dividendIncome : earnings + dividendIncome
+  const outOfPocketPension = isScotland ? 0 : pensionNetCost
+  const netTakeHome = round2(Math.max(0, totalIncome - totalDeductions - outOfPocketPension))
   // Defensive: effective rate capped at 100%
   const effectiveTaxRate =
     totalIncome > 0 ? Math.min(100, round2((totalDeductions / totalIncome) * 100)) : 0
@@ -602,14 +693,18 @@ export function calculateTax(input: TaxInput): TaxResult {
       note: 'Revenue minus expenses — this is the base for NI Class 4 and student loan',
     },
     {
-      label: 'Pension Contribution',
-      value: -pensionCapped,
-      note: 'SIPP/pension reduces adjusted net income, attracting full marginal rate relief',
+      label: 'Gross Pension Contribution',
+      value: -pensionGross,
+      note: isScotland
+        ? 'SIPP/pension reduces the taxable base at your marginal rate (Scottish estimate)'
+        : `Relief at source: you pay ${fmtGBP(pensionNetCost)}, HMRC adds ${fmtGBP(pensionReliefAtSource)} to your pot. Higher-rate relief comes from the wider basic-rate band below`,
     },
     {
       label: 'Adjusted Net Income',
       value: adjustedProfit,
-      note: 'Used for Personal Allowance taper check and income tax calculation',
+      note: isScotland
+        ? 'Income less the gross pension — the Personal Allowance taper and income-tax base'
+        : 'Income less the gross pension — used for the Personal Allowance taper check',
     },
     {
       label: 'Personal Allowance',
@@ -622,8 +717,19 @@ export function calculateTax(input: TaxInput): TaxResult {
     {
       label: 'Taxable Income',
       value: taxableIncome,
-      note: 'The amount subject to Income Tax rates (Personal Allowance is subtracted above)',
+      note: isScotland
+        ? 'The amount subject to Income Tax rates (Personal Allowance is subtracted above)'
+        : `Full earnings less Personal Allowance — the basic-rate band is widened by ${fmtGBP(pensionGross)} to give pension relief`,
     },
+    ...(annualAllowanceExceeded
+      ? [
+          {
+            label: 'Annual Allowance applied',
+            value: appliedAnnualAllowance,
+            note: 'Contribution capped at the (tapered / MPAA) annual allowance — the excess is not relieved here',
+          },
+        ]
+      : []),
     ...(marriageAllowanceReducer > 0
       ? [
           {
@@ -638,7 +744,11 @@ export function calculateTax(input: TaxInput): TaxResult {
   return {
     grossRevenue,
     allowableExpenses,
-    pensionContribution: pensionCapped,
+    pensionContribution: pensionGross,
+    annualAllowance: appliedAnnualAllowance,
+    annualAllowanceExceeded,
+    pensionReliefAtSource,
+    pensionNetCost,
     grossProfit,
     adjustedProfit,
     personalAllowance,

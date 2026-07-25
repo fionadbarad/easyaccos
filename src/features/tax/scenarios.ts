@@ -42,6 +42,7 @@ export type TaxInputDraft = {
   marriageAllowanceRole: MarriageAllowanceRole
   blindPersonsAllowance: boolean
   voluntaryClass2NI: boolean
+  flexiblyAccessedPension: boolean
 }
 
 /**
@@ -70,6 +71,7 @@ export function buildTaxInput(d: TaxInputDraft): TaxInput | null {
       marriageAllowanceRole: d.marriageAllowanceRole,
       blindPersonsAllowance: d.blindPersonsAllowance,
       pensionContribution: d.pensionContribution,
+      flexiblyAccessedPension: d.flexiblyAccessedPension,
     }
   }
 
@@ -85,5 +87,6 @@ export function buildTaxInput(d: TaxInputDraft): TaxInput | null {
     marriageAllowanceRole: d.marriageAllowanceRole,
     blindPersonsAllowance: d.blindPersonsAllowance,
     pensionContribution: d.pensionContribution,
+    flexiblyAccessedPension: d.flexiblyAccessedPension,
   }
 }

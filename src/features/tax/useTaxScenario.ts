@@ -41,6 +41,7 @@ const DEFAULT_INPUTS = {
   marriageAllowanceRole: 'recipient' as MarriageAllowanceRole, // most claimants receive
   blindPersonsAllowance: false,
   voluntaryClass2NI: false,
+  flexiblyAccessedPension: false, // MPAA — flexibly-accessed DC pot (TAX-10)
   dirSalary: DIRECTOR_OPTIMAL_SALARY, // £12,570 — bands-2026
   dirDividends: 50_000,
   s3: {
@@ -77,6 +78,9 @@ export function useTaxScenario() {
     DEFAULT_INPUTS.blindPersonsAllowance,
   )
   const [voluntaryClass2NI, setVoluntaryClass2NI] = useState(DEFAULT_INPUTS.voluntaryClass2NI)
+  const [flexiblyAccessedPension, setFlexiblyAccessedPension] = useState(
+    DEFAULT_INPUTS.flexiblyAccessedPension,
+  )
 
   const [dirSalary, setDirSalary] = useState(DEFAULT_INPUTS.dirSalary)
   const [dirDividends, setDirDividends] = useState(DEFAULT_INPUTS.dirDividends)
@@ -108,6 +112,7 @@ export function useTaxScenario() {
         marriageAllowanceRole,
         blindPersonsAllowance,
         voluntaryClass2NI,
+        flexiblyAccessedPension,
       }),
     [
       scenario,
@@ -122,6 +127,7 @@ export function useTaxScenario() {
       marriageAllowanceRole,
       blindPersonsAllowance,
       voluntaryClass2NI,
+      flexiblyAccessedPension,
     ],
   )
 
@@ -171,6 +177,8 @@ export function useTaxScenario() {
     setBlindPersonsAllowance,
     voluntaryClass2NI,
     setVoluntaryClass2NI,
+    flexiblyAccessedPension,
+    setFlexiblyAccessedPension,
 
     dirSalary,
     setDirSalary,

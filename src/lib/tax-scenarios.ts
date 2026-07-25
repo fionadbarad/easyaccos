@@ -12,6 +12,7 @@ import {
   calcClass1NI,
   calcClass4NI,
   calcDividendTax,
+  annualAllowance,
 } from './tax-logic'
 import { fmtGBP } from './formatters'
 import {
@@ -21,6 +22,7 @@ import {
   DIV_ALLOWANCE,
   DIRECTOR_OPTIMAL_SALARY,
   REDUNDANCY_EXEMPTION,
+  PENSION_BASIC_RELIEF_RATE,
 } from './tax/bands-2026'
 
 export { round2 }
@@ -51,10 +53,32 @@ export interface ScenarioResult {
   lines: ScenarioLine[]
 }
 
-const PENSION_ANNUAL_CAP = 60_000
-const rukIncomeTax = (taxable: number) => calcRukTax(taxable).tax
+const rukIncomeTax = (taxable: number, bandExtension = 0) => calcRukTax(taxable, bandExtension).tax
 const effective = (deductions: number, base: number) =>
   base > 0 ? round2((deductions / base) * 100) : 0
+
+// SIPP relief at source, mirroring calculateTax (TAX-10). `earnings` is the
+// relievable trading/salary income; `dividends` are relevant only for the AA
+// income tests (they are not themselves relievable). Returns the gross
+// contribution actually relieved (capped at relevant earnings and the tapered
+// annual allowance), its 20% at-source top-up, the net out-of-pocket cost, and
+// the pension-band extension to apply to the rUK bands.
+function sippRelief(earnings: number, dividends: number, requested: number) {
+  const req = Math.max(0, requested)
+  const adjustedIncome = Math.max(0, earnings) + dividends
+  const earningsCapped = Math.min(req, Math.max(0, earnings))
+  const thresholdIncome = Math.max(0, adjustedIncome - earningsCapped)
+  const aa = annualAllowance({ thresholdIncome, adjustedIncome })
+  const gross = Math.min(earningsCapped, aa)
+  const reliefAtSource = round2(gross * PENSION_BASIC_RELIEF_RATE)
+  return {
+    gross,
+    reliefAtSource,
+    netCost: round2(gross - reliefAtSource),
+    // adjusted net income (income less the gross contribution) — PA taper base
+    adjusted: Math.max(0, Math.max(0, earnings) - gross),
+  }
+}
 
 // ─── SCENARIO 1: Standard Employed / Self-Employed ───────────────────────────
 export interface S1Input {
@@ -65,18 +89,19 @@ export interface S1Input {
 }
 export function calcScenario1(inp: S1Input): ScenarioResult {
   const profit = Math.max(0, inp.grossIncome - inp.expenses)
-  const pensionCap = Math.min(inp.pension, profit, PENSION_ANNUAL_CAP)
-  const adjusted = Math.max(0, profit - pensionCap)
-  const pa = calcPA(adjusted)
-  const taxable = Math.max(0, adjusted - pa)
-  const itax = rukIncomeTax(taxable)
+  // SIPP relief at source: the pension does NOT reduce the income-tax base;
+  // instead the basic-rate band is widened by the gross contribution (TAX-10).
+  const p = sippRelief(profit, 0, inp.pension)
+  const pa = calcPA(p.adjusted)
+  const taxable = Math.max(0, profit - pa)
+  const itax = rukIncomeTax(taxable, p.gross)
   // Class 4 (self-employed) is charged on trading profit before pension — a
-  // personal SIPP does not reduce the NIC base (TAX-2). Class 1 (employed)
-  // modelling is unchanged.
-  const ni = inp.employmentType === 'employed' ? calcClass1NI(adjusted) : calcClass4NI(profit)
+  // personal SIPP does not reduce the NIC base (TAX-2). Class 1 (employed) is on
+  // salary net of pension (unchanged modelling).
+  const ni = inp.employmentType === 'employed' ? calcClass1NI(p.adjusted) : calcClass4NI(profit)
   const total = round2(itax + ni)
-  const takeHome = round2(Math.max(0, adjusted - total))
-  const effRate = effective(total, adjusted)
+  const takeHome = round2(Math.max(0, profit - total - p.netCost))
+  const effRate = effective(total, profit)
   const niLabel = inp.employmentType === 'employed' ? 'NI Class 1 (8%)' : 'NI Class 4 (6%)'
 
   return {
@@ -97,12 +122,21 @@ export function calcScenario1(inp: S1Input): ScenarioResult {
       { label: 'Gross Income', value: inp.grossIncome },
       { label: 'Allowable Expenses', value: inp.expenses, negative: true, indent: true },
       { label: 'Gross Profit', value: profit, bold: true },
-      { label: 'Pension (SIPP)', value: pensionCap, negative: true, indent: true },
-      { label: 'Adjusted Net Income', value: adjusted },
       { label: 'Personal Allowance', value: pa, negative: true, indent: true },
       { label: 'Taxable Income', value: taxable, bold: true },
       { label: 'Income Tax', value: itax, negative: true, indent: true },
       { label: niLabel, value: ni, negative: true, indent: true },
+      ...(p.gross > 0
+        ? [
+            {
+              label: 'Pension (net cost, you pay)',
+              value: p.netCost,
+              negative: true,
+              indent: true,
+            },
+            { label: 'Basic-rate relief (into pot)', value: p.reliefAtSource, indent: true },
+          ]
+        : []),
       { label: 'Net Take-Home', value: takeHome, bold: true },
     ],
   }
@@ -114,16 +148,18 @@ export interface S2Input {
   pension: number
 }
 export function calcScenario2(inp: S2Input): ScenarioResult {
-  const pensionCap = Math.min(inp.pension, inp.grossIncome, PENSION_ANNUAL_CAP)
-  const adjusted = Math.max(0, inp.grossIncome - pensionCap)
+  // Relief at source: pension widens the basic-rate band and lowers adjusted net
+  // income (restoring tapered PA), but does not reduce the taxable base (TAX-10).
+  const p = sippRelief(inp.grossIncome, 0, inp.pension)
+  const adjusted = p.adjusted
   const pa = calcPA(adjusted)
   const paLost = Math.max(0, PA_BASE - pa)
-  const taxable = Math.max(0, adjusted - pa)
-  const itax = rukIncomeTax(taxable)
+  const taxable = Math.max(0, inp.grossIncome - pa)
+  const itax = rukIncomeTax(taxable, p.gross)
   const ni = calcClass1NI(adjusted)
   const total = round2(itax + ni)
-  const takeHome = round2(Math.max(0, adjusted - total))
-  const effRate = effective(total, adjusted)
+  const takeHome = round2(Math.max(0, inp.grossIncome - total - p.netCost))
+  const effRate = effective(total, inp.grossIncome)
   const inTrap = adjusted > PA_TAPER_START && adjusted < PA_TAPER_END
   const toEscape = inTrap ? adjusted - PA_TAPER_START : 0
 
@@ -145,8 +181,7 @@ export function calcScenario2(inp: S2Input): ScenarioResult {
       : `You earn over ${fmtGBP(PA_TAPER_START)}. PA tapered to ${fmtGBP(pa)}. Consider SIPP contributions for relief.`,
     lines: [
       { label: 'Gross Income', value: inp.grossIncome },
-      { label: 'Pension Contribution', value: pensionCap, negative: true, indent: true },
-      { label: 'Adjusted Net Income', value: adjusted },
+      { label: 'Adjusted Net Income (for PA taper)', value: adjusted, indent: true },
       {
         label: `Personal Allowance (tapered from ${fmtGBP(PA_BASE)})`,
         value: pa,
@@ -157,6 +192,17 @@ export function calcScenario2(inp: S2Input): ScenarioResult {
       { label: 'Taxable Income', value: taxable, bold: true },
       { label: 'Income Tax (incl. 60% zone)', value: itax, negative: true, indent: true },
       { label: 'NI Class 1 (8%)', value: ni, negative: true, indent: true },
+      ...(p.gross > 0
+        ? [
+            {
+              label: 'Pension (net cost, you pay)',
+              value: p.netCost,
+              negative: true,
+              indent: true,
+            },
+            { label: 'Basic-rate relief (into pot)', value: p.reliefAtSource, indent: true },
+          ]
+        : []),
       { label: 'Net Take-Home', value: takeHome, bold: true },
     ],
   }
@@ -285,26 +331,30 @@ export interface S5Input {
 }
 export function calcScenario5(inp: S5Input): ScenarioResult {
   const { salary, dividends } = inp
-  const pensionCap = Math.min(inp.pension, salary, PENSION_ANNUAL_CAP)
-  const adjustedSal = Math.max(0, salary - pensionCap)
+  // Relief at source: pension is relievable against the SALARY (relevant
+  // earnings); dividends are not. It widens the basic-rate band rather than
+  // reducing the taxable base (TAX-10).
+  const p = sippRelief(salary, dividends, inp.pension)
+  const adjustedSal = p.adjusted
 
-  // NI: salary only (after pension sacrifice). Dividends are NI-free.
+  // NI: salary only, net of pension. Dividends are NI-free.
   const ni = calcClass1NI(adjustedSal)
-  // PA taper: combined adjusted income.
+  // PA taper: combined adjusted net income.
   const pa = calcPA(adjustedSal + dividends)
-  // Income tax: salary consumes PA first, dividends stack on top.
-  const salTaxable = Math.max(0, adjustedSal - pa)
-  const itaxSal = rukIncomeTax(salTaxable)
+  // Income tax: the full salary consumes PA first (relief comes via the wider
+  // band, not a lower base), dividends stack on top.
+  const salTaxable = Math.max(0, salary - pa)
+  const itaxSal = rukIncomeTax(salTaxable, p.gross)
   // Unused PA (salary below PA) shelters dividends first, tax-free (TAX-1).
-  const sparePA = Math.max(0, pa - adjustedSal)
-  const divTax = calcDividendTax(dividends, salTaxable, sparePA)
+  const sparePA = Math.max(0, pa - salary)
+  const divTax = calcDividendTax(dividends, salTaxable, sparePA, p.gross)
   const itaxTotal = round2(itaxSal + divTax)
 
   const total = round2(itaxTotal + ni)
-  const totalIncome = adjustedSal + dividends
-  const takeHome = round2(Math.max(0, totalIncome - total))
-  const effRate = effective(total, totalIncome)
-  const niSaving = round2(calcClass4NI(totalIncome) - ni) // vs self-employed
+  const cashIncome = salary + dividends
+  const takeHome = round2(Math.max(0, cashIncome - total - p.netCost))
+  const effRate = effective(total, cashIncome)
+  const niSaving = round2(calcClass4NI(cashIncome) - ni) // vs self-employed
 
   return {
     scenario: 'Director (Salary + Dividends)',
@@ -330,8 +380,6 @@ export function calcScenario5(inp: S5Input): ScenarioResult {
       .join(' '),
     lines: [
       { label: 'Director Salary', value: salary },
-      { label: 'Pension Contribution', value: pensionCap, negative: true, indent: true },
-      { label: 'Adjusted Salary', value: adjustedSal },
       { label: 'Dividends', value: dividends },
       {
         label: `Dividend Allowance (${fmtGBP(DIV_ALLOWANCE)} tax-free)`,
@@ -343,6 +391,17 @@ export function calcScenario5(inp: S5Input): ScenarioResult {
       { label: 'Income Tax (salary)', value: itaxSal, negative: true, indent: true },
       { label: 'Dividend Tax', value: divTax, negative: true, indent: true },
       { label: 'NI Class 1 on Salary', value: ni, negative: true, indent: true },
+      ...(p.gross > 0
+        ? [
+            {
+              label: 'Pension (net cost, you pay)',
+              value: p.netCost,
+              negative: true,
+              indent: true,
+            },
+            { label: 'Basic-rate relief (into pot)', value: p.reliefAtSource, indent: true },
+          ]
+        : []),
       { label: 'Net Take-Home', value: takeHome, bold: true },
     ],
   }

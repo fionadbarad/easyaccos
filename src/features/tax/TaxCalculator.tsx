@@ -52,6 +52,8 @@ export default function TaxCalculator() {
         setBlindPersonsAllowance={s.setBlindPersonsAllowance}
         voluntaryClass2NI={s.voluntaryClass2NI}
         setVoluntaryClass2NI={s.setVoluntaryClass2NI}
+        flexiblyAccessedPension={s.flexiblyAccessedPension}
+        setFlexiblyAccessedPension={s.setFlexiblyAccessedPension}
       />
 
       {s.fullResult && (

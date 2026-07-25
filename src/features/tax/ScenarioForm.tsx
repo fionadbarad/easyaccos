@@ -48,6 +48,8 @@ export interface ScenarioFormProps {
   setBlindPersonsAllowance: (v: boolean) => void
   voluntaryClass2NI: boolean
   setVoluntaryClass2NI: (v: boolean) => void
+  flexiblyAccessedPension: boolean
+  setFlexiblyAccessedPension: (v: boolean) => void
 }
 
 export default function ScenarioForm(p: ScenarioFormProps) {
@@ -84,11 +86,11 @@ export default function ScenarioForm(p: ScenarioFormProps) {
                   <NumInput value={p.grossRevenue} onChange={p.setGrossRevenue} />
                 </Field>
                 <Field
-                  label="Pension Contribution (£)"
+                  label="Gross Pension Contribution (£)"
                   hint={
                     <p style={{ color: C.blue, fontSize: '0.71rem' }}>
                       <Info size={11} style={{ display: 'inline', marginRight: '3px' }} />
-                      Reduces taxable income at your marginal rate
+                      Gross (incl. 20% top-up). You pay 80%; higher-rate relief widens your band
                     </p>
                   }
                 >
@@ -109,7 +111,7 @@ export default function ScenarioForm(p: ScenarioFormProps) {
                 <Field label="Allowable Expenses (£)">
                   <NumInput value={p.allowableExpenses} onChange={p.setAllowableExpenses} />
                 </Field>
-                <Field label="Pension Contribution (£)">
+                <Field label="Gross Pension Contribution (£)">
                   <NumInput
                     value={p.pensionContribution}
                     onChange={p.setPensionContribution}
@@ -141,7 +143,7 @@ export default function ScenarioForm(p: ScenarioFormProps) {
                 <Field label="Dividend Income (£)">
                   <NumInput value={p.dirDividends} onChange={p.setDirDividends} />
                 </Field>
-                <Field label="Pension Contribution (£)">
+                <Field label="Gross Pension Contribution (£)">
                   <NumInput
                     value={p.pensionContribution}
                     onChange={p.setPensionContribution}
@@ -289,6 +291,11 @@ export default function ScenarioForm(p: ScenarioFormProps) {
                 label="Blind Person's Allowance (+£3,250)"
                 active={p.blindPersonsAllowance}
                 onChange={p.setBlindPersonsAllowance}
+              />
+              <Toggle
+                label="Flexibly accessed a pension (£10k MPAA)"
+                active={p.flexiblyAccessedPension}
+                onChange={p.setFlexiblyAccessedPension}
               />
               {p.scenario === 'self-employed' && (
                 <Toggle

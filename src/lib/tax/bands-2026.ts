@@ -63,6 +63,23 @@ export const SL_POSTGRAD_THRESH = 21_000
 export const SL_PLAN_RATE = 0.09 // plans 1–5
 export const SL_POSTGRAD_RATE = 0.06
 
+// ── Pension: Annual Allowance, taper & relief (2026/27) ─────────────────────
+// SIPP relief works at source: the saver pays 80% of the gross contribution and
+// the provider reclaims the basic-rate 20% into the pot. Higher-rate relief is
+// given by extending the basic-rate band by the gross contribution (TAX-10).
+export const ANNUAL_ALLOWANCE = 60_000 // standard annual allowance
+export const PENSION_BASIC_RELIEF_RATE = 0.2 // 20% reclaimed at source
+// Tapered annual allowance: for the highest earners the AA reduces by £1 for
+// every £2 of *adjusted income* above £260,000, but only once *threshold income*
+// also exceeds £200,000. It bottoms out at a £10,000 floor (reached at £360,000
+// adjusted income).
+export const AA_TAPER_THRESHOLD_INCOME = 200_000
+export const AA_TAPER_ADJUSTED_INCOME = 260_000
+export const AA_TAPER_FLOOR = 10_000
+// Money Purchase Annual Allowance — applies once a defined-contribution pot has
+// been flexibly accessed. Flat £10,000; it does not itself taper.
+export const MPAA = 10_000
+
 // ── Misc ────────────────────────────────────────────────────────────────────
 export const DIRECTOR_OPTIMAL_SALARY = 12_570
 export const NLW_RATE = 12.71 // National Living Wage, 1 Apr 2026

@@ -108,6 +108,13 @@ export default function ReceiptScanner({ onExtract }: Props) {
 
   async function handleFile(file: File) {
     setError('')
+    // The client-side OCR engine (tesseract.js) reads raster images only — it
+    // cannot decode a PDF. Reject non-images up front with a clear message
+    // instead of letting recognize() fail cryptically (OCR-1).
+    if (!file.type.startsWith('image/')) {
+      setError('Please choose a photo/image of your receipt — PDFs are not supported.')
+      return
+    }
     setBusy(true)
     setStatus('Loading OCR engine…')
     setProgress(2)
@@ -231,10 +238,10 @@ export default function ReceiptScanner({ onExtract }: Props) {
                 }}
               >
                 <Camera size={24} />
-                Tap to choose a photo or PDF of your receipt
+                Tap to choose a photo of your receipt
                 <input
                   type="file"
-                  accept="image/*,application/pdf"
+                  accept="image/*"
                   capture="environment"
                   style={{ display: 'none' }}
                   onChange={(e) => {

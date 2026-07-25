@@ -6,6 +6,17 @@
  * via structured clone. It never leaves the origin. If the user clears site
  * data, the key (and therefore the data it protects) is gone — which is the
  * correct behaviour for local-first storage.
+ *
+ * THREAT MODEL — be honest about what the device key does and does not protect
+ * against (SEC-13). Because the key lives in the SAME ORIGIN as the data it
+ * encrypts, any code that already runs in this origin (a malicious extension,
+ * an XSS payload) can ask WebCrypto to decrypt with it — the device key is NOT
+ * a defence against same-origin script or XSS. What it genuinely buys you is
+ * protection against a RAW read of the on-disk IndexedDB files (a stolen /
+ * unlocked device, forensic disk recovery, another OS user reading the profile)
+ * without a live browser context. The passphrase-derived backup key below is a
+ * different, genuinely strong tier: the key exists only while the user is
+ * entering their passphrase and is never persisted.
  */
 
 const KDF_ITERATIONS = 310_000

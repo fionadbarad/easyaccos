@@ -77,11 +77,19 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const queryKeys = Array.from(sp.keys()).join(',') || '(none)'
     const host = req.headers.get('host') ?? '(unknown)'
     const referer = req.headers.get('referer') ?? '(none)'
+    // Full diagnostic (cookie names, host, referer, query keys) is logged
+    // SERVER-SIDE only — it must not travel back in the redirect URL, where it
+    // would leak into the browser address bar and history (SEC-11).
     const diag = `code=${code ? 'present' : 'MISSING'} state=${state ? 'present' : 'MISSING'} cookie=${storedState ? 'present' : 'MISSING'} | host=${host} | cookies=[${cookieNames}] | query=[${queryKeys}] | referer=${referer}`
     console.error('[hmrc/callback] missing_params', diag)
-    return redirectDashboard(req, { hmrc_error: 'missing_params', detail: diag }, [
-      stateClearCookie(),
-    ])
+    return redirectDashboard(
+      req,
+      {
+        hmrc_error: 'missing_params',
+        detail: 'Missing or expired authorization parameters. Please restart the connect flow.',
+      },
+      [stateClearCookie()],
+    )
   }
 
   if (!safeEqual(state, storedState)) {

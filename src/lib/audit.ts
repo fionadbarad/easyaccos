@@ -26,6 +26,7 @@
 import { isFlagEnabled, FLAG_AUDIT } from './feature-flags'
 import { idbSet, STORE_AUDIT, isIDBAvailable, idbAuditRange } from './storage/idb'
 import { isSupabaseConfigured, createClient } from './supabase-browser'
+import { reportError } from './monitor'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 export type AuditOp = 'create' | 'update' | 'delete'
@@ -63,9 +64,13 @@ export async function appendAuditLog(
     }
   }
 
-  // Supabase mirror (best-effort, never throws)
+  // Supabase mirror — awaited with one retry so a transient failure doesn't
+  // silently drop the entry, and reported (not swallowed) if it ultimately
+  // fails. It still never THROWS: an audit-write failure must not block the
+  // user's action. Making the server row authoritative (vs the local IDB copy)
+  // remains a larger follow-up — see docs/AUDIT.md AUD-2. (AUD-2)
   if (supabase && userId && isSupabaseConfigured) {
-    void supabase.from('audit_logs').insert({
+    const row = {
       id: full.id,
       user_id: userId,
       entity: full.entity,
@@ -75,7 +80,16 @@ export async function appendAuditLog(
       after: (full.after as Record<string, unknown>) ?? null,
       ts: full.ts,
       actor: full.actor,
-    })
+    }
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const { error } = await supabase.from('audit_logs').insert(row)
+        if (!error) break
+        if (attempt === 1) reportError('audit.mirror', error, { entity: full.entity, op: full.op })
+      } catch (err) {
+        if (attempt === 1) reportError('audit.mirror', err, { entity: full.entity, op: full.op })
+      }
+    }
   }
 }
 

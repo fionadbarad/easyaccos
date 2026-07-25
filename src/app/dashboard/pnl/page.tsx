@@ -23,16 +23,35 @@ import { C } from '@/styles/palette'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
+// MTD ITSA mandation date for the >£50k turnover band. Rendered as a future
+// deadline, or as "now mandatory" once passed — no more stale hardcoded date (PL-5).
+const MTD_ITSA_MANDATION = new Date('2026-04-06T00:00:00Z')
+
 function buildMonthly(txs: Transaction[]) {
-  const map: Record<string, { income: number; expenses: number }> = {}
+  // Bucket by YEAR + month so different years never collapse into one bar, and
+  // sort chronologically. The label carries a 2-digit year suffix only when the
+  // data spans more than one year, keeping single-year charts uncluttered (PL-3).
+  const map: Record<string, { income: number; expenses: number; year: number; monthIdx: number }> =
+    {}
   for (const tx of txs) {
-    const m = MONTHS[new Date(tx.date).getMonth()] ?? 'Jan'
-    const bucket = map[m] ?? { income: 0, expenses: 0 }
+    const d = new Date(tx.date)
+    if (Number.isNaN(d.getTime())) continue
+    const year = d.getFullYear()
+    const monthIdx = d.getMonth()
+    const key = `${year}-${String(monthIdx).padStart(2, '0')}`
+    const bucket = map[key] ?? { income: 0, expenses: 0, year, monthIdx }
     if (tx.type === 'income') bucket.income += tx.amount
     else bucket.expenses += tx.amount
-    map[m] = bucket
+    map[key] = bucket
   }
-  return Object.entries(map).map(([month, d]) => ({ month, ...d, profit: d.income - d.expenses }))
+  const rows = Object.values(map).sort((a, b) => a.year - b.year || a.monthIdx - b.monthIdx)
+  const multiYear = new Set(rows.map((r) => r.year)).size > 1
+  return rows.map((r) => ({
+    month: multiYear ? `${MONTHS[r.monthIdx]} ${String(r.year).slice(2)}` : MONTHS[r.monthIdx],
+    income: r.income,
+    expenses: r.expenses,
+    profit: r.income - r.expenses,
+  }))
 }
 
 function ISLine({
@@ -196,8 +215,8 @@ export default function PnLPage() {
   const cogsItems = txs.filter((t) => t.type === 'expense' && isCogs(t.description))
   const opEx =
     txs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0) - costOfSales
-  const ebitda = grossProfit - opEx
-  const netProfit = ebitda
+  const profitBeforeTax = grossProfit - opEx
+  const netProfit = profitBeforeTax
 
   const taxCalc = useMemo(() => {
     if (netProfit <= 0) return { incomeTax: 0, nationalInsurance: 0, totalDeductions: 0 }
@@ -279,7 +298,7 @@ export default function PnLPage() {
         costOfSales,
         grossProfit,
         opEx,
-        ebitda,
+        profitBeforeTax,
         taxProvision: Math.round(taxProvision),
         profitAfterTax: Math.round(profitAfterTax),
       },
@@ -435,7 +454,25 @@ export default function PnLPage() {
               <span style={{ color: C.white, fontFamily: 'var(--font-geist-mono), monospace' }}>
                 £50,000
               </span>
-              . Register for MTD ITSA before <span style={{ color: C.white }}>6 April 2026</span>.
+              .{' '}
+              {MTD_ITSA_MANDATION > new Date() ? (
+                <>
+                  Register for MTD ITSA before{' '}
+                  <span style={{ color: C.white }}>
+                    {MTD_ITSA_MANDATION.toLocaleDateString('en-GB', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })}
+                  </span>
+                  .
+                </>
+              ) : (
+                <>
+                  MTD ITSA is now <span style={{ color: C.white }}>mandatory</span> at this turnover
+                  — register with HMRC.
+                </>
+              )}
             </p>
           </div>
         </div>
@@ -797,7 +834,7 @@ export default function PnLPage() {
           <ISLine label="Total OpEx" value={opEx} bold negative />
           <ISLine separator />
 
-          <ISLine label="PROFIT BEFORE TAX" value={ebitda} bold highlight />
+          <ISLine label="PROFIT BEFORE TAX" value={profitBeforeTax} bold highlight />
           <ISLine separator />
 
           <ISLine label="TAX PROVISION" bold />

@@ -255,21 +255,30 @@ export function calcScotlandTax(
     { label: 'Top Rate', rate: 48, ceiling: Infinity },
   ]
 
+  // The Scottish ceilings are absolute GROSS thresholds that bake in the standard
+  // £12,570 PA, so each band's WIDTH is `ceiling − previousCeiling` (with the
+  // first width measured down to PA_BASE). Those widths are then applied to the
+  // taxable income (gross − the ACTUAL PA) from £0 up — exactly as calcRukTax
+  // does. Seeding the walk from PA_BASE and slicing taxable income directly means
+  // a tapered/blind-adjusted PA no longer leaves a slice untaxed or mislabelled
+  // for Scots over £100k (TAX-9). (The prior code seeded band edges off the
+  // hardcoded £12,570, so `PA_BASE − actualPA` of income fell into no band.)
   const bands: TaxBand[] = []
   let totalTax = 0
-  let prev = PA_BASE
+  let remaining = taxable
+  let prevCeiling = PA_BASE
 
   for (const { label, rate, ceiling } of LIMITS) {
-    const lower = Math.max(0, taxable - Math.max(0, prev - pa))
-    const upper = Math.max(0, taxable - Math.max(0, ceiling - pa))
-    const amount = lower - upper
+    const width = ceiling === Infinity ? remaining : Math.max(0, ceiling - prevCeiling)
+    const amount = Math.min(remaining, width)
     if (amount > 0) {
       const t = round2(amount * (rate / 100))
       bands.push({ label, rate, amount, tax: t })
       totalTax += t
+      remaining -= amount
     }
-    prev = ceiling
-    if (prev >= grossIncome) break
+    prevCeiling = ceiling
+    if (remaining <= 0) break
   }
 
   return { tax: round2(totalTax), bands }
@@ -364,7 +373,9 @@ export function calcStudentLoan(grossProfit: number, plan: StudentLoanPlan): num
   if (plan === 'none') return 0
   const { threshold, rate } = STUDENT_LOAN[plan]
   const repayable = Math.max(0, grossProfit - threshold)
-  return round2(repayable * rate)
+  // HMRC floors student-loan repayments to whole pounds — the pence are never
+  // collected (SL3 guidance). round2 over-collected by up to 99p (TAX-6).
+  return Math.floor(repayable * rate)
 }
 
 // ─── Optimization Tips ────────────────────────────────────────────────────────
@@ -453,11 +464,16 @@ export function calculateTax(input: TaxInput): TaxResult {
   } = input
 
   // ── 1. Profit after allowable expenses ─────────────────────────────────────
-  const grossProfit = Math.max(0, grossRevenue - allowableExpenses)
+  // Trading profit can be NEGATIVE — a legitimate loss year where expenses
+  // exceed revenue. We keep the real signed figure so the breakdown reports the
+  // loss; every downstream tax/NIC step already floors its own base at 0, so a
+  // loss correctly yields zero tax instead of a clamp that hides it (TAX-11).
+  const grossProfit = grossRevenue - allowableExpenses
 
   // ── 2. Adjusted profit after pension contribution ──────────────────────────
-  // Pension capped at grossProfit and at £60,000 annual allowance
-  const pensionCapped = Math.min(pensionContribution, grossProfit, 60_000)
+  // Pension relief is floored at 0 (a SIPP can't be relieved against a loss
+  // here) and capped at the £60,000 annual allowance.
+  const pensionCapped = Math.min(pensionContribution, Math.max(0, grossProfit), 60_000)
   const adjustedProfit = Math.max(0, grossProfit - pensionCapped)
 
   // ── 3. Personal Allowance ──────────────────────────────────────────────────
@@ -661,12 +677,14 @@ export function validateTaxInput(input: TaxInput): ValidationErrors {
   const e: ValidationErrors = {}
   const MAX = 9_999_999
 
-  if (input.grossRevenue <= 0) e.grossRevenue = 'Enter a gross income greater than \u00a30'
+  if (input.grossRevenue < 0) e.grossRevenue = 'Gross income cannot be negative'
   else if (input.grossRevenue > MAX) e.grossRevenue = 'Maximum supported income is \u00a39,999,999'
 
+  // Expenses may legitimately equal or exceed revenue \u2014 that is a trading loss,
+  // not an error. Only a negative or oversized figure is rejected (TAX-11).
   if (input.allowableExpenses < 0) e.allowableExpenses = 'Expenses cannot be negative'
-  else if (input.allowableExpenses >= input.grossRevenue)
-    e.allowableExpenses = 'Expenses cannot equal or exceed gross revenue'
+  else if (input.allowableExpenses > MAX)
+    e.allowableExpenses = 'Maximum supported expenses is \u00a39,999,999'
 
   if (input.dividendIncome < 0) e.dividendIncome = 'Dividend income cannot be negative'
   else if (input.dividendIncome > MAX)

@@ -31,9 +31,10 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files — .env.production and .env.example are safe to commit (templates/public values only)
+# env files — never commit real env files (they leak the next secret added to
+# them). Only the .env.example template is tracked. Set real values as platform
+# secrets (e.g. Vercel Project → Settings → Environment Variables).
 .env*
-!.env.production
 !.env.example
 
 # vercel

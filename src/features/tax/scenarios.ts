@@ -1,7 +1,13 @@
 // Scenario key + menu metadata + the pure TaxInput builder.
 // buildTaxInput is extracted so it can be unit-tested without React.
 
-import type { TaxInput, EmploymentType, StudentLoanPlan, TaxRegion } from '@/lib/tax-logic'
+import type {
+  TaxInput,
+  EmploymentType,
+  StudentLoanPlan,
+  TaxRegion,
+  MarriageAllowanceRole,
+} from '@/lib/tax-logic'
 
 export type ScenarioKey = 'employed' | 'self-employed' | 'director' | 'welfare' | 'jobloss'
 
@@ -33,6 +39,7 @@ export type TaxInputDraft = {
   taxRegion: TaxRegion
   studentLoanPlan: StudentLoanPlan
   marriageAllowance: boolean
+  marriageAllowanceRole: MarriageAllowanceRole
   blindPersonsAllowance: boolean
   voluntaryClass2NI: boolean
 }
@@ -60,6 +67,7 @@ export function buildTaxInput(d: TaxInputDraft): TaxInput | null {
       studentLoanPlan: d.studentLoanPlan,
       voluntaryClass2NI: false,
       marriageAllowance: d.marriageAllowance,
+      marriageAllowanceRole: d.marriageAllowanceRole,
       blindPersonsAllowance: d.blindPersonsAllowance,
       pensionContribution: d.pensionContribution,
     }
@@ -74,6 +82,7 @@ export function buildTaxInput(d: TaxInputDraft): TaxInput | null {
     studentLoanPlan: d.studentLoanPlan,
     voluntaryClass2NI: d.voluntaryClass2NI,
     marriageAllowance: d.marriageAllowance,
+    marriageAllowanceRole: d.marriageAllowanceRole,
     blindPersonsAllowance: d.blindPersonsAllowance,
     pensionContribution: d.pensionContribution,
   }

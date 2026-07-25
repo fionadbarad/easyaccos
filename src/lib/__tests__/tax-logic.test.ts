@@ -364,10 +364,64 @@ describe('NI Class 4 base (pre-pension)', () => {
 
 // ── Marriage & Blind persons allowance ───────────────────────────────────────
 describe('Special allowances', () => {
-  it('marriage allowance reduces PA by £1,260', () => {
+  it('marriage allowance (transferor, default) reduces PA by £1,260', () => {
     const base = calculateTax(seInput(30_000))
     const married = calculateTax({ ...seInput(30_000), marriageAllowance: true })
     expect(married.personalAllowance).toBe(base.personalAllowance - 1_260)
+    expect(married.marriageAllowanceReducer).toBe(0)
+  })
+
+  it('marriage allowance (recipient) keeps full PA and gives a £252 tax reducer', () => {
+    const base = calculateTax(seInput(30_000))
+    const recipient = calculateTax({
+      ...seInput(30_000),
+      marriageAllowance: true,
+      marriageAllowanceRole: 'recipient',
+    })
+    // PA is untouched for the recipient
+    expect(recipient.personalAllowance).toBe(base.personalAllowance)
+    // £1,260 × 20% = £252 knocked off the tax due
+    expect(recipient.marriageAllowanceReducer).toBe(252)
+    expect(recipient.incomeTax).toBe(round2(base.incomeTax - 252))
+  })
+
+  it('recipient relief is denied to a higher-rate taxpayer', () => {
+    const recipient = calculateTax({
+      ...seInput(60_000), // into the 40% band
+      marriageAllowance: true,
+      marriageAllowanceRole: 'recipient',
+    })
+    expect(recipient.marriageAllowanceReducer).toBe(0)
+    expect(recipient.incomeTax).toBe(calculateTax(seInput(60_000)).incomeTax)
+  })
+
+  it('recipient relief is capped at the tax actually due', () => {
+    // £13,500 profit → taxable £930 → tax £186, less than the £252 reducer.
+    const recipient = calculateTax({
+      ...seInput(13_500),
+      marriageAllowance: true,
+      marriageAllowanceRole: 'recipient',
+    })
+    const base = calculateTax(seInput(13_500))
+    expect(recipient.marriageAllowanceReducer).toBe(base.incomeTax)
+    expect(recipient.incomeTax).toBe(0)
+  })
+
+  it('Scotland: intermediate-rate recipient is eligible, higher-rate is not', () => {
+    const eligible = calculateTax({
+      ...seInput(30_000),
+      taxRegion: 'scotland',
+      marriageAllowance: true,
+      marriageAllowanceRole: 'recipient',
+    })
+    expect(eligible.marriageAllowanceReducer).toBe(252)
+    const ineligible = calculateTax({
+      ...seInput(60_000), // into Scottish higher (42%) band
+      taxRegion: 'scotland',
+      marriageAllowance: true,
+      marriageAllowanceRole: 'recipient',
+    })
+    expect(ineligible.marriageAllowanceReducer).toBe(0)
   })
 
   it('blind persons allowance increases PA by £3,250', () => {

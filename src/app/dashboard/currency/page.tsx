@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { ArrowLeftRight, RefreshCw } from 'lucide-react'
+import { T } from '@/styles/type'
 
 const POPULAR: string[] = [
   'USD',
@@ -64,7 +65,7 @@ const inputStyle: React.CSSProperties = {
   borderRadius: '4px',
   padding: '9px 12px',
   color: 'var(--sa-white)',
-  fontSize: '0.9rem',
+  fontSize: T.body,
   outline: 'none',
   width: '100%',
   boxSizing: 'border-box',
@@ -169,7 +170,7 @@ export default function CurrencyPage() {
   const currencies = Object.keys(rates).length > 0 ? Object.keys(rates).sort() : POPULAR
 
   return (
-    <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)', maxWidth: '800px' }}>
+    <div className="page-shell">
       {/* ── Header ── */}
       <div
         style={{
@@ -185,14 +186,14 @@ export default function CurrencyPage() {
           <h1
             style={{
               color: 'var(--sa-white)',
-              fontSize: 'clamp(1.5rem,3vw,2rem)',
+              fontSize: T.h2,
               fontWeight: 700,
               marginBottom: '0.3rem',
             }}
           >
             Currency Converter
           </h1>
-          <p style={{ color: 'var(--sa-muted)', fontSize: '0.875rem' }}>
+          <p style={{ color: 'var(--sa-muted)', fontSize: T.body }}>
             Live exchange rates · 170+ currencies · Updates every 60s
             {isStale && (
               <span style={{ marginLeft: '0.5rem', color: 'rgba(253,186,116,0.85)' }}>
@@ -213,12 +214,12 @@ export default function CurrencyPage() {
             border: '1px solid var(--sa-border)',
             borderRadius: '4px',
             color: 'var(--sa-white)',
-            fontSize: '0.8rem',
+            fontSize: T.meta,
             padding: '7px 14px',
             cursor: loading ? 'default' : 'pointer',
           }}
         >
-          <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
+          <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
           {loading ? 'Updating…' : 'Refresh'}
         </button>
       </div>
@@ -232,7 +233,7 @@ export default function CurrencyPage() {
             borderRadius: '4px',
             padding: '10px 14px',
             color: '#F87171',
-            fontSize: '0.85rem',
+            fontSize: T.body,
             marginBottom: '1.5rem',
           }}
         >
@@ -264,7 +265,7 @@ export default function CurrencyPage() {
               style={{
                 display: 'block',
                 color: 'var(--sa-muted)',
-                fontSize: '0.75rem',
+                fontSize: T.caption,
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
                 marginBottom: '0.4rem',
@@ -285,7 +286,7 @@ export default function CurrencyPage() {
                 style={{
                   display: 'block',
                   color: 'var(--sa-muted)',
-                  fontSize: '0.75rem',
+                  fontSize: T.caption,
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
                   marginBottom: '0.4rem',
@@ -325,7 +326,7 @@ export default function CurrencyPage() {
               flexShrink: 0,
             }}
           >
-            <ArrowLeftRight size={18} />
+            <ArrowLeftRight size={16} />
           </button>
 
           {/* To */}
@@ -334,7 +335,7 @@ export default function CurrencyPage() {
               style={{
                 display: 'block',
                 color: 'var(--sa-muted)',
-                fontSize: '0.75rem',
+                fontSize: T.caption,
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
                 marginBottom: '0.4rem',
@@ -349,7 +350,7 @@ export default function CurrencyPage() {
                 ...inputStyle,
                 background: 'rgba(244,245,248,0.04)',
                 fontWeight: 700,
-                fontSize: '1.1rem',
+                fontSize: T.title,
               }}
             >
               {loading && Object.keys(rates).length === 0
@@ -363,7 +364,7 @@ export default function CurrencyPage() {
                 style={{
                   display: 'block',
                   color: 'var(--sa-muted)',
-                  fontSize: '0.75rem',
+                  fontSize: T.caption,
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
                   marginBottom: '0.4rem',
@@ -387,7 +388,7 @@ export default function CurrencyPage() {
         </div>
 
         {rate !== null && (
-          <p style={{ marginTop: '1.25rem', color: 'var(--sa-muted)', fontSize: '0.8rem' }}>
+          <p style={{ marginTop: '1.25rem', color: 'var(--sa-muted)', fontSize: T.meta }}>
             1 {from} = <strong style={{ color: 'var(--sa-white)' }}>{rate.toFixed(6)}</strong> {to}
             {lastUpdated && (
               <span style={{ marginLeft: '1rem' }}>
@@ -402,7 +403,7 @@ export default function CurrencyPage() {
       <h2
         style={{
           color: 'var(--sa-white)',
-          fontSize: '1.1rem',
+          fontSize: T.title,
           fontWeight: 700,
           marginBottom: '1rem',
         }}
@@ -439,7 +440,7 @@ export default function CurrencyPage() {
               <div
                 style={{
                   color: 'var(--sa-muted)',
-                  fontSize: '0.72rem',
+                  fontSize: T.caption,
                   letterSpacing: '0.08em',
                   textTransform: 'uppercase',
                   marginBottom: '4px',
@@ -447,7 +448,7 @@ export default function CurrencyPage() {
               >
                 GBP/{cur}
               </div>
-              <div style={{ color: 'var(--sa-white)', fontWeight: 700, fontSize: '1.1rem' }}>
+              <div style={{ color: 'var(--sa-white)', fontWeight: 700, fontSize: T.title }}>
                 {r ? r.toFixed(4) : '—'}
               </div>
             </button>

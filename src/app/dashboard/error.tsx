@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { T } from '@/styles/type'
 
 export default function DashboardError({
   error,
@@ -18,7 +19,7 @@ export default function DashboardError({
       <div
         style={{
           color: '#FBBF24',
-          fontSize: '0.62rem',
+          fontSize: T.micro,
           textTransform: 'uppercase',
           letterSpacing: '0.12em',
           marginBottom: '6px',
@@ -30,7 +31,7 @@ export default function DashboardError({
       <h1
         style={{
           color: '#F4F5F8',
-          fontSize: 'clamp(1.2rem,2.4vw,1.5rem)',
+          fontSize: T.h3,
           fontWeight: 600,
           letterSpacing: '-0.02em',
           margin: '0 0 0.6rem',
@@ -41,7 +42,7 @@ export default function DashboardError({
       <p
         style={{
           color: 'rgba(244,245,248,0.5)',
-          fontSize: '0.82rem',
+          fontSize: T.meta,
           lineHeight: 1.5,
           marginBottom: '1.25rem',
         }}
@@ -52,7 +53,7 @@ export default function DashboardError({
         <pre
           style={{
             color: 'rgba(244,245,248,0.75)',
-            fontSize: '0.72rem',
+            fontSize: T.caption,
             fontFamily: 'var(--font-geist-mono), monospace',
             background: '#1C1D20',
             border: '1px solid rgba(244,245,248,0.07)',
@@ -70,7 +71,7 @@ export default function DashboardError({
         <pre
           style={{
             color: 'rgba(244,245,248,0.3)',
-            fontSize: '0.68rem',
+            fontSize: T.micro,
             fontFamily: 'var(--font-geist-mono), monospace',
             background: '#1C1D20',
             border: '1px solid rgba(244,245,248,0.07)',
@@ -91,7 +92,7 @@ export default function DashboardError({
             border: 'none',
             borderRadius: '4px',
             padding: '9px 16px',
-            fontSize: '0.82rem',
+            fontSize: T.meta,
             fontWeight: 600,
             cursor: 'pointer',
             letterSpacing: '-0.01em',
@@ -107,7 +108,7 @@ export default function DashboardError({
             border: '1px solid rgba(244,245,248,0.15)',
             borderRadius: '4px',
             padding: '9px 16px',
-            fontSize: '0.82rem',
+            fontSize: T.meta,
             fontWeight: 500,
             textDecoration: 'none',
             letterSpacing: '-0.01em',

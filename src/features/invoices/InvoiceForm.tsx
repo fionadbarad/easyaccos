@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import type { InvoiceFormState } from '@/lib/hooks/useInvoices'
 
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 const inputS: React.CSSProperties = {
   width: '100%',
   background: C.gray,
@@ -11,7 +12,7 @@ const inputS: React.CSSProperties = {
   borderRadius: '4px',
   padding: '9px 11px',
   color: C.white,
-  fontSize: '0.84rem',
+  fontSize: T.meta,
   outline: 'none',
   boxSizing: 'border-box',
 }
@@ -19,7 +20,7 @@ const inputS: React.CSSProperties = {
 const labelS: React.CSSProperties = {
   display: 'block',
   color: C.dim,
-  fontSize: '0.6rem',
+  fontSize: T.micro,
   textTransform: 'uppercase',
   letterSpacing: '0.09em',
   marginBottom: '4px',
@@ -128,7 +129,7 @@ export function InvoiceForm({
               onChange={(e) => setForm((f) => ({ ...f, vat: e.target.checked }))}
               style={{ width: '14px', height: '14px', accentColor: C.white, cursor: 'pointer' }}
             />
-            <span style={{ color: C.muted, fontSize: '0.82rem' }}>Add 20% VAT</span>
+            <span style={{ color: C.muted, fontSize: T.meta }}>Add 20% VAT</span>
           </label>
         </div>
         <div style={{ display: 'flex', gap: '0.4rem' }}>
@@ -143,7 +144,7 @@ export function InvoiceForm({
               padding: '9px',
               fontWeight: 600,
               cursor: 'pointer',
-              fontSize: '0.8rem',
+              fontSize: T.meta,
               minHeight: '40px',
               letterSpacing: '-0.01em',
             }}
@@ -160,7 +161,7 @@ export function InvoiceForm({
               borderRadius: '4px',
               padding: '9px 12px',
               cursor: 'pointer',
-              fontSize: '0.8rem',
+              fontSize: T.meta,
               minHeight: '40px',
             }}
           >

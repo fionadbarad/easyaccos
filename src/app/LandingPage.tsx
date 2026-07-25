@@ -105,7 +105,7 @@ const JSON_LD = {
 function GridDot({ x, y }: { x: number; y: number }) {
   return (
     <div
-      className="absolute w-px h-px rounded-full bg-[rgba(244,245,248,0.15)]"
+      className="absolute w-px h-px rounded-full bg-sa-selected"
       style={{ left: `${x}%`, top: `${y}%` }}
     />
   )
@@ -115,7 +115,7 @@ export default function LandingPage() {
   const dots = Array.from({ length: 60 }, (_, i) => ({ x: (i * 17.3) % 100, y: (i * 13.7) % 100 }))
 
   return (
-    <div className="min-h-screen bg-[var(--sa-black)] text-[var(--sa-white)]">
+    <div className="min-h-screen bg-sa-black text-sa-white">
       {/* JSON-LD structured data */}
       <script
         type="application/ld+json"
@@ -123,23 +123,21 @@ export default function LandingPage() {
       />
 
       {/* ── NAV ── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-[var(--sa-border)] bg-[rgba(24,24,24,0.9)] backdrop-blur-[16px]">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-sa-border bg-sa-scrim backdrop-blur-[16px]">
         <div className="max-w-[1120px] mx-auto px-6 h-14 flex items-center justify-between">
-          <span className="text-[var(--sa-white)] text-[1rem] font-semibold tracking-[-0.03em]">
-            EasyAcco
-          </span>
+          <span className="text-sa-white text-lead font-semibold tracking-[-0.03em]">EasyAcco</span>
           <div className="flex items-center gap-3">
             <Link
               href="/auth/login"
-              className="text-[var(--sa-muted)] text-[0.875rem] no-underline px-[14px] py-[7px]"
+              className="text-sa-muted text-body no-underline px-[14px] py-[7px]"
             >
               Sign in
             </Link>
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-[6px] bg-[var(--sa-white)] text-[var(--sa-black)] px-5 py-2 text-[0.875rem] font-semibold no-underline rounded-[4px] tracking-[-0.01em]"
+              className="inline-flex items-center gap-[6px] bg-sa-white text-sa-black px-5 py-2 text-body font-semibold no-underline rounded-[4px] tracking-[-0.01em]"
             >
-              Open Dashboard <ArrowRight size={13} />
+              Open Dashboard <ArrowRight size={12} />
             </Link>
           </div>
         </div>
@@ -156,23 +154,23 @@ export default function LandingPage() {
 
         <AnimatedWrapper delay={0}>
           <div className="relative z-10 max-w-[800px] mx-auto w-full">
-            <div className="inline-flex items-center gap-[6px] px-3 py-1 border border-[var(--sa-border)] rounded-[3px] text-[rgba(244,245,248,0.35)] text-[0.72rem] tracking-[0.15em] uppercase mb-8 font-mono">
+            <div className="inline-flex items-center gap-[6px] px-3 py-1 border border-sa-border rounded-[3px] text-sa-dim text-caption tracking-[0.15em] uppercase mb-8 font-mono">
               UK Tax Platform · 2026/27 · HMRC-Accurate · Free
             </div>
 
-            <h1 className="text-[clamp(2.4rem,7vw,5rem)] font-semibold leading-[1.05] tracking-[-0.04em] mb-7 text-[var(--sa-white)]">
+            <h1 className="text-h1 font-semibold leading-[1.05] tracking-[-0.04em] mb-7 text-sa-white">
               Professional tax tools
               <br />
-              <span className="text-[rgba(244,245,248,0.45)]">every UK sole trader deserves.</span>
+              <span className="text-sa-muted">every UK sole trader deserves.</span>
             </h1>
 
-            <p className="text-[var(--sa-muted)] text-[1.05rem] leading-[1.75] max-w-[38rem] mb-4">
+            <p className="text-sa-muted text-lead leading-[1.75] max-w-[38rem] mb-4">
               Stop guessing your Self Assessment bill. EasyAcco estimates your income tax, National
               Insurance, dividends, and pension relief using 2026/27 UK rates — completely free,
               running in your browser. Estimates only, not a substitute for professional advice.
             </p>
 
-            <p className="text-[rgba(244,245,248,0.35)] text-[0.85rem] leading-[1.6] max-w-[36rem] mb-10">
+            <p className="text-sa-dim text-body leading-[1.6] max-w-[36rem] mb-10">
               Built for UK freelancers, contractors, and sole traders who want quick 2026/27 tax
               estimates without the accountancy fees.
             </p>
@@ -180,14 +178,11 @@ export default function LandingPage() {
             <div className="flex flex-wrap gap-3 items-center mb-10">
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-[9px] px-8 py-[13px] bg-[var(--sa-white)] text-[var(--sa-black)] font-semibold text-[0.9rem] no-underline rounded-[4px] tracking-[-0.01em]"
+                className="inline-flex items-center gap-[9px] px-8 py-[13px] bg-sa-white text-sa-black font-semibold text-body no-underline rounded-[4px] tracking-[-0.01em]"
               >
                 Open Free Dashboard <ArrowRight size={16} />
               </Link>
-              <Link
-                href="/demo"
-                className="text-[var(--sa-muted)] text-[0.82rem] no-underline py-[13px]"
-              >
+              <Link href="/demo" className="text-sa-muted text-meta no-underline py-[13px]">
                 View demo first →
               </Link>
             </div>
@@ -196,13 +191,8 @@ export default function LandingPage() {
             <div className="flex flex-col gap-[0.45rem]">
               {TRUST_POINTS.map((pt) => (
                 <div key={pt} className="flex items-start gap-[8px]">
-                  <CheckCircle2
-                    size={13}
-                    className="text-[rgba(74,222,128,0.7)] mt-[2px] flex-shrink-0"
-                  />
-                  <span className="text-[rgba(244,245,248,0.45)] text-[0.85rem] leading-[1.5] font-mono">
-                    {pt}
-                  </span>
+                  <CheckCircle2 size={12} className="text-sa-green mt-[2px] flex-shrink-0" />
+                  <span className="text-sa-muted text-body leading-[1.5] font-mono">{pt}</span>
                 </div>
               ))}
             </div>
@@ -211,21 +201,21 @@ export default function LandingPage() {
       </section>
 
       {/* ── PROBLEM / SOLUTION ── */}
-      <section className="px-6 py-20 border-t border-[var(--sa-border)] bg-[rgba(244,245,248,0.01)]">
+      <section className="px-6 py-20 border-t border-sa-border bg-sa-tint">
         <div className="max-w-[760px] mx-auto">
           <AnimatedWrapper delay={0.05}>
-            <div className="text-[rgba(244,245,248,0.18)] text-[0.72rem] uppercase tracking-[0.15em] mb-3 font-mono">
+            <div className="text-sa-dim text-caption uppercase tracking-[0.15em] mb-3 font-mono">
               the problem
             </div>
-            <h2 className="text-[var(--sa-white)] text-[clamp(1.4rem,3vw,2rem)] font-semibold tracking-[-0.03em] mb-5">
+            <h2 className="text-sa-white text-h2 font-semibold tracking-[-0.03em] mb-5">
               UK sole traders overpay tax every year.
             </h2>
-            <p className="text-[var(--sa-muted)] text-[0.95rem] leading-[1.8] mb-6">
+            <p className="text-sa-muted text-lead leading-[1.8] mb-6">
               The 60% personal allowance trap. Missed expense deductions. Dividend timing errors.
               Making Tax Digital deadlines. NI Class 4 miscalculations. The UK tax system is complex
               — and most tools built for sole traders either oversimplify or cost a fortune.
             </p>
-            <p className="text-[var(--sa-muted)] text-[0.95rem] leading-[1.8]">
+            <p className="text-sa-muted text-lead leading-[1.8]">
               EasyAcco changes that. Every calculation follows the exact HMRC rules for 2026/27 —
               the same rules your accountant uses, without the hourly rate.
             </p>
@@ -234,33 +224,33 @@ export default function LandingPage() {
       </section>
 
       {/* ── MODULES ── */}
-      <section className="px-6 py-20 border-t border-[var(--sa-border)]">
+      <section className="px-6 py-20 border-t border-sa-border">
         <div className="max-w-[1120px] mx-auto">
           <AnimatedWrapper delay={0.1}>
             <div className="mb-12">
-              <div className="text-[rgba(244,245,248,0.18)] text-[0.72rem] uppercase tracking-[0.15em] mb-2 font-mono">
+              <div className="text-sa-dim text-caption uppercase tracking-[0.15em] mb-2 font-mono">
                 what&apos;s included
               </div>
-              <h2 className="text-[var(--sa-white)] text-[clamp(1.5rem,3vw,2rem)] font-semibold tracking-[-0.03em] m-0">
+              <h2 className="text-sa-white text-h2 font-semibold tracking-[-0.03em] m-0">
                 Every tool a sole trader needs.
               </h2>
-              <p className="text-[var(--sa-muted)] text-[0.95rem] mt-2 max-w-[32rem]">
+              <p className="text-sa-muted text-lead mt-2 max-w-[32rem]">
                 Everything you need to estimate your 2026/27 tax — free, in your browser.
               </p>
             </div>
           </AnimatedWrapper>
 
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-px border border-[var(--sa-border)] rounded-[6px] overflow-hidden bg-[var(--sa-border)]">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-px border border-sa-border rounded-[6px] overflow-hidden bg-sa-border">
             {MODULES.map(({ icon: Icon, label, desc }, i) => (
               <AnimatedWrapper key={label} delay={i * 0.05}>
-                <div className="bg-[var(--sa-surface)] p-6">
+                <div className="bg-sa-surface p-6">
                   <div className="flex items-center gap-[9px] mb-[0.65rem]">
-                    <Icon size={14} strokeWidth={1.5} className="text-[var(--sa-muted)]" />
-                    <span className="text-[var(--sa-white)] text-[0.9rem] font-semibold tracking-[-0.01em]">
+                    <Icon size={14} strokeWidth={1.5} className="text-sa-muted" />
+                    <span className="text-sa-white text-body font-semibold tracking-[-0.01em]">
                       {label}
                     </span>
                   </div>
-                  <p className="text-[var(--sa-muted)] text-[0.85rem] leading-[1.6] m-0">{desc}</p>
+                  <p className="text-sa-muted text-body leading-[1.6] m-0">{desc}</p>
                 </div>
               </AnimatedWrapper>
             ))}
@@ -269,34 +259,31 @@ export default function LandingPage() {
       </section>
 
       {/* ── CTA ── */}
-      <section className="px-6 py-20 border-t border-[var(--sa-border)]">
+      <section className="px-6 py-20 border-t border-sa-border">
         <AnimatedWrapper delay={0.15}>
           <div className="max-w-[580px] mx-auto">
-            <div className="text-[rgba(244,245,248,0.18)] text-[0.72rem] uppercase tracking-[0.15em] mb-3 font-mono">
+            <div className="text-sa-dim text-caption uppercase tracking-[0.15em] mb-3 font-mono">
               get started
             </div>
-            <h2 className="text-[var(--sa-white)] text-[clamp(1.5rem,3vw,2rem)] font-semibold tracking-[-0.03em] mb-3">
+            <h2 className="text-sa-white text-h2 font-semibold tracking-[-0.03em] mb-3">
               Know your tax bill before January.
             </h2>
-            <p className="text-[var(--sa-muted)] text-[0.9rem] leading-[1.7] mb-8">
+            <p className="text-sa-muted text-body leading-[1.7] mb-8">
               Open the dashboard in seconds — no account, no setup, no cost. Sign in only when you
               want your data to sync across devices.
             </p>
             <div className="flex flex-wrap gap-3 items-center">
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-[9px] px-8 py-[13px] bg-[var(--sa-white)] text-[var(--sa-black)] font-semibold text-[0.9rem] no-underline rounded-[4px] tracking-[-0.01em]"
+                className="inline-flex items-center gap-[9px] px-8 py-[13px] bg-sa-white text-sa-black font-semibold text-body no-underline rounded-[4px] tracking-[-0.01em]"
               >
                 Open Dashboard — Free <ArrowRight size={16} />
               </Link>
-              <Link
-                href="/auth/login"
-                className="text-[var(--sa-muted)] text-[0.875rem] no-underline"
-              >
+              <Link href="/auth/login" className="text-sa-muted text-body no-underline">
                 Sign in to sync →
               </Link>
             </div>
-            <p className="text-[rgba(244,245,248,0.18)] text-[0.78rem] mt-5 font-mono">
+            <p className="text-sa-dim text-caption mt-5 font-mono">
               No credit card · No account required · AES-256 encrypted
             </p>
           </div>
@@ -304,27 +291,23 @@ export default function LandingPage() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="px-6 py-8 border-t border-[var(--sa-border)]">
+      <footer className="px-6 py-8 border-t border-sa-border">
         <div className="max-w-[1120px] mx-auto flex flex-wrap items-center justify-between gap-3">
-          <span className="text-[var(--sa-white)] text-[0.85rem] font-semibold tracking-[-0.02em]">
-            EasyAcco
-          </span>
-          <p className="text-[rgba(244,245,248,0.18)] text-[0.78rem] font-mono">
+          <span className="text-sa-white text-body font-semibold tracking-[-0.02em]">EasyAcco</span>
+          <p className="text-sa-dim text-caption font-mono">
             2026 · UK Sole Traders &amp; Freelancers · Not financial advice · HMRC 2026/27
           </p>
           <div className="flex items-center gap-4">
-            <span className="text-[rgba(244,245,248,0.25)] text-[0.78rem] font-mono">
-              Encrypted via Supabase
-            </span>
+            <span className="text-sa-dim text-caption font-mono">Encrypted via Supabase</span>
             <a
               href="/security"
-              className="text-[rgba(244,245,248,0.25)] text-[0.78rem] no-underline hover:text-[rgba(244,245,248,0.5)] transition-colors"
+              className="text-sa-dim text-caption no-underline hover:text-sa-muted transition-colors"
             >
               Security &amp; Privacy
             </a>
             <a
               href="/demo"
-              className="text-[rgba(244,245,248,0.25)] text-[0.78rem] no-underline hover:text-[rgba(244,245,248,0.5)] transition-colors"
+              className="text-sa-dim text-caption no-underline hover:text-sa-muted transition-colors"
             >
               Demo
             </a>

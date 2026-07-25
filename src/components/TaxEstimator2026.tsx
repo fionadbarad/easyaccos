@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { calculateTax } from '@/lib/tax-engine'
 import type { TaxRegion, StudentLoanPlan } from '@/lib/tax-engine'
+import { T } from '@/styles/type'
 
 const REGION_OPTIONS: Record<TaxRegion, string> = {
   ruk: 'England, Wales & Northern Ireland',
@@ -28,7 +29,7 @@ const gbp = new Intl.NumberFormat('en-GB', {
 const labelStyle: React.CSSProperties = {
   display: 'block',
   color: 'var(--sa-muted)',
-  fontSize: '0.72rem',
+  fontSize: T.caption,
   textTransform: 'uppercase',
   letterSpacing: '0.08em',
   marginBottom: '0.3rem',
@@ -52,13 +53,13 @@ function ResultRow({ label, value, indent, bold }: ResultRowProps) {
         paddingLeft: indent ? 16 : 0,
       }}
     >
-      <span style={{ color: bold ? 'var(--sa-white)' : 'var(--sa-muted)', fontSize: '0.875rem' }}>
+      <span style={{ color: bold ? 'var(--sa-white)' : 'var(--sa-muted)', fontSize: T.body }}>
         {label}
       </span>
       <span
         style={{
           color: 'var(--sa-white)',
-          fontSize: bold ? '1.05rem' : '0.875rem',
+          fontSize: bold ? T.lead : T.body,
           fontWeight: bold ? 700 : 500,
         }}
       >
@@ -89,7 +90,7 @@ export default function TaxEstimator2026() {
 
   return (
     <div className="ui-card" style={{ maxWidth: 540, margin: '0 auto' }}>
-      <h2 className="ui-card-title" style={{ fontSize: '1.1rem', marginBottom: '1.25rem' }}>
+      <h2 className="ui-card-title" style={{ fontSize: T.title, marginBottom: '1.25rem' }}>
         Tax Estimator 2026/27
       </h2>
 

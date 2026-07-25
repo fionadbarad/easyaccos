@@ -2,6 +2,7 @@ import { Shield, Zap, Lock, Eye, Server, Globe } from 'lucide-react'
 import Link from 'next/link'
 
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 function Pillar({
   icon: Icon,
   title,
@@ -37,8 +38,8 @@ function Pillar({
       >
         <Icon size={20} style={{ color: C.white }} />
       </div>
-      <h3 style={{ color: C.white, fontSize: '1rem', fontWeight: 700, margin: 0 }}>{title}</h3>
-      <p style={{ color: C.muted, fontSize: '0.85rem', lineHeight: 1.65, margin: 0 }}>{body}</p>
+      <h3 style={{ color: C.white, fontSize: T.lead, fontWeight: 700, margin: 0 }}>{title}</h3>
+      <p style={{ color: C.muted, fontSize: T.body, lineHeight: 1.65, margin: 0 }}>{body}</p>
     </div>
   )
 }
@@ -67,20 +68,20 @@ export default function SecurityPage() {
               justifyContent: 'center',
             }}
           >
-            <Shield size={26} style={{ color: C.white }} />
+            <Shield size={24} style={{ color: C.white }} />
           </div>
           <div>
             <h1
               style={{
                 color: C.text,
-                fontSize: 'clamp(1.6rem,3.5vw,2.2rem)',
+                fontSize: T.h2,
                 fontWeight: 700,
                 margin: 0,
               }}
             >
               Security &amp; Privacy
             </h1>
-            <p style={{ color: C.muted, fontSize: '0.875rem', margin: '4px 0 0' }}>
+            <p style={{ color: C.muted, fontSize: T.body, margin: '4px 0 0' }}>
               How EasyAcco handles your financial data
             </p>
           </div>
@@ -96,7 +97,7 @@ export default function SecurityPage() {
             marginBottom: '2.5rem',
           }}
         >
-          <p style={{ color: C.text, fontSize: '1rem', lineHeight: 1.7, margin: 0 }}>
+          <p style={{ color: C.text, fontSize: T.lead, lineHeight: 1.7, margin: 0 }}>
             <strong style={{ color: C.white }}>
               EasyAcco processes all tax calculations at the edge
             </strong>{' '}
@@ -158,13 +159,11 @@ export default function SecurityPage() {
           }}
         >
           <h2
-            style={{ color: C.white, fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem' }}
+            style={{ color: C.white, fontSize: T.title, fontWeight: 700, marginBottom: '0.75rem' }}
           >
             Your Device, Your Keys
           </h2>
-          <p
-            style={{ color: C.muted, fontSize: '0.85rem', lineHeight: 1.7, margin: '0 0 0.75rem' }}
-          >
+          <p style={{ color: C.muted, fontSize: T.body, lineHeight: 1.7, margin: '0 0 0.75rem' }}>
             Expenses, invoices, and mileage you enter are stored in your browser&apos;s IndexedDB,
             encrypted with an <strong style={{ color: C.text }}>AES-GCM 256</strong> device key
             generated on first use. The key is marked{' '}
@@ -172,7 +171,7 @@ export default function SecurityPage() {
             exported, not even by this app&apos;s own code. Xero, QuickBooks, FreeAgent, and Sage
             all require server round-trips; we don&apos;t.
           </p>
-          <p style={{ color: C.muted, fontSize: '0.85rem', lineHeight: 1.7, margin: 0 }}>
+          <p style={{ color: C.muted, fontSize: T.body, lineHeight: 1.7, margin: 0 }}>
             <strong style={{ color: C.text }}>The trade-off:</strong> clearing site data or
             switching browsers loses access to the key, and therefore the data. Use{' '}
             <Link href="/dashboard/settings#backup" style={{ color: C.white }}>
@@ -193,7 +192,7 @@ export default function SecurityPage() {
             marginBottom: '2rem',
           }}
         >
-          <h2 style={{ color: C.white, fontSize: '1.1rem', fontWeight: 700, marginBottom: '1rem' }}>
+          <h2 style={{ color: C.white, fontSize: T.title, fontWeight: 700, marginBottom: '1rem' }}>
             What We Store (Only After Sign-In)
           </h2>
           {[
@@ -211,12 +210,10 @@ export default function SecurityPage() {
                 gap: '1rem',
               }}
             >
-              <span style={{ color: C.text, fontSize: '0.875rem', fontWeight: 500, flexShrink: 0 }}>
+              <span style={{ color: C.text, fontSize: T.body, fontWeight: 500, flexShrink: 0 }}>
                 {field}
               </span>
-              <span style={{ color: C.muted, fontSize: '0.82rem', textAlign: 'right' }}>
-                {desc}
-              </span>
+              <span style={{ color: C.muted, fontSize: T.meta, textAlign: 'right' }}>{desc}</span>
             </div>
           ))}
         </div>
@@ -232,11 +229,11 @@ export default function SecurityPage() {
           }}
         >
           <h2
-            style={{ color: C.white, fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.75rem' }}
+            style={{ color: C.white, fontSize: T.title, fontWeight: 700, marginBottom: '0.75rem' }}
           >
             AI Features &amp; Third-Party Processing
           </h2>
-          <p style={{ color: C.muted, fontSize: '0.85rem', lineHeight: 1.7, margin: 0 }}>
+          <p style={{ color: C.muted, fontSize: T.body, lineHeight: 1.7, margin: 0 }}>
             The Tax Advisory chat and the optional{' '}
             <strong style={{ color: C.text }}>Suggest Category</strong> button on the Expenses page
             send the relevant text (your question, or the expense description and amount) to
@@ -250,7 +247,7 @@ export default function SecurityPage() {
         </div>
 
         {/* Contact */}
-        <p style={{ color: C.muted, fontSize: '0.82rem', lineHeight: 1.7 }}>
+        <p style={{ color: C.muted, fontSize: T.meta, lineHeight: 1.7 }}>
           Questions? Contact us at{' '}
           <a
             href="mailto:baradfiona14@gmail.com"

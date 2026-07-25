@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Section, SectionHeader, Button, ResultPane } from './HmrcComponents'
 import { monoFont, C } from './theme'
+import { T } from '@/styles/type'
 
 type Status =
   { connected: false } | { connected: true; scope: string; expiresAt: number; expiresInMs: number }
@@ -132,8 +133,8 @@ export function UserAuthSection() {
       {justConnected && (
         <div
           style={{
-            color: C.ok,
-            fontSize: '0.72rem',
+            color: C.green,
+            fontSize: T.caption,
             fontFamily: monoFont,
             marginBottom: '0.75rem',
           }}
@@ -168,7 +169,7 @@ export function UserAuthSection() {
         )}
       </div>
 
-      <div style={{ color: C.muted, fontSize: '0.72rem', fontFamily: monoFont }}>
+      <div style={{ color: C.muted, fontSize: T.caption, fontFamily: monoFont }}>
         {statusLoading && !status
           ? 'loading status…'
           : status?.connected

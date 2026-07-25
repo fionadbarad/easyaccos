@@ -15,6 +15,7 @@ import { fmtDecAbs as fmt } from '@/lib/formatters'
 import { TRANSACTIONS_SEED, type Transaction, type TxType } from '@/lib/transactions/seed'
 
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 type DateFilter = 'all' | 'today' | 'month' | 'custom'
 
 const inputStyle: React.CSSProperties = {
@@ -23,7 +24,7 @@ const inputStyle: React.CSSProperties = {
   borderRadius: '4px',
   padding: '9px 11px',
   color: C.white,
-  fontSize: '0.84rem',
+  fontSize: T.meta,
   outline: 'none',
   boxSizing: 'border-box',
   width: '100%',
@@ -34,7 +35,7 @@ const inputStyle: React.CSSProperties = {
 const labelStyle: React.CSSProperties = {
   display: 'block',
   color: C.muted,
-  fontSize: '0.62rem',
+  fontSize: T.micro,
   textTransform: 'uppercase',
   letterSpacing: '0.08em',
   marginBottom: '4px',
@@ -120,14 +121,14 @@ export default function TransactionsPage() {
     background: active ? 'rgba(244,245,248,0.07)' : 'transparent',
     color: active ? C.white : C.muted,
     cursor: 'pointer',
-    fontSize: '0.75rem',
+    fontSize: T.caption,
     fontWeight: active ? 500 : 400,
     minHeight: '32px',
     transition: 'all 0.1s',
   })
 
   return (
-    <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)', maxWidth: '960px' }}>
+    <div className="page-shell is-wide">
       {/* Header */}
       <div
         style={{
@@ -143,7 +144,7 @@ export default function TransactionsPage() {
           <div
             style={{
               color: C.muted,
-              fontSize: '0.62rem',
+              fontSize: T.micro,
               textTransform: 'uppercase',
               letterSpacing: '0.12em',
               marginBottom: '5px',
@@ -155,7 +156,7 @@ export default function TransactionsPage() {
           <h1
             style={{
               color: C.white,
-              fontSize: 'clamp(1.4rem,3vw,1.9rem)',
+              fontSize: T.h2,
               fontWeight: 600,
               letterSpacing: '-0.03em',
               margin: 0,
@@ -166,7 +167,7 @@ export default function TransactionsPage() {
           <p
             style={{
               color: C.muted,
-              fontSize: '0.78rem',
+              fontSize: T.caption,
               marginTop: '4px',
               fontFamily: 'var(--font-geist-mono), monospace',
             }}
@@ -185,7 +186,7 @@ export default function TransactionsPage() {
               alignItems: 'center',
               gap: '5px',
               color: C.muted,
-              fontSize: '0.68rem',
+              fontSize: T.micro,
               fontFamily: 'var(--font-geist-mono), monospace',
               padding: '6px 10px',
               border: `1px solid ${C.border}`,
@@ -194,11 +195,11 @@ export default function TransactionsPage() {
           >
             {isAuthenticated ? (
               <>
-                <Cloud size={11} style={{ color: '#4ADE80' }} /> synced
+                <Cloud size={12} style={{ color: '#4ADE80' }} /> synced
               </>
             ) : (
               <>
-                <CloudOff size={11} /> local only
+                <CloudOff size={12} /> local only
               </>
             )}
           </div>
@@ -213,7 +214,7 @@ export default function TransactionsPage() {
               border: 'none',
               borderRadius: '4px',
               padding: '8px 16px',
-              fontSize: '0.8rem',
+              fontSize: T.meta,
               fontWeight: 600,
               cursor: 'pointer',
               minHeight: '36px',
@@ -241,14 +242,14 @@ export default function TransactionsPage() {
             gap: '0.5rem',
           }}
         >
-          <span style={{ color: '#FBBF24', fontSize: '0.75rem' }}>
+          <span style={{ color: '#FBBF24', fontSize: T.caption }}>
             Data is saved in this browser only — sign in to sync across devices.
           </span>
           <a
             href="/auth/login"
             style={{
               color: '#FBBF24',
-              fontSize: '0.72rem',
+              fontSize: T.caption,
               fontWeight: 600,
               textDecoration: 'none',
               borderBottom: '1px solid rgba(251,191,36,0.4)',
@@ -285,7 +286,7 @@ export default function TransactionsPage() {
             <div
               style={{
                 color: C.muted,
-                fontSize: '0.62rem',
+                fontSize: T.micro,
                 textTransform: 'uppercase',
                 letterSpacing: '0.07em',
                 fontWeight: 600,
@@ -298,7 +299,7 @@ export default function TransactionsPage() {
               style={{
                 color: s.color,
                 fontWeight: 600,
-                fontSize: '1.05rem',
+                fontSize: T.lead,
                 fontFamily: 'var(--font-geist-mono), monospace',
                 fontVariantNumeric: 'tabular-nums',
               }}
@@ -391,7 +392,7 @@ export default function TransactionsPage() {
                 padding: '9px',
                 fontWeight: 600,
                 cursor: 'pointer',
-                fontSize: '0.8rem',
+                fontSize: T.meta,
                 minHeight: '40px',
                 letterSpacing: '-0.01em',
               }}
@@ -408,7 +409,7 @@ export default function TransactionsPage() {
                 borderRadius: '4px',
                 padding: '9px 12px',
                 cursor: 'pointer',
-                fontSize: '0.8rem',
+                fontSize: T.meta,
                 minHeight: '40px',
               }}
             >
@@ -474,7 +475,7 @@ export default function TransactionsPage() {
           <span
             style={{
               color: C.muted,
-              fontSize: '0.72rem',
+              fontSize: T.caption,
               fontFamily: 'var(--font-geist-mono), monospace',
               paddingBottom: '9px',
             }}
@@ -494,14 +495,12 @@ export default function TransactionsPage() {
         }}
       >
         {visible.length === 0 ? (
-          <div
-            style={{ padding: '3rem', textAlign: 'center', color: C.muted, fontSize: '0.84rem' }}
-          >
+          <div style={{ padding: '3rem', textAlign: 'center', color: C.muted, fontSize: T.meta }}>
             No entries for this period.
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: T.meta }}>
               <thead>
                 <tr style={{ borderBottom: `1px solid ${C.border}` }}>
                   {['', 'Date', 'Description', 'Reference', 'Amount', ''].map((h, i) => (
@@ -512,7 +511,7 @@ export default function TransactionsPage() {
                         textAlign: h === 'Amount' ? 'right' : 'left',
                         color: C.muted,
                         fontWeight: 600,
-                        fontSize: '0.62rem',
+                        fontSize: T.micro,
                         textTransform: 'uppercase',
                         letterSpacing: '0.07em',
                         whiteSpace: 'nowrap',
@@ -545,7 +544,7 @@ export default function TransactionsPage() {
                         color: C.muted,
                         whiteSpace: 'nowrap',
                         fontFamily: 'var(--font-geist-mono), monospace',
-                        fontSize: '0.75rem',
+                        fontSize: T.caption,
                       }}
                     >
                       {tx.date}
@@ -555,7 +554,7 @@ export default function TransactionsPage() {
                       style={{
                         padding: '9px 13px',
                         color: C.muted,
-                        fontSize: '0.72rem',
+                        fontSize: T.caption,
                         fontFamily: 'var(--font-geist-mono), monospace',
                       }}
                     >
@@ -595,7 +594,7 @@ export default function TransactionsPage() {
                             'rgba(248,113,113,0.35)')
                         }
                       >
-                        <Trash2 size={13} strokeWidth={1.5} />
+                        <Trash2 size={12} strokeWidth={1.5} />
                       </button>
                     </td>
                   </tr>
@@ -609,7 +608,7 @@ export default function TransactionsPage() {
       <p
         style={{
           color: C.muted,
-          fontSize: '0.62rem',
+          fontSize: T.micro,
           textAlign: 'right',
           marginTop: '0.75rem',
           fontFamily: 'var(--font-geist-mono), monospace',

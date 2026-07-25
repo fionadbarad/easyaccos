@@ -17,6 +17,7 @@ import type { S3Input, S4Input } from '@/lib/tax-scenarios'
 import { cardStyle, selectStyle, fmt } from './tokens'
 import { Field, NumInput, Toggle } from './primitives'
 import { SCENARIOS, type ScenarioKey, isFullEngineScenario } from './scenarios'
+import { T } from '@/styles/type'
 
 export interface ScenarioFormProps {
   scenario: ScenarioKey
@@ -68,7 +69,7 @@ export default function ScenarioForm(p: ScenarioFormProps) {
           style={{ ...cardStyle, marginBottom: '1.5rem' }}
         >
           <h3
-            style={{ color: C.text, fontSize: '1.1rem', fontWeight: 700, marginBottom: '1.25rem' }}
+            style={{ color: C.text, fontSize: T.title, fontWeight: 700, marginBottom: '1.25rem' }}
           >
             {meta?.icon} {meta?.label} Details
           </h3>
@@ -88,8 +89,8 @@ export default function ScenarioForm(p: ScenarioFormProps) {
                 <Field
                   label="Gross Pension Contribution (£)"
                   hint={
-                    <p style={{ color: C.blue, fontSize: '0.71rem' }}>
-                      <Info size={11} style={{ display: 'inline', marginRight: '3px' }} />
+                    <p style={{ color: C.blue, fontSize: T.micro }}>
+                      <Info size={12} style={{ display: 'inline', marginRight: '3px' }} />
                       Gross (incl. 20% top-up). You pay 80%; higher-rate relief widens your band
                     </p>
                   }
@@ -129,7 +130,7 @@ export default function ScenarioForm(p: ScenarioFormProps) {
                     <p
                       style={{
                         color: p.dirSalary === 12_570 ? C.green : C.blue,
-                        fontSize: '0.71rem',
+                        fontSize: T.micro,
                       }}
                     >
                       {p.dirSalary === 12_570
@@ -158,7 +159,7 @@ export default function ScenarioForm(p: ScenarioFormProps) {
                 <Field
                   label="Universal Credit / month (£)"
                   hint={
-                    <p style={{ color: C.green, fontSize: '0.71rem' }}>
+                    <p style={{ color: C.green, fontSize: T.micro }}>
                       ✓ Tax-free — won&apos;t affect allowance
                     </p>
                   }
@@ -209,16 +210,14 @@ export default function ScenarioForm(p: ScenarioFormProps) {
                     }
                     style={{ width: '100%', accentColor: C.white, minHeight: '44px' }}
                   />
-                  <div style={{ color: C.white, fontSize: '0.85rem', textAlign: 'center' }}>
+                  <div style={{ color: C.white, fontSize: T.body, textAlign: 'center' }}>
                     {p.s4.monthsWorked} months
                   </div>
                 </Field>
                 <Field
                   label="Total Redundancy Payment (£)"
                   hint={
-                    <p style={{ color: C.green, fontSize: '0.71rem' }}>
-                      ✓ First £30,000 is tax-free
-                    </p>
+                    <p style={{ color: C.green, fontSize: T.micro }}>✓ First £30,000 is tax-free</p>
                   }
                 >
                   <NumInput
@@ -240,7 +239,7 @@ export default function ScenarioForm(p: ScenarioFormProps) {
 
       {fullEngine && (
         <div style={{ ...cardStyle, marginBottom: '1.5rem' }}>
-          <h3 style={{ color: C.text, fontSize: '1rem', fontWeight: 700, marginBottom: '1rem' }}>
+          <h3 style={{ color: C.text, fontSize: T.lead, fontWeight: 700, marginBottom: '1rem' }}>
             Additional Options
           </h3>
           <div

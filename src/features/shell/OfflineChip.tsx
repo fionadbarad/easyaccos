@@ -7,6 +7,7 @@
 import { useEffect, useState } from 'react'
 import { WifiOff } from 'lucide-react'
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 
 export default function OfflineChip() {
   const [offline, setOffline] = useState(false)
@@ -45,7 +46,7 @@ export default function OfflineChip() {
       }}
     >
       <WifiOff size={14} style={{ color: C.white }} />
-      <span style={{ color: C.text, fontSize: '0.78rem', fontWeight: 500 }}>
+      <span style={{ color: C.text, fontSize: T.caption, fontWeight: 500 }}>
         Offline — changes save locally and sync when you reconnect
       </span>
     </div>

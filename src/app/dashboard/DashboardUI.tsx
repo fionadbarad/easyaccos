@@ -23,6 +23,7 @@ import type { TaxResult } from '@/lib/tax-engine'
 type DashboardUIProps = { displayName: string }
 
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 // ── MTD 2026/27 Quarterly Calendar ────────────────────────────────────────
 const MTD_QUARTERS = [
   { label: 'Q1', period: '6 Apr – 5 Jul 2026', deadline: '2026-08-07', display: '7 Aug 2026' },
@@ -66,7 +67,7 @@ function MTDCalendar() {
           <div
             style={{
               color: C.white,
-              fontSize: '0.85rem',
+              fontSize: T.body,
               fontWeight: 600,
               letterSpacing: '-0.01em',
             }}
@@ -76,7 +77,7 @@ function MTDCalendar() {
           <div
             style={{
               color: C.muted,
-              fontSize: '0.7rem',
+              fontSize: T.micro,
               marginTop: '2px',
               fontFamily: 'var(--font-geist-mono), monospace',
             }}
@@ -88,7 +89,7 @@ function MTDCalendar() {
           style={{
             background: C.gray,
             color: C.white,
-            fontSize: '0.6rem',
+            fontSize: T.micro,
             fontWeight: 600,
             padding: '3px 8px',
             borderRadius: '3px',
@@ -119,7 +120,7 @@ function MTDCalendar() {
                 <span
                   style={{
                     color,
-                    fontSize: '0.6rem',
+                    fontSize: T.micro,
                     fontWeight: 700,
                     letterSpacing: '0.08em',
                     fontFamily: 'var(--font-geist-mono), monospace',
@@ -132,14 +133,14 @@ function MTDCalendar() {
               <div
                 style={{
                   color: status === 'past' ? C.muted : C.white,
-                  fontSize: '0.72rem',
+                  fontSize: T.caption,
                   fontWeight: 500,
                   marginBottom: '3px',
                 }}
               >
                 {q.display}
               </div>
-              <div style={{ color: C.muted, fontSize: '0.65rem', lineHeight: 1.4 }}>{q.period}</div>
+              <div style={{ color: C.muted, fontSize: T.micro, lineHeight: 1.4 }}>{q.period}</div>
             </div>
           )
         })}
@@ -207,7 +208,7 @@ function QuickEstimator() {
     borderRadius: '4px',
     padding: '9px 11px',
     color: C.white,
-    fontSize: '0.84rem',
+    fontSize: T.meta,
     outline: 'none',
     fontFamily: 'var(--font-geist-mono), monospace',
     fontVariantNumeric: 'tabular-nums',
@@ -226,7 +227,7 @@ function QuickEstimator() {
       <div
         style={{
           color: C.white,
-          fontSize: '0.85rem',
+          fontSize: T.body,
           fontWeight: 600,
           letterSpacing: '-0.01em',
           marginBottom: '1rem',
@@ -246,7 +247,7 @@ function QuickEstimator() {
           <span
             style={{
               color: C.muted,
-              fontSize: '0.65rem',
+              fontSize: T.micro,
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
               fontWeight: 600,
@@ -267,7 +268,7 @@ function QuickEstimator() {
           <span
             style={{
               color: C.muted,
-              fontSize: '0.65rem',
+              fontSize: T.micro,
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
               fontWeight: 600,
@@ -296,20 +297,20 @@ function QuickEstimator() {
             padding: '8px 18px',
             cursor: 'pointer',
             fontWeight: 600,
-            fontSize: '0.8rem',
+            fontSize: T.meta,
             letterSpacing: '-0.01em',
           }}
         >
           Calculate
         </button>
-        {error && <span style={{ color: C.red, fontSize: '0.78rem' }}>{error}</span>}
+        {error && <span style={{ color: C.red, fontSize: T.caption }}>{error}</span>}
         {display && !error && (
           <div
             style={{
               display: 'flex',
               gap: '1.5rem',
               fontFamily: 'var(--font-geist-mono), monospace',
-              fontSize: '0.78rem',
+              fontSize: T.caption,
             }}
           >
             <span style={{ color: C.muted }}>
@@ -382,7 +383,7 @@ export default function DashboardUI({ displayName }: DashboardUIProps) {
         <div
           style={{
             color: C.muted,
-            fontSize: '0.62rem',
+            fontSize: T.micro,
             textTransform: 'uppercase',
             letterSpacing: '0.12em',
             marginBottom: '5px',
@@ -394,7 +395,7 @@ export default function DashboardUI({ displayName }: DashboardUIProps) {
         <h1
           style={{
             color: C.white,
-            fontSize: 'clamp(1.4rem, 3vw, 1.9rem)',
+            fontSize: T.h2,
             fontWeight: 600,
             letterSpacing: '-0.03em',
             margin: 0,
@@ -402,7 +403,7 @@ export default function DashboardUI({ displayName }: DashboardUIProps) {
         >
           {displayName}
         </h1>
-        <p style={{ color: C.muted, fontSize: '0.84rem', marginTop: '5px' }}>
+        <p style={{ color: C.muted, fontSize: T.meta, marginTop: '5px' }}>
           2026/27 fiscal year · {daysUntilYearEnd()} days remaining
         </p>
       </div>
@@ -415,7 +416,7 @@ export default function DashboardUI({ displayName }: DashboardUIProps) {
         <div
           style={{
             color: C.muted,
-            fontSize: '0.62rem',
+            fontSize: T.micro,
             textTransform: 'uppercase',
             letterSpacing: '0.12em',
             marginBottom: '0.75rem',
@@ -441,7 +442,7 @@ export default function DashboardUI({ displayName }: DashboardUIProps) {
       <p
         style={{
           color: C.muted,
-          fontSize: '0.65rem',
+          fontSize: T.micro,
           marginTop: '2rem',
           fontFamily: 'var(--font-geist-mono), monospace',
         }}

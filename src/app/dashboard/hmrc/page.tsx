@@ -5,6 +5,7 @@ import { UserAuthSection } from './UserAuthSection'
 import { MtdItSubmitSection } from './MtdItSubmitSection'
 import { Section, SectionHeader, Button, ResultPane } from './HmrcComponents'
 import { monoFont, C } from './theme'
+import { T } from '@/styles/type'
 
 function MtdVatSubmitSection() {
   // VAT section logic would go here, similar to MtdItSubmitSection
@@ -15,7 +16,7 @@ function MtdVatSubmitSection() {
         title="POST VAT return for period"
         sub="VAT submission logic simplified for brevity in this refactor."
       />
-      <div style={{ color: C.muted, fontSize: '0.8rem' }}>
+      <div style={{ color: C.muted, fontSize: T.meta }}>
         VAT submission module pending final extraction.
       </div>
     </Section>
@@ -69,12 +70,12 @@ function AppAuthSection() {
 
 export default function HmrcPage() {
   return (
-    <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)' }}>
+    <div className="page-shell">
       <div style={{ maxWidth: '820px', marginBottom: '1.5rem' }}>
         <div
           style={{
             color: C.muted,
-            fontSize: '0.62rem',
+            fontSize: T.micro,
             textTransform: 'uppercase',
             letterSpacing: '0.12em',
             marginBottom: '6px',
@@ -86,7 +87,7 @@ export default function HmrcPage() {
         <h1
           style={{
             color: C.white,
-            fontSize: 'clamp(1.4rem,3vw,1.9rem)',
+            fontSize: T.h2,
             fontWeight: 600,
             letterSpacing: '-0.03em',
           }}

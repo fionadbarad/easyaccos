@@ -1,10 +1,11 @@
 'use client'
 
-import { type ReactNode, useEffect, useRef, useState, useCallback } from 'react'
+import { type ReactNode, useEffect, useRef, useState } from 'react'
 
 // Lightweight fade-in wrapper using IntersectionObserver + CSS transitions.
 // Avoids importing framer-motion on the landing page's initial JS bundle.
-// The content renders immediately on SSR; animations are applied post-hydration.
+// Falls back to visible when IntersectionObserver is unavailable, so the copy
+// is never left stuck at opacity 0.
 
 interface AnimatedWrapperProps {
   children: ReactNode
@@ -18,6 +19,10 @@ export default function AnimatedWrapper({ children, delay = 0 }: AnimatedWrapper
   useEffect(() => {
     const el = ref.current
     if (!el) return
+    if (typeof IntersectionObserver === 'undefined') {
+      const id = setTimeout(() => setIsVisible(true), 0)
+      return () => clearTimeout(id)
+    }
 
     // Use IntersectionObserver for whileInView behaviour
     const observer = new IntersectionObserver(
@@ -38,6 +43,9 @@ export default function AnimatedWrapper({ children, delay = 0 }: AnimatedWrapper
   return (
     <div
       ref={ref}
+      // w-full so the wrapper fills its flex/grid parent — without it the
+      // `mx-auto` on the content inside has no room to centre in.
+      className="w-full"
       style={{
         opacity: isVisible ? 1 : 0,
         transform: isVisible ? 'translateY(0)' : 'translateY(28px)',

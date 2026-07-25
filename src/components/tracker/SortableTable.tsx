@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { ArrowDown, ArrowUp, ChevronsUpDown } from 'lucide-react'
 
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 export type ColumnDef<T> = {
   key: string
   header: string
@@ -64,7 +65,7 @@ export function SortableTable<T extends { id: string }>({
           padding: '3rem',
           textAlign: 'center',
           color: C.muted,
-          fontSize: '0.85rem',
+          fontSize: T.body,
         }}
       >
         {empty ?? 'No results.'}
@@ -82,7 +83,7 @@ export function SortableTable<T extends { id: string }>({
       }}
     >
       <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: T.meta }}>
           <thead>
             <tr style={{ borderBottom: `1px solid ${C.border}` }}>
               {columns.map((col) => {
@@ -103,7 +104,7 @@ export function SortableTable<T extends { id: string }>({
                       textAlign: col.align ?? 'left',
                       color: active ? C.white : C.muted,
                       fontWeight: 600,
-                      fontSize: '0.62rem',
+                      fontSize: T.micro,
                       textTransform: 'uppercase',
                       letterSpacing: '0.07em',
                       whiteSpace: 'nowrap',
@@ -121,7 +122,7 @@ export function SortableTable<T extends { id: string }>({
                       }}
                     >
                       {col.header}
-                      {Icon && <Icon size={10} style={{ color: active ? C.white : C.dim }} />}
+                      {Icon && <Icon size={12} style={{ color: active ? C.white : C.dim }} />}
                     </span>
                   </th>
                 )

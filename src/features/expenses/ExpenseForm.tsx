@@ -5,13 +5,14 @@ import type { ExpenseFormState } from '@/lib/hooks/useExpenses'
 import { CATEGORIES } from '@/lib/hooks/useExpenses'
 
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 const inputS: React.CSSProperties = {
   background: C.gray,
   border: `1px solid ${C.border}`,
   borderRadius: '4px',
   padding: '9px 11px',
   color: C.white,
-  fontSize: '0.84rem',
+  fontSize: T.meta,
   outline: 'none',
   boxSizing: 'border-box',
   width: '100%',
@@ -21,7 +22,7 @@ const inputS: React.CSSProperties = {
 const labelS: React.CSSProperties = {
   display: 'block',
   color: C.muted,
-  fontSize: '0.62rem',
+  fontSize: T.micro,
   textTransform: 'uppercase',
   letterSpacing: '0.08em',
   marginBottom: '4px',
@@ -92,7 +93,7 @@ export function ExpenseForm({
               color: suggesting ? C.muted : C.white,
               borderRadius: 3,
               padding: '1px 6px',
-              fontSize: '0.58rem',
+              fontSize: T.micro,
               cursor: form.description.trim() && !suggesting ? 'pointer' : 'default',
               display: 'inline-flex',
               alignItems: 'center',
@@ -101,9 +102,9 @@ export function ExpenseForm({
             }}
           >
             {suggesting ? (
-              <Loader2 size={9} style={{ animation: 'spin 1s linear infinite' }} />
+              <Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} />
             ) : (
-              <Sparkles size={9} />
+              <Sparkles size={12} />
             )}
             {suggesting ? 'thinking' : 'suggest'}
           </button>
@@ -145,7 +146,7 @@ export function ExpenseForm({
             padding: '9px',
             fontWeight: 600,
             cursor: 'pointer',
-            fontSize: '0.8rem',
+            fontSize: T.meta,
             minHeight: '40px',
             letterSpacing: '-0.01em',
           }}
@@ -162,7 +163,7 @@ export function ExpenseForm({
             borderRadius: '4px',
             padding: '9px 12px',
             cursor: 'pointer',
-            fontSize: '0.8rem',
+            fontSize: T.meta,
             minHeight: '40px',
           }}
         >

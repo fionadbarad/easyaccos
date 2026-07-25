@@ -5,6 +5,7 @@ import cards from '@/content/learning-cards.json'
 import { ChevronLeft, ChevronRight, BookOpen, X } from 'lucide-react'
 
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 const CATEGORIES = ['All', ...Array.from(new Set((cards as Card[]).map((c) => c.category)))]
 
 interface Card {
@@ -42,18 +43,18 @@ export default function LearnPage() {
   }
 
   return (
-    <div style={{ padding: 'clamp(1.5rem,4vw,2.5rem)', maxWidth: '760px' }}>
+    <div className="page-shell is-narrow">
       <h1
         style={{
           color: C.text,
-          fontSize: 'clamp(1.5rem,3vw,2rem)',
+          fontSize: T.h2,
           fontWeight: 700,
           marginBottom: '0.3rem',
         }}
       >
         Learn
       </h1>
-      <p style={{ color: C.muted, fontSize: '0.875rem', marginBottom: '2rem' }}>
+      <p style={{ color: C.muted, fontSize: T.body, marginBottom: '2rem' }}>
         UK tax literacy cards · {filtered.length} cards · Tap a card to reveal the deep dive
       </p>
 
@@ -70,7 +71,7 @@ export default function LearnPage() {
               background: category === cat ? 'rgba(244,245,248,0.08)' : 'transparent',
               color: category === cat ? C.white : C.muted,
               cursor: 'pointer',
-              fontSize: '0.8rem',
+              fontSize: T.meta,
               fontWeight: 600,
               transition: 'all 0.15s',
             }}
@@ -85,10 +86,10 @@ export default function LearnPage() {
           {/* Progress bar */}
           <div style={{ marginBottom: '1.25rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-              <span style={{ color: C.muted, fontSize: '0.78rem' }}>
+              <span style={{ color: C.muted, fontSize: T.caption }}>
                 {idx + 1} of {filtered.length}
               </span>
-              <span style={{ color: C.muted, fontSize: '0.78rem' }}>{Math.round(progress)}%</span>
+              <span style={{ color: C.muted, fontSize: T.caption }}>{Math.round(progress)}%</span>
             </div>
             <div
               style={{
@@ -138,7 +139,7 @@ export default function LearnPage() {
                     border: `1px solid ${C.border}`,
                     borderRadius: '999px',
                     color: C.muted,
-                    fontSize: '0.7rem',
+                    fontSize: T.micro,
                     letterSpacing: '0.08em',
                   }}
                 >
@@ -148,7 +149,7 @@ export default function LearnPage() {
               <h2
                 style={{
                   color: C.text,
-                  fontSize: '1.35rem',
+                  fontSize: T.heading,
                   fontWeight: 700,
                   marginBottom: '1rem',
                 }}
@@ -158,7 +159,7 @@ export default function LearnPage() {
               <p
                 style={{
                   color: flipped ? C.muted : C.text,
-                  fontSize: '0.9rem',
+                  fontSize: T.body,
                   lineHeight: 1.7,
                   transition: 'color 0.2s',
                 }}
@@ -174,7 +175,7 @@ export default function LearnPage() {
                 marginTop: '1.5rem',
               }}
             >
-              <span style={{ color: C.muted, fontSize: '0.72rem' }}>
+              <span style={{ color: C.muted, fontSize: T.caption }}>
                 {flipped ? 'Tap to see summary' : 'Tap for deep dive →'}
               </span>
               <button
@@ -190,11 +191,11 @@ export default function LearnPage() {
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
-                  fontSize: '0.78rem',
+                  fontSize: T.caption,
                   fontWeight: 500,
                 }}
               >
-                <BookOpen size={13} /> Full Article
+                <BookOpen size={12} /> Full Article
               </button>
             </div>
           </div>
@@ -214,7 +215,7 @@ export default function LearnPage() {
                 borderRadius: '5px',
                 color: idx === 0 ? C.muted : C.white,
                 cursor: idx === 0 ? 'default' : 'pointer',
-                fontSize: '0.875rem',
+                fontSize: T.body,
                 fontWeight: 600,
               }}
             >
@@ -233,7 +234,7 @@ export default function LearnPage() {
                 borderRadius: '5px',
                 color: idx === filtered.length - 1 ? C.muted : '#181818',
                 cursor: idx === filtered.length - 1 ? 'default' : 'pointer',
-                fontSize: '0.875rem',
+                fontSize: T.body,
                 fontWeight: 700,
               }}
             >
@@ -299,7 +300,7 @@ export default function LearnPage() {
                   border: `1px solid ${C.border}`,
                   borderRadius: '999px',
                   color: C.muted,
-                  fontSize: '0.7rem',
+                  fontSize: T.micro,
                 }}
               >
                 {expanded.category}
@@ -315,15 +316,15 @@ export default function LearnPage() {
                   display: 'flex',
                 }}
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
             <h2
-              style={{ color: C.text, fontSize: '1.4rem', fontWeight: 700, marginBottom: '1rem' }}
+              style={{ color: C.text, fontSize: T.heading, fontWeight: 700, marginBottom: '1rem' }}
             >
               {expanded.title}
             </h2>
-            <p style={{ color: C.muted, fontSize: '0.9rem', lineHeight: 1.75 }}>
+            <p style={{ color: C.muted, fontSize: T.body, lineHeight: 1.75 }}>
               {expanded.deepDive}
             </p>
           </div>

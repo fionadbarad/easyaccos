@@ -7,6 +7,7 @@ import { InvoiceRow } from '@/features/invoices/InvoiceRow'
 import { InvoiceForm } from '@/features/invoices/InvoiceForm'
 
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 function StatCard({
   label,
   value,
@@ -30,7 +31,7 @@ function StatCard({
       <div
         style={{
           color: C.dim,
-          fontSize: '0.58rem',
+          fontSize: T.micro,
           textTransform: 'uppercase',
           letterSpacing: '0.09em',
           fontWeight: 600,
@@ -43,7 +44,7 @@ function StatCard({
       <div
         style={{
           color,
-          fontSize: '1.35rem',
+          fontSize: T.heading,
           fontWeight: 600,
           letterSpacing: '-0.03em',
           fontVariantNumeric: 'tabular-nums',
@@ -52,7 +53,7 @@ function StatCard({
       >
         {value}
       </div>
-      {sub && <div style={{ color: C.dim, fontSize: '0.65rem', marginTop: '4px' }}>{sub}</div>}
+      {sub && <div style={{ color: C.dim, fontSize: T.micro, marginTop: '4px' }}>{sub}</div>}
     </div>
   )
 }
@@ -85,7 +86,7 @@ export default function InvoicesPage() {
   } = useInvoices()
 
   return (
-    <div style={{ padding: 'clamp(1.5rem, 4vw, 2.5rem)', maxWidth: '960px' }}>
+    <div className="page-shell is-wide">
       <div
         style={{
           display: 'flex',
@@ -100,7 +101,7 @@ export default function InvoicesPage() {
           <div
             style={{
               color: C.dim,
-              fontSize: '0.6rem',
+              fontSize: T.micro,
               textTransform: 'uppercase',
               letterSpacing: '0.12em',
               marginBottom: '5px',
@@ -112,7 +113,7 @@ export default function InvoicesPage() {
           <h1
             style={{
               color: C.white,
-              fontSize: 'clamp(1.4rem, 3vw, 1.9rem)',
+              fontSize: T.h2,
               fontWeight: 600,
               letterSpacing: '-0.03em',
               margin: '0 0 4px',
@@ -123,7 +124,7 @@ export default function InvoicesPage() {
           <p
             style={{
               color: C.muted,
-              fontSize: '0.78rem',
+              fontSize: T.caption,
               margin: 0,
               maxWidth: '40ch',
               lineHeight: 1.5,
@@ -139,7 +140,7 @@ export default function InvoicesPage() {
               alignItems: 'center',
               gap: '5px',
               color: C.muted,
-              fontSize: '0.68rem',
+              fontSize: T.micro,
               fontFamily: 'var(--font-geist-mono), monospace',
               padding: '6px 10px',
               border: `1px solid ${C.border}`,
@@ -148,11 +149,11 @@ export default function InvoicesPage() {
           >
             {isAuthenticated ? (
               <>
-                <Cloud size={11} style={{ color: C.green }} /> synced
+                <Cloud size={12} style={{ color: C.green }} /> synced
               </>
             ) : (
               <>
-                <CloudOff size={11} /> local only
+                <CloudOff size={12} /> local only
               </>
             )}
           </div>
@@ -167,7 +168,7 @@ export default function InvoicesPage() {
               border: 'none',
               borderRadius: '4px',
               padding: '8px 16px',
-              fontSize: '0.8rem',
+              fontSize: T.meta,
               fontWeight: 600,
               cursor: 'pointer',
               letterSpacing: '-0.01em',
@@ -232,8 +233,8 @@ export default function InvoicesPage() {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <AlertTriangle size={13} style={{ color: C.red, flexShrink: 0 }} />
-              <span style={{ color: C.red, fontSize: '0.78rem' }}>
+              <AlertTriangle size={12} style={{ color: C.red, flexShrink: 0 }} />
+              <span style={{ color: C.red, fontSize: T.caption }}>
                 <strong>{stats.overdueCount}</strong> overdue invoice
                 {stats.overdueCount !== 1 ? 's' : ''} · {fmt(stats.overdue)} outstanding. Click an
                 invoice to copy a chase email.
@@ -266,7 +267,7 @@ export default function InvoicesPage() {
               border: `1px solid ${filter === key ? 'rgba(244,245,248,0.2)' : C.border}`,
               background: filter === key ? 'rgba(244,245,248,0.07)' : 'transparent',
               color: filter === key ? C.white : C.muted,
-              fontSize: '0.75rem',
+              fontSize: T.caption,
               cursor: 'pointer',
               fontWeight: filter === key ? 500 : 400,
               transition: 'all 0.1s',
@@ -286,7 +287,7 @@ export default function InvoicesPage() {
             padding: '3rem',
             textAlign: 'center',
             color: C.muted,
-            fontSize: '0.84rem',
+            fontSize: T.meta,
           }}
         >
           Loading…
@@ -301,14 +302,14 @@ export default function InvoicesPage() {
             textAlign: 'center',
           }}
         >
-          <div style={{ color: C.muted, fontSize: '0.84rem', marginBottom: '6px' }}>
+          <div style={{ color: C.muted, fontSize: T.meta, marginBottom: '6px' }}>
             {invoices.length === 0 ? 'No invoices yet.' : 'No invoices match this filter.'}
           </div>
           {invoices.length === 0 && (
             <div
               style={{
                 color: C.dim,
-                fontSize: '0.72rem',
+                fontSize: T.caption,
                 fontFamily: 'var(--font-geist-mono), monospace',
               }}
             >

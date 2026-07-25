@@ -12,6 +12,7 @@ import { calculateTax } from '@/lib/tax-engine'
 import type { EmploymentType, StudentLoanPlan, TaxRegion } from '@/lib/tax-engine'
 import { fmt } from './shared'
 import { Label, Select, Row, inputStyle } from './controls'
+import { T } from '@/styles/type'
 
 export default function TaxPotCalculator() {
   const [income, setIncome] = useState('')
@@ -66,7 +67,7 @@ export default function TaxPotCalculator() {
           <span
             style={{
               color: C.white,
-              fontSize: '0.9rem',
+              fontSize: T.body,
               fontWeight: 600,
               letterSpacing: '-0.02em',
             }}
@@ -74,7 +75,7 @@ export default function TaxPotCalculator() {
             Tax Pot Calculator
           </span>
         </div>
-        <div style={{ color: C.muted, fontSize: '0.72rem' }}>
+        <div style={{ color: C.muted, fontSize: T.caption }}>
           How much to set aside from this month&apos;s earnings
         </div>
       </div>
@@ -130,7 +131,7 @@ export default function TaxPotCalculator() {
               alignItems: 'center',
               gap: '5px',
               color: C.dim,
-              fontSize: '0.72rem',
+              fontSize: T.caption,
               fontFamily: 'var(--font-geist-mono), monospace',
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
@@ -138,7 +139,7 @@ export default function TaxPotCalculator() {
             }}
           >
             <ChevronDown
-              size={11}
+              size={12}
               style={{
                 transform: showOptions ? 'rotate(180deg)' : 'none',
                 transition: 'transform 0.2s',
@@ -236,13 +237,13 @@ export default function TaxPotCalculator() {
                 }}
               >
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ color: C.dim, fontSize: '0.78rem' }}>
+                  <div style={{ color: C.dim, fontSize: T.caption }}>
                     Enter this month&apos;s income
                   </div>
                   <div
                     style={{
                       color: 'rgba(244,245,248,0.08)',
-                      fontSize: '0.65rem',
+                      fontSize: T.micro,
                       marginTop: '4px',
                       fontFamily: 'var(--font-geist-mono), monospace',
                     }}
@@ -270,7 +271,7 @@ export default function TaxPotCalculator() {
                   <div
                     style={{
                       color: C.dim,
-                      fontSize: '0.6rem',
+                      fontSize: T.micro,
                       textTransform: 'uppercase',
                       letterSpacing: '0.1em',
                       fontWeight: 600,
@@ -286,7 +287,7 @@ export default function TaxPotCalculator() {
                     animate={{ scale: 1 }}
                     style={{
                       color: monthlyPot > 0 ? C.amber : C.white,
-                      fontSize: '2.4rem',
+                      fontSize: T.display,
                       fontWeight: 600,
                       letterSpacing: '-0.04em',
                       lineHeight: 1,
@@ -295,7 +296,7 @@ export default function TaxPotCalculator() {
                   >
                     {fmt(monthlyPot)}
                   </motion.div>
-                  <div style={{ color: C.muted, fontSize: '0.7rem', marginTop: '6px' }}>
+                  <div style={{ color: C.muted, fontSize: T.micro, marginTop: '6px' }}>
                     {result?.effectiveTaxRate.toFixed(1)}% effective rate · {fmt(monthlyTakeHome)}
                     /mo take-home
                   </div>
@@ -339,13 +340,13 @@ export default function TaxPotCalculator() {
                       padding: '10px 0',
                     }}
                   >
-                    <span style={{ color: C.white, fontSize: '0.82rem', fontWeight: 600 }}>
+                    <span style={{ color: C.white, fontSize: T.meta, fontWeight: 600 }}>
                       Monthly pot total
                     </span>
                     <span
                       style={{
                         color: C.white,
-                        fontSize: '0.82rem',
+                        fontSize: T.meta,
                         fontWeight: 600,
                         fontFamily: 'var(--font-geist-mono), monospace',
                       }}
@@ -371,10 +372,10 @@ export default function TaxPotCalculator() {
                     }}
                   >
                     <AlertTriangle
-                      size={13}
+                      size={12}
                       style={{ color: C.amber, flexShrink: 0, marginTop: '1px' }}
                     />
-                    <div style={{ color: C.amber, fontSize: '0.75rem', lineHeight: 1.5 }}>
+                    <div style={{ color: C.amber, fontSize: T.caption, lineHeight: 1.5 }}>
                       <strong>60% trap detected.</strong> At this income level your Personal
                       Allowance tapers, creating ~60% effective marginal rate. A pension
                       contribution can eliminate this.

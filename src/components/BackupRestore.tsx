@@ -20,16 +20,15 @@ type Status =
   | { kind: 'error'; msg: string }
 
 const inputCls =
-  'w-full rounded bg-[var(--sa-gray)] border border-[var(--sa-border)] ' +
-  'text-sa-white text-sm px-3 py-2 outline-none focus:border-[rgba(244,245,248,0.18)]'
-const labelCls =
-  'block uppercase tracking-[0.07em] text-xs font-semibold ' + 'text-[var(--sa-muted)] mb-1.5'
+  'w-full rounded bg-sa-gray border border-sa-border ' +
+  'text-sa-white text-sm px-3 py-2 outline-none focus:border-sa-line'
+const labelCls = 'block uppercase tracking-[0.07em] text-xs font-semibold ' + 'text-sa-muted mb-1.5'
 const btnPrimary =
-  'inline-flex items-center gap-2 rounded bg-sa-white text-[#181818] ' +
+  'inline-flex items-center gap-2 rounded bg-sa-white text-sa-black ' +
   'font-bold text-sm px-5 py-2 transition-opacity hover:opacity-90 disabled:opacity-50'
 const btnGhost =
-  'inline-flex items-center gap-2 rounded border border-[var(--sa-border)] ' +
-  'bg-transparent text-sa-white font-bold text-sm px-5 py-2 hover:bg-[var(--sa-hover)]'
+  'inline-flex items-center gap-2 rounded border border-sa-border ' +
+  'bg-transparent text-sa-white font-bold text-sm px-5 py-2 hover:bg-sa-hover'
 
 export function BackupRestore() {
   const fileRef = useRef<HTMLInputElement | null>(null)
@@ -89,14 +88,14 @@ export function BackupRestore() {
 
   const statusColor =
     status.kind === 'ok'
-      ? 'text-[var(--sa-green)]'
+      ? 'text-sa-green'
       : status.kind === 'error'
-        ? 'text-[var(--sa-red)]'
-        : 'text-[var(--sa-muted)]'
+        ? 'text-sa-red'
+        : 'text-sa-muted'
 
   return (
     <div className="flex flex-col gap-6">
-      <p className="text-sm leading-relaxed text-[var(--sa-muted)]">
+      <p className="text-sm leading-relaxed text-sa-muted">
         Your local data is encrypted on this device. Use backup to move your data between devices or
         keep an off-device copy. An optional passphrase encrypts the backup file itself.
       </p>
@@ -114,12 +113,12 @@ export function BackupRestore() {
         />
         <div className="mt-2.5">
           <button onClick={onExport} className={btnPrimary}>
-            <Download size={15} /> Download backup
+            <Download size={14} /> Download backup
           </button>
         </div>
       </div>
 
-      <div className="border-t border-[var(--sa-border)]" />
+      <div className="border-t border-sa-border" />
 
       {/* ── Import ───────────────────────────────────────────────────── */}
       <div>
@@ -132,11 +131,11 @@ export function BackupRestore() {
           className="hidden"
         />
         <button onClick={() => fileRef.current?.click()} className={btnGhost}>
-          <Upload size={15} /> Choose file…
+          <Upload size={14} /> Choose file…
         </button>
 
         {pending && (
-          <div className="mt-3.5 flex flex-col gap-3 rounded-md border border-[var(--sa-border)] bg-[var(--sa-gray)] p-3.5">
+          <div className="mt-3.5 flex flex-col gap-3 rounded-md border border-sa-border bg-sa-gray p-3.5">
             <div className="text-sm text-sa-white">
               Backup from <strong>{new Date(pending.createdAt).toLocaleString('en-GB')}</strong>
               {' · '}
@@ -199,9 +198,9 @@ export function BackupRestore() {
       {/* ── Status line ──────────────────────────────────────────────── */}
       {status.kind !== 'idle' && (
         <div role="status" className={`inline-flex items-center gap-2 text-sm ${statusColor}`}>
-          {status.kind === 'working' && <Loader2 size={15} className="animate-spin" />}
-          {status.kind === 'ok' && <CheckCircle size={15} />}
-          {status.kind === 'error' && <AlertCircle size={15} />}
+          {status.kind === 'working' && <Loader2 size={14} className="animate-spin" />}
+          {status.kind === 'ok' && <CheckCircle size={14} />}
+          {status.kind === 'error' && <AlertCircle size={14} />}
           <span>{status.msg}</span>
         </div>
       )}

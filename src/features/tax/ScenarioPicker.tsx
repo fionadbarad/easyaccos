@@ -7,6 +7,7 @@ import { C } from '@/styles/palette'
 import type { TaxRegion } from '@/lib/tax-logic'
 import { cardStyle, toggleStyle } from './tokens'
 import { SCENARIOS, type ScenarioKey } from './scenarios'
+import { T } from '@/styles/type'
 
 export default function ScenarioPicker({
   scenario,
@@ -36,14 +37,14 @@ export default function ScenarioPicker({
           <span
             style={{
               color: C.muted,
-              fontSize: '0.78rem',
+              fontSize: T.caption,
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
             }}
           >
             Tax Jurisdiction
           </span>
-          <div style={{ color: C.muted, fontSize: '0.7rem', marginTop: '2px' }}>
+          <div style={{ color: C.muted, fontSize: T.micro, marginTop: '2px' }}>
             {taxRegion === 'scotland'
               ? 'Scottish rates: 19%–48% (6 bands)'
               : 'Rest of UK rates: 20% / 40% / 45%'}
@@ -86,9 +87,9 @@ export default function ScenarioPicker({
               minHeight: '44px',
             }}
           >
-            <div style={{ fontSize: '1.2rem', marginBottom: '2px' }}>{s.icon}</div>
-            <div style={{ fontSize: '0.78rem', fontWeight: 600 }}>{s.label}</div>
-            <div style={{ fontSize: '0.65rem', opacity: 0.7, marginTop: '1px' }}>{s.desc}</div>
+            <div style={{ fontSize: T.title, marginBottom: '2px' }}>{s.icon}</div>
+            <div style={{ fontSize: T.caption, fontWeight: 600 }}>{s.label}</div>
+            <div style={{ fontSize: T.micro, opacity: 0.7, marginTop: '1px' }}>{s.desc}</div>
           </button>
         ))}
       </div>

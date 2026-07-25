@@ -1,5 +1,92 @@
 @import 'tailwindcss';
 
+/* ── Theme ────────────────────────────────────────────────────────────────
+   Tailwind v4 reads its theme from this @theme block, not from a JS config
+   file (tailwind.config.js is only consulted via an explicit @config import).
+   Everything Tailwind needs to generate utilities lives here.
+   ------------------------------------------------------------------------ */
+@theme {
+  /* ── Colour ────────────────────────────────────────────────────────────
+     Surfaces stack black → surface → gray. Foreground steps down
+     white → muted → dim. Lines step up border → line → focus. Anything that
+     used to be a one-off `rgba(244,245,248,0.42)` style alpha now snaps to one
+     of these steps. */
+  --color-sa-deep: #121212; /* recessed chrome (sidebar) */
+  --color-sa-black: #181818;
+  --color-sa-surface: #1c1d20;
+  --color-sa-gray: #222326;
+
+  --color-sa-white: #f4f5f8;
+  --color-sa-muted: rgba(244, 245, 248, 0.55); /* secondary copy — WCAG AA on #181818 */
+  --color-sa-dim: rgba(244, 245, 248, 0.35); /* eyebrows, decorative labels */
+
+  --color-sa-border: rgba(244, 245, 248, 0.07); /* default hairline */
+  --color-sa-line: rgba(244, 245, 248, 0.18); /* emphasised divider */
+  --color-sa-focus: rgba(244, 245, 248, 0.3); /* focus / hover outline */
+
+  --color-sa-tint: rgba(244, 245, 248, 0.03); /* faint panel wash */
+  --color-sa-hover: rgba(244, 245, 248, 0.05); /* row hover, inset fills */
+  --color-sa-selected: rgba(244, 245, 248, 0.08); /* pressed / selected fills */
+
+  --color-sa-green: #4ade80;
+  --color-sa-red: #f87171;
+  --color-sa-amber: #fbbf24;
+  --color-sa-blue: #93c5fd;
+
+  /* Status washes — the background/border pair that goes with each status
+     colour, so callouts don't each invent their own alpha. */
+  --color-sa-green-tint: rgba(74, 222, 128, 0.08);
+  --color-sa-green-line: rgba(74, 222, 128, 0.25);
+  --color-sa-red-tint: rgba(248, 113, 113, 0.1);
+  --color-sa-red-line: rgba(248, 113, 113, 0.3);
+  --color-sa-amber-tint: rgba(251, 191, 36, 0.1);
+  --color-sa-amber-line: rgba(251, 191, 36, 0.3);
+  --color-sa-blue-tint: rgba(147, 197, 253, 0.08);
+  --color-sa-scrim: rgba(24, 24, 24, 0.9);
+
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), 'Geist Mono', 'Fira Code', monospace;
+
+  /* ── Type scale ────────────────────────────────────────────────────────
+     One scale for the whole app. Every font size in the codebase snaps to a
+     step here — no more one-off `text-[0.82rem]` values that differ by a
+     hundredth of a rem from the element next to them.
+
+     Utility          Size            Used for
+     text-micro       11px            uppercase mono eyebrows, tiny badges
+     text-caption     12px            captions, footnotes, table meta
+     text-meta        13px            secondary copy, helper text
+     text-body        14px            default UI text, buttons, inputs
+     text-lead        16px            intro paragraphs, card headings
+     text-title       18px            section titles
+     text-heading     22px            page headings, stat figures
+     text-display     28px            hero figures
+     text-h1/h2/h3    fluid           marketing headings
+     -------------------------------------------------------------------- */
+  --text-micro: 0.6875rem;
+  --text-micro--line-height: 1.45;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.5;
+  --text-meta: 0.8125rem;
+  --text-meta--line-height: 1.55;
+  --text-body: 0.875rem;
+  --text-body--line-height: 1.6;
+  --text-lead: 1rem;
+  --text-lead--line-height: 1.65;
+  --text-title: 1.125rem;
+  --text-title--line-height: 1.4;
+  --text-heading: 1.375rem;
+  --text-heading--line-height: 1.3;
+  --text-display: 1.75rem;
+  --text-display--line-height: 1.2;
+  --text-h3: clamp(1.15rem, 2.2vw, 1.375rem);
+  --text-h3--line-height: 1.3;
+  --text-h2: clamp(1.5rem, 3vw, 2rem);
+  --text-h2--line-height: 1.2;
+  --text-h1: clamp(2.4rem, 7vw, 5rem);
+  --text-h1--line-height: 1.05;
+}
+
 /* ── System Auditor Design System ── Quiet Luxury · Nordic Monochrome ───── */
 :root {
   --font-inter: 'Inter';
@@ -26,13 +113,14 @@
   --radius: 6px;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+/* NOTE: there is deliberately no `* { margin: 0; padding: 0 }` reset here.
+   Tailwind v4 emits its utilities inside `@layer utilities`, and *unlayered*
+   CSS in this file beats anything in a layer no matter how specific the
+   selector is. A universal reset here therefore silently cancelled every
+   p-*, m-*, gap-* and mx-auto class in the app — which is what made the
+   landing page and auth screens collapse against the left edge with no
+   padding. Tailwind's own Preflight already zeroes margin/padding and sets
+   box-sizing, and it does so inside a layer, so utilities still win. */
 
 html {
   -webkit-text-size-adjust: 100%;
@@ -108,7 +196,7 @@ pre,
   border-radius: var(--radius);
   padding: 0.65rem 1.15rem;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: var(--text-body);
   letter-spacing: -0.01em;
   cursor: pointer;
   transition: opacity 0.15s ease;
@@ -124,7 +212,7 @@ pre,
   border-radius: var(--radius);
   padding: 0.65rem 1.15rem;
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: var(--text-body);
   cursor: pointer;
   transition: border-color 0.15s ease;
 }
@@ -137,7 +225,7 @@ pre,
   border: none;
   color: var(--sa-muted);
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: var(--text-body);
   transition: color 0.15s ease;
 }
 .ui-btn-ghost:hover {
@@ -155,11 +243,11 @@ pre,
   margin: 0 0 0.5rem;
   color: var(--sa-white);
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: var(--text-lead);
 }
 .ui-card-body {
   color: var(--sa-muted);
-  font-size: 0.875rem;
+  font-size: var(--text-body);
 }
 
 /* ── Inputs ──────────────────────────────────────────────────────────── */
@@ -170,7 +258,7 @@ pre,
   color: var(--sa-white);
   padding: 0.65rem 0.85rem;
   border-radius: var(--radius);
-  font-size: 0.9rem;
+  font-size: var(--text-body);
   outline: none;
   transition: border-color 0.15s ease;
 }
@@ -182,9 +270,28 @@ pre,
 }
 
 /* ── Dashboard layout utilities ─────────────────────────────────────── */
-.dashboard-page {
+/* Every dashboard page is one centred content column. Before this there were
+   seven different max-widths (680/760/800/820/900/920/960px) and some pages
+   centred while others hugged the left edge — which is what made pages look
+   like they belonged to different apps. Three widths now cover everything. */
+.page-shell {
+  width: 100%;
   padding: clamp(1.5rem, 4vw, 2.5rem);
-  max-width: 920px;
+  margin-inline: auto;
+  max-width: 880px;
+}
+.page-shell.is-narrow {
+  max-width: 720px;
+}
+.page-shell.is-wide {
+  max-width: 1040px;
+}
+
+.dashboard-page {
+  width: 100%;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  margin-inline: auto;
+  max-width: 880px;
 }
 
 .dashboard-grid {
@@ -224,14 +331,14 @@ pre,
 .dashboard-title {
   color: var(--sa-white);
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: var(--text-body);
   letter-spacing: -0.01em;
   margin-bottom: 3px;
 }
 
 .dashboard-desc {
   color: var(--sa-muted);
-  font-size: 0.82rem;
+  font-size: var(--text-meta);
   line-height: 1.5;
 }
 
@@ -252,7 +359,7 @@ pre,
   border: 1px solid var(--sa-border);
   border-radius: 4px;
   color: var(--sa-muted);
-  font-size: 0.82rem;
+  font-size: var(--text-meta);
   cursor: pointer;
   text-align: left;
   transition:

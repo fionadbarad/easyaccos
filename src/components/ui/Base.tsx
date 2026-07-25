@@ -1,5 +1,6 @@
 import React from 'react'
 import { C } from '@/styles/palette'
+import { T } from '@/styles/type'
 
 export const StatCard = ({
   label,
@@ -23,7 +24,7 @@ export const StatCard = ({
     <div
       style={{
         color: C.muted,
-        fontSize: '0.72rem',
+        fontSize: T.caption,
         textTransform: 'uppercase',
         letterSpacing: '0.08em',
         marginBottom: '0.5rem',
@@ -31,8 +32,8 @@ export const StatCard = ({
     >
       {label}
     </div>
-    <div style={{ fontSize: '1.4rem', fontWeight: 700, color }}>{value}</div>
-    {sub && <div style={{ fontSize: '0.72rem', color: C.muted, marginTop: '4px' }}>{sub}</div>}
+    <div style={{ fontSize: T.heading, fontWeight: 700, color }}>{value}</div>
+    {sub && <div style={{ fontSize: T.caption, color: C.muted, marginTop: '4px' }}>{sub}</div>}
   </div>
 )
 
@@ -50,7 +51,7 @@ export const Badge = ({
       border: `1px solid ${active ? C.white : C.border}`,
       background: active ? C.white : 'transparent',
       color: active ? C.bg : C.muted,
-      fontSize: '0.72rem',
+      fontSize: T.caption,
       fontFamily: 'var(--font-geist-mono), monospace',
     }}
   >
@@ -67,7 +68,7 @@ export const LoadingSpinner = () => (
       padding: '3rem',
       textAlign: 'center',
       color: C.muted,
-      fontSize: '0.84rem',
+      fontSize: T.meta,
     }}
   >
     <div className="animate-pulse">Loading…</div>
@@ -85,7 +86,7 @@ export const Card = ({
 }) => (
   <div className="ui-card" style={{ ...style }}>
     {title && (
-      <h2 className="ui-card-title" style={{ fontSize: '1.05rem', marginBottom: '1rem' }}>
+      <h2 className="ui-card-title" style={{ fontSize: T.lead, marginBottom: '1rem' }}>
         {title}
       </h2>
     )}

@@ -9,6 +9,7 @@ import {
   HMRC_DEFAULT_ADMIN_COSTS,
 } from '@/lib/hmrc/constants'
 import { monoFont, C } from './theme'
+import { T } from '@/styles/type'
 
 // Placeholder functions that would be imported from a shared lib
 function getOrCreateUserId(): string {
@@ -80,7 +81,7 @@ function FraudHeaderList({ headers }: { headers: Record<string, string> }) {
       <summary
         style={{
           color: C.muted,
-          fontSize: '0.72rem',
+          fontSize: T.caption,
           fontFamily: monoFont,
           cursor: 'pointer',
           letterSpacing: '0.06em',
@@ -94,14 +95,14 @@ function FraudHeaderList({ headers }: { headers: Record<string, string> }) {
             key={k}
             style={{
               color: C.white,
-              fontSize: '0.7rem',
+              fontSize: T.micro,
               fontFamily: monoFont,
               padding: '2px 0',
               wordBreak: 'break-all',
               lineHeight: 1.45,
             }}
           >
-            <span style={{ color: C.ok }}>{k}</span>: {headers[k]}
+            <span style={{ color: C.green }}>{k}</span>: {headers[k]}
           </div>
         ))}
       </div>

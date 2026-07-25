@@ -2,12 +2,13 @@
 
 import React from 'react'
 import { monoFont, C } from './theme'
+import { T } from '@/styles/type'
 
 export function Section({ children }: { children: React.ReactNode }) {
   return (
     <div
       style={{
-        background: C.panel,
+        background: C.hover,
         border: `1px solid ${C.border}`,
         borderRadius: '4px',
         padding: '1rem',
@@ -34,7 +35,7 @@ export function SectionHeader({
       <div
         style={{
           color: C.muted,
-          fontSize: '0.6rem',
+          fontSize: T.micro,
           textTransform: 'uppercase',
           letterSpacing: '0.12em',
           marginBottom: '4px',
@@ -43,9 +44,9 @@ export function SectionHeader({
       >
         {kicker}
       </div>
-      <div style={{ color: C.white, fontSize: '0.95rem', fontWeight: 500 }}>{title}</div>
+      <div style={{ color: C.white, fontSize: T.lead, fontWeight: 500 }}>{title}</div>
       {sub && (
-        <div style={{ color: C.muted, fontSize: '0.78rem', marginTop: '4px', lineHeight: 1.55 }}>
+        <div style={{ color: C.muted, fontSize: T.caption, marginTop: '4px', lineHeight: 1.55 }}>
           {sub}
         </div>
       )}
@@ -70,11 +71,11 @@ export function Button({
       disabled={disabled}
       style={{
         background: variant === 'danger' ? 'rgba(232,143,143,0.08)' : 'rgba(244,245,248,0.05)',
-        color: variant === 'danger' ? C.fail : C.white,
+        color: variant === 'danger' ? C.red : C.white,
         border: `1px solid ${variant === 'danger' ? 'rgba(232,143,143,0.25)' : C.border}`,
         padding: '0.5rem 0.95rem',
         borderRadius: '4px',
-        fontSize: '0.76rem',
+        fontSize: T.caption,
         fontFamily: 'inherit',
         cursor: disabled ? 'wait' : 'pointer',
         marginRight: '0.5rem',
@@ -99,8 +100,8 @@ export function ResultPane({ ok, label, body }: { ok: boolean; label: string; bo
     >
       <div
         style={{
-          color: ok ? C.ok : C.fail,
-          fontSize: '0.7rem',
+          color: ok ? C.green : C.red,
+          fontSize: T.micro,
           fontFamily: monoFont,
           marginBottom: '0.5rem',
           letterSpacing: '0.08em',
@@ -111,7 +112,7 @@ export function ResultPane({ ok, label, body }: { ok: boolean; label: string; bo
       <pre
         style={{
           color: C.white,
-          fontSize: '0.73rem',
+          fontSize: T.caption,
           fontFamily: monoFont,
           overflow: 'auto',
           margin: 0,
@@ -139,7 +140,7 @@ export function Field({
       <div
         style={{
           color: C.muted,
-          fontSize: '0.62rem',
+          fontSize: T.micro,
           textTransform: 'uppercase',
           letterSpacing: '0.1em',
           fontFamily: monoFont,
@@ -150,9 +151,7 @@ export function Field({
       </div>
       {children}
       {hint && (
-        <div
-          style={{ color: C.muted, fontSize: '0.68rem', marginTop: '3px', fontFamily: monoFont }}
-        >
+        <div style={{ color: C.muted, fontSize: T.micro, marginTop: '3px', fontFamily: monoFont }}>
           {hint}
         </div>
       )}
@@ -184,7 +183,7 @@ export function Input({
         borderRadius: '4px',
         padding: '0.45rem 0.6rem',
         color: C.white,
-        fontSize: '0.78rem',
+        fontSize: T.caption,
         fontFamily: monoFont,
         boxSizing: 'border-box',
       }}

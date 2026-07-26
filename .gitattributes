@@ -1,0 +1,14 @@
+# Normalise line endings so a Windows checkout does not produce thousands of
+# phantom `Delete ␍` prettier errors while CI (Linux) sees none.
+* text=auto eol=lf
+
+# Binary assets must never be normalised.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.pdf binary

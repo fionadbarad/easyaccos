@@ -186,9 +186,31 @@ export {
 }
 
 // ─── Utility ──────────────────────────────────────────────────────────────────
-/** Round to exactly 2 decimal places — eliminates floating point drift */
+/**
+ * Round to exactly 2 decimal places, half away from zero.
+ *
+ * The obvious `Math.round(n * 100) / 100` is wrong on the exact cases money
+ * cares about: `2.675 * 100` is `267.49999999999997` in binary floating point,
+ * so it rounds *down* to 2.67 where a person doing the sum by hand gets 2.68.
+ *
+ * Shifting the decimal point through the number's own decimal string
+ * (`"2.675" + "e2"` → `267.5`) sidesteps the multiplication entirely, so the
+ * value we round is the one the user actually typed. Rounding is symmetric
+ * about zero so a refund of −2.675 mirrors a charge of 2.675; `Math.round`
+ * alone breaks ties toward +∞ and would give −2.67 against +2.68.
+ */
 export function round2(n: number): number {
-  return Math.round(n * 100) / 100
+  if (!Number.isFinite(n)) return n
+
+  const s = n.toString()
+  // Exponential notation ("1e-7") cannot take an "e2" suffix. Magnitudes that
+  // extreme are far outside money, so plain arithmetic is adequate there.
+  if (s.includes('e') || s.includes('E')) return Math.round(n * 100) / 100
+
+  const scaled = Number(`${s}e2`)
+  const rounded = scaled < 0 ? -Math.round(-scaled) : Math.round(scaled)
+  const result = Number(`${rounded}e-2`)
+  return Number.isFinite(result) ? result : Math.round(n * 100) / 100
 }
 
 // fmtGBP lives in lib/formatters.ts — import only, no re-export.

@@ -61,6 +61,37 @@ describe('round2', () => {
   it('zero stays zero', () => expect(round2(0)).toBe(0))
   it('truncates correctly', () => expect(round2(1.234)).toBe(1.23))
   it('eliminates float drift', () => expect(round2(0.1 + 0.2)).toBe(0.3))
+
+  // TAX-12. Each of these lands on an exact .xx5 half, where `n * 100` in
+  // binary floating point falls just short of the true value and the naive
+  // `Math.round(n * 100) / 100` silently rounds a penny down.
+  it.each([
+    [1.005, 1.01],
+    [8.165, 8.17],
+    [10.075, 10.08],
+    [2.675, 2.68],
+    [1234.565, 1234.57],
+  ])('rounds the half in %f up to %f', (input, expected) => {
+    expect(round2(input)).toBe(expected)
+  })
+
+  it('rounds halves away from zero, so a refund mirrors a charge', () => {
+    expect(round2(-2.675)).toBe(-2.68)
+    expect(round2(-1.005)).toBe(-1.01)
+    expect(round2(-2.675)).toBe(-round2(2.675))
+  })
+
+  it('never returns more than 2dp', () => {
+    for (const n of [119.988, 0.005, 33.333333, 1e-7, 12345.6789]) {
+      const r = round2(n)
+      expect(Math.abs(r * 100 - Math.round(r * 100))).toBeLessThan(1e-6)
+    }
+  })
+
+  it('passes non-finite input through untouched', () => {
+    expect(round2(Number.NaN)).toBeNaN()
+    expect(round2(Number.POSITIVE_INFINITY)).toBe(Number.POSITIVE_INFINITY)
+  })
 })
 
 // ── Personal Allowance taper ──────────────────────────────────────────────────

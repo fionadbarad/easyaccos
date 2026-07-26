@@ -2,9 +2,9 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import { useUserData } from '@/lib/use-user-data'
-import type { Invoice, InvoiceStatus } from '@/lib/validators'
+import type { Invoice, InvoiceStatus, VatTreatment } from '@/lib/validators'
 
-export type { Invoice, InvoiceStatus }
+export type { Invoice, InvoiceStatus, VatTreatment }
 
 export interface InvoiceFormState {
   client: string
@@ -13,7 +13,7 @@ export interface InvoiceFormState {
   date: string
   dueDate: string
   amount: string
-  vat: boolean
+  vatTreatment: VatTreatment
 }
 
 function today() {
@@ -25,12 +25,62 @@ function in30() {
   return d.toISOString().slice(0, 10)
 }
 
-// VAT-inclusive total. Standard-rated (20%) when `vat` is set. Rounded to whole
-// pence so downstream sums and fmtDec never surface sub-penny artefacts.
-// NOTE: only the 20% standard rate is modelled — zero/reduced/exempt/reverse-charge
-// are not yet supported (see docs/AUDIT.md TAX-4).
+/** UK VAT rate applied to each treatment, as a fraction of the net amount. */
+export const VAT_RATES: Record<VatTreatment, number> = {
+  standard: 0.2,
+  reduced: 0.05,
+  zero: 0,
+  exempt: 0,
+  reverse_charge: 0,
+  none: 0,
+}
+
+export const VAT_TREATMENT_LABELS: Record<VatTreatment, string> = {
+  standard: 'Standard rate (20%)',
+  reduced: 'Reduced rate (5%)',
+  zero: 'Zero-rated (0%)',
+  exempt: 'Exempt',
+  reverse_charge: 'Reverse charge',
+  none: 'No VAT',
+}
+
+/**
+ * Whether the supply counts as taxable turnover on a VAT return.
+ *
+ * Zero-rated and reverse-charge supplies charge no VAT but are still taxable
+ * and belong in the turnover boxes. Exempt supplies are outside the scope and
+ * do not. Both charge £0, which is exactly why the distinction has to be
+ * carried explicitly rather than inferred from the amount (TAX-4).
+ */
+export function isTaxableSupply(inv: Invoice): boolean {
+  const t = vatTreatmentOf(inv)
+  return t !== 'exempt' && t !== 'none'
+}
+
+/**
+ * The invoice's VAT treatment. Invoices saved before the field existed fall
+ * back to the old boolean, so their totals are unchanged.
+ */
+export function vatTreatmentOf(inv: Invoice): VatTreatment {
+  return inv.vatTreatment ?? (inv.vat ? 'standard' : 'none')
+}
+
+/** VAT rate for this invoice, as a fraction (0.2 for standard). */
+export function vatRate(inv: Invoice): number {
+  return VAT_RATES[vatTreatmentOf(inv)]
+}
+
+/** The VAT element alone, rounded to whole pence. */
+export function vatAmount(inv: Invoice) {
+  return Math.round(inv.amount * vatRate(inv) * 100) / 100
+}
+
+/**
+ * VAT-inclusive total. Rounded to whole pence so downstream sums and fmtDec
+ * never surface sub-penny artefacts.
+ */
 export function vatTotal(inv: Invoice) {
-  return inv.vat ? Math.round(inv.amount * 1.2 * 100) / 100 : inv.amount
+  return Math.round((inv.amount + vatAmount(inv)) * 100) / 100
 }
 
 export function isPastDue(inv: Invoice) {
@@ -83,7 +133,7 @@ export function makeBlankForm(): InvoiceFormState {
     date: today(),
     dueDate: in30(),
     amount: '',
-    vat: false,
+    vatTreatment: 'none',
   }
 }
 
@@ -147,7 +197,10 @@ export function useInvoices() {
       date: form.date,
       dueDate: form.dueDate,
       amount,
-      vat: form.vat,
+      vatTreatment: form.vatTreatment,
+      // Kept in step so anything still reading the old flag (and the existing
+      // Supabase column) stays correct for newly created invoices.
+      vat: form.vatTreatment === 'standard',
     }
     await persist([inv, ...invoices])
     setForm(makeBlankForm())

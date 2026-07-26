@@ -1,7 +1,18 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import type { InvoiceFormState } from '@/lib/hooks/useInvoices'
+import type { InvoiceFormState, VatTreatment } from '@/lib/hooks/useInvoices'
+import { VAT_TREATMENT_LABELS } from '@/lib/hooks/useInvoices'
+
+/** One-line plain-English reminder of what each treatment means. */
+const VAT_TREATMENT_HINTS: Record<VatTreatment, string> = {
+  standard: 'Most goods and services.',
+  reduced: 'e.g. domestic fuel, children’s car seats.',
+  zero: 'Taxable at 0% — e.g. most food, books. Still counts towards turnover.',
+  exempt: 'Outside VAT — e.g. insurance, some education. Not taxable turnover.',
+  reverse_charge: 'Customer accounts for the VAT (e.g. CIS construction).',
+  none: 'You are not charging VAT on this invoice.',
+}
 
 import { C } from '@/styles/palette'
 import { T } from '@/styles/type'
@@ -121,16 +132,23 @@ export function InvoiceForm({
           />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <label style={labelS}>VAT</label>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              checked={form.vat}
-              onChange={(e) => setForm((f) => ({ ...f, vat: e.target.checked }))}
-              style={{ width: '14px', height: '14px', accentColor: C.white, cursor: 'pointer' }}
-            />
-            <span style={{ color: C.muted, fontSize: T.meta }}>Add 20% VAT</span>
-          </label>
+          <label style={labelS}>VAT treatment</label>
+          <select
+            value={form.vatTreatment}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, vatTreatment: e.target.value as VatTreatment }))
+            }
+            style={{ ...inputS, cursor: 'pointer' }}
+          >
+            {(Object.keys(VAT_TREATMENT_LABELS) as VatTreatment[]).map((t) => (
+              <option key={t} value={t}>
+                {VAT_TREATMENT_LABELS[t]}
+              </option>
+            ))}
+          </select>
+          <span style={{ color: C.muted, fontSize: T.micro, lineHeight: 1.4 }}>
+            {VAT_TREATMENT_HINTS[form.vatTreatment]}
+          </span>
         </div>
         <div style={{ display: 'flex', gap: '0.4rem' }}>
           <button

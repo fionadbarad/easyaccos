@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { X, Camera, Sparkles, Loader2, CheckCircle2 } from 'lucide-react'
+import { X, Camera, Sparkles, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react'
 import type { PendingScan } from '@/lib/hooks/useExpenses'
 import { CATEGORIES } from '@/lib/hooks/useExpenses'
 
@@ -18,6 +18,24 @@ const inputS: React.CSSProperties = {
   boxSizing: 'border-box',
   width: '100%',
   fontFamily: 'var(--font-geist-mono), monospace',
+}
+
+/** Amber caution used where OCR is telling the user it is unsure. */
+const warnBoxS: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'flex-start',
+  gap: '7px',
+  background: 'rgba(251,191,36,0.08)',
+  border: '1px solid rgba(251,191,36,0.28)',
+  borderRadius: '4px',
+  padding: '7px 10px',
+  marginTop: '6px',
+}
+
+const warnTextS: React.CSSProperties = {
+  color: '#FBBF24',
+  fontSize: T.micro,
+  lineHeight: 1.45,
 }
 
 const labelS: React.CSSProperties = {
@@ -224,6 +242,45 @@ export function ReceiptVerifyModal({
                 onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
                 style={inputS}
               />
+              {scan.extract.dateAlternative && (
+                <div style={warnBoxS}>
+                  <AlertTriangle
+                    size={12}
+                    style={{ color: '#FBBF24', flexShrink: 0, marginTop: 1 }}
+                  />
+                  <div style={warnTextS}>
+                    This date could be read either way round. We assumed UK order (day first).{' '}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setForm((f) => ({
+                          ...f,
+                          date:
+                            f.date === scan.extract.dateAlternative
+                              ? (scan.extract.date ?? f.date)
+                              : (scan.extract.dateAlternative ?? f.date),
+                        }))
+                      }
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: '#FBBF24',
+                        textDecoration: 'underline',
+                        cursor: 'pointer',
+                        padding: 0,
+                        fontSize: T.micro,
+                        fontFamily: 'inherit',
+                      }}
+                    >
+                      Use{' '}
+                      {form.date === scan.extract.dateAlternative
+                        ? scan.extract.date
+                        : scan.extract.dateAlternative}{' '}
+                      instead
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
             <div>
               <label style={labelS}>Description</label>
@@ -287,6 +344,30 @@ export function ReceiptVerifyModal({
                 placeholder="0.00"
                 style={inputS}
               />
+              {scan.extract.amountConfidence === 'guessed' && (
+                <div style={warnBoxS}>
+                  <AlertTriangle
+                    size={12}
+                    style={{ color: '#FBBF24', flexShrink: 0, marginTop: 1 }}
+                  />
+                  <div style={warnTextS}>
+                    No line on this receipt was labelled &ldquo;total&rdquo;, so this is the largest
+                    amount we could find — it may be the cash tendered or a running balance. Please
+                    check it against the image.
+                  </div>
+                </div>
+              )}
+              {scan.extract.amountConfidence === 'none' && (
+                <div style={warnBoxS}>
+                  <AlertTriangle
+                    size={12}
+                    style={{ color: '#FBBF24', flexShrink: 0, marginTop: 1 }}
+                  />
+                  <div style={warnTextS}>
+                    We couldn&rsquo;t read an amount from this receipt. Please enter it manually.
+                  </div>
+                </div>
+              )}
             </div>
 
             <details style={{ marginTop: 'auto' }}>

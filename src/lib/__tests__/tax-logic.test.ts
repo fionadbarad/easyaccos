@@ -5,9 +5,6 @@ import {
   round2,
   calcPA,
   annualAllowance,
-  PA_BASE,
-  PA_TAPER_START,
-  PA_TAPER_END,
   RUK_HIGHER_LIMIT,
 } from '../tax-logic'
 import type { TaxInput } from '../tax-logic'

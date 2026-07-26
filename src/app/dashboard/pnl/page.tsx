@@ -18,6 +18,7 @@ import { calcScenario1 } from '@/lib/tax-engine'
 import { fmtGBP as fmt, fmtDecAbs as fmtDp } from '@/lib/formatters'
 import { useUserData } from '@/lib/use-user-data'
 import { TRANSACTIONS_SEED, type Transaction } from '@/lib/transactions/seed'
+import { isCostOfSales, isInferredCategory } from '@/lib/transactions/cost-category'
 
 import { C } from '@/styles/palette'
 import { T } from '@/styles/type'
@@ -139,27 +140,14 @@ export default function PnLPage() {
 
   const monthly = buildMonthly(txs)
   const totalRevenue = txs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
-  const COGS_KEYWORDS = [
-    'material',
-    'subcontract',
-    'cogs',
-    'stock',
-    'inventory',
-    'goods',
-    'purchases',
-    'wholesale',
-    'raw ',
-    'direct cost',
-  ]
-  const isCogs = (desc: string) => {
-    const d = desc.toLowerCase()
-    return COGS_KEYWORDS.some((k) => d.includes(k))
-  }
-  const costOfSales = txs
-    .filter((t) => t.type === 'expense' && isCogs(t.description))
-    .reduce((s, t) => s + t.amount, 0)
+  // Cost of sales comes from the transaction's own cost_category (PL-1).
+  // Rows saved before that field existed fall back to the old description
+  // heuristic inside costCategoryOf, so historical figures do not shift.
+  const cogsItems = txs.filter(isCostOfSales)
+  const opExItems = txs.filter((t) => t.type === 'expense' && !isCostOfSales(t))
+  const costOfSales = cogsItems.reduce((s, t) => s + t.amount, 0)
   const grossProfit = totalRevenue - costOfSales
-  const cogsItems = txs.filter((t) => t.type === 'expense' && isCogs(t.description))
+  const inferredCount = txs.filter(isInferredCategory).length
   const opEx =
     txs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0) - costOfSales
   const profitBeforeTax = grossProfit - opEx
@@ -183,17 +171,18 @@ export default function PnLPage() {
     e.preventDefault()
     const amt = parseFloat(cogsForm.amount)
     if (!amt || !cogsForm.description.trim()) return
-    const tag = isCogs(cogsForm.description)
-      ? cogsForm.description.trim()
-      : `COGS — ${cogsForm.description.trim()}`
+    // Previously this prefixed 'COGS — ' onto the description so the keyword
+    // matcher would find it later — the classification lived in the prose. The
+    // row now simply says what it is, and the user's wording is left alone.
     const next: Transaction[] = [
       {
         id: crypto.randomUUID(),
         date: cogsForm.date,
-        description: tag,
+        description: cogsForm.description.trim(),
         type: 'expense',
         amount: amt,
         reference: '',
+        cost_category: 'cost_of_sales',
       },
       ...txs,
     ]
@@ -677,6 +666,20 @@ export default function PnLPage() {
             <ISLine label={`+ ${cogsItems.length - 6} more items`} indent={1} />
           )}
           <ISLine label="Total Cost of Sales" value={costOfSales} bold negative />
+          {inferredCount > 0 && (
+            <div
+              style={{
+                color: C.muted,
+                fontSize: T.micro,
+                lineHeight: 1.5,
+                padding: '6px 0 0',
+              }}
+            >
+              {inferredCount} older {inferredCount === 1 ? 'expense has' : 'expenses have'} no cost
+              type set, so {inferredCount === 1 ? 'it is' : 'they are'} still classified from the
+              description. Set the cost type on the Transactions page to make this exact.
+            </div>
+          )}
 
           <form
             onSubmit={addCogsEntry}
@@ -764,17 +767,11 @@ export default function PnLPage() {
           <ISLine separator />
 
           <ISLine label="OPERATING EXPENSES" bold />
-          {txs
-            .filter((t) => t.type === 'expense' && !isCogs(t.description))
-            .slice(0, 6)
-            .map((t) => (
-              <ISLine key={t.id} label={t.description} value={t.amount} indent={1} negative />
-            ))}
-          {txs.filter((t) => t.type === 'expense' && !isCogs(t.description)).length > 6 && (
-            <ISLine
-              label={`+ ${txs.filter((t) => t.type === 'expense' && !isCogs(t.description)).length - 6} more items`}
-              indent={1}
-            />
+          {opExItems.slice(0, 6).map((t) => (
+            <ISLine key={t.id} label={t.description} value={t.amount} indent={1} negative />
+          ))}
+          {opExItems.length > 6 && (
+            <ISLine label={`+ ${opExItems.length - 6} more items`} indent={1} />
           )}
           <ISLine label="Total OpEx" value={opEx} bold negative />
           <ISLine separator />

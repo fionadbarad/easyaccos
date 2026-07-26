@@ -12,7 +12,12 @@ import {
 } from 'lucide-react'
 import { useUserData } from '@/lib/use-user-data'
 import { fmtDecAbs as fmt } from '@/lib/formatters'
-import { TRANSACTIONS_SEED, type Transaction, type TxType } from '@/lib/transactions/seed'
+import {
+  TRANSACTIONS_SEED,
+  type Transaction,
+  type TxType,
+  type CostCategory,
+} from '@/lib/transactions/seed'
 
 import { C } from '@/styles/palette'
 import { T } from '@/styles/type'
@@ -80,13 +85,21 @@ export default function TransactionsPage() {
     type: 'income' as TxType,
     amount: '',
     reference: '',
+    cost_category: 'operating' as CostCategory,
   })
 
   async function add(e: React.FormEvent) {
     e.preventDefault()
     const amount = parseFloat(form.amount)
     if (!amount || !form.description.trim()) return
-    await persist([{ id: crypto.randomUUID(), ...form, amount }, ...txs])
+    // Income has no cost category — storing one would imply a classification
+    // that does not apply and would show up in the P&L split (PL-1).
+    const { cost_category, ...rest } = form
+    const row: Transaction =
+      form.type === 'expense'
+        ? { id: crypto.randomUUID(), ...rest, amount, cost_category }
+        : { id: crypto.randomUUID(), ...rest, amount }
+    await persist([row, ...txs])
     setForm((f) => ({ ...f, description: '', amount: '', reference: '' }))
     setShowForm(false)
   }
@@ -357,6 +370,31 @@ export default function TransactionsPage() {
               <option value="expense">Expense</option>
             </select>
           </div>
+          {form.type === 'expense' && (
+            <div>
+              <label style={labelStyle}>Cost type</label>
+              <select
+                value={form.cost_category}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, cost_category: e.target.value as CostCategory }))
+                }
+                style={{ ...inputStyle, cursor: 'pointer' }}
+              >
+                <option value="operating">Operating expense (overhead)</option>
+                <option value="cost_of_sales">Cost of sales (direct)</option>
+              </select>
+              <p
+                style={{
+                  color: C.muted,
+                  fontSize: T.micro,
+                  margin: '4px 0 0',
+                  lineHeight: 1.4,
+                }}
+              >
+                Cost of sales is deducted from revenue to give gross profit.
+              </p>
+            </div>
+          )}
           <div>
             <label style={labelStyle}>Amount (£)</label>
             <input

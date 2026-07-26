@@ -7,6 +7,18 @@
 
 export type TxType = 'income' | 'expense'
 
+/**
+ * Where an expense sits in the P&L.
+ *
+ * - `cost_of_sales` — a direct cost of producing what was sold (materials,
+ *   subcontractors, stock). Deducted from revenue to give gross profit.
+ * - `operating`     — an overhead that stands whether or not a sale is made.
+ *
+ * Only meaningful on expense rows. Field name is snake_case to match the
+ * Supabase column, because the sync path upserts each item's keys verbatim.
+ */
+export type CostCategory = 'cost_of_sales' | 'operating'
+
 export interface Transaction {
   id: string
   date: string
@@ -14,6 +26,7 @@ export interface Transaction {
   type: TxType
   amount: number
   reference: string
+  cost_category?: CostCategory
   updated_at?: string
 }
 

@@ -73,10 +73,36 @@ export async function idbGet<T>(store: StoreName, key: IDBValidKey): Promise<T |
   }
 }
 
+/**
+ * Minimal shape of the object store this module writes through. Declared so
+ * `putRecord` can be unit-tested without a real IndexedDB implementation.
+ */
+export interface PutTarget {
+  keyPath: string | string[] | null
+  put(value: unknown, key?: IDBValidKey): unknown
+}
+
+/**
+ * Writes a value through `put`, supplying the key only when the store needs it.
+ *
+ * `STORE_AUDIT` is created with `keyPath: 'id'` (in-line keys); `kv` and
+ * `records` are out-of-line. IndexedDB throws `DataError` if an explicit key is
+ * passed to `put()` on an in-line store — which is what every audit-log write
+ * was doing, silently, because `idbSet` swallows the failure. Let the store
+ * decide rather than assuming.
+ */
+export function putRecord(store: PutTarget, key: IDBValidKey, value: unknown): unknown {
+  return store.keyPath === null ? store.put(value, key) : store.put(value)
+}
+
 export async function idbSet(store: StoreName, key: IDBValidKey, value: unknown): Promise<void> {
   if (!hasIDB()) return
   try {
-    await tx<IDBValidKey>(store, 'readwrite', (s) => s.put(value, key) as IDBRequest<IDBValidKey>)
+    await tx<IDBValidKey>(
+      store,
+      'readwrite',
+      (s) => putRecord(s, key, value) as IDBRequest<IDBValidKey>,
+    )
   } catch (err) {
     console.error(`IndexedDB set error [${store}]:`, err)
   }

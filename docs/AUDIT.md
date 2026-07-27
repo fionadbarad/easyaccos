@@ -15,13 +15,18 @@ the fix direction. Work top-down: 🔴 blockers first._
 > **RLS policies** (which several findings depend on) could not be inspected from the code and
 > **must be verified in the Supabase dashboard**.
 
-> **Status reconciled against code 2026-07-26.** Snapshot: **38 ✅ · 0 🔴 · 0 🟠 ·
-> 1 🟡 · 2 ⚪ · 2 🔶** of 43.
+> **Status reconciled against code 2026-07-26.** Snapshot: **39 ✅ · 0 🔴 · 0 🟠 ·
+> 1 🟡 · 2 ⚪ · 2 🔶** of 44.
 >
 > This pass closed every remaining code-side finding — SEC-4, PL-1, TAX-4,
-> TAX-12, OCR-2 and OCR-3 — and added three rows for things found while doing it:
-> DAT-2 (a real data bug, fixed), ENV-1 (the lint config that was hiding it,
-> fixed) and ENV-2 (a dev-machine issue, not a repo defect). What is left is not code: SEC-2(b) is a click in the Supabase dashboard,
+> TAX-12, OCR-2 and OCR-3 — and added four rows for things found while doing it:
+> DAT-2 and AUD-3 (real data bugs, both fixed), ENV-1 (the lint config that was
+> hiding DAT-2, fixed) and ENV-2 (a dev-machine issue, not a repo defect).
+>
+> Two of those four came from *running* the app rather than reading it: AUD-3 in
+> particular meant the audit trail had been recording nothing at all. Worth
+> repeating that habit — the register is only as good as the last time someone
+> actually clicked through the product. What is left is not code: SEC-2(b) is a click in the Supabase dashboard,
 > AUD-2 is a deliberate follow-up PR, SEC-12 is an owner preference, and MTD-3 is
 > calendar time. **Both new migrations are committed but NOT yet applied to prod.**
 >
@@ -66,6 +71,7 @@ the fix direction. Work top-down: 🔴 blockers first._
 | DAT-1 | ✅ | `src/lib/use-user-data.ts` | **RESOLVED.** Deletions are no longer inferred from the server/local set-difference. `persist` now derives an explicit delete set from `prev − next` (`diffDeletedIds`), and `syncSupabaseRows` deletes only those ids (intersected with rows that exist server-side), scoped by `.eq('user_id', …)`. A partial/stale local view (2nd tab, failed load, auth race with empty `items`) yields an empty delete set, so it can no longer wipe real server rows. Covered by `src/lib/__tests__/storage-sync.test.ts`. Follow-up (not blocking): a tombstone/soft-delete model would additionally resolve delete-vs-update conflicts across concurrent tabs. | Done. |
 | AUD-1 | ✅ | `src/lib/feature-flags.ts`, `src/lib/audit.ts` | **RESOLVED (#43, verified).** `DEFAULTS[FLAG_AUDIT] = true` — the audit trail is now **ON by default** with no env var required, so authed users get a trail out of the box. The `audit_logs` table exists in prod (SEC-2). The flag is retained deliberately as an explicit opt-out (localStorage/env), not as an off-by-default gate. | Done. |
 | DAT-2 | ✅ | `src/lib/use-user-data.ts` | **NEW 2026-07-26, found and fixed in the same pass.** `useUserData` called `useRestoreSignal()` but never used the returned tick, so the load effect did not re-run when a backup restore emitted `RESTORE_EVENT` — **restoring from a backup left the restored rows invisible until a manual page refresh.** The effect's own comment already claimed "Load on mount / auth change / restore signal"; the dependency was simply missing. Surfaced by re-enabling a lint rule that had been masked by a misconfigured base rule (ENV-1). | Done. |
+| AUD-3 | ✅ | `src/lib/storage/idb.ts` | **NEW 2026-07-26, found by browser-testing this branch.** `audit_log` is created with `keyPath: 'id'` (in-line keys) while `kv` and `records` are out-of-line, but `idbSet` passed an explicit key to `put()` for all three. IndexedDB rejects that on an in-line store — `DataError: The object store uses in-line keys and the key parameter was provided` — and `idbSet` swallows failures into `console.error`, so **every audit entry was silently dropped from the store `audit.ts` calls "authoritative".** AUD-1 had correctly turned the trail on by default; it was writing nothing. Confirmed live: adding a transaction wrote 0 audit rows before, and `transactions/create/guest` after. `putRecord` now supplies the key only for out-of-line stores; 4 unit tests, including one that reproduces the original `DataError`. | Done. Note: this makes AUD-2 (server-authoritative store) more valuable, not less — the local store had no entries to be authoritative *about*. |
 | AUD-2 | 🔶 | `src/lib/audit.ts` | **Write reliability RESOLVED; source-of-truth follow-up remains.** The Supabase mirror is no longer fire-and-forget: it is awaited with one retry and, on final failure, reported via `reportError` (never swallowed) — while still never throwing, so an audit-write failure can't block the user's action. The migration keeps `audit_logs` **append-only at the RLS layer** (insert + read own; no update/delete). **Still open:** make the server row the authoritative source (currently local IDB is), e.g. via an RPC/trigger — a larger change deferred to its own PR. | Follow-up: server-authoritative store. |
 
 ## 3. Tax-Calculation Correctness

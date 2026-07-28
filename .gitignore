@@ -42,6 +42,8 @@ yarn-error.log*
 
 # Claude Code local config (may contain tokens)
 .claude/
+# stray copy that escaped .claude/ — holds local tool permissions and absolute paths
+settings.local.json
 
 # Stray agent worktree/scratch dirs (orphan source copies — not registered git worktrees)
 .claire/

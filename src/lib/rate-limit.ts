@@ -11,10 +11,20 @@ type Bucket = { count: number; resetAt: number }
 
 const buckets = new Map<string, Bucket>()
 
-export type RateLimitResult = { ok: true } | { ok: false; retryAfterSec: number }
+export type RateLimitResult =
+  | { ok: true; remaining: number; retryAfterSec: 0 }
+  | { ok: false; remaining: 0; retryAfterSec: number }
 
-export function rateLimit(key: string, limit: number, windowMs: number): RateLimitResult {
-  const now = Date.now()
+/**
+ * `now` is injectable so tests can advance the clock instead of sleeping;
+ * callers leave it out and get wall time.
+ */
+export function rateLimit(
+  key: string,
+  limit: number,
+  windowMs: number,
+  now: number = Date.now(),
+): RateLimitResult {
   const bucket = buckets.get(key)
 
   if (!bucket || now >= bucket.resetAt) {
@@ -23,15 +33,24 @@ export function rateLimit(key: string, limit: number, windowMs: number): RateLim
     if (buckets.size > 5000) {
       for (const [k, v] of buckets) if (now >= v.resetAt) buckets.delete(k)
     }
-    return { ok: true }
+    return { ok: true, remaining: limit - 1, retryAfterSec: 0 }
   }
 
   if (bucket.count >= limit) {
-    return { ok: false, retryAfterSec: Math.max(1, Math.ceil((bucket.resetAt - now) / 1000)) }
+    return {
+      ok: false,
+      remaining: 0,
+      retryAfterSec: Math.max(1, Math.ceil((bucket.resetAt - now) / 1000)),
+    }
   }
 
   bucket.count++
-  return { ok: true }
+  return { ok: true, remaining: limit - bucket.count, retryAfterSec: 0 }
+}
+
+/** Test-only: drop all buckets so cases can't leak state into each other. */
+export function __resetRateLimitForTests(): void {
+  buckets.clear()
 }
 
 /** Best-effort client key from proxy headers, for unauthenticated rate limiting. */

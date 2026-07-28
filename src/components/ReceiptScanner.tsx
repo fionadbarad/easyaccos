@@ -3,6 +3,15 @@
 import { useState, useRef } from 'react'
 import { Camera, Loader2, X } from 'lucide-react'
 
+/**
+ * How the amount was arrived at.
+ * - `labelled`  — read off a line that named itself ("Total", "Amount due").
+ * - `guessed`   — no such line existed, so we took the largest money-shaped
+ *                 number on the receipt. Frequently right, but it will happily
+ *                 pick up a cash-tendered figure or a loyalty balance (OCR-2).
+ */
+export type AmountConfidence = 'labelled' | 'guessed' | 'none'
+
 export interface ReceiptExtract {
   description: string
   amount: number | null
@@ -10,6 +19,13 @@ export interface ReceiptExtract {
   raw: string
   imageUrl: string // blob URL — caller must revoke when done
   fileType: string // MIME type of the uploaded file
+  amountConfidence: AmountConfidence
+  /**
+   * Set when a numeric date could be read either way round — e.g. "05/04/2026"
+   * is 5 April to a UK reader and 4 May to a US one. Holds the interpretation
+   * we did *not* choose, so the user can swap to it in one click (OCR-3).
+   */
+  dateAlternative: string | null
 }
 
 interface Props {
@@ -18,7 +34,7 @@ interface Props {
 
 import { C } from '@/styles/palette'
 import { T } from '@/styles/type'
-function parseReceipt(raw: string): Omit<ReceiptExtract, 'raw' | 'imageUrl' | 'fileType'> {
+export function parseReceipt(raw: string): Omit<ReceiptExtract, 'raw' | 'imageUrl' | 'fileType'> {
   const text = raw.replace(/\r/g, '')
   const lines = text
     .split('\n')
@@ -32,17 +48,31 @@ function parseReceipt(raw: string): Omit<ReceiptExtract, 'raw' | 'imageUrl' | 'f
   )
   const totalLine = lines.find((l) => /total|amount due|grand total/i.test(l))
   let amount: number | null = null
+  let amountConfidence: AmountConfidence = 'none'
   if (totalLine) {
     const m = totalLine.match(/(\d{1,6}[.,]\d{2})/)
-    if (m?.[1]) amount = parseFloat(m[1].replace(',', '.'))
+    if (m?.[1]) {
+      amount = parseFloat(m[1].replace(',', '.'))
+      amountConfidence = 'labelled'
+    }
   }
   if (amount == null) {
     const m = text.match(amountRegex)
-    if (m?.[1]) amount = parseFloat(m[1].replace(',', '.'))
+    if (m?.[1]) {
+      amount = parseFloat(m[1].replace(',', '.'))
+      amountConfidence = 'labelled'
+    }
   }
-  if (amount == null && allNums.length) amount = Math.max(...allNums)
+  if (amount == null && allNums.length) {
+    // Last resort: nothing on the receipt said "total", so the biggest
+    // money-shaped number is the best available guess. Flag it so the user is
+    // asked to confirm rather than being handed a silent guess (OCR-2).
+    amount = Math.max(...allNums)
+    amountConfidence = 'guessed'
+  }
 
   let date: string | null = null
+  let dateAlternative: string | null = null
   const dmY = text.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/)
   const iso = text.match(/(\d{4})-(\d{2})-(\d{2})/)
   const mmm = text.match(
@@ -53,7 +83,17 @@ function parseReceipt(raw: string): Omit<ReceiptExtract, 'raw' | 'imageUrl' | 'f
   } else if (dmY?.[1] && dmY[2] && dmY[3]) {
     let y = dmY[3]
     if (y.length === 2) y = `20${y}`
-    date = `${y}-${dmY[2].padStart(2, '0')}-${dmY[1].padStart(2, '0')}`
+    const first = dmY[1].padStart(2, '0')
+    const second = dmY[2].padStart(2, '0')
+    // UK-first reading: DD/MM/YYYY.
+    date = `${y}-${second}-${first}`
+    // When both components are 1-12 the string is genuinely reversible and the
+    // US reading (MM/DD) is an equally valid parse of the same pixels. Offer it
+    // rather than silently committing to one (OCR-3). Equal parts read the same
+    // either way, so there is nothing to disambiguate.
+    if (Number(first) <= 12 && Number(second) <= 12 && first !== second) {
+      dateAlternative = `${y}-${first}-${second}`
+    }
   } else if (mmm?.[1] && mmm[2] && mmm[3]) {
     const months = [
       'jan',
@@ -81,7 +121,7 @@ function parseReceipt(raw: string): Omit<ReceiptExtract, 'raw' | 'imageUrl' | 'f
     'Receipt'
   ).slice(0, 80)
 
-  return { description, amount, date }
+  return { description, amount, date, amountConfidence, dateAlternative }
 }
 
 export default function ReceiptScanner({ onExtract }: Props) {

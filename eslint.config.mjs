@@ -18,7 +18,14 @@ const eslintConfig = defineConfig([
   {
     rules: {
       '@next/next/no-img-element': 'error',
-      'no-unused-vars': 'warn',
+      // The base rule cannot read TypeScript function-type parameters, so it
+      // flags the parameter names in signatures like `(v: string) => void` as
+      // unused. Defer entirely to the TypeScript-aware rule.
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
+      ],
     },
   },
 ])

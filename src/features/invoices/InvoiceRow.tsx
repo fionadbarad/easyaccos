@@ -14,7 +14,17 @@ import {
   Undo2,
 } from 'lucide-react'
 import type { Invoice, InvoiceStatus } from '@/lib/validators'
-import { vatTotal, daysOverdue, daysToDue, fmtDec, chaseEmail } from '@/lib/hooks/useInvoices'
+import {
+  vatTotal,
+  vatAmount,
+  vatRate,
+  vatTreatmentOf,
+  VAT_TREATMENT_LABELS,
+  daysOverdue,
+  daysToDue,
+  fmtDec,
+  chaseEmail,
+} from '@/lib/hooks/useInvoices'
 
 function today() {
   return new Date().toISOString().slice(0, 10)
@@ -83,6 +93,7 @@ export function InvoiceRow({
 }) {
   const [open, setOpen] = useState(false)
   const overdue = inv.status === 'overdue'
+  const treatment = vatTreatmentOf(inv)
   const total = vatTotal(inv)
   const daysLeft = daysToDue(inv)
 
@@ -117,7 +128,11 @@ export function InvoiceRow({
           >
             {fmtDec(total)}
           </div>
-          {inv.vat && <div className="text-sa-dim text-micro font-mono">inc. VAT</div>}
+          {treatment !== 'none' && (
+            <div className="text-sa-dim text-micro font-mono">
+              {vatAmount(inv) > 0 ? 'inc. VAT' : VAT_TREATMENT_LABELS[treatment]}
+            </div>
+          )}
         </div>
 
         <div className="text-sa-dim text-micro font-mono whitespace-nowrap">{inv.date}</div>
@@ -145,13 +160,16 @@ export function InvoiceRow({
                   </div>
                   <div className="text-sa-white font-mono tabular-nums">{fmtDec(inv.amount)}</div>
                 </div>
-                {inv.vat && (
+                {treatment !== 'none' && (
                   <div>
                     <div className="text-sa-dim text-micro uppercase tracking-[0.08em] font-mono mb-[3px]">
-                      VAT (20%)
+                      VAT ({+(vatRate(inv) * 100).toFixed(1)}%)
                     </div>
                     <div className="text-sa-white font-mono tabular-nums">
-                      {fmtDec(inv.amount * 0.2)}
+                      {fmtDec(vatAmount(inv))}
+                    </div>
+                    <div className="text-sa-dim text-micro font-mono mt-[2px]">
+                      {VAT_TREATMENT_LABELS[treatment]}
                     </div>
                   </div>
                 )}

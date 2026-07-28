@@ -11,6 +11,23 @@ export interface Expense {
 
 export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue'
 
+/**
+ * How VAT is treated on the supply this invoice covers (TAX-4).
+ *
+ * Zero-rated, exempt and reverse-charge all add £0 of VAT, but they are not
+ * the same thing and must not be collapsed into one flag: zero-rated and
+ * reverse-charge supplies are taxable and belong in the VAT return's turnover
+ * boxes, whereas exempt supplies are outside the VAT system entirely. Getting
+ * this wrong misstates a VAT return even though the invoice total is identical.
+ */
+export type VatTreatment =
+  | 'standard' // 20%
+  | 'reduced' // 5%
+  | 'zero' // 0%, taxable supply
+  | 'exempt' // outside the scope of VAT
+  | 'reverse_charge' // customer accounts for the VAT
+  | 'none' // supplier not VAT registered
+
 export interface Invoice {
   id: string
   number: string
@@ -19,7 +36,12 @@ export interface Invoice {
   date: string
   dueDate: string
   amount: number
+  /**
+   * Legacy standard-rated flag. Retained so invoices saved before
+   * vatTreatment existed keep their totals; vatTreatment takes precedence.
+   */
   vat: boolean
+  vatTreatment?: VatTreatment
   status: InvoiceStatus
   sentDate?: string
   paidDate?: string
@@ -49,6 +71,10 @@ export function isValidInvoice(i: unknown): i is Invoice {
     typeof o.dueDate === 'string' &&
     typeof o.amount === 'number' &&
     (o.amount as number) >= 0 &&
-    ['draft', 'sent', 'paid', 'overdue'].includes(o.status as string)
+    ['draft', 'sent', 'paid', 'overdue'].includes(o.status as string) &&
+    (o.vatTreatment === undefined ||
+      ['standard', 'reduced', 'zero', 'exempt', 'reverse_charge', 'none'].includes(
+        o.vatTreatment as string,
+      ))
   )
 }

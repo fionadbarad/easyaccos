@@ -237,8 +237,12 @@ export default function SecurityPage() {
             The Tax Advisory chat and the optional{' '}
             <strong style={{ color: C.text }}>Suggest Category</strong> button on the Expenses page
             send the relevant text (your question, or the expense description and amount) to
-            <strong style={{ color: C.text }}> Google Gemini</strong> for a single response. Numeric
-            totals, receipt images, and your full ledger are never transmitted. Receipt OCR runs{' '}
+            <strong style={{ color: C.text }}> Google Gemini</strong> for a single response. So that
+            the advice reflects your situation, the chat also sends a short summary of where you
+            stand: your tax band, and your logged expenses, estimated profit and estimated liability{' '}
+            <strong style={{ color: C.text }}>as ranges rather than exact amounts</strong> — for
+            example &ldquo;£45,000–£50,000&rdquo;, never £47,312.68. Your individual transactions,
+            invoices, receipt images and full ledger are never transmitted. Receipt OCR runs{' '}
             <strong style={{ color: C.text }}>entirely in your browser</strong> via Tesseract — the
             photo never leaves your device. If you prefer not to use AI features, simply don&apos;t
             click the Suggest button or open the Advisory tab — the rest of the app runs fully

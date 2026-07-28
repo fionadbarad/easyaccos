@@ -5,10 +5,8 @@ import { useMemo, useState } from 'react'
 import {
   Calculator,
   Receipt,
-  ArrowLeftRight,
   GraduationCap,
   Bot,
-  BarChart2,
   TrendingUp,
   Settings,
   BookOpen,

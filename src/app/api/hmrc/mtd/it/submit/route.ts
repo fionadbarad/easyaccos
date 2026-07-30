@@ -3,6 +3,7 @@ import { buildFraudHeaders, observeClient, type BrowserFraudData } from '@/lib/h
 import { resolveSubmissionUserId } from '@/lib/hmrc/identity'
 import { mapHmrcError } from '@/lib/hmrc/mtd-errors'
 import { getValidAccessToken, readHmrcEnv } from '@/lib/hmrc/oauth'
+import { carryCookies } from '@/lib/hmrc/cookies'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -67,7 +68,10 @@ function missingFields(body: Partial<RequestBody>): string[] {
   if (!body.businessId) missing.push('businessId')
   if (!body.periodStartDate) missing.push('periodStartDate')
   if (!body.periodEndDate) missing.push('periodEndDate')
-  if (!body.income || typeof body.income.turnover !== 'number') missing.push('income.turnover')
+  // Number.isFinite, not typeof: NaN and ±Infinity are both `'number'` and both
+  // serialise to `null`, which would reach HMRC as a period summary with no
+  // turnover after we had called the body valid.
+  if (!body.income || !Number.isFinite(body.income.turnover)) missing.push('income.turnover')
   if (!body.browser) missing.push('browser')
   return missing
 }
@@ -110,7 +114,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | Su
   // reject anyway with RULE_BOTH_EXPENSES_SUPPLIED, but failing fast saves a
   // round-trip and gives a clearer message.
   const hasDetailedExpenses = body.expenses && Object.keys(body.expenses).length > 0
-  const hasConsolidated = typeof body.consolidatedExpenses === 'number'
+  const hasConsolidated = Number.isFinite(body.consolidatedExpenses)
   if (hasDetailedExpenses && hasConsolidated) {
     return NextResponse.json<SubmitFail>(
       {
@@ -154,7 +158,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | Su
     },
     periodIncome: {
       turnover: body.income.turnover,
-      ...(body.income.other !== undefined ? { other: body.income.other } : {}),
+      ...(Number.isFinite(body.income.other) ? { other: body.income.other } : {}),
     },
   }
 
@@ -162,7 +166,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | Su
     hmrcRequestBody.periodExpenses = { consolidatedExpenses: body.consolidatedExpenses }
   } else if (hasDetailedExpenses) {
     hmrcRequestBody.periodExpenses = Object.fromEntries(
-      Object.entries(body.expenses!).filter(([, v]) => typeof v === 'number'),
+      Object.entries(body.expenses!).filter(([, v]) => Number.isFinite(v)),
     )
   }
 
@@ -190,9 +194,12 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | Su
     submitRaw = await submitRes.text()
   } catch (err) {
     console.error('[hmrc/mtd/it/submit] network error:', err instanceof Error ? err.message : err)
-    return NextResponse.json<SubmitFail>(
-      { ok: false, stage: 'submit', message: 'Network error reaching HMRC MTD-IT endpoint.' },
-      { status: 502 },
+    return carryCookies(
+      resPlaceholder,
+      NextResponse.json<SubmitFail>(
+        { ok: false, stage: 'submit', message: 'Network error reaching HMRC MTD-IT endpoint.' },
+        { status: 502 },
+      ),
     )
   }
 
@@ -205,15 +212,18 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | Su
 
   if (!submitRes.ok) {
     const humanMessage = mapHmrcError(submitBody)
-    return NextResponse.json<SubmitFail>(
-      {
-        ok: false,
-        stage: 'submit',
-        status: submitRes.status,
-        body: submitBody,
-        message: humanMessage,
-      },
-      { status: submitRes.status >= 500 ? 502 : submitRes.status },
+    return carryCookies(
+      resPlaceholder,
+      NextResponse.json<SubmitFail>(
+        {
+          ok: false,
+          stage: 'submit',
+          status: submitRes.status,
+          body: submitBody,
+          message: humanMessage,
+        },
+        { status: submitRes.status >= 500 ? 502 : submitRes.status },
+      ),
     )
   }
 
@@ -230,9 +240,5 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | Su
   }
 
   // Preserve any Set-Cookie headers written by the auth refresh
-  const finalRes = NextResponse.json<SubmitOk>(okBody)
-  for (const cookie of resPlaceholder.cookies.getAll()) {
-    finalRes.cookies.set(cookie)
-  }
-  return finalRes
+  return carryCookies(resPlaceholder, NextResponse.json<SubmitOk>(okBody))
 }

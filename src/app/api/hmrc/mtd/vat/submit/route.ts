@@ -1,8 +1,14 @@
 import { type NextRequest, NextResponse } from 'next/server'
-import { buildFraudHeaders, observeClient, type BrowserFraudData } from '@/lib/hmrc/fraud-headers'
+import { buildFraudHeaders, observeClient } from '@/lib/hmrc/fraud-headers'
 import { resolveSubmissionUserId } from '@/lib/hmrc/identity'
 import { mapHmrcError } from '@/lib/hmrc/mtd-errors'
 import { getValidAccessToken, readHmrcEnv } from '@/lib/hmrc/oauth'
+import { carryCookies } from '@/lib/hmrc/cookies'
+import {
+  arithmeticErrors,
+  missingVatFields,
+  type VatReturnBody as RequestBody,
+} from '@/lib/hmrc/vat-return'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -11,23 +17,6 @@ export const runtime = 'nodejs'
 // Endpoint: POST /organisations/vat/{vrn}/returns
 // Spec:     https://developer.service.hmrc.gov.uk/api-documentation/docs/api/service/vat-api/1.0
 // Scope:    write:vat
-
-type RequestBody = {
-  vrn: string
-  periodKey: string // 4 alphanumeric chars, may include '#'
-  vatDueSales: number
-  vatDueAcquisitions: number
-  totalVatDue: number
-  vatReclaimedCurrPeriod: number
-  netVatDue: number
-  totalValueSalesExVAT: number
-  totalValuePurchasesExVAT: number
-  totalValueGoodsSuppliedExVAT: number
-  totalAcquisitionsExVAT: number
-  finalised: boolean
-  browser: BrowserFraudData
-  govTestScenario?: string
-}
 
 type SubmitOk = {
   ok: true
@@ -46,53 +35,6 @@ type SubmitFail = {
   status?: number
   body?: unknown
   needsReauth?: boolean
-}
-
-const REQUIRED_NUMERIC_KEYS = [
-  'vatDueSales',
-  'vatDueAcquisitions',
-  'totalVatDue',
-  'vatReclaimedCurrPeriod',
-  'netVatDue',
-  'totalValueSalesExVAT',
-  'totalValuePurchasesExVAT',
-  'totalValueGoodsSuppliedExVAT',
-  'totalAcquisitionsExVAT',
-] as const
-
-function validate(body: Partial<RequestBody>): string[] {
-  const missing: string[] = []
-  if (!body.vrn) missing.push('vrn')
-  if (!body.periodKey) missing.push('periodKey')
-  for (const k of REQUIRED_NUMERIC_KEYS) {
-    if (typeof body[k] !== 'number') missing.push(k)
-  }
-  if (typeof body.finalised !== 'boolean') missing.push('finalised')
-  if (!body.browser) missing.push('browser')
-  return missing
-}
-
-// HMRC's spec requires:
-//   totalVatDue       = vatDueSales + vatDueAcquisitions
-//   netVatDue         = | totalVatDue - vatReclaimedCurrPeriod |
-// We fail fast with a clear message rather than letting HMRC return
-// VAT_TOTAL_VALUE / VAT_NET_VALUE, which is the same outcome but slower.
-function arithmeticErrors(body: RequestBody): string[] {
-  const errors: string[] = []
-  const tolerance = 0.005 // monetary fields have 2 dp precision; tolerate sub-penny rounding
-  const expectedTotal = body.vatDueSales + body.vatDueAcquisitions
-  if (Math.abs(body.totalVatDue - expectedTotal) > tolerance) {
-    errors.push(
-      `totalVatDue (${body.totalVatDue}) must equal vatDueSales + vatDueAcquisitions (${expectedTotal})`,
-    )
-  }
-  const expectedNet = Math.abs(body.totalVatDue - body.vatReclaimedCurrPeriod)
-  if (Math.abs(body.netVatDue - expectedNet) > tolerance) {
-    errors.push(
-      `netVatDue (${body.netVatDue}) must equal |totalVatDue - vatReclaimedCurrPeriod| (${expectedNet})`,
-    )
-  }
-  return errors
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | SubmitFail>> {
@@ -120,7 +62,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | Su
     )
   }
 
-  const missing = validate(body)
+  const missing = missingVatFields(body)
   if (missing.length > 0) {
     return NextResponse.json<SubmitFail>(
       {
@@ -213,9 +155,12 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | Su
     submitRaw = await submitRes.text()
   } catch (err) {
     console.error('[hmrc/mtd/vat/submit] network error:', err instanceof Error ? err.message : err)
-    return NextResponse.json<SubmitFail>(
-      { ok: false, stage: 'submit', message: 'Network error reaching HMRC MTD-VAT endpoint.' },
-      { status: 502 },
+    return carryCookies(
+      resPlaceholder,
+      NextResponse.json<SubmitFail>(
+        { ok: false, stage: 'submit', message: 'Network error reaching HMRC MTD-VAT endpoint.' },
+        { status: 502 },
+      ),
     )
   }
 
@@ -228,15 +173,18 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | Su
 
   if (!submitRes.ok) {
     const humanMessage = mapHmrcError(submitBody)
-    return NextResponse.json<SubmitFail>(
-      {
-        ok: false,
-        stage: 'submit',
-        status: submitRes.status,
-        body: submitBody,
-        message: humanMessage,
-      },
-      { status: submitRes.status >= 500 ? 502 : submitRes.status },
+    return carryCookies(
+      resPlaceholder,
+      NextResponse.json<SubmitFail>(
+        {
+          ok: false,
+          stage: 'submit',
+          status: submitRes.status,
+          body: submitBody,
+          message: humanMessage,
+        },
+        { status: submitRes.status >= 500 ? 502 : submitRes.status },
+      ),
     )
   }
 
@@ -258,9 +206,5 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | Su
     requestBody: hmrcRequestBody,
   }
 
-  const finalRes = NextResponse.json<SubmitOk>(okBody)
-  for (const cookie of resPlaceholder.cookies.getAll()) {
-    finalRes.cookies.set(cookie)
-  }
-  return finalRes
+  return carryCookies(resPlaceholder, NextResponse.json<SubmitOk>(okBody))
 }

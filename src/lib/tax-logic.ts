@@ -465,23 +465,37 @@ function buildTips(
 ): OptimizationTip[] {
   const tips: OptimizationTip[] = []
 
+  // Band position is decided by TOTAL adjusted net income \u2014 dividends included.
+  // A \u00a390k profit plus \u00a330k of dividends sits squarely in the taper, and the
+  // tips have to be measured against that, not against the trading profit alone.
+  const adjustedNetIncome = adjustedProfit + Math.max(0, dividendIncome)
+  // Pension contributions are only relievable up to relevant EARNINGS, so a
+  // suggested contribution can never exceed the trading profit however much
+  // dividend income sits on top of it.
+  const relievable = Math.max(0, adjustedProfit)
+
   if (in60pctTrap) {
-    const toEscape = adjustedProfit - PA_TAPER_START
+    const toEscape = Math.min(adjustedNetIncome - PA_TAPER_START, relievable)
     const saving = Math.round(toEscape * 0.6)
-    tips.push({
-      id: 'pension-60pct',
-      title: 'Escape the 60% Trap',
-      description:
-        `Contribute ${fmtGBP(toEscape)} to a SIPP. This reduces your adjusted income ` +
-        `to exactly \u00a3100,000, fully restores your Personal Allowance, and saves ` +
-        `approximately ${fmtGBP(saving)} in tax.`,
-      saving,
-    })
+    if (toEscape > 0) {
+      const fullEscape = adjustedNetIncome - PA_TAPER_START <= relievable
+      tips.push({
+        id: 'pension-60pct',
+        title: 'Escape the 60% Trap',
+        description:
+          `Contribute ${fmtGBP(toEscape)} to a SIPP. ` +
+          (fullEscape
+            ? `This reduces your adjusted income to exactly \u00a3100,000, fully restores your Personal Allowance, and saves `
+            : `That is the most you can relieve this year (contributions are capped at your relevant earnings), which recovers part of your Personal Allowance and saves `) +
+          `approximately ${fmtGBP(saving)} in tax.`,
+        saving,
+      })
+    }
   }
 
-  if (adjustedProfit > RUK_BASIC_LIMIT && !in60pctTrap) {
-    const higherSlice = Math.min(adjustedProfit, PA_TAPER_START) - RUK_BASIC_LIMIT
-    const suggest = Math.min(10_000, higherSlice)
+  if (adjustedNetIncome > RUK_BASIC_LIMIT && !in60pctTrap) {
+    const higherSlice = Math.min(adjustedNetIncome, PA_TAPER_START) - RUK_BASIC_LIMIT
+    const suggest = Math.min(10_000, higherSlice, relievable)
     const saving = Math.round(suggest * 0.4)
     if (saving > 0) {
       tips.push({
@@ -577,7 +591,10 @@ export function calculateTax(input: TaxInput): TaxResult {
   // ── 3. Personal Allowance ──────────────────────────────────────────────────
   // Taper uses adjusted NET income = total income less the gross pension
   // contribution (= earnings + dividends − pensionGross = adjustedProfit + divs).
-  const paRaw = calcPA(adjustedProfit + dividendIncome)
+  // This single figure also drives the taper/60%-trap flags in step 10 — they
+  // must agree with the allowance they claim to explain.
+  const adjustedNetIncome = adjustedProfit + Math.max(0, dividendIncome)
+  const paRaw = calcPA(adjustedNetIncome)
   // Marriage Allowance TRANSFEROR gives £1,260 of PA away → their PA drops.
   // RECIPIENT keeps full PA and instead gets a tax reducer applied after the
   // income-tax bands (see step 5). MA off, or role=recipient, leaves PA intact.
@@ -670,7 +687,12 @@ export function calculateTax(input: TaxInput): TaxResult {
     totalIncome > 0 ? Math.min(100, round2((totalDeductions / totalIncome) * 100)) : 0
 
   // ── 10. Flags ──────────────────────────────────────────────────────────────
-  const sixtyPercentTrap = adjustedProfit > PA_TAPER_START && adjustedProfit < PA_TAPER_END
+  // The trap is a property of ADJUSTED NET INCOME — the same figure the taper in
+  // step 3 uses. Measuring it on adjustedProfit alone meant a user whose income
+  // crossed £100,000 only once dividends were counted had their Personal
+  // Allowance quietly tapered while the app told them they were not in the trap
+  // and withheld the tip that would have fixed it.
+  const sixtyPercentTrap = adjustedNetIncome > PA_TAPER_START && adjustedNetIncome < PA_TAPER_END
   const taperWarning = sixtyPercentTrap
   const mtdWarning =
     (employmentType === 'self-employed' || employmentType === 'director') && grossRevenue > 50_000
@@ -724,9 +746,13 @@ export function calculateTax(input: TaxInput): TaxResult {
     {
       label: 'Adjusted Net Income',
       value: adjustedProfit,
-      note: isScotland
-        ? 'Income less the gross pension — the Personal Allowance taper and income-tax base'
-        : 'Income less the gross pension — used for the Personal Allowance taper check',
+      note:
+        (isScotland
+          ? 'Income less the gross pension — the Personal Allowance taper and income-tax base'
+          : 'Income less the gross pension — used for the Personal Allowance taper check') +
+        (dividendIncome > 0
+          ? `. The taper is measured on ${fmtGBP(adjustedNetIncome)} — this figure plus your ${fmtGBP(dividendIncome)} of dividends`
+          : ''),
     },
     {
       label: 'Personal Allowance',

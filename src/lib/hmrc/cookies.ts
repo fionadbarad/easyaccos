@@ -54,6 +54,25 @@ export function readTokensCookie(req: NextRequest): StoredTokens | null {
   }
 }
 
+/**
+ * Move any cookies written to `carrier` onto `res`, and return `res`.
+ *
+ * A route handler cannot know at auth time which response it will eventually
+ * send, so `getValidAccessToken` writes the rotated tokens to a throwaway
+ * carrier response. Every exit path then has to carry them across — including
+ * the failure paths. HMRC's refresh tokens are single-use: once a refresh has
+ * been redeemed the old token is dead, so dropping the new one because the
+ * submission itself was rejected leaves the browser holding a spent token and
+ * forces the user to reconnect to HMRC before they can fix and resend the
+ * return — exactly when they least expect it.
+ */
+export function carryCookies<T>(carrier: NextResponse, res: NextResponse<T>): NextResponse<T> {
+  for (const cookie of carrier.cookies.getAll()) {
+    res.cookies.set(cookie)
+  }
+  return res
+}
+
 export function setStateCookie(res: NextResponse, state: string): void {
   // 10 min — same as HMRC authorization code lifetime
   res.cookies.set(STATE_COOKIE, state, {

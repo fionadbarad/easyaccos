@@ -74,18 +74,13 @@ export async function secureRead<T>(
   }
 }
 
-export async function secureWrite<T>(recordKey: string, value: T): Promise<boolean> {
+export async function secureWrite<T>(
+  recordKey: string,
+  value: T,
+  legacyLocalKey?: string | null,
+): Promise<boolean> {
   if (!isIDBAvailable()) {
-    if (typeof localStorage !== 'undefined') {
-      try {
-        localStorage.setItem(legacyFromRecord(recordKey), JSON.stringify(value))
-        return true
-      } catch (err) {
-        reportError('secureStore.write', err, { recordKey })
-        return false
-      }
-    }
-    return false
+    return writeLegacy(recordKey, value, legacyLocalKey)
   }
   try {
     const key = await getDeviceKey()
@@ -94,6 +89,35 @@ export async function secureWrite<T>(recordKey: string, value: T): Promise<boole
     return true
   } catch (err) {
     reportError('secureStore.write', err, { recordKey })
+    // `window.indexedDB` existing is not the same as IndexedDB working: a
+    // private window, a blocked-storage policy or a quota rejection all fail
+    // here after isIDBAvailable() said yes. secureRead already degrades to
+    // localStorage in that case, so the write must too — otherwise the user's
+    // entry is simply gone.
+    return writeLegacy(recordKey, value, legacyLocalKey)
+  }
+}
+
+/**
+ * Plaintext localStorage fallback for when IndexedDB is unavailable.
+ *
+ * The key must be the SAME one secureRead falls back to. Deriving it from the
+ * record key instead ("user_expenses:guest" → "user_expenses") produced a key
+ * nothing ever reads, because secureRead's fallback reads `legacyLocalKey`
+ * ("easyacco_expenses") — so every write in this path landed somewhere
+ * unreadable and the data vanished on refresh.
+ *
+ * Note this tier is NOT encrypted: there is no IndexedDB to hold the device key,
+ * so there is no key to encrypt with. It is the difference between keeping the
+ * user's data and losing it, not a security tier.
+ */
+function writeLegacy<T>(recordKey: string, value: T, legacyLocalKey?: string | null): boolean {
+  if (typeof localStorage === 'undefined') return false
+  try {
+    localStorage.setItem(legacyLocalKey ?? legacyFromRecord(recordKey), JSON.stringify(value))
+    return true
+  } catch (err) {
+    reportError('secureStore.writeLegacy', err, { recordKey })
     return false
   }
 }

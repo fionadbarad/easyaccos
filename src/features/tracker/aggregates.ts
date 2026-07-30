@@ -39,9 +39,19 @@ export function yearlyExpenses(expenses: DatedAmount[]): number {
   return expenses.filter((e) => inTaxYear(e.date)).reduce((s, e) => s + Number(e.amount), 0)
 }
 
-/** Projects a partial-year total to a full year. Returns 0 if no months elapsed. */
+/**
+ * Projects a partial-year total to a full year. Returns 0 if no months elapsed.
+ *
+ * The elapsed figure is floored at one month. `monthsElapsed` is days/30.44, so
+ * on 8 April it is about 0.07 — dividing by that multiplies the year's first
+ * few transactions by roughly 150, and the tracker would tell someone who had
+ * logged one £3,000 invoice that they were on course for £450,000 and owed tax
+ * to match. Annualising at 12× is the most aggressive honest reading of a
+ * fortnight's data.
+ */
 export function projectAnnual(partialTotal: number, monthsElapsed: number): number {
-  return monthsElapsed > 0 ? (partialTotal / monthsElapsed) * 12 : 0
+  if (monthsElapsed <= 0) return 0
+  return (partialTotal / Math.max(1, monthsElapsed)) * 12
 }
 
 export function potShortfall(projectedBill: number, savedSoFar: number): number {

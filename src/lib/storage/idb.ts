@@ -26,8 +26,16 @@ let dbPromise: Promise<IDBDatabase> | null = null
 function openDB(): Promise<IDBDatabase> {
   if (!hasIDB()) return Promise.reject(new Error('IndexedDB unavailable'))
   if (dbPromise) return dbPromise
-  dbPromise = new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, DB_VERSION)
+  const pending = new Promise<IDBDatabase>((resolve, reject) => {
+    let req: IDBOpenDBRequest
+    try {
+      req = indexedDB.open(DB_NAME, DB_VERSION)
+    } catch (err) {
+      // Firefox in a private window and some enterprise storage policies throw
+      // synchronously from open() even though `window.indexedDB` exists.
+      reject(err instanceof Error ? err : new Error('IndexedDB open threw'))
+      return
+    }
     req.onupgradeneeded = () => {
       const db = req.result
       if (!db.objectStoreNames.contains(STORE_KV)) db.createObjectStore(STORE_KV)
@@ -40,8 +48,21 @@ function openDB(): Promise<IDBDatabase> {
     }
     req.onsuccess = () => resolve(req.result)
     req.onerror = () => reject(req.error ?? new Error('IndexedDB open failed'))
+    // A version upgrade is BLOCKED while another tab still holds the old
+    // version open. Neither onsuccess nor onerror fires in that state, so
+    // without this the promise never settles — and because every caller awaits
+    // openDB, the whole local store stalls silently with `loading` stuck on.
+    // Reject instead, so callers fall back rather than hang.
+    req.onblocked = () =>
+      reject(new Error('IndexedDB upgrade blocked by another open tab — close it and reload'))
   })
-  return dbPromise
+  // Never cache a rejection: a transient failure would otherwise poison every
+  // later call for the lifetime of the page.
+  dbPromise = pending
+  pending.catch(() => {
+    if (dbPromise === pending) dbPromise = null
+  })
+  return pending
 }
 
 function tx<T>(
@@ -52,10 +73,31 @@ function tx<T>(
   return openDB().then(
     (db) =>
       new Promise<T>((resolve, reject) => {
-        const t = db.transaction(store, mode)
-        const req = fn(t.objectStore(store))
-        req.onsuccess = () => resolve(req.result as T)
+        let t: IDBTransaction
+        let req: IDBRequest<T>
+        try {
+          t = db.transaction(store, mode)
+          req = fn(t.objectStore(store))
+        } catch (err) {
+          // put()/get() can throw synchronously (DataError, DataCloneError on a
+          // value structured-clone can't handle). Reject rather than leaving the
+          // promise pending forever.
+          reject(err instanceof Error ? err : new Error('IndexedDB request threw'))
+          return
+        }
+        // A request can succeed and the TRANSACTION still fail at commit —
+        // QuotaExceededError being the common one. That fires on the
+        // transaction, not the request. So settle on the transaction: resolving
+        // on req.onsuccess alone reported a write as durable before it was, and
+        // left the promise pending forever when the commit then failed.
+        let result: T | undefined
+        req.onsuccess = () => {
+          result = req.result as T
+        }
         req.onerror = () => reject(req.error)
+        t.oncomplete = () => resolve(result as T)
+        t.onabort = () => reject(t.error ?? new Error(`IndexedDB transaction aborted [${store}]`))
+        t.onerror = () => reject(t.error ?? new Error(`IndexedDB transaction failed [${store}]`))
       }),
   )
 }

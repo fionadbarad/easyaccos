@@ -20,6 +20,7 @@ import {
   NI_C1_MAIN,
   NI_C1_UPPER,
   NI_C4_MAIN,
+  NI_C4_UPPER,
   NI_C2_WEEKLY,
   NI_CLASS2_SPT,
   DIV_ALLOWANCE,
@@ -70,7 +71,7 @@ Dividend Tax Rates (2026/27):
 - ${pct(DIV_ADDL)} in additional rate band
 
 National Insurance (Self-Employed):
-- Class 4: ${pct(NI_C4_MAIN)} on profits ${fmtGBP(NI_PT)} to ${fmtGBP(NI_UEL)}; ${pct(NI_C1_UPPER)} above
+- Class 4: ${pct(NI_C4_MAIN)} on profits ${fmtGBP(NI_PT)} to ${fmtGBP(NI_UEL)}; ${pct(NI_C4_UPPER)} above
 - Class 2: deemed paid (no charge) if profit above ${fmtGBP(NI_CLASS2_SPT)} SPT
 - Class 2 voluntary: £${NI_C2_WEEKLY.toFixed(2)}/week if profit below ${fmtGBP(NI_CLASS2_SPT)} SPT
 
@@ -120,7 +121,7 @@ const OFFLINE = {
     'equipment, training, professional subscriptions, pension contributions. ' +
     'Enter your expenses in the Tax Estimator to see the exact reduction.',
   ni:
-    `Self-employed Class 4 NI: **${pct(NI_C4_MAIN)}** on profits ${fmtGBP(NI_PT)} to ${fmtGBP(NI_UEL)}, then **${pct(NI_C1_UPPER)}** above. ` +
+    `Self-employed Class 4 NI: **${pct(NI_C4_MAIN)}** on profits ${fmtGBP(NI_PT)} to ${fmtGBP(NI_UEL)}, then **${pct(NI_C4_UPPER)}** above. ` +
     `Class 2 is deemed paid at no charge once profits exceed ${fmtGBP(NI_CLASS2_SPT)}. ` +
     `Employed Class 1: **${pct(NI_C1_MAIN)}** on earnings ${fmtGBP(NI_PT)} to ${fmtGBP(NI_UEL)}, then ${pct(NI_C1_UPPER)} above.`,
   trap:
@@ -223,13 +224,20 @@ export async function POST(request: NextRequest) {
 
     const stream = new ReadableStream({
       async start(controller) {
+        const encoder = new TextEncoder()
         try {
           for await (const chunk of result) {
             const text = chunk.text
-            if (text) controller.enqueue(new TextEncoder().encode(text))
+            if (text) controller.enqueue(encoder.encode(text))
           }
-        } finally {
           controller.close()
+        } catch (err) {
+          // A mid-stream failure used to land in `finally`, which closed the
+          // stream cleanly — so the browser saw a truncated answer as a complete
+          // one, with nothing logged. Error the stream instead: the client's
+          // reader rejects and can say the answer was cut short.
+          reportError('api.ai.chat.stream', err)
+          controller.error(err)
         }
       },
     })

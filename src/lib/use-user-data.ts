@@ -10,7 +10,7 @@
 
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { getSupabaseBrowserClient } from '@/lib/supabase-client-singleton'
 import { secureRead, secureWrite } from '@/lib/storage/secure-store'
 import { appendAuditLog } from '@/lib/audit'
@@ -74,6 +74,19 @@ export function useUserData<T extends AuditableRow>(table: Table, localKey: stri
 
   const reloadKey = useRestoreSignal()
 
+  // `seed` is only the value to fall back to when nothing is stored yet — it is
+  // not something a reload should be keyed on. Four call sites pass an inline
+  // `[]`, which is a fresh array identity on every render; with `seed` in the
+  // load effect's dependency list that made the effect re-run on every render,
+  // and each load's `setItems(newArray)` triggered the next render — an
+  // unbounded loop of Supabase selects (and IndexedDB reads in guest mode) for
+  // as long as the page stayed open. Holding it in a ref keeps the latest value
+  // available to the loader without making it a reload trigger.
+  const seedRef = useRef(seed)
+  useEffect(() => {
+    seedRef.current = seed
+  }, [seed])
+
   // ── Load on mount / auth change / restore signal ─────────────────────────
   useEffect(() => {
     let cancelled = false
@@ -96,7 +109,7 @@ export function useUserData<T extends AuditableRow>(table: Table, localKey: stri
               table,
               user.id,
               localKey,
-              seed,
+              seedRef.current,
               cancelled,
               setItems,
               setLoading,
@@ -106,7 +119,7 @@ export function useUserData<T extends AuditableRow>(table: Table, localKey: stri
           setItems((rows ?? []) as T[])
           setSyncStatus('synced')
           try {
-            await secureWrite(`${table}:${user.id}`, rows ?? [])
+            await secureWrite(`${table}:${user.id}`, rows ?? [], localKey)
           } catch (err) {
             reportError('useUserData.cacheWrite', err, { table })
           }
@@ -119,14 +132,22 @@ export function useUserData<T extends AuditableRow>(table: Table, localKey: stri
             table,
             user.id,
             localKey,
-            seed,
+            seedRef.current,
             cancelled,
             setItems,
             setLoading,
           )
         }
       } else if (user === null) {
-        await loadLocalSnapshot<T>(table, null, localKey, seed, cancelled, setItems, setLoading)
+        await loadLocalSnapshot<T>(
+          table,
+          null,
+          localKey,
+          seedRef.current,
+          cancelled,
+          setItems,
+          setLoading,
+        )
       }
     }
 
@@ -136,7 +157,8 @@ export function useUserData<T extends AuditableRow>(table: Table, localKey: stri
     }
     // `reloadKey` ticks when a backup restore emits RESTORE_EVENT; it is a
     // dependency so the restored rows are actually re-read into the UI.
-  }, [user, table, localKey, seed, supabase, reloadKey])
+    // `seed` is deliberately NOT a dependency — see seedRef above.
+  }, [user, table, localKey, supabase, reloadKey])
 
   // ── Persist ───────────────────────────────────────────────────────────────
   const persist = useCallback(
@@ -181,19 +203,19 @@ export function useUserData<T extends AuditableRow>(table: Table, localKey: stri
 
         setSyncStatus(ok ? 'synced' : 'error')
         try {
-          await secureWrite(`${table}:${user.id}`, stamped)
+          await secureWrite(`${table}:${user.id}`, stamped, localKey)
         } catch (err) {
           reportError('useUserData.localCache', err, { table })
         }
       } else {
         try {
-          await secureWrite(`${table}:guest`, stamped)
+          await secureWrite(`${table}:guest`, stamped, localKey)
         } catch (err) {
           reportError('useUserData.persist.guest', err, { table })
         }
       }
     },
-    [user, table, supabase, items],
+    [user, table, localKey, supabase, items],
   )
 
   const lastSynced = useMemo(() => {

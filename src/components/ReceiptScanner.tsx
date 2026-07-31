@@ -252,6 +252,7 @@ export default function ReceiptScanner({ onExtract }: Props) {
               </div>
               <button
                 onClick={close}
+                aria-label="Close receipt scanner"
                 style={{
                   background: 'none',
                   border: 'none',

@@ -263,11 +263,18 @@ export default function SecurityPage() {
           >
             baradfiona14@gmail.com
           </a>{' '}
-          — or{' '}
-          <Link href="/dashboard" style={{ color: C.white }}>
-            return to the dashboard
+          — or read the full{' '}
+          <Link href="/privacy" style={{ color: C.white }}>
+            privacy notice
           </Link>
-          .
+          , which sets out every recipient of your data and your rights under UK GDPR.
+        </p>
+
+        {/* Required by HMRC's branding rules: software using their APIs must not
+            present itself as produced or approved by them. */}
+        <p style={{ color: C.dim, fontSize: T.meta, lineHeight: 1.7, marginTop: '1.5rem' }}>
+          EasyAcco is independent software. It is not produced, endorsed or approved by HM Revenue
+          &amp; Customs.
         </p>
       </div>
     </div>

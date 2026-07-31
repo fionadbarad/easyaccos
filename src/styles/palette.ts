@@ -11,8 +11,16 @@ export const C = {
 
   // Foreground
   white: '#F4F5F8',
-  muted: 'rgba(244,245,248,0.55)', // secondary copy — WCAG AA on #181818
-  dim: 'rgba(244,245,248,0.35)', // eyebrows, decorative labels
+  // Measured against both surfaces (#181818 page, #1C1D20 card):
+  //   white 1.00 → 16.29:1 / 15.46:1
+  //   muted 0.55 →  5.70:1 /  5.56:1   AA body text ✓
+  //   dim   0.48 →  4.63:1 /  4.57:1   AA body text ✓
+  // dim was 0.35, which measures 3.05:1 — enough only for LARGE text, and it
+  // is used for small captions, footers and eyebrow labels throughout. That is
+  // a WCAG 2.2 AA 1.4.3 failure on body-size copy, so the floor is raised to
+  // the lowest alpha that clears 4.5:1 on both surfaces. Do not lower it.
+  muted: 'rgba(244,245,248,0.55)',
+  dim: 'rgba(244,245,248,0.48)',
 
   // Lines
   border: 'rgba(244,245,248,0.07)',

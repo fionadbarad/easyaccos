@@ -95,7 +95,11 @@ export interface TaxResult {
   marriageAllowanceReducer: number // £ knocked off tax as MA recipient (0 if n/a)
 
   // ── National Insurance ───────────────────────────────────────────────
-  niClass1: number // employed / director
+  niClass1: number // employed / director — employee's own liability
+  // The EMPLOYER's secondary contribution on the same salary. Reported for the
+  // one-person-company case where the user is also the employer; deliberately
+  // NOT part of totalDeductions, which is the individual's liability.
+  niEmployerClass1: number
   niClass4: number // self-employed
   niClass2: number // voluntary only (deemed = £0)
   niClass2Deemed: boolean // profit >= £7,105 SPT: record protected, no charge
@@ -151,6 +155,8 @@ import {
   NI_C4_UPPER,
   NI_C2_WEEKLY,
   NI_CLASS2_SPT,
+  EMPLOYER_NI_RATE,
+  EMPLOYER_NI_THRESH,
   DIV_ALLOWANCE,
   DIV_BASIC,
   DIV_HIGHER,
@@ -334,8 +340,29 @@ export function calcScotlandTax(
   return { tax: round2(totalTax), bands }
 }
 
+// ─── NI Class 1 Secondary (Employer) ─────────────────────────────────────────
+/**
+ * The EMPLOYER's Class 1 contribution on a salary — 15% of everything above the
+ * £5,000 Secondary Threshold from 6 April 2026.
+ *
+ * This is not the individual's liability, so it is never added to
+ * `totalDeductions`. It is reported separately because for a one-person limited
+ * company the director IS the employer, and the app's "optimal £12,570 salary —
+ * no NI" advice was simply false without it: that salary costs the company
+ * £1,135.50 a year in secondary contributions.
+ *
+ * NOT MODELLED: Employment Allowance, which can offset an employer's secondary
+ * bill — but is specifically denied to a single-director company with no other
+ * employees, i.e. exactly the case this advice targets. Companies with staff
+ * should expect their real cost to be lower than this figure.
+ */
+export function calcEmployerNI(salary: number): number {
+  if (salary <= EMPLOYER_NI_THRESH) return 0
+  return round2((salary - EMPLOYER_NI_THRESH) * EMPLOYER_NI_RATE)
+}
+
 // ─── NI Class 1 (Employed / Director) ────────────────────────────────────────
-// Uses earnings (gross salary / director salary before expenses)
+// Uses GROSS earnings — see the base note in calculateTax step 6.
 export function calcClass1NI(earnings: number): number {
   if (earnings <= NI_PT) return 0
   if (earnings <= NI_UEL) {
@@ -642,11 +669,25 @@ export function calculateTax(input: TaxInput): TaxResult {
   // lowers an NIC base, and that is a different arrangement this engine does not
   // model. Both bases are therefore the pre-pension figure.
   //
-  // Class 1: employed / director — on earnings (salary before the SIPP). Charging
-  // it on adjustedProfit gave a £10k contributor on £50k earnings an £800 NI
-  // discount they do not get, and contradicted the Class 4 line directly below.
-  const niClass1 =
-    employmentType === 'employed' || employmentType === 'director' ? calcClass1NI(earnings) : 0
+  // Class 1: employed / director — on GROSS PAY, which means neither the pension
+  // NOR the allowable expenses come off it.
+  //
+  // Expenses were still being deducted here after the pension fix, which was the
+  // same mistake half-corrected: `earnings` is revenue LESS expenses, so a
+  // £50,000 salary with £5,000 of employment expenses was charged Class 1 on
+  // £45,000 — under-collecting £400, exactly 8% of the expenses.
+  //
+  // Deductible employment expenses (s336 ITEPA 2003) reduce TAXABLE INCOME for
+  // income tax; they do not reduce "earnings" for NIC purposes (s3 SSCBA 1992).
+  // Income tax and NICs simply have different bases, and the engine has to keep
+  // them apart. Hence grossRevenue, not grossProfit and not adjustedProfit.
+  const salaryForNi = Math.max(0, grossRevenue)
+  const isEmployedOrDirector = employmentType === 'employed' || employmentType === 'director'
+  const niClass1 = isEmployedOrDirector ? calcClass1NI(salaryForNi) : 0
+
+  // The employer's side of the same salary. Reported, never added to the
+  // individual's deductions — see calcEmployerNI.
+  const niEmployerClass1 = isEmployedOrDirector ? calcEmployerNI(salaryForNi) : 0
 
   // Class 4: self-employed — on trading PROFIT before pension (TAX-2).
   const niClass4 = employmentType === 'self-employed' ? calcClass4NI(grossProfit) : 0
@@ -809,6 +850,7 @@ export function calculateTax(input: TaxInput): TaxResult {
     taxBands,
     marriageAllowanceReducer,
     niClass1,
+    niEmployerClass1,
     niClass4,
     niClass2,
     niClass2Deemed,

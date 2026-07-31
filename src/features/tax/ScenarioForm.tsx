@@ -142,7 +142,7 @@ export default function ScenarioForm(p: ScenarioFormProps) {
                       }}
                     >
                       {p.dirSalary === 12_570
-                        ? '✓ Optimal — no NI, full State Pension credit'
+                        ? '✓ No employee NI, qualifying State Pension year (employer NI still applies)'
                         : `Recommended: ${fmt(12_570)}`}
                     </p>
                   }

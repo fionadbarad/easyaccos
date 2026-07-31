@@ -43,8 +43,17 @@ jobs:
       # is made, this stops the gap being invisible.
       - name: Verify pnpm lockfile matches package.json (Vercel installs with pnpm)
         run: |
+          # `corepack enable` alone downloads the LATEST pnpm, which broke this
+          # job the first time it ran: pnpm 11 requires Node >= 22.13 and imports
+          # node:sqlite, so on the Node 20 pinned above it died with
+          # ERR_UNKNOWN_BUILTIN_MODULE. The version has to be pinned.
+          #
+          # It is pinned once, in package.json's "packageManager" field, which
+          # corepack reads here and Vercel reads at deploy time — so CI and the
+          # deploy now agree on the exact pnpm build, and it is the same one
+          # that wrote pnpm-lock.yaml (lockfileVersion 9.0).
           corepack enable
-          pnpm install --frozen-lockfile --lockfile-only
+          corepack pnpm install --frozen-lockfile --lockfile-only
 
       - name: Typecheck
         # `next build` typechecks too, but only after everything else has run.

@@ -637,8 +637,25 @@ describe('validateTaxInput', () => {
     expect(e.dividendIncome).toBeDefined()
   })
 
-  it('rejects pension > £60,000', () => {
+  // TAX-15: this used to assert the opposite. Rejecting >£60,000 was wrong in
+  // both directions — carry-forward makes a larger gross contribution
+  // legitimate, and for a tapered high earner the real ceiling is £10,000, so
+  // the "£60,000" in the message was never their allowance anyway. The engine
+  // caps relief correctly and reports it via annualAllowanceExceeded; the form
+  // should not refuse the figure the user actually paid.
+  it('accepts a pension above the standard annual allowance (carry-forward)', () => {
     const e = validateTaxInput({ ...seInput(200_000), pensionContribution: 60_001 })
+    expect(e.pensionContribution).toBeUndefined()
+  })
+
+  it('still reports the cap on the result rather than silently applying it', () => {
+    const r = calculateTax({ ...seInput(200_000), pensionContribution: 60_001 })
+    expect(r.annualAllowanceExceeded).toBe(true)
+    expect(r.pensionContribution).toBe(r.annualAllowance)
+  })
+
+  it('rejects an absurd pension figure', () => {
+    const e = validateTaxInput({ ...seInput(200_000), pensionContribution: 10_000_000 })
     expect(e.pensionContribution).toBeDefined()
   })
 

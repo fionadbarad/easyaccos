@@ -137,6 +137,98 @@ export async function refreshTokens(
 
 const REFRESH_SKEW_MS = 60 * 1000 // refresh 1 min before expiry
 
+// ─── Single-flight refresh (SEC-15) ──────────────────────────────────────────
+//
+// HMRC refresh tokens are SINGLE USE: redeeming one immediately retires it.
+// Two requests arriving near expiry — a page making parallel calls, two tabs,
+// a retry landing on top of the original — both read the same token from the
+// cookie and both POST it. One wins; the loser gets an `invalid_grant` for a
+// token HMRC has already retired, and whichever response writes last decides
+// what the browser ends up holding. The user is disconnected mid-submission.
+//
+// Two structures fix that within a process:
+//
+//   inFlight  collapses concurrent redemptions of the same token onto one
+//             request, so the second caller awaits the first rather than
+//             racing it.
+//   recent    answers a caller that arrives just AFTER the redemption landed,
+//             still holding the now-spent token from its own cookie read, with
+//             the tokens that redemption produced — instead of sending a
+//             retired token to HMRC and failing.
+//
+// SCOPE, honestly: this is per-instance. On a serverless deployment two
+// requests handled by different instances still race, exactly as
+// `rateLimit` is per-instance for the same reason. It removes the common case
+// (one instance, concurrent handlers) and nothing more; a guarantee across
+// instances needs the tokens in a shared store with a lock, which is a
+// different design. See docs/AUDIT.md SEC-15.
+const REFRESH_RESULT_TTL_MS = 30_000
+const MAX_TRACKED_REFRESHES = 200
+
+const inFlight = new Map<string, Promise<TokenExchangeResult>>()
+const recent = new Map<string, { at: number; result: TokenExchangeResult }>()
+
+function pruneRecent(now: number): void {
+  for (const [k, v] of recent) {
+    if (now - v.at > REFRESH_RESULT_TTL_MS) recent.delete(k)
+  }
+  // Hard bound as well as a TTL: these entries hold live tokens, so the map
+  // must not be able to grow without limit under unusual traffic.
+  if (recent.size > MAX_TRACKED_REFRESHES) {
+    const excess = recent.size - MAX_TRACKED_REFRESHES
+    let dropped = 0
+    for (const k of recent.keys()) {
+      if (dropped++ >= excess) break
+      recent.delete(k)
+    }
+  }
+}
+
+/**
+ * Redeem `refreshToken` at most once, however many callers ask concurrently.
+ *
+ * Only SUCCESSES are remembered. A failure may be transient (a network blip, a
+ * 503) and replaying it would turn one bad moment into 30 seconds of refusing
+ * to try again; a failed attempt also does not retire the token, so there is
+ * nothing to protect a later caller from.
+ */
+export async function refreshTokensOnce(
+  env: HmrcEnv,
+  refreshToken: string,
+  now: number = Date.now(),
+): Promise<TokenExchangeResult> {
+  pruneRecent(now)
+
+  const cached = recent.get(refreshToken)
+  if (cached && now - cached.at <= REFRESH_RESULT_TTL_MS) return cached.result
+
+  const pending = inFlight.get(refreshToken)
+  if (pending) return pending
+
+  const attempt = (async () => {
+    try {
+      const result = await refreshTokens(env, refreshToken)
+      // Stamped with the injected `now`, NOT Date.now(): mixing the two makes
+      // the age comparison meaningless under a test clock (and the entry
+      // effectively immortal), and a refresh completes well inside the TTL, so
+      // call time is the right reading either way.
+      if (result.ok) recent.set(refreshToken, { at: now, result })
+      return result
+    } finally {
+      inFlight.delete(refreshToken)
+    }
+  })()
+
+  inFlight.set(refreshToken, attempt)
+  return attempt
+}
+
+/** Test-only: drop single-flight state so cases cannot leak into each other. */
+export function __resetRefreshStateForTests(): void {
+  inFlight.clear()
+  recent.clear()
+}
+
 export type AccessTokenResult =
   | { ok: true; accessToken: string; tokens: StoredTokens; refreshed: boolean }
   | { ok: false; status: number; message: string; needsReauth?: boolean }
@@ -156,7 +248,9 @@ export async function getValidAccessToken(
   if (stored.expiresAt - Date.now() > REFRESH_SKEW_MS) {
     return { ok: true, accessToken: stored.accessToken, tokens: stored, refreshed: false }
   }
-  const refreshed = await refreshTokens(env, stored.refreshToken)
+  // refreshTokensOnce, not refreshTokens: concurrent handlers holding the same
+  // cookie must not each redeem the same single-use token (SEC-15).
+  const refreshed = await refreshTokensOnce(env, stored.refreshToken)
   if (!refreshed.ok) {
     return {
       ok: false,

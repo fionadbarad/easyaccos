@@ -32,6 +32,39 @@ export default function FullResultPanel({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
+      {/* The contribution was capped below what the user entered — say so, and
+          say which ceiling did it. Silence here meant the breakdown quietly
+          disagreed with their own input with no explanation (TAX-15). */}
+      {result.annualAllowanceExceeded && (
+        <div
+          style={{
+            background: 'rgba(96,165,250,0.08)',
+            border: '1px solid rgba(96,165,250,0.3)',
+            borderRadius: '8px',
+            padding: '0.75rem 1rem',
+            marginBottom: '1.25rem',
+            display: 'flex',
+            gap: '0.6rem',
+          }}
+        >
+          <Info size={16} style={{ color: '#60A5FA', flexShrink: 0, marginTop: '2px' }} />
+          <div>
+            <div style={{ color: '#60A5FA', fontWeight: 700, fontSize: T.body }}>
+              Pension capped at {fmt(result.annualAllowance)}
+            </div>
+            <div style={{ color: C.text, fontSize: T.meta, marginTop: '2px', lineHeight: 1.5 }}>
+              Your annual allowance for this year is {fmt(result.annualAllowance)}
+              {result.annualAllowance < 60_000
+                ? ' — reduced from £60,000 by the taper on high incomes, or by the Money Purchase Annual Allowance if you have flexibly accessed a pot'
+                : ''}
+              , so relief below is calculated on that figure rather than the full amount you
+              entered. Carry-forward of unused allowance from the previous three tax years is not
+              modelled here — if you have any, your real relief may be higher.
+            </div>
+          </div>
+        </div>
+      )}
+
       {result.sixtyPercentTrap && (
         <div
           style={{
@@ -207,7 +240,15 @@ export default function FullResultPanel({
                     indent: false,
                   },
                   {
-                    label: 'Pension Contribution',
+                    // `pensionContribution` on the result is the contribution
+                    // ACTUALLY relieved — capped at relevant earnings and at the
+                    // (tapered / MPAA) annual allowance. When that cap bites,
+                    // the figure here is smaller than what the user typed, so
+                    // the label has to say so rather than silently disagreeing
+                    // with their own input (TAX-15).
+                    label: result.annualAllowanceExceeded
+                      ? 'Pension Contribution (capped)'
+                      : 'Pension Contribution',
                     value: result.pensionContribution / d,
                     bold: false,
                     negative: true,

@@ -6,6 +6,13 @@
  * Local data is AES-GCM encrypted and survives browser refreshes via
  * IndexedDB rather than localStorage. Existing localStorage data is migrated
  * transparently on first read.
+ *
+ * LOADING CONTRACT (DAT-5): `loading` stays true until the Supabase session has
+ * resolved, so it now covers "we do not yet know who you are" as well as "the
+ * rows are still coming". `items` is `[]` for that whole window — consumers
+ * must not treat an empty list as "no records" while `loading` is true. That is
+ * deliberate: the alternative was showing, and then syncing, guest data on
+ * behalf of a user who turned out to be signed in.
  */
 
 'use client'
@@ -32,9 +39,36 @@ export function useUserData<T extends AuditableRow>(table: Table, localKey: stri
   const supabase = useMemo(() => getSupabaseBrowserClient(), [])
 
   const [items, setItems] = useState<T[]>([])
-  const [user, setUser] = useState<User | null>(null)
+  // THREE states, not two (DAT-5):
+  //   undefined — the session has not resolved yet; we do not know who this is
+  //   null      — resolved, and nobody is signed in (guest)
+  //   User      — resolved, signed in
+  //
+  // This used to initialise to `null`, which is indistinguishable from "signed
+  // out", so every mount loaded the GUEST snapshot before the session came
+  // back. Usually that was just a flash of guest data — but a user who acted
+  // inside that window ran `persist` with guest `items` and, moments later, an
+  // authenticated `user`, upserting guest rows into their real account. Loading
+  // now waits for the answer instead of assuming one.
+  // With no Supabase configured there is no session to wait for, so this is a
+  // definitive guest from the first render — seeded here rather than corrected
+  // in an effect, which would both flash and strand the loader on `undefined`.
+  const [user, setUser] = useState<User | null | undefined>(supabase ? undefined : null)
   const [loading, setLoading] = useState(true)
   const [syncStatus, setSyncStatus] = useState<SyncStatus>(supabase ? 'idle' : 'offline')
+
+  // The resolved user, readable from `persist` without making it a dependency.
+  const userRef = useRef<User | null | undefined>(supabase ? undefined : null)
+  useEffect(() => {
+    userRef.current = user
+  }, [user])
+
+  // Resolves once the session lookup has settled either way. `persist` awaits
+  // this rather than branching on an `undefined` user, so an action fired
+  // during the resolve window is attributed to the right account instead of
+  // being written as guest data. Already-resolved when there is no session to
+  // look up.
+  const sessionReadyRef = useRef<Promise<void> | null>(supabase ? null : Promise.resolve())
 
   // ── Track auth state ──────────────────────────────────────────────────────
   useEffect(() => {
@@ -44,13 +78,18 @@ export function useUserData<T extends AuditableRow>(table: Table, localKey: stri
     let debounceTimer: NodeJS.Timeout
 
     // Check current session
-    supabase.auth
+    sessionReadyRef.current = supabase.auth
       .getSession()
       .then(({ data }) => {
-        if (mounted) setUser(data.session?.user ?? null)
+        const resolved = data.session?.user ?? null
+        userRef.current = resolved
+        if (mounted) setUser(resolved)
       })
       .catch((err) => {
         reportError('useUserData.getSession', err, { table })
+        // A failed lookup is still an answer: treat it as signed-out rather
+        // than hanging the loader on `undefined` forever.
+        userRef.current = null
         if (mounted) setUser(null)
       })
 
@@ -60,8 +99,13 @@ export function useUserData<T extends AuditableRow>(table: Table, localKey: stri
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_, session) => {
       clearTimeout(debounceTimer)
+      const next = session?.user ?? null
+      // Keep the ref in step immediately, not after the debounce: `persist` can
+      // fire inside that 50ms and must see the current account, not the
+      // previous one.
+      userRef.current = next
       debounceTimer = setTimeout(() => {
-        if (mounted) setUser(session?.user ?? null)
+        if (mounted) setUser(next)
       }, 50)
     })
 
@@ -139,6 +183,11 @@ export function useUserData<T extends AuditableRow>(table: Table, localKey: stri
           )
         }
       } else if (user === null) {
+        // Explicitly `=== null`, not `else`: while the session is still
+        // resolving `user` is `undefined` and we load NOTHING, leaving
+        // `loading` true. Falling through to the guest snapshot here is what
+        // showed guest rows to a signed-in user for the first few hundred
+        // milliseconds of every mount (DAT-5).
         await loadLocalSnapshot<T>(
           table,
           null,
@@ -163,6 +212,18 @@ export function useUserData<T extends AuditableRow>(table: Table, localKey: stri
   // ── Persist ───────────────────────────────────────────────────────────────
   const persist = useCallback(
     async (next: T[]) => {
+      // Who is this write for? Answer that BEFORE touching any store (DAT-5).
+      // An action fired while the session is still resolving used to take the
+      // guest branch — writing to `${table}:guest`, and then, once the session
+      // landed, syncing those guest rows up into the real account. Waiting on
+      // the lookup costs one tick on the very first write and nothing after.
+      if (userRef.current === undefined && sessionReadyRef.current) {
+        await sessionReadyRef.current
+      }
+      // Still undefined means no session lookup was ever started (no Supabase),
+      // which is a definitive guest.
+      const activeUser = userRef.current ?? null
+
       const now = new Date().toISOString()
       const prevMap = new Map(items.map((i) => [i.id, i]))
 
@@ -181,10 +242,10 @@ export function useUserData<T extends AuditableRow>(table: Table, localKey: stri
       // view would destroy real records. See DAT-1.
       const deletedIds = diffDeletedIds(items, next)
 
-      emitAuditDiff(table, prevMap, stamped, user, supabase)
+      emitAuditDiff(table, prevMap, stamped, activeUser, supabase)
       setItems(stamped)
 
-      if (user && supabase) {
+      if (activeUser && supabase) {
         setSyncStatus('syncing')
 
         const MAX_RETRIES = 3
@@ -192,7 +253,15 @@ export function useUserData<T extends AuditableRow>(table: Table, localKey: stri
         let attempt = 0
 
         while (attempt < MAX_RETRIES && !ok) {
-          ok = await syncSupabaseRows(supabase, table, user.id, stamped, deletedIds, now, setItems)
+          ok = await syncSupabaseRows(
+            supabase,
+            table,
+            activeUser.id,
+            stamped,
+            deletedIds,
+            now,
+            setItems,
+          )
           if (!ok) {
             attempt++
             if (attempt < MAX_RETRIES) {
@@ -203,7 +272,7 @@ export function useUserData<T extends AuditableRow>(table: Table, localKey: stri
 
         setSyncStatus(ok ? 'synced' : 'error')
         try {
-          await secureWrite(`${table}:${user.id}`, stamped, localKey)
+          await secureWrite(`${table}:${activeUser.id}`, stamped, localKey)
         } catch (err) {
           reportError('useUserData.localCache', err, { table })
         }
@@ -215,7 +284,11 @@ export function useUserData<T extends AuditableRow>(table: Table, localKey: stri
         }
       }
     },
-    [user, table, localKey, supabase, items],
+    // `user` is deliberately NOT a dependency: persist reads the identity from
+    // `userRef` after awaiting `sessionReadyRef`, precisely so it uses the
+    // account current at CALL time rather than whatever was captured when the
+    // callback was last rebuilt (DAT-5).
+    [table, localKey, supabase, items],
   )
 
   const lastSynced = useMemo(() => {

@@ -19,6 +19,14 @@ import { Field, NumInput, Toggle } from './primitives'
 import { SCENARIOS, type ScenarioKey, isFullEngineScenario } from './scenarios'
 import { T } from '@/styles/type'
 
+// The input ceiling is NOT the annual allowance (TAX-15). Carry-forward lets a
+// contribution use unused allowance from the previous three tax years, so a
+// figure well above £60,000 can be perfectly real and the field must accept it.
+// The engine caps relief at the allowance that actually applies and says so in
+// the result; clamping the INPUT at £60,000 just stopped people entering the
+// number they had actually paid. This is a sanity bound, nothing more.
+const PENSION_INPUT_MAX = 250_000
+
 export interface ScenarioFormProps {
   scenario: ScenarioKey
   // employed + self-employed
@@ -98,7 +106,7 @@ export default function ScenarioForm(p: ScenarioFormProps) {
                   <NumInput
                     value={p.pensionContribution}
                     onChange={p.setPensionContribution}
-                    max={60_000}
+                    max={PENSION_INPUT_MAX}
                   />
                 </Field>
               </>
@@ -116,7 +124,7 @@ export default function ScenarioForm(p: ScenarioFormProps) {
                   <NumInput
                     value={p.pensionContribution}
                     onChange={p.setPensionContribution}
-                    max={60_000}
+                    max={PENSION_INPUT_MAX}
                   />
                 </Field>
               </>
@@ -148,7 +156,7 @@ export default function ScenarioForm(p: ScenarioFormProps) {
                   <NumInput
                     value={p.pensionContribution}
                     onChange={p.setPensionContribution}
-                    max={60_000}
+                    max={PENSION_INPUT_MAX}
                   />
                 </Field>
               </>

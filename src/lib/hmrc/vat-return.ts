@@ -6,7 +6,7 @@
  * tests need to reach has to sit in a module like this one.
  */
 
-import type { BrowserFraudData } from './fraud-headers'
+import { invalidBrowserFields, type BrowserFraudData } from './fraud-headers'
 
 export type VatReturnBody = {
   vrn: string
@@ -51,7 +51,10 @@ export function missingVatFields(body: Partial<VatReturnBody>): string[] {
     if (!Number.isFinite(body[k])) missing.push(k)
   }
   if (typeof body.finalised !== 'boolean') missing.push('finalised')
-  if (!body.browser) missing.push('browser')
+  // Not just `!body.browser`: buildFraudHeaders indexes into browser.screens and
+  // browser.windowSize outside any try/catch, so `{}` passed this check and then
+  // crashed the route with an untyped 500.
+  missing.push(...invalidBrowserFields(body.browser))
   return missing
 }
 

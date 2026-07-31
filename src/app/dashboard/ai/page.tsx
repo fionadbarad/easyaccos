@@ -14,6 +14,7 @@ import { useUserData } from '@/lib/use-user-data'
 import { buildBaseContext } from '@/lib/acco/context'
 import type { AccoContext, AccoMessage } from '@/lib/acco/types'
 import { T } from '@/styles/type'
+import { newId } from '@/lib/id'
 
 const FETCH_TIMEOUT = 30_000
 
@@ -58,7 +59,7 @@ const QUICK_ACTIONS = [
 ]
 
 function makeMessage(role: AccoMessage['role'], content: string, offline = false): AccoMessage {
-  return { id: crypto.randomUUID(), role, content, ts: Date.now(), offline }
+  return { id: newId(), role, content, ts: Date.now(), offline }
 }
 
 function formatTime(ts: number) {

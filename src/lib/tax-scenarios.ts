@@ -95,10 +95,10 @@ export function calcScenario1(inp: S1Input): ScenarioResult {
   const pa = calcPA(p.adjusted)
   const taxable = Math.max(0, profit - pa)
   const itax = rukIncomeTax(taxable, p.gross)
-  // Class 4 (self-employed) is charged on trading profit before pension — a
-  // personal SIPP does not reduce the NIC base (TAX-2). Class 1 (employed) is on
-  // salary net of pension (unchanged modelling).
-  const ni = inp.employmentType === 'employed' ? calcClass1NI(p.adjusted) : calcClass4NI(profit)
+  // Neither NIC class is reduced by a personal SIPP: relief at source is paid
+  // out of income that has already borne NI, and only salary sacrifice moves an
+  // NIC base. Both are charged on the pre-pension profit (TAX-2).
+  const ni = inp.employmentType === 'employed' ? calcClass1NI(profit) : calcClass4NI(profit)
   const total = round2(itax + ni)
   const takeHome = round2(Math.max(0, profit - total - p.netCost))
   const effRate = effective(total, profit)
@@ -156,7 +156,9 @@ export function calcScenario2(inp: S2Input): ScenarioResult {
   const paLost = Math.max(0, PA_BASE - pa)
   const taxable = Math.max(0, inp.grossIncome - pa)
   const itax = rukIncomeTax(taxable, p.gross)
-  const ni = calcClass1NI(adjusted)
+  // Class 1 on the FULL salary — a relief-at-source SIPP does not reduce the
+  // NIC base, only the PA-taper base above (TAX-2).
+  const ni = calcClass1NI(inp.grossIncome)
   const total = round2(itax + ni)
   const takeHome = round2(Math.max(0, inp.grossIncome - total - p.netCost))
   const effRate = effective(total, inp.grossIncome)
@@ -337,8 +339,9 @@ export function calcScenario5(inp: S5Input): ScenarioResult {
   const p = sippRelief(salary, dividends, inp.pension)
   const adjustedSal = p.adjusted
 
-  // NI: salary only, net of pension. Dividends are NI-free.
-  const ni = calcClass1NI(adjustedSal)
+  // NI: salary only, and on the FULL salary — dividends are NI-free, and a
+  // relief-at-source SIPP does not reduce the Class 1 base (TAX-2).
+  const ni = calcClass1NI(salary)
   // PA taper: combined adjusted net income.
   const pa = calcPA(adjustedSal + dividends)
   // Income tax: the full salary consumes PA first (relief comes via the wider

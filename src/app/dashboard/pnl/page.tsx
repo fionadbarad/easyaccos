@@ -22,6 +22,7 @@ import { isCostOfSales, isInferredCategory } from '@/lib/transactions/cost-categ
 
 import { C } from '@/styles/palette'
 import { T } from '@/styles/type'
+import { newId } from '@/lib/id'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
@@ -176,7 +177,7 @@ export default function PnLPage() {
     // row now simply says what it is, and the user's wording is left alone.
     const next: Transaction[] = [
       {
-        id: crypto.randomUUID(),
+        id: newId(),
         date: cogsForm.date,
         description: cogsForm.description.trim(),
         type: 'expense',

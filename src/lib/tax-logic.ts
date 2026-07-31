@@ -635,16 +635,20 @@ export function calculateTax(input: TaxInput): TaxResult {
   const incomeTax = round2(Math.max(0, incomeTaxRaw - marriageAllowanceReducer))
 
   // ── 6. National Insurance ──────────────────────────────────────────────────
-  // Class 1: employed / director — on adjusted profit (salary)
+  // NEITHER class of NIC is reduced by a personal pension. `pensionContribution`
+  // is documented as a GROSS SIPP contribution given relief at source: the saver
+  // pays it out of income already taxed and NIC'd, and the relief arrives as the
+  // provider's 20% top-up plus a wider basic-rate band. Only SALARY SACRIFICE
+  // lowers an NIC base, and that is a different arrangement this engine does not
+  // model. Both bases are therefore the pre-pension figure.
+  //
+  // Class 1: employed / director — on earnings (salary before the SIPP). Charging
+  // it on adjustedProfit gave a £10k contributor on £50k earnings an £800 NI
+  // discount they do not get, and contradicted the Class 4 line directly below.
   const niClass1 =
-    employmentType === 'employed' || employmentType === 'director'
-      ? calcClass1NI(adjustedProfit)
-      : 0
+    employmentType === 'employed' || employmentType === 'director' ? calcClass1NI(earnings) : 0
 
-  // Class 4: self-employed — on trading PROFIT before pension. A personal SIPP
-  // gets relief at source and does NOT reduce the Class 4 NIC base, so this uses
-  // grossProfit, not adjustedProfit (TAX-2). (Class 1 above is left on
-  // adjustedProfit — that modelling is out of TAX-2's scope.)
+  // Class 4: self-employed — on trading PROFIT before pension (TAX-2).
   const niClass4 = employmentType === 'self-employed' ? calcClass4NI(grossProfit) : 0
 
   // Class 2 (2026/27 rules):
@@ -835,22 +839,33 @@ export function validateTaxInput(input: TaxInput): ValidationErrors {
   const e: ValidationErrors = {}
   const MAX = 9_999_999
 
-  if (input.grossRevenue < 0) e.grossRevenue = 'Gross income cannot be negative'
+  // Every check below is a `<`/`>` comparison, and EVERY comparison against NaN
+  // is false \u2014 so NaN (and \u00b1Infinity) used to pass validation untouched, flow
+  // straight into calculateTax, and come back out as NaN in every field for the
+  // UI to render as "\u00a3NaN". A blank or half-typed number input reaches here as
+  // NaN routinely, so this is the common path, not an exotic one. Reject
+  // non-finite values up front, the way missingVatFields already does.
+  const NOT_A_NUMBER = 'Enter a valid number'
+  if (!Number.isFinite(input.grossRevenue)) e.grossRevenue = NOT_A_NUMBER
+  else if (input.grossRevenue < 0) e.grossRevenue = 'Gross income cannot be negative'
   else if (input.grossRevenue > MAX) e.grossRevenue = 'Maximum supported income is \u00a39,999,999'
 
   // Expenses may legitimately equal or exceed revenue \u2014 that is a trading loss,
   // not an error. Only a negative or oversized figure is rejected (TAX-11).
-  if (input.allowableExpenses < 0) e.allowableExpenses = 'Expenses cannot be negative'
+  if (!Number.isFinite(input.allowableExpenses)) e.allowableExpenses = NOT_A_NUMBER
+  else if (input.allowableExpenses < 0) e.allowableExpenses = 'Expenses cannot be negative'
   else if (input.allowableExpenses > MAX)
     e.allowableExpenses = 'Maximum supported expenses is \u00a39,999,999'
 
-  if (input.dividendIncome < 0) e.dividendIncome = 'Dividend income cannot be negative'
+  if (!Number.isFinite(input.dividendIncome)) e.dividendIncome = NOT_A_NUMBER
+  else if (input.dividendIncome < 0) e.dividendIncome = 'Dividend income cannot be negative'
   else if (input.dividendIncome > MAX)
     e.dividendIncome = 'Maximum supported dividend income is \u00a39,999,999'
 
-  if (input.pensionContribution < 0)
+  if (!Number.isFinite(input.pensionContribution)) e.pensionContribution = NOT_A_NUMBER
+  else if (input.pensionContribution < 0)
     e.pensionContribution = 'Pension contribution cannot be negative'
-  else if (input.pensionContribution > 60_000)
+  else if (input.pensionContribution > ANNUAL_ALLOWANCE)
     e.pensionContribution = 'Exceeds \u00a360,000 annual pension allowance'
 
   return e

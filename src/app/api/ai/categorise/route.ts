@@ -56,10 +56,14 @@ function heuristic(description: string): Category {
 
 const MODEL = 'gemini-2.5-flash'
 
-let _ai: GoogleGenAI | null = null
+// Keyed cache — see the same helper in ../chat/route.ts. `if (!_ai)` ignored
+// the apiKey argument, pinning the warm instance to the first key it ever saw.
+let _ai: { key: string; client: GoogleGenAI } | null = null
 function getAI(apiKey: string): GoogleGenAI {
-  if (!_ai) _ai = new GoogleGenAI({ apiKey })
-  return _ai
+  if (!_ai || _ai.key !== apiKey) {
+    _ai = { key: apiKey, client: new GoogleGenAI({ apiKey }) }
+  }
+  return _ai.client
 }
 
 const SYSTEM = `You are a UK sole-trader expense categoriser. Respond with exactly one category from this list, and nothing else:

@@ -155,10 +155,16 @@ function offlineReply(query: string): string {
 // drop back to the offline canned replies below.)
 const MODEL = 'gemini-2.5-flash'
 
-let _ai: GoogleGenAI | null = null
+// Cached per key, not just "the first client ever built". `if (!_ai)` ignored
+// its own argument, so a rotated GEMINI_API_KEY kept authenticating with the
+// retired one for the lifetime of the warm instance — and a fallback from
+// GEMINI_API_KEY to GOOGLE_API_KEY picked whichever happened to be first.
+let _ai: { key: string; client: GoogleGenAI } | null = null
 function getAI(apiKey: string): GoogleGenAI {
-  if (!_ai) _ai = new GoogleGenAI({ apiKey })
-  return _ai
+  if (!_ai || _ai.key !== apiKey) {
+    _ai = { key: apiKey, client: new GoogleGenAI({ apiKey }) }
+  }
+  return _ai.client
 }
 
 export async function POST(request: NextRequest) {

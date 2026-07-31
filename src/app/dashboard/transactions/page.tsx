@@ -21,6 +21,7 @@ import {
 
 import { C } from '@/styles/palette'
 import { T } from '@/styles/type'
+import { newId } from '@/lib/id'
 type DateFilter = 'all' | 'today' | 'month' | 'custom'
 
 const inputStyle: React.CSSProperties = {
@@ -97,8 +98,8 @@ export default function TransactionsPage() {
     const { cost_category, ...rest } = form
     const row: Transaction =
       form.type === 'expense'
-        ? { id: crypto.randomUUID(), ...rest, amount, cost_category }
-        : { id: crypto.randomUUID(), ...rest, amount }
+        ? { id: newId(), ...rest, amount, cost_category }
+        : { id: newId(), ...rest, amount }
     await persist([row, ...txs])
     setForm((f) => ({ ...f, description: '', amount: '', reference: '' }))
     setShowForm(false)

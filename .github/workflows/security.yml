@@ -21,6 +21,18 @@
 # testssl.sh against the TLS endpoint — is deliberately NOT automated here,
 # because it sends traffic at a live deployment and that should be a decision a
 # human makes, not a cron. The commands are in docs/PENTEST-SCOPE.md.
+#
+# Every `uses:` below is pinned to a full commit SHA, not a tag. A tag is a
+# mutable pointer the action's owner can silently repoint, which is how the
+# trivy-action and kics-github-action compromises worked — and the CodeQL and
+# Semgrep jobs here hold `security-events: write`, so a swapped action would be
+# running with a token that can write to this repository's security findings.
+# The trailing `# v4` comments are what Dependabot reads to keep the pins
+# current; do not replace a SHA with a tag to make the file tidier.
+#
+# Found by this workflow's own Semgrep job on the pull request that added it,
+# along with the missing Dependabot cooldown. Worth recording: the first thing
+# the scanner caught was the scanner's own configuration.
 
 name: Security
 
@@ -61,9 +73,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -101,16 +113,16 @@ jobs:
       actions: read
       security-events: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Initialise CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@47be0dbd5113ab1b79fe2dd3f68bdf7e426cdc87 # v3
         with:
           languages: javascript-typescript
           queries: security-extended
 
       - name: Analyse
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@47be0dbd5113ab1b79fe2dd3f68bdf7e426cdc87 # v3
         with:
           category: '/language:javascript-typescript'
 
@@ -142,7 +154,7 @@ jobs:
     container:
       image: semgrep/semgrep
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Scan
         continue-on-error: true
@@ -157,7 +169,7 @@ jobs:
 
       - name: Upload results
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@47be0dbd5113ab1b79fe2dd3f68bdf7e426cdc87 # v3
         with:
           sarif_file: semgrep.sarif
           category: semgrep

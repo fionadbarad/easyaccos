@@ -27,6 +27,30 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # This repo carries BOTH package-lock.json and pnpm-lock.yaml, and the two
+      # are consumed by different systems: CI installs with `npm ci` above,
+      # while Vercel detects pnpm-lock.yaml and installs with pnpm
+      # --frozen-lockfile. So a dependency change made with only one package
+      # manager leaves the other lockfile stale — CI goes green and the deploy
+      # fails. That is not hypothetical; it happened on PR #59, where packages
+      # removed via npm stayed listed in pnpm-lock.yaml.
+      #
+      # This step reproduces Vercel's check cheaply: --lockfile-only resolves
+      # without downloading anything, and --frozen-lockfile makes it FAIL rather
+      # than silently repair a lockfile that disagrees with package.json.
+      #
+      # Better still would be to keep one package manager. Until that decision
+      # is made, this stops the gap being invisible.
+      - name: Verify pnpm lockfile matches package.json (Vercel installs with pnpm)
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile --lockfile-only
+
+      - name: Typecheck
+        # `next build` typechecks too, but only after everything else has run.
+        # Failing here turns a 20-minute red build into a 30-second one.
+        run: npx tsc --noEmit
+
       - name: Lint
         run: npm run lint
 

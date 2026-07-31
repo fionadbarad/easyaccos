@@ -138,6 +138,7 @@ export function ReceiptVerifyModal({
           </div>
           <button
             onClick={onCancel}
+            aria-label="Close and discard scanned receipt"
             style={{
               background: 'none',
               border: 'none',

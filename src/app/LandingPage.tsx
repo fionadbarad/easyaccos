@@ -64,7 +64,7 @@ const MODULES = [
 ]
 
 const TRUST_POINTS = [
-  'HMRC 2026/27 rules — verified against official guidance',
+  'Calculations follow published HMRC guidance for 2026/27',
   'No account required — open the dashboard and start immediately',
   'Data encrypted in your browser with AES-256 — nothing leaves your device',
   'Making Tax Digital ready — quarterly submission tracking',
@@ -155,7 +155,12 @@ export default function LandingPage() {
         <AnimatedWrapper delay={0}>
           <div className="relative z-10 max-w-[800px] mx-auto w-full">
             <div className="inline-flex items-center gap-[6px] px-3 py-1 border border-sa-border rounded-[3px] text-sa-dim text-caption tracking-[0.15em] uppercase mb-8 font-mono">
-              UK Tax Platform · 2026/27 · HMRC-Accurate · Free
+              {/* NOT "HMRC-Accurate". Placing the HMRC name in a badge next to
+                  the product name reads as HMRC having vouched for it, which is
+                  what their branding rules forbid — and it was cited in the
+                  production-credentials rejection. State what is true instead:
+                  the rates are the published 2026/27 ones. */}
+              UK Tax Platform · 2026/27 Rates · Free
             </div>
 
             <h1 className="text-h1 font-semibold leading-[1.05] tracking-[-0.04em] mb-7 text-sa-white">
@@ -294,8 +299,11 @@ export default function LandingPage() {
       <footer className="px-6 py-8 border-t border-sa-border">
         <div className="max-w-[1120px] mx-auto flex flex-wrap items-center justify-between gap-3">
           <span className="text-sa-white text-body font-semibold tracking-[-0.02em]">EasyAcco</span>
+          {/* The non-affiliation statement is the thing HMRC looks for. Keep it
+              on the marketing surface, not buried in a legal page. */}
           <p className="text-sa-dim text-caption font-mono">
-            2026 · UK Sole Traders &amp; Freelancers · Not financial advice · HMRC 2026/27
+            2026 · UK Sole Traders &amp; Freelancers · Not financial advice · Independent software,
+            not endorsed or approved by HM Revenue &amp; Customs
           </p>
           <div className="flex items-center gap-4">
             <span className="text-sa-dim text-caption font-mono">Encrypted via Supabase</span>
@@ -303,7 +311,15 @@ export default function LandingPage() {
               href="/security"
               className="text-sa-dim text-caption no-underline hover:text-sa-muted transition-colors"
             >
-              Security &amp; Privacy
+              Security
+            </a>
+            {/* The privacy notice is a UK GDPR Art. 13 requirement and must be
+                reachable from the public surface, not only from inside the app. */}
+            <a
+              href="/privacy"
+              className="text-sa-dim text-caption no-underline hover:text-sa-muted transition-colors"
+            >
+              Privacy
             </a>
             <a
               href="/demo"

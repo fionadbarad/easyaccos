@@ -4,7 +4,6 @@ import { Inter } from 'next/font/google'
 import { Geist_Mono } from 'next/font/google'
 import Script from 'next/script'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
-import VercelAnalytics from '@/components/VercelAnalytics'
 
 // Preload Inter with optimized subsets — only loads weights 400, 500, 600
 // and Latin subset. Preconnected to Google Fonts CDN.
@@ -45,8 +44,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${geistMono.variable}`}>
       <body className="antialiased" suppressHydrationWarning>
         <ErrorBoundary>{children}</ErrorBoundary>
-        {/* Vercel analytics — deferred to not block FCP */}
-        <VercelAnalytics />
+        {/* NO ANALYTICS, DELIBERATELY. Vercel Analytics and Speed Insights used
+            to load here on every route, before any consent and including
+            authenticated /dashboard pages — while /security told visitors
+            "EasyAcco does not embed tracking pixels, analytics SDKs, or ad
+            networks". That statement is now true.
+
+            Non-essential storage needs prior consent under PECR reg. 6, and an
+            inaccurate description of processing breaches UK GDPR Art. 5(1)(a).
+            Reinstating any third-party script here means: a working consent
+            gate that actually controls loading, the processor named in
+            /privacy, and the /security copy corrected. Do not re-add one
+            without all three. */}
         {/* Service worker registration — only in production, loaded after page is idle */}
         <Script src="/sw-register.js" strategy="lazyOnload" />
       </body>

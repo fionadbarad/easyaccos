@@ -164,7 +164,7 @@ function RatePanel({ open, onToggle }: { open: boolean; onToggle: () => void }) 
       >
         <span style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
           <Info size={12} style={{ color: C.muted }} />
-          HMRC Approved Mileage Rates 2026/27
+          Approved Mileage Allowance Payments (AMAP) 2026/27
         </span>
         {open ? <ChevronUp size={12} color={C.muted} /> : <ChevronDown size={12} color={C.muted} />}
       </button>
@@ -228,7 +228,7 @@ function RatePanel({ open, onToggle }: { open: boolean; onToggle: () => void }) 
             </tbody>
           </table>
           <p style={{ color: C.muted, fontSize: T.micro, marginTop: '10px', lineHeight: 1.5 }}>
-            Use these HMRC-approved rates instead of claiming actual vehicle costs. The car
+            Use these HMRC-published AMAP rates instead of claiming actual vehicle costs. The car
             threshold resets each tax year (6 April). Only business journeys qualify — commuting to
             a regular workplace does not.
           </p>
@@ -301,6 +301,10 @@ function EntryRow({
       </span>
       <button
         onClick={onDelete}
+        // Icon-only control: without a name a screen reader announces only
+        // "button", and every row in the table sounds identical. Naming the
+        // journey also makes the destructive action unambiguous (WCAG 4.1.2).
+        aria-label={`Delete journey: ${entry.description}, ${formatMiles(entry.miles)} miles on ${entry.date}`}
         style={{
           background: 'none',
           border: 'none',
@@ -476,7 +480,7 @@ export default function MileagePage() {
             </h1>
           </div>
           <p style={{ color: C.muted, fontSize: T.caption, margin: 0 }}>
-            HMRC approved mileage — 2026/27 tax year
+            AMAP rates — 2026/27 tax year
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

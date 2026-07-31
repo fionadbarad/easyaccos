@@ -200,21 +200,13 @@ export default function PrivacyPage() {
                   why="Application hosting and delivery"
                   where="Global edge network"
                 />
-                <Row
-                  who="Google (Gemini API)"
-                  what="The question you type into the AI adviser, plus your financial position expressed only as a RANGE (for example “£45,000–£50,000”), never an exact figure"
-                  why="To generate the answer. Used only if you use the AI adviser"
-                  where="Google Cloud"
-                />
               </tbody>
             </table>
           </div>
           <p style={{ margin: '1rem 0 0' }}>
-            The AI adviser deliberately generalises your figures into bands before they leave our
-            servers, so that an exact income — which is a financial fingerprint — is never
-            transmitted. This is data minimisation under Art. 5(1)(c) applied at the point of
-            disclosure. If you would rather share nothing with Google, do not use the AI adviser;
-            every other feature works without it.
+            EasyAcco has no AI features enabled and sends nothing to any AI provider. Receipt
+            scanning reads the image entirely inside your browser — the photo never reaches a server
+            of ours or anyone else&rsquo;s.
           </p>
           <p style={{ margin: '0.75rem 0 0' }}>
             The currency converter calls an external exchange-rate service. That request asks only

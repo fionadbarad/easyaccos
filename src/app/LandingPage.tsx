@@ -4,7 +4,6 @@ import {
   ArrowRight,
   Calculator,
   BarChart2,
-  MessageCircle,
   Shield,
   BookOpen,
   Receipt,
@@ -57,9 +56,9 @@ const MODULES = [
     desc: 'All 2026/27 quarterly Making Tax Digital deadlines tracked with urgency indicators and early-warning alerts.',
   },
   {
-    icon: MessageCircle,
-    label: 'Tax Q&A Assistant',
-    desc: 'Ask UK tax questions and get structured answers grounded in HMRC 2026/27 rules — sole trader income, dividends, deadlines, and more.',
+    icon: BookOpen,
+    label: 'Learn UK Tax',
+    desc: 'Plain-English guidance on sole trader income, dividends, allowances and Self Assessment deadlines — with the 2026/27 figures worked through.',
   },
 ]
 

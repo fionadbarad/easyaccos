@@ -5,6 +5,7 @@ import { ChatRequestSchema } from '@/app/api/ai/schemas'
 import { reportError } from '@/lib/monitor'
 import { createClient } from '@/lib/supabase-server'
 import { rateLimit } from '@/lib/rate-limit'
+import { AI_ENABLED } from '@/lib/ai-enabled'
 import { fmtGBP } from '@/lib/formatters'
 import {
   PA_BASE,
@@ -168,6 +169,17 @@ function getAI(apiKey: string): GoogleGenAI {
 }
 
 export async function POST(request: NextRequest) {
+  // 0. Master switch, checked BEFORE anything else — before auth, before the
+  //    body is read, and above all before a single byte reaches Google.
+  //    Hiding the UI is not enough: this route stays deployed and directly
+  //    callable, so without this gate /privacy's "we do not send your data to
+  //    Google" would be true of the interface and false of the service. 404
+  //    rather than 403 because, with AI off, this endpoint does not exist as
+  //    far as the product is concerned.
+  if (!AI_ENABLED) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
+
   // 1. Auth check — getUser() validates the session against Supabase's auth
   //    server (getSession() only reads the cookie). See docs/AUDIT.md SEC-8.
   const supabase = await createClient()

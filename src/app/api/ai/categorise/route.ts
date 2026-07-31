@@ -3,6 +3,7 @@ import { GoogleGenAI } from '@google/genai'
 import { CategoriseRequestSchema } from '@/app/api/ai/schemas'
 import { reportError } from '@/lib/monitor'
 import { rateLimit, clientIpKey } from '@/lib/rate-limit'
+import { AI_ENABLED } from '@/lib/ai-enabled'
 
 const CATEGORIES = [
   'Office & Equipment',
@@ -72,6 +73,13 @@ ${CATEGORIES.join('\n')}
 If unsure, answer "Other".`
 
 export async function POST(request: NextRequest) {
+  // Master switch first — see the identical gate in ../chat/route.ts. This
+  // route is reachable without auth, so leaving it live while the UI is hidden
+  // would keep an unauthenticated path to Google open.
+  if (!AI_ENABLED) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
+
   // This route is usable by guests (categorisation works in guest mode), so we
   // rate-limit by client IP rather than requiring auth — enough to stop anyone
   // burning the Gemini quota. See docs/AUDIT.md SEC-6.

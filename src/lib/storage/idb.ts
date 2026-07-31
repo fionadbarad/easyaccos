@@ -137,14 +137,41 @@ export function putRecord(store: PutTarget, key: IDBValidKey, value: unknown): u
   return store.keyPath === null ? store.put(value, key) : store.put(value)
 }
 
+/**
+ * Write a value, PROPAGATING failure to the caller.
+ *
+ * Rejects when IndexedDB is unavailable, when the transaction aborts
+ * (QuotaExceededError being the common one), or when the store rejects the
+ * value. Callers that have somewhere else to put the data — `secureWrite`'s
+ * localStorage tier — need to know a write did not land; `idbSet` below
+ * swallows that, which made the fallback unreachable and let `secureWrite`
+ * report success for data it had dropped.
+ */
+export async function idbSetStrict(
+  store: StoreName,
+  key: IDBValidKey,
+  value: unknown,
+): Promise<void> {
+  if (!hasIDB()) throw new Error('IndexedDB unavailable')
+  await tx<IDBValidKey>(
+    store,
+    'readwrite',
+    (s) => putRecord(s, key, value) as IDBRequest<IDBValidKey>,
+  )
+}
+
+/**
+ * Best-effort write: logs and continues on failure.
+ *
+ * Only for writes with no recovery path and no user-visible consequence — the
+ * audit mirror, for instance, which must never block the action it records.
+ * Anything holding user data the app would otherwise lose must use
+ * `idbSetStrict` and handle the rejection.
+ */
 export async function idbSet(store: StoreName, key: IDBValidKey, value: unknown): Promise<void> {
   if (!hasIDB()) return
   try {
-    await tx<IDBValidKey>(
-      store,
-      'readwrite',
-      (s) => putRecord(s, key, value) as IDBRequest<IDBValidKey>,
-    )
+    await idbSetStrict(store, key, value)
   } catch (err) {
     console.error(`IndexedDB set error [${store}]:`, err)
   }

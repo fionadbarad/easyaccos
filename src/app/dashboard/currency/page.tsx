@@ -48,6 +48,27 @@ function loadCache(): RateCache | null {
   }
 }
 
+/**
+ * Narrow the rate-service payload before it reaches state.
+ *
+ * `json.rates as Record<string, number>` was an unchecked cast. open.er-api
+ * answers an error with `{result:"error", "error-type":…}` and no `rates` key,
+ * so a bad response put `undefined` into state and the very next render threw
+ * on `Object.keys(rates)` — a blank page instead of the cached-rates fallback
+ * the catch block was written to provide. Keep only finite positive numbers.
+ */
+function parseRates(json: unknown): Record<string, number> | null {
+  if (!json || typeof json !== 'object') return null
+  const raw = (json as { rates?: unknown }).rates
+  if (!raw || typeof raw !== 'object') return null
+
+  const out: Record<string, number> = {}
+  for (const [code, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (typeof value === 'number' && Number.isFinite(value) && value > 0) out[code] = value
+  }
+  return Object.keys(out).length > 0 ? out : null
+}
+
 function saveCache(rates: Record<string, number>) {
   try {
     localStorage.setItem(
@@ -72,15 +93,17 @@ const inputStyle: React.CSSProperties = {
 }
 
 export default function CurrencyPage() {
-  const initialCache = loadCache()
-
-  const [rates, setRates] = useState<Record<string, number>>(initialCache?.rates ?? {})
-  const [loading, setLoading] = useState(!initialCache)
+  // Initial state must NOT read localStorage. This component is prerendered on
+  // the server, where `loadCache()` returns null and the markup says
+  // "loading, no rates"; on the client's first (hydrating) render the same call
+  // finds a cache and produces different state, which is a hydration mismatch —
+  // React discards the server markup and warns. Seed empty to match the server;
+  // fetchRates adopts the cache once, after hydration has committed.
+  const [rates, setRates] = useState<Record<string, number>>({})
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [isStale, setIsStale] = useState(!!initialCache)
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(
-    initialCache ? new Date(initialCache.fetchedAt) : null,
-  )
+  const [isStale, setIsStale] = useState(false)
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
 
   const [amount, setAmount] = useState('1000')
   const [from, setFrom] = useState('GBP')
@@ -96,6 +119,23 @@ export default function CurrencyPage() {
 
     const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT)
 
+    // Adopt the cache before going to the network, so the converter is usable
+    // straight away. This is deliberately here rather than in the initial
+    // useState value: reading localStorage during render makes the client's
+    // first render disagree with the server's (which has no localStorage and
+    // renders the empty/loading state), and React throws away the server markup
+    // on that mismatch. By the time this callback runs, hydration has committed.
+    const cached = loadCache()
+    if (cached) {
+      setRates((prev) => (Object.keys(prev).length > 0 ? prev : cached.rates))
+      setLastUpdated((prev) => prev ?? new Date(cached.fetchedAt))
+      setIsStale(true)
+    }
+
+    // `loading` stays true for the duration of the request — the placeholder it
+    // drives is already conditional on there being no rates to show, so seeding
+    // from cache above is what clears the "…" without pretending the refresh
+    // has finished.
     setLoading(true)
     setError('')
 
@@ -105,8 +145,9 @@ export default function CurrencyPage() {
       })
       if (!res.ok) throw new Error(`Rate service returned HTTP ${res.status}`)
 
-      const json = await res.json()
-      const freshRates = json.rates as Record<string, number>
+      const json: unknown = await res.json()
+      const freshRates = parseRates(json)
+      if (!freshRates) throw new Error('Rate service returned no usable rates')
 
       setRates(freshRates)
       setIsStale(false)

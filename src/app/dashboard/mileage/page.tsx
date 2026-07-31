@@ -18,6 +18,7 @@ import { fmtGBP } from '@/lib/formatters'
 
 import { C } from '@/styles/palette'
 import { T } from '@/styles/type'
+import { newId } from '@/lib/id'
 // HMRC 2026/27 approved mileage rates
 const RATE_CAR_FIRST = 0.55 // First 10,000 miles (AMAP raised 45p→55p from 6 Apr 2026)
 const RATE_CAR_EXCESS = 0.25 // Above 10,000 miles
@@ -51,6 +52,30 @@ function calcRate(vehicle: VehicleType, milesBefore: number, miles: number): num
   const firstBand = Math.max(0, Math.min(miles, Math.max(0, CAR_THRESHOLD - milesBefore)))
   const excessBand = miles - firstBand
   return firstBand * RATE_CAR_FIRST + excessBand * RATE_CAR_EXCESS
+}
+
+/**
+ * The UK tax year a date falls in, identified by its starting calendar year.
+ * 2026-04-05 → 2025 (the 2025/26 year); 2026-04-06 → 2026 (2026/27).
+ *
+ * The 10,000-mile AMAP threshold is a PER TAX YEAR allowance, and it is the
+ * only thing standing between the 55p and 25p rates. Accumulating car miles
+ * across every entry ever logged — which is what this page did — pushed anyone
+ * with history into the 25p band on their first journey of a new year and
+ * under-claimed the difference (£300 per 1,000 miles) for the rest of it. The
+ * page's own rate panel says the threshold resets each 6 April; now it does.
+ */
+function taxYearOf(dateStr: string): number {
+  const d = new Date(dateStr)
+  if (Number.isNaN(d.getTime())) return NaN
+  const year = d.getUTCFullYear()
+  const month = d.getUTCMonth() // 0-based; April = 3
+  const day = d.getUTCDate()
+  return month > 3 || (month === 3 && day >= 6) ? year : year - 1
+}
+
+function taxYearLabel(startYear: number): string {
+  return `${startYear}/${String((startYear + 1) % 100).padStart(2, '0')}`
 }
 
 function today(): string {
@@ -311,46 +336,76 @@ export default function MileagePage() {
   const [vehicle, setVehicle] = useState<VehicleType>('car')
   const [miles, setMiles] = useState('')
 
+  // The tax year the page reports on. Read once per mount so a session open
+  // across 6 April doesn't reshuffle totals mid-interaction.
+  const currentTaxYear = useMemo(() => taxYearOf(today()), [])
+
   // Sort entries chronologically
   const sorted = useMemo(() => [...entries].sort((a, b) => a.date.localeCompare(b.date)), [entries])
 
-  // Compute per-entry claim amounts (cumulative car miles needed)
-  const { enriched, totalMiles, totalClaim, carMiles } = useMemo(
-    () =>
-      sorted.reduce<{
-        enriched: Array<{ entry: MileageEntry; claimAmount: number }>
-        totalMiles: number
-        totalClaim: number
-        carMiles: number
-      }>(
-        (acc, entry) => {
-          const milesBefore = entry.vehicle === 'car' ? acc.carMiles : 0
-          const claim = calcRate(entry.vehicle, milesBefore, entry.miles)
-          return {
-            enriched: [...acc.enriched, { entry, claimAmount: claim }],
-            totalMiles: acc.totalMiles + entry.miles,
-            totalClaim: acc.totalClaim + claim,
-            carMiles: entry.vehicle === 'car' ? acc.carMiles + entry.miles : acc.carMiles,
-          }
-        },
-        {
-          enriched: [],
-          totalMiles: 0,
-          totalClaim: 0,
-          carMiles: 0,
-        },
-      ),
-    [sorted],
-  )
+  // Per-entry claim, with the 10,000-mile car threshold accumulated WITHIN each
+  // entry's own tax year — the allowance resets every 6 April. Headline figures
+  // cover the current tax year only, since that is what goes on this year's
+  // return; the table below still lists every journey, each priced against its
+  // own year's threshold.
+  const { enriched, totalMiles, totalClaim, carMiles } = useMemo(() => {
+    const enriched: Array<{ entry: MileageEntry; claimAmount: number }> = []
+    // Running car miles per tax year, so each year gets its own fresh 10,000.
+    const carMilesByYear = new Map<number, number>()
+    let totalMiles = 0
+    let totalClaim = 0
 
-  // Progress toward 10k threshold (car only)
+    for (const entry of sorted) {
+      const year = taxYearOf(entry.date)
+      const milesBefore = entry.vehicle === 'car' ? (carMilesByYear.get(year) ?? 0) : 0
+      const claimAmount = calcRate(entry.vehicle, milesBefore, entry.miles)
+      // push, not [...acc, x] in a reduce — the spread rebuilt the whole array
+      // on every entry, making the pass quadratic in the number of journeys.
+      enriched.push({ entry, claimAmount })
+
+      if (entry.vehicle === 'car') {
+        carMilesByYear.set(year, milesBefore + entry.miles)
+      }
+      if (year === currentTaxYear) {
+        totalMiles += entry.miles
+        totalClaim += claimAmount
+      }
+    }
+
+    return {
+      enriched,
+      totalMiles,
+      totalClaim,
+      carMiles: carMilesByYear.get(currentTaxYear) ?? 0,
+    }
+  }, [sorted, currentTaxYear])
+
+  const yearLabel = taxYearLabel(currentTaxYear)
+  // Journeys logged outside the reported year still appear in the table, so say
+  // so rather than letting the totals look like they have silently lost rows.
+  const priorYearCount =
+    enriched.length -
+    enriched.filter(({ entry }) => taxYearOf(entry.date) === currentTaxYear).length
+
+  // Progress toward 10k threshold (car only, this tax year)
   const thresholdPct = Math.min(100, (carMiles / CAR_THRESHOLD) * 100)
+
+  // The preview must price the journey against the threshold of the tax year the
+  // user picked in the date field, not against the current year's running total —
+  // back-dating a journey into last year would otherwise quote the wrong rate.
+  const previewMilesBefore = useMemo(() => {
+    if (vehicle !== 'car') return 0
+    const year = taxYearOf(date)
+    return sorted
+      .filter((e) => e.vehicle === 'car' && taxYearOf(e.date) === year)
+      .reduce((sum, e) => sum + e.miles, 0)
+  }, [vehicle, date, sorted])
 
   function addEntry() {
     const m = parseFloat(miles)
     if (!description.trim() || isNaN(m) || m <= 0) return
     const entry: MileageEntry = {
-      id: crypto.randomUUID(),
+      id: newId(),
       date,
       description: description.trim(),
       vehicle,
@@ -477,12 +532,12 @@ export default function MileagePage() {
         <Stat
           label="Total Miles"
           value={`${formatMiles(totalMiles)} mi`}
-          sub={`${entries.length} journeys`}
+          sub={priorYearCount > 0 ? `${yearLabel} · ${priorYearCount} earlier` : `${yearLabel}`}
         />
         <Stat
           label="Total Claim"
           value={fmtGBP(totalClaim)}
-          sub="tax deductible"
+          sub={`${yearLabel} · tax deductible`}
           accent={C.green}
         />
         <Stat
@@ -502,8 +557,10 @@ export default function MileagePage() {
         />
       </div>
 
-      {/* 10k threshold progress */}
-      {entries.some((e) => e.vehicle === 'car') && (
+      {/* 10k threshold progress — current tax year only, the allowance resets 6 April */}
+      {enriched.some(
+        ({ entry }) => entry.vehicle === 'car' && taxYearOf(entry.date) === currentTaxYear,
+      ) && (
         <div
           style={{
             background: C.surface,
@@ -523,7 +580,7 @@ export default function MileagePage() {
                 fontFamily: 'var(--font-geist-mono, monospace)',
               }}
             >
-              Car mileage threshold (55p → 25p)
+              Car mileage threshold {yearLabel} (55p → 25p)
             </span>
             <span
               style={{
@@ -739,9 +796,7 @@ export default function MileagePage() {
                   fontWeight: 700,
                 }}
               >
-                {fmtGBP(
-                  calcRate(vehicle, vehicle === 'car' ? carMiles : 0, parseFloat(miles) || 0),
-                )}
+                {fmtGBP(calcRate(vehicle, previewMilesBefore, parseFloat(miles) || 0))}
               </span>
             </div>
           )}
@@ -850,7 +905,7 @@ export default function MileagePage() {
             }}
           >
             <span />
-            <span style={{ color: C.muted, fontSize: T.micro }}>Total claim</span>
+            <span style={{ color: C.muted, fontSize: T.micro }}>Total claim · {yearLabel}</span>
             <span />
             <span
               style={{

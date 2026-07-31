@@ -85,6 +85,57 @@ export function observeClient(req: NextRequest): ClientObservation {
   }
 }
 
+/**
+ * Field-level validation of the client-supplied fraud payload.
+ *
+ * `buildFraudHeaders` walks into `browser.screens` and `browser.windowSize`
+ * without guarding, and it runs OUTSIDE the submit routes' try/catch — so a
+ * body of `{"browser":{}}` reached it as a TypeError and surfaced as a bare
+ * 500 with nothing telling the caller what was wrong. The routes only ever
+ * checked that `browser` was truthy, which `{}` is.
+ *
+ * Header values are also checked for CR/LF: Node's fetch rejects those outright,
+ * turning a malformed user agent into a misleading "network error reaching
+ * HMRC" rather than the 400 it is.
+ *
+ * Returns the list of unusable field paths — empty when the payload is safe.
+ */
+export function invalidBrowserFields(browser: unknown): string[] {
+  const bad: string[] = []
+  if (!browser || typeof browser !== 'object') return ['browser']
+  const b = browser as Partial<BrowserFraudData>
+
+  const headerSafe = (v: unknown): v is string =>
+    typeof v === 'string' && v.length > 0 && !/[\r\n]/.test(v)
+
+  if (!headerSafe(b.userAgent)) bad.push('browser.userAgent')
+  if (!headerSafe(b.deviceId)) bad.push('browser.deviceId')
+  if (!headerSafe(b.timezone)) bad.push('browser.timezone')
+
+  if (!Array.isArray(b.screens) || b.screens.length === 0) {
+    bad.push('browser.screens')
+  } else if (
+    !b.screens.every(
+      (s) =>
+        s &&
+        typeof s === 'object' &&
+        Number.isFinite(s.width) &&
+        Number.isFinite(s.height) &&
+        Number.isFinite(s.scalingFactor) &&
+        Number.isFinite(s.colourDepth),
+    )
+  ) {
+    bad.push('browser.screens')
+  }
+
+  const w = b.windowSize
+  if (!w || typeof w !== 'object' || !Number.isFinite(w.width) || !Number.isFinite(w.height)) {
+    bad.push('browser.windowSize')
+  }
+
+  return bad
+}
+
 // Gov-Client-Screens: comma-separated list of screen entries, one per display.
 // Each entry: width=X&height=Y&scaling-factor=Z&colour-depth=W
 export function buildScreensHeader(screens: BrowserFraudData['screens']): string {

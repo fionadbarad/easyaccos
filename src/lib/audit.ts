@@ -28,6 +28,7 @@ import { idbSet, STORE_AUDIT, isIDBAvailable, idbAuditRange } from './storage/id
 import { isSupabaseConfigured } from './supabase-browser'
 import { reportError } from './monitor'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { newId } from './id'
 
 export type AuditOp = 'create' | 'update' | 'delete'
 
@@ -50,7 +51,7 @@ export async function appendAuditLog(
   if (!isFlagEnabled(FLAG_AUDIT)) return
 
   const full: AuditEntry = {
-    id: crypto.randomUUID(),
+    id: newId(),
     ts: new Date().toISOString(),
     ...entry,
   }

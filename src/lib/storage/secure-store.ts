@@ -7,7 +7,16 @@
  * when IndexedDB is unavailable.
  */
 
-import { STORE_KV, STORE_RECORDS, idbGet, idbSet, idbDelete, idbKeys, isIDBAvailable } from './idb'
+import {
+  STORE_KV,
+  STORE_RECORDS,
+  idbGet,
+  idbSet,
+  idbSetStrict,
+  idbDelete,
+  idbKeys,
+  isIDBAvailable,
+} from './idb'
 import { generateDeviceKey, encryptWithKey, decryptWithKey } from './crypto'
 import { reportError } from '@/lib/monitor'
 
@@ -58,8 +67,14 @@ export async function secureRead<T>(
     // No IDB record — try to migrate from legacy localStorage
     const legacy = readLegacy<T | undefined>(legacyLocalKey, undefined)
     if (legacy !== undefined) {
-      await secureWrite(recordKey, legacy)
-      if (legacyLocalKey && typeof localStorage !== 'undefined') {
+      // Migration is copy-then-delete, and the delete happens ONLY once the copy
+      // is known to have landed in IndexedDB. Two ways this used to destroy
+      // data: an encrypted write that failed (quota, blocked storage) still
+      // reported success, and a write that fell back to localStorage wrote this
+      // very key — so removing it afterwards deleted the only surviving copy.
+      // Leaving the legacy key in place costs one duplicate read next time.
+      const landedIn = await writeRecord(recordKey, legacy, legacyLocalKey)
+      if (landedIn === 'idb' && legacyLocalKey && typeof localStorage !== 'undefined') {
         try {
           localStorage.removeItem(legacyLocalKey)
         } catch {
@@ -74,19 +89,33 @@ export async function secureRead<T>(
   }
 }
 
-export async function secureWrite<T>(
+/** Which tier a write actually reached. `'failed'` means nothing was stored. */
+type WriteTier = 'idb' | 'legacy' | 'failed'
+
+/**
+ * Write a record and report which tier it reached.
+ *
+ * The distinction matters to the migration path in secureRead: only an `'idb'`
+ * result means the value now lives somewhere other than the legacy
+ * localStorage key, and therefore only `'idb'` licenses deleting that key.
+ */
+async function writeRecord<T>(
   recordKey: string,
   value: T,
   legacyLocalKey?: string | null,
-): Promise<boolean> {
+): Promise<WriteTier> {
   if (!isIDBAvailable()) {
-    return writeLegacy(recordKey, value, legacyLocalKey)
+    return writeLegacy(recordKey, value, legacyLocalKey) ? 'legacy' : 'failed'
   }
   try {
     const key = await getDeviceKey()
     const env = await encryptWithKey(key, JSON.stringify(value))
-    await idbSet(STORE_RECORDS, recordKey, env)
-    return true
+    // idbSetStrict, not idbSet: the plain helper logs and resolves on failure,
+    // so this try could never see a rejected write and the fallback below was
+    // unreachable — every quota/blocked-storage failure was reported as a
+    // successful save.
+    await idbSetStrict(STORE_RECORDS, recordKey, env)
+    return 'idb'
   } catch (err) {
     reportError('secureStore.write', err, { recordKey })
     // `window.indexedDB` existing is not the same as IndexedDB working: a
@@ -94,8 +123,18 @@ export async function secureWrite<T>(
     // here after isIDBAvailable() said yes. secureRead already degrades to
     // localStorage in that case, so the write must too — otherwise the user's
     // entry is simply gone.
-    return writeLegacy(recordKey, value, legacyLocalKey)
+    return writeLegacy(recordKey, value, legacyLocalKey) ? 'legacy' : 'failed'
   }
+}
+
+/** True when the value was stored somewhere durable — encrypted IDB or the
+ *  plaintext localStorage fallback. False means it was not stored at all. */
+export async function secureWrite<T>(
+  recordKey: string,
+  value: T,
+  legacyLocalKey?: string | null,
+): Promise<boolean> {
+  return (await writeRecord(recordKey, value, legacyLocalKey)) !== 'failed'
 }
 
 /**

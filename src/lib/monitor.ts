@@ -55,8 +55,14 @@ export function reportInfo(scope: string, message: string, meta?: Record<string,
 }
 
 function emit(ev: MonitorEvent): void {
-  if (rateLimited(ev.timestamp)) return
+  // Dedupe BEFORE the rate limit, not after. Reversed, a single error firing in
+  // a loop consumed the whole 100-events/minute budget on emissions dedupe was
+  // about to suppress anyway — so the burst cap tripped and every genuinely new
+  // error for the rest of the window was dropped silently. The two guards exist
+  // for different failure modes, and the cheap one that removes duplicates has
+  // to run first for the expensive one to be measuring real traffic.
   if (deduped(ev)) return
+  if (rateLimited(ev.timestamp)) return
   try {
     transport(ev)
   } catch {

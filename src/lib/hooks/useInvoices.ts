@@ -99,6 +99,7 @@ export function daysToDue(inv: Invoice) {
 
 export { fmtDec, fmtGBP as fmt } from '@/lib/formatters'
 import { fmtDec } from '@/lib/formatters'
+import { newId } from '@/lib/id'
 
 export function chaseEmail(inv: Invoice): string {
   const days = daysOverdue(inv)
@@ -189,7 +190,7 @@ export function useInvoices() {
     const amount = parseFloat(form.amount)
     if (!amount || !form.client.trim()) return
     const inv: Invoice = {
-      id: crypto.randomUUID(),
+      id: newId(),
       status: 'draft',
       client: form.client,
       number: form.number || nextNumber,

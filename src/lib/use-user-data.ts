@@ -356,17 +356,19 @@ export async function syncSupabaseRows<T extends AuditableRow>(
             .eq('id', item.id)
             .single()
           if (!fetchErr && serverRow) {
-            // Replace local with server version in the stamped array
-            const idx = stamped.indexOf(item)
-            if (idx !== -1) {
-              stamped[idx] = { ...serverRow } as T
-              setItems((prev) => {
-                const copy = [...prev]
-                const i = copy.findIndex((r) => r.id === item.id)
-                if (i !== -1) copy[i] = { ...serverRow } as T
-                return copy
-              })
-            }
+            // Publish the server's version through setItems only. `stamped` is
+            // the very array already handed to setItems by the caller, so
+            // assigning into it mutated live React state in place — the value
+            // changed without a re-render, and any memo comparing by identity
+            // saw no change at all. The functional update below is the whole
+            // fix; the array itself is left alone.
+            setItems((prev) => {
+              const i = prev.findIndex((r) => r.id === item.id)
+              if (i === -1) return prev
+              const copy = [...prev]
+              copy[i] = { ...serverRow } as T
+              return copy
+            })
           }
         } catch (err) {
           reportError('useUserData.persist.conflictFetch', err, { table, id: item.id })

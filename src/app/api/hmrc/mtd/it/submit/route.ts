@@ -1,5 +1,10 @@
 import { type NextRequest, NextResponse } from 'next/server'
-import { buildFraudHeaders, observeClient, type BrowserFraudData } from '@/lib/hmrc/fraud-headers'
+import {
+  buildFraudHeaders,
+  invalidBrowserFields,
+  observeClient,
+  type BrowserFraudData,
+} from '@/lib/hmrc/fraud-headers'
 import { resolveSubmissionUserId } from '@/lib/hmrc/identity'
 import { mapHmrcError } from '@/lib/hmrc/mtd-errors'
 import { getValidAccessToken, readHmrcEnv } from '@/lib/hmrc/oauth'
@@ -72,7 +77,10 @@ function missingFields(body: Partial<RequestBody>): string[] {
   // serialise to `null`, which would reach HMRC as a period summary with no
   // turnover after we had called the body valid.
   if (!body.income || !Number.isFinite(body.income.turnover)) missing.push('income.turnover')
-  if (!body.browser) missing.push('browser')
+  // Not just `!body.browser`: buildFraudHeaders indexes into browser.screens and
+  // browser.windowSize outside any try/catch, so `{}` passed this check and then
+  // crashed the route with an untyped 500.
+  missing.push(...invalidBrowserFields(body.browser))
   return missing
 }
 

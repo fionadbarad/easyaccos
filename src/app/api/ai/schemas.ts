@@ -15,9 +15,20 @@ export const CategoriseRequestSchema = z.object({
 })
 export type CategoriseRequest = z.infer<typeof CategoriseRequestSchema>
 
+// `message` is capped at 4,000 chars, but the history replayed alongside it was
+// not bounded at all: neither the number of parts per turn nor the length of
+// each part's text. 50 turns of unbounded text is a far larger prompt — and a
+// far larger Gemini bill — than the one message the cap was written for, and
+// the 30-requests/minute limit does nothing about per-request size. Bound both.
+const MAX_HISTORY_PART_CHARS = 8_000
+const MAX_PARTS_PER_TURN = 8
+
 const HistoryTurnSchema = z.object({
   role: z.enum(['user', 'model']),
-  parts: z.array(z.object({ text: z.string() })).min(1),
+  parts: z
+    .array(z.object({ text: z.string().max(MAX_HISTORY_PART_CHARS, 'history part too long') }))
+    .min(1)
+    .max(MAX_PARTS_PER_TURN, 'too many parts in a history turn'),
 })
 export type HistoryTurn = z.infer<typeof HistoryTurnSchema>
 

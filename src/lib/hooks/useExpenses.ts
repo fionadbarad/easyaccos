@@ -11,6 +11,7 @@ import {
 } from '@/components/tracker/FilterBar'
 import type { FilterState } from '@/components/tracker/FilterBar'
 import type { Expense } from '@/lib/validators'
+import { newId } from '@/lib/id'
 
 export const CATEGORIES = [
   'Office & Equipment',
@@ -102,10 +103,7 @@ export function useExpenses() {
   async function confirmScan(confirmedForm: PendingScan['form']) {
     const amount = parseFloat(confirmedForm.amount)
     if (!amount || !confirmedForm.description.trim()) return
-    await persist([
-      { id: crypto.randomUUID(), ...confirmedForm, amount, ocrScanned: true },
-      ...expenses,
-    ])
+    await persist([{ id: newId(), ...confirmedForm, amount, ocrScanned: true }, ...expenses])
     if (pendingScan) URL.revokeObjectURL(pendingScan.extract.imageUrl)
     setPendingScan(null)
   }
@@ -142,7 +140,7 @@ export function useExpenses() {
     e.preventDefault()
     const amount = parseFloat(form.amount)
     if (!amount || !form.description.trim()) return
-    await persist([{ id: crypto.randomUUID(), ...form, amount }, ...expenses])
+    await persist([{ id: newId(), ...form, amount }, ...expenses])
     setForm((f) => ({ ...f, description: '', amount: '' }))
     setShowForm(false)
   }

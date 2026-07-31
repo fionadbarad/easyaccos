@@ -132,7 +132,9 @@ describe('VAT return validation rejects non-finite money', () => {
     finalised: true,
     browser: {
       userAgent: 'test',
-      screens: [],
+      // At least one screen: Gov-Client-Screens is a required header and an
+      // empty list serialises to an empty value, which HMRC rejects.
+      screens: [{ width: 1920, height: 1080, scalingFactor: 1, colourDepth: 24 }],
       windowSize: { width: 1, height: 1 },
       timezone: 'UTC+00:00',
       deviceId: 'd',
@@ -142,6 +144,34 @@ describe('VAT return validation rejects non-finite money', () => {
   it('accepts a well-formed nine-box return', () => {
     expect(missingVatFields(good)).toEqual([])
     expect(arithmeticErrors(good)).toEqual([])
+  })
+
+  // buildFraudHeaders indexes into browser.screens and browser.windowSize, and
+  // it runs outside the submit route's try/catch — so a body that merely HAS a
+  // `browser` key used to pass validation and then crash the route with a bare
+  // 500. Each unusable sub-field has to be named here instead.
+  it('rejects a browser payload that would crash the fraud-header builder', () => {
+    expect(missingVatFields({ ...good, browser: {} as VatReturnBody['browser'] })).toEqual(
+      expect.arrayContaining([
+        'browser.userAgent',
+        'browser.deviceId',
+        'browser.timezone',
+        'browser.screens',
+        'browser.windowSize',
+      ]),
+    )
+  })
+
+  it('rejects an empty screen list — Gov-Client-Screens cannot be blank', () => {
+    expect(missingVatFields({ ...good, browser: { ...good.browser, screens: [] } })).toContain(
+      'browser.screens',
+    )
+  })
+
+  it('rejects header values carrying CR/LF', () => {
+    expect(
+      missingVatFields({ ...good, browser: { ...good.browser, userAgent: 'a\r\nX-Evil: 1' } }),
+    ).toContain('browser.userAgent')
   })
 
   it('rejects NaN, which the old typeof check let through', () => {

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { X, MessageCircle } from 'lucide-react'
+import { X } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 import { NAV, GROUP_LABELS, type NavEntry } from './nav-config'
 import NavItem from './NavItem'
@@ -72,23 +72,6 @@ export default function Sidebar({ user, pathname, onSignOut, onNavClick, onClose
           </div>
         ))}
       </nav>
-
-      {/* AI CTA */}
-      <div className="px-3 py-2.5 border-t border-sa-line">
-        <Link
-          href="/dashboard/ai"
-          onClick={onNavClick}
-          className="flex items-center gap-2 no-underline bg-sa-tint border border-sa-border hover:border-sa-line hover:bg-sa-hover rounded-md p-2.5 transition-all duration-100"
-        >
-          <MessageCircle size={12} className="text-sa-muted shrink-0" />
-          <div>
-            <div className="text-white text-meta font-medium tracking-[-0.01em]">
-              Ask a question
-            </div>
-            <div className="text-sa-muted text-micro mt-[1px]">Tax advisory · 2026/27</div>
-          </div>
-        </Link>
-      </div>
 
       {/* Footer / User Menu */}
       <div className="px-4 py-3 border-t border-sa-line">

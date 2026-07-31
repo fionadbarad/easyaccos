@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { X, Camera, Sparkles, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react'
+import { X, Camera, CheckCircle2, AlertTriangle } from 'lucide-react'
 import type { PendingScan } from '@/lib/hooks/useExpenses'
 import { CATEGORIES } from '@/lib/hooks/useExpenses'
 
@@ -58,31 +58,7 @@ export function ReceiptVerifyModal({
   onCancel: () => void
 }) {
   const [form, setForm] = useState(scan.form)
-  const [suggesting, setSugging] = useState(false)
   const isImage = scan.extract.fileType.startsWith('image/')
-
-  async function suggestCategory() {
-    if (!form.description.trim() || suggesting) return
-    setSugging(true)
-    try {
-      const res = await fetch('/api/ai/categorise', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          description: form.description,
-          amount: form.amount ? parseFloat(form.amount) : undefined,
-        }),
-      })
-      const data = await res.json()
-      if (data.category && CATEGORIES.includes(data.category)) {
-        setForm((f) => ({ ...f, category: data.category }))
-      }
-    } catch {
-      /* silent */
-    } finally {
-      setSugging(false)
-    }
-  }
 
   return (
     <div
@@ -293,35 +269,7 @@ export function ReceiptVerifyModal({
               />
             </div>
             <div>
-              <label style={labelS}>
-                Category
-                <button
-                  type="button"
-                  onClick={suggestCategory}
-                  disabled={!form.description.trim() || suggesting}
-                  style={{
-                    marginLeft: 6,
-                    background: 'transparent',
-                    border: `1px solid ${C.border}`,
-                    color: suggesting ? C.muted : C.white,
-                    borderRadius: 3,
-                    padding: '1px 6px',
-                    fontSize: T.micro,
-                    cursor: form.description.trim() && !suggesting ? 'pointer' : 'default',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 3,
-                    verticalAlign: 'middle',
-                  }}
-                >
-                  {suggesting ? (
-                    <Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} />
-                  ) : (
-                    <Sparkles size={12} />
-                  )}
-                  {suggesting ? 'thinking' : 'suggest'}
-                </button>
-              </label>
+              <label style={labelS}>Category</label>
               <select
                 value={form.category}
                 onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}

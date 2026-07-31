@@ -57,7 +57,6 @@ export function useExpenses() {
     category: CATEGORIES[0]!,
     amount: '',
   })
-  const [suggesting, setSuggesting] = useState(false)
   const [filter, setFilter] = useState<FilterState>(emptyFilter())
   const [pendingScan, setPendingScan] = useState<PendingScan | null>(null)
 
@@ -113,29 +112,6 @@ export function useExpenses() {
     setPendingScan(null)
   }
 
-  async function suggestCategory() {
-    if (!form.description.trim() || suggesting) return
-    setSuggesting(true)
-    try {
-      const res = await fetch('/api/ai/categorise', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          description: form.description,
-          amount: form.amount ? parseFloat(form.amount) : undefined,
-        }),
-      })
-      const data = await res.json()
-      if (data.category && CATEGORIES.includes(data.category)) {
-        setForm((f) => ({ ...f, category: data.category }))
-      }
-    } catch {
-      /* silent */
-    } finally {
-      setSuggesting(false)
-    }
-  }
-
   async function addExpense(e: React.FormEvent) {
     e.preventDefault()
     const amount = parseFloat(form.amount)
@@ -158,7 +134,6 @@ export function useExpenses() {
     setShowForm,
     form,
     setForm,
-    suggesting,
     filter,
     setFilter,
     pendingScan,
@@ -166,7 +141,6 @@ export function useExpenses() {
     byCategory,
     addExpense,
     remove,
-    suggestCategory,
     onReceiptExtract,
     confirmScan,
     cancelScan,

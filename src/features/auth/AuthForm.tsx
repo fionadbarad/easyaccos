@@ -26,7 +26,7 @@ const COPY = {
   login: {
     subtitle: 'Sign in to sync your data across devices',
     guestCopy:
-      'Every feature works instantly as a guest. Tax estimator, AI advisor, expenses, P&L — all free, no sign-up required.',
+      'Every feature works instantly as a guest. Tax estimator, expenses, invoices, P&L — all free, no sign-up required.',
     dividerLabel: 'or sign in',
     passwordTitle: 'Sign in with password',
     passwordCopy: 'Use the email and password you signed up with.',

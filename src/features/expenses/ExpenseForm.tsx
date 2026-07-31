@@ -1,6 +1,5 @@
 'use client'
 
-import { Sparkles, Loader2 } from 'lucide-react'
 import type { ExpenseFormState } from '@/lib/hooks/useExpenses'
 import { CATEGORIES } from '@/lib/hooks/useExpenses'
 
@@ -32,17 +31,13 @@ const labelS: React.CSSProperties = {
 export function ExpenseForm({
   form,
   setForm,
-  suggesting,
   onSubmit,
   onCancel,
-  onSuggestCategory,
 }: {
   form: ExpenseFormState
   setForm: React.Dispatch<React.SetStateAction<ExpenseFormState>>
-  suggesting: boolean
   onSubmit: (e: React.FormEvent) => void
   onCancel: () => void
-  onSuggestCategory: () => void
 }) {
   return (
     <form
@@ -80,35 +75,7 @@ export function ExpenseForm({
         />
       </div>
       <div>
-        <label style={labelS}>
-          Category
-          <button
-            type="button"
-            onClick={onSuggestCategory}
-            disabled={!form.description.trim() || suggesting}
-            style={{
-              marginLeft: 6,
-              background: 'transparent',
-              border: `1px solid ${C.border}`,
-              color: suggesting ? C.muted : C.white,
-              borderRadius: 3,
-              padding: '1px 6px',
-              fontSize: T.micro,
-              cursor: form.description.trim() && !suggesting ? 'pointer' : 'default',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 3,
-              verticalAlign: 'middle',
-            }}
-          >
-            {suggesting ? (
-              <Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} />
-            ) : (
-              <Sparkles size={12} />
-            )}
-            {suggesting ? 'thinking' : 'suggest'}
-          </button>
-        </label>
+        <label style={labelS}>Category</label>
         <select
           value={form.category}
           onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}

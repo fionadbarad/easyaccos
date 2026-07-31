@@ -23,7 +23,6 @@ export default function ExpensesPage() {
     setShowForm,
     form,
     setForm,
-    suggesting,
     filter,
     setFilter,
     pendingScan,
@@ -31,7 +30,6 @@ export default function ExpensesPage() {
     byCategory,
     addExpense,
     remove,
-    suggestCategory,
     onReceiptExtract,
     confirmScan,
     cancelScan,
@@ -260,10 +258,8 @@ export default function ExpensesPage() {
         <ExpenseForm
           form={form}
           setForm={setForm}
-          suggesting={suggesting}
           onSubmit={addExpense}
           onCancel={() => setShowForm(false)}
-          onSuggestCategory={suggestCategory}
         />
       )}
 

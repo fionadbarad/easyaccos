@@ -6,7 +6,6 @@ import {
   Calculator,
   Receipt,
   GraduationCap,
-  Bot,
   TrendingUp,
   Settings,
   BookOpen,
@@ -356,7 +355,6 @@ const TILES = [
     desc: 'Live rates · 170+ currencies',
   },
   { href: '/dashboard/learn', label: 'Learn', Icon: GraduationCap, desc: 'UK tax literacy' },
-  { href: '/dashboard/ai', label: 'Tax Advisory', Icon: Bot, desc: 'Ask any UK tax question' },
   {
     href: '/dashboard/settings',
     label: 'Settings',

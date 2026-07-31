@@ -50,13 +50,13 @@ back clean and cheap:
 No HMRC logo image files existed in the repository — the problem was **wording
 that implied endorsement**. Changed:
 
-| Where                             | Before                                     | After                                                            |
-| --------------------------------- | ------------------------------------------ | ---------------------------------------------------------------- |
-| `LandingPage.tsx` hero badge      | `HMRC-Accurate`                            | `2026/27 Rates`                                                  |
-| `LandingPage.tsx` trust list      | `verified against official guidance`       | `Calculations follow published HMRC guidance for 2026/27`        |
-| `mileage/layout.tsx` page title   | `HMRC Approved Mileage Claim Tool`         | `UK Business Mileage Claims 2026/27`                             |
-| `mileage/page.tsx` panel heading  | `HMRC Approved Mileage Rates 2026/27`      | `Approved Mileage Allowance Payments (AMAP) 2026/27`             |
-| `mileage/page.tsx` subtitle       | `HMRC approved mileage — 2026/27 tax year` | `AMAP rates — 2026/27 tax year`                                  |
+| Where                            | Before                                     | After                                                     |
+| -------------------------------- | ------------------------------------------ | --------------------------------------------------------- |
+| `LandingPage.tsx` hero badge     | `HMRC-Accurate`                            | `2026/27 Rates`                                           |
+| `LandingPage.tsx` trust list     | `verified against official guidance`       | `Calculations follow published HMRC guidance for 2026/27` |
+| `mileage/layout.tsx` page title  | `HMRC Approved Mileage Claim Tool`         | `UK Business Mileage Claims 2026/27`                      |
+| `mileage/page.tsx` panel heading | `HMRC Approved Mileage Rates 2026/27`      | `Approved Mileage Allowance Payments (AMAP) 2026/27`      |
+| `mileage/page.tsx` subtitle      | `HMRC approved mileage — 2026/27 tax year` | `AMAP rates — 2026/27 tax year`                           |
 
 The distinction being drawn: describing **the rates** as HMRC-approved is factual
 — "Approved Mileage Allowance Payments" is HMRC's own statutory term. Placing
@@ -106,10 +106,59 @@ otherwise is its own inaccuracy.
 
 **A real privacy notice now exists at `/privacy`**, linked from the landing
 footer and the security page. It names every processor the code actually
-contacts — HMRC, Supabase, Vercel, Google Gemini — with what each receives, why,
-and the lawful basis. It records that the AI adviser sends financial position as
-**ranges, never exact figures**, and that receipt OCR runs in-browser so photos
-never leave the device.
+contacts — **HMRC, Supabase and Vercel** — with what each receives, why, and the
+lawful basis, and records that receipt OCR runs in-browser so photos never leave
+the device.
+
+(Google Gemini was named here in the first pass. It no longer appears, because
+the AI features that reached it are now switched off — see below. The list in
+`/privacy` and the set of integrations the code actually has must never drift
+apart; that drift is what caused this rejection.)
+
+### AI features switched off (follow-up to this item)
+
+The privacy work above disclosed Google (Gemini) as a processor, because the AI
+Tax Advisory chat and the expense "suggest category" button sent user text — and
+a banded summary of their financial position — to Google.
+
+Those features are now **disabled by default**, and with them the last third-party
+recipient of customer data. Your answer to HMRC's data-sharing question is now
+simply: **data goes to Supabase (our own storage) and to HMRC when you file, and
+to nobody else.** There is nothing left to defend.
+
+Two reasons this was worth doing rather than merely disclosing:
+
+1. It was the only route by which customer financial data reached a third party.
+   Everything else in the app is the user, Supabase and HMRC.
+2. The assistant introduced itself as _"your personal tax advisor"_ while the
+   site disclaims giving advice ("Not financial advice", "Estimates only"). For
+   software seeking HMRC recognition that inconsistency is a reviewer's gift.
+
+**How it is switched off** — `src/lib/ai-enabled.ts`, driven by
+`NEXT_PUBLIC_EA_AI` (default off):
+
+- Both API routes (`/api/ai/chat`, `/api/ai/categorise`) return **404** before
+  reading the body and before any outbound call. This is the part that matters:
+  hiding buttons would leave the routes deployed and directly callable — and
+  `/api/ai/categorise` needs no session — so the privacy notice would have been
+  true of the interface and false of the service.
+- The sidebar nav entry, sidebar call-to-action, dashboard tile, both ✨ suggest
+  buttons, the landing-page feature card, the sign-up pitch and the SEO
+  description are all removed.
+- `/dashboard/ai` redirects to `/dashboard/learn` so existing links still land
+  somewhere useful.
+- `/privacy` and `/security` no longer name Google. **If AI is ever re-enabled,
+  those disclosures must be restored in the same change** — the flag and the
+  disclosure move together, or the notice becomes inaccurate in the other
+  direction.
+
+Receipt OCR is unaffected: it runs in the browser via Tesseract and never sent
+anything anywhere.
+
+Covered by `src/lib/__tests__/ai-disabled.test.ts`, which asserts the routes 404
+without making an outbound call, that a present `GEMINI_API_KEY` does not
+re-open them, and that the gate runs before body parsing. Verified failing when
+the gate is removed.
 
 ### ⚠️ Manual step before re-submitting
 
@@ -177,9 +226,9 @@ Lighthouse or WebPageTest instead.
 
 ## Summary
 
-| # | Item | Status |
-| - | ---- | ------ |
-| 1 | Penetration testing | ❌ **Requires an external test — your action** |
-| 2 | HMRC logos / branding | ✅ Done — verify live marketing assets too |
-| 3 | Personal data & consent | ✅ Done — **fill controller placeholders**, check ICO registration |
-| 4 | WCAG AA | 🔶 Partial — needs a dedicated pass |
+| #   | Item                    | Status                                                             |
+| --- | ----------------------- | ------------------------------------------------------------------ |
+| 1   | Penetration testing     | ❌ **Requires an external test — your action**                     |
+| 2   | HMRC logos / branding   | ✅ Done — verify live marketing assets too                         |
+| 3   | Personal data & consent | ✅ Done — **fill controller placeholders**, check ICO registration |
+| 4   | WCAG AA                 | 🔶 Partial — needs a dedicated pass                                |

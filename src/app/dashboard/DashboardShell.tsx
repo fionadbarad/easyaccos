@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { getSupabaseBrowserClient } from '@/lib/supabase-client-singleton'
+import { clearServiceWorkerCaches } from '@/lib/sw-cache'
 import type { User } from '@supabase/supabase-js'
 import { Menu, AlertTriangle } from 'lucide-react'
 import { C } from '@/styles/palette'
@@ -49,6 +50,11 @@ export default function DashboardShell({
     const supabase = getSupabaseBrowserClient()
     if (supabase) {
       await supabase.auth.signOut()
+      // Purge the service worker's caches before leaving. The worker never
+      // stores private routes, but on a shared device nothing cached during
+      // one account's session should outlive it. Awaited so the delete is not
+      // cut short by the navigation; it self-resolves if no worker answers.
+      await clearServiceWorkerCaches()
       router.push('/')
     }
   }

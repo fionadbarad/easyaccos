@@ -37,11 +37,22 @@ export const REQUIRED_NUMERIC_KEYS = [
   'totalAcquisitionsExVAT',
 ] as const
 
+// HMRC's formats for the two path/identifier fields (MTD-6). Checking these
+// here turns a round-trip that comes back as an opaque HMRC error code into an
+// immediate, field-level message. `vrn` is exactly 9 digits; `periodKey` is 4
+// characters and HMRC's own examples include '#', so it is allowed.
+export const VRN_PATTERN = /^\d{9}$/
+export const PERIOD_KEY_PATTERN = /^[A-Za-z0-9#]{4}$/
+
 /** Field-level checks. Returns the names of everything missing or unusable. */
 export function missingVatFields(body: Partial<VatReturnBody>): string[] {
   const missing: string[] = []
   if (!body.vrn) missing.push('vrn')
+  else if (!VRN_PATTERN.test(body.vrn)) missing.push('vrn (must be 9 digits)')
   if (!body.periodKey) missing.push('periodKey')
+  else if (!PERIOD_KEY_PATTERN.test(body.periodKey)) {
+    missing.push('periodKey (must be 4 alphanumeric characters)')
+  }
   for (const k of REQUIRED_NUMERIC_KEYS) {
     // `typeof NaN === 'number'`, so a type check alone lets NaN and ±Infinity
     // through. That matters here because every comparison against NaN is false,

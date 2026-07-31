@@ -862,11 +862,31 @@ export function validateTaxInput(input: TaxInput): ValidationErrors {
   else if (input.dividendIncome > MAX)
     e.dividendIncome = 'Maximum supported dividend income is \u00a39,999,999'
 
+  // Exceeding the annual allowance is NOT an input error (TAX-15).
+  //
+  // The old rule rejected anything over \u00a360,000 with "Exceeds \u00a360,000 annual
+  // pension allowance", which was wrong in both directions. Wrong high: CARRY
+  // FORWARD lets you use unused allowance from the previous three tax years, so
+  // a \u00a3120,000 gross contribution can be entirely legitimate and the form
+  // simply refused to accept it. Wrong low: for a high earner the TAPERED
+  // allowance bottoms out at \u00a310,000 (and the MPAA is a flat \u00a310,000), so
+  // \u00a360,000 was never their ceiling and the message quoted a figure that did
+  // not apply to them.
+  //
+  // No figure the engine produces was ever wrong \u2014 `annualAllowance()` already
+  // applies the taper and the MPAA, caps the contribution, and reports the cap
+  // through `annualAllowanceExceeded` and `annualAllowance` on the result. So
+  // validation only rejects what is genuinely unusable, and the RESULT explains
+  // the cap where the user can see it against their own numbers.
+  //
+  // Not done here: letting the user declare unused allowance from earlier
+  // years so carry-forward is modelled rather than merely permitted. That needs
+  // a new input, which is a form-design change \u2014 see docs/AUDIT.md TAX-15.
   if (!Number.isFinite(input.pensionContribution)) e.pensionContribution = NOT_A_NUMBER
   else if (input.pensionContribution < 0)
     e.pensionContribution = 'Pension contribution cannot be negative'
-  else if (input.pensionContribution > ANNUAL_ALLOWANCE)
-    e.pensionContribution = 'Exceeds \u00a360,000 annual pension allowance'
+  else if (input.pensionContribution > MAX)
+    e.pensionContribution = 'Maximum supported pension contribution is \u00a39,999,999'
 
   return e
 }

@@ -1,0 +1,47 @@
+# Dependency updates.
+#
+# The Security workflow tells us when a shipped dependency has a published
+# advisory. This is what closes it. Without something opening the PR, "we run
+# npm audit" means "we watch ourselves stay vulnerable" — a distinction a
+# penetration test report will draw, and the reason patch cadence is asked about
+# at all.
+#
+# Grouped rather than one PR per package: an ungrouped tree this size produces
+# enough weekly noise that the updates stop being read, which defeats the point.
+
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: '/'
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/London
+    open-pull-requests-limit: 5
+    groups:
+      # Patch and minor bumps are the routine case and safe to take together —
+      # CI typechecks, tests and builds every one of them.
+      routine:
+        update-types:
+          - patch
+          - minor
+    ignore:
+      # next, react and react-dom are pinned to exact versions on purpose, and a
+      # major on any of the three is a migration rather than an update. Security
+      # patches still arrive: those are patch-level and land in the group above.
+      - dependency-name: next
+        update-types: ['version-update:semver-major']
+      - dependency-name: react
+        update-types: ['version-update:semver-major']
+      - dependency-name: react-dom
+        update-types: ['version-update:semver-major']
+
+  # Actions are code too, and a compromised third-party action runs with this
+  # workflow's token.
+  - package-ecosystem: github-actions
+    directory: '/'
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3

@@ -12,6 +12,7 @@ import {
   calcClass1NI,
   calcClass4NI,
   calcDividendTax,
+  calcEmployerNI,
   annualAllowance,
 } from './tax-logic'
 import { fmtGBP } from './formatters'
@@ -21,6 +22,7 @@ import {
   PA_TAPER_END,
   DIV_ALLOWANCE,
   DIRECTOR_OPTIMAL_SALARY,
+  EMPLOYER_NI_THRESH,
   REDUNDANCY_EXEMPTION,
   PENSION_BASIC_RELIEF_RATE,
 } from './tax/bands-2026'
@@ -95,10 +97,16 @@ export function calcScenario1(inp: S1Input): ScenarioResult {
   const pa = calcPA(p.adjusted)
   const taxable = Math.max(0, profit - pa)
   const itax = rukIncomeTax(taxable, p.gross)
-  // Neither NIC class is reduced by a personal SIPP: relief at source is paid
-  // out of income that has already borne NI, and only salary sacrifice moves an
-  // NIC base. Both are charged on the pre-pension profit (TAX-2).
-  const ni = inp.employmentType === 'employed' ? calcClass1NI(profit) : calcClass4NI(profit)
+  // NIC bases differ from the income-tax base in TWO ways, and both matter:
+  //   - neither class is reduced by a personal SIPP (relief at source is paid
+  //     from income that has already borne NI) — TAX-2;
+  //   - Class 1 is charged on GROSS PAY, so employment expenses do not reduce
+  //     it either. Class 4 IS on profit after expenses, because a sole trader's
+  //     trading profit is the statutory base. Hence the two arguments differ.
+  const ni =
+    inp.employmentType === 'employed'
+      ? calcClass1NI(Math.max(0, inp.grossIncome))
+      : calcClass4NI(profit)
   const total = round2(itax + ni)
   const takeHome = round2(Math.max(0, profit - total - p.netCost))
   const effRate = effective(total, profit)
@@ -375,8 +383,12 @@ export function calcScenario5(inp: S5Input): ScenarioResult {
     catMessage: [
       `By taking ${fmtGBP(dividends)} in dividends, you avoid 8% NI on the top slice.`,
       niSaving > 0 ? `Estimated NI saving vs self-employed: ${fmtGBP(niSaving)}.` : '',
+      // NOT "no NI". There is no EMPLOYEE NI at this salary, but the company
+      // still owes secondary contributions on it — £1,135.50 at the 2026/27
+      // rates — and for a one-person company that is the same person's money.
+      // Saying "no NI" understated the cost of the salary the app recommends.
       salary === DIRECTOR_OPTIMAL_SALARY
-        ? `✓ Optimal ${fmtGBP(DIRECTOR_OPTIMAL_SALARY)} salary — no NI, full State Pension credit.`
+        ? `✓ ${fmtGBP(DIRECTOR_OPTIMAL_SALARY)} salary — no employee NI and a qualifying State Pension year. The company still pays ${fmtGBP(calcEmployerNI(salary))} employer NI on it (15% above the ${fmtGBP(EMPLOYER_NI_THRESH)} secondary threshold) unless Employment Allowance applies.`
         : '',
     ]
       .filter(Boolean)

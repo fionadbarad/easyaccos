@@ -26,7 +26,21 @@ const eslintConfig = defineConfig([
         'warn',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
       ],
+      // src/lib/monitor.ts exists so that failures are reported somewhere a
+      // person will look. Thirteen sites bypassed it with a raw console call —
+      // including every HMRC route, which is to say the errors that mattered
+      // most went to a serverless log nobody reads.
+      //
+      // An error rather than a warning: a warning here is a note that the rule
+      // is being broken, which is what the situation already was.
+      'no-console': 'error',
     },
+  },
+  {
+    // The monitor is the one place a console call belongs — it IS the sink.
+    // Tests may assert on console output, and config files run outside the app.
+    files: ['src/lib/monitor.ts', '**/__tests__/**', '*.config.{js,mjs,ts}', 'scripts/**'],
+    rules: { 'no-console': 'off' },
   },
 ])
 

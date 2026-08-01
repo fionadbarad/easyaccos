@@ -9,6 +9,7 @@ import { resolveSubmissionUserId } from '@/lib/hmrc/identity'
 import { mapHmrcError } from '@/lib/hmrc/mtd-errors'
 import { getValidAccessToken, readHmrcEnv } from '@/lib/hmrc/oauth'
 import { carryCookies } from '@/lib/hmrc/cookies'
+import { reportError } from '@/lib/monitor'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -201,7 +202,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | Su
     })
     submitRaw = await submitRes.text()
   } catch (err) {
-    console.error('[hmrc/mtd/it/submit] network error:', err instanceof Error ? err.message : err)
+    reportError('hmrc.mtd.it.submit.network', err)
     return carryCookies(
       resPlaceholder,
       NextResponse.json<SubmitFail>(

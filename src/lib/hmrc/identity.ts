@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase-server'
+import { reportError } from '@/lib/monitor'
 
 /**
  * Resolves the identifier that goes into HMRC's `Gov-Client-User-IDs` header.
@@ -34,10 +35,7 @@ export async function resolveSubmissionUserId(): Promise<SubmissionIdentity> {
     }
     user = data.user
   } catch (err) {
-    console.error(
-      '[hmrc/identity] session lookup failed:',
-      err instanceof Error ? err.message : err,
-    )
+    reportError('hmrc.identity.sessionLookup', err)
     return {
       ok: false,
       status: 503,

@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { reportError } from '@/lib/monitor'
 
 /**
  * Creates a Supabase server client with optimized connection settings.
@@ -24,7 +25,7 @@ export async function createClient() {
           } catch (err) {
             // reportError is not available in server components if it uses window
             // but we should at least not swallow it silently in dev
-            console.error('Supabase cookie set error:', err)
+            reportError('supabase.cookieSet', err)
           }
         },
       },

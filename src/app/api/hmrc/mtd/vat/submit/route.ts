@@ -9,6 +9,7 @@ import {
   missingVatFields,
   type VatReturnBody as RequestBody,
 } from '@/lib/hmrc/vat-return'
+import { reportError } from '@/lib/monitor'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -154,7 +155,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | Su
     })
     submitRaw = await submitRes.text()
   } catch (err) {
-    console.error('[hmrc/mtd/vat/submit] network error:', err instanceof Error ? err.message : err)
+    reportError('hmrc.mtd.vat.submit.network', err)
     return carryCookies(
       resPlaceholder,
       NextResponse.json<SubmitFail>(

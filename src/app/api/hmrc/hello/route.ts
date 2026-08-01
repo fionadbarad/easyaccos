@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { reportError } from '@/lib/monitor'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -59,7 +60,7 @@ export async function GET(): Promise<NextResponse<SuccessBody | FailureBody>> {
     })
     tokenJson = await tokenRes.json()
   } catch (err) {
-    console.error('[hmrc/hello] token network error:', err instanceof Error ? err.message : err)
+    reportError('hmrc.hello.token', err)
     return NextResponse.json<FailureBody>(
       { ok: false, stage: 'token', message: 'Network error reaching HMRC OAuth endpoint' },
       { status: 502 },
@@ -85,7 +86,7 @@ export async function GET(): Promise<NextResponse<SuccessBody | FailureBody>> {
     })
     helloRaw = await helloRes.text()
   } catch (err) {
-    console.error('[hmrc/hello] hello network error:', err instanceof Error ? err.message : err)
+    reportError('hmrc.hello.request', err)
     return NextResponse.json<FailureBody>(
       { ok: false, stage: 'hello', message: 'Network error reaching HMRC hello endpoint' },
       { status: 502 },

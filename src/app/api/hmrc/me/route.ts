@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { getValidAccessToken, readHmrcEnv } from '@/lib/hmrc/oauth'
+import { reportError } from '@/lib/monitor'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -61,7 +62,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<Ok | Fail>> {
     })
     helloRaw = await helloRes.text()
   } catch (err) {
-    console.error('[hmrc/me] network error:', err instanceof Error ? err.message : err)
+    reportError('hmrc.me.network', err)
     return NextResponse.json<Fail>(
       { ok: false, stage: 'hello', message: 'Network error calling /hello/user' },
       { status: 502 },

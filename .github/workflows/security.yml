@@ -158,13 +158,20 @@ jobs:
 
       - name: Scan
         continue-on-error: true
+        # --sarif-output writes the file for the Security tab while leaving the
+        # default text report on stdout. The first version used `--sarif
+        # --output`, which sends EVERYTHING to the file and prints nothing: the
+        # run said "1 finding" and gave no way to see what it was without
+        # leaving the logs and going to the Security tab. A security job whose
+        # output you cannot read in the place it failed is a job people learn to
+        # ignore.
         run: |
           semgrep scan \
             --config p/owasp-top-ten \
             --config p/typescript \
             --config p/secrets \
             --config p/react \
-            --sarif --output semgrep.sarif \
+            --sarif-output=semgrep.sarif \
             --metrics=off
 
       - name: Upload results

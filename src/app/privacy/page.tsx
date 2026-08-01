@@ -19,16 +19,23 @@ export const metadata: Metadata = {
 // breach, which is the failure mode this page was written to fix. Grep for
 // `https://` under src/ to re-derive the list.
 //
-// !! BEFORE PUBLISHING: the three [[ ]] placeholders below must be filled in
-// with the real data-controller identity and contact route. They are not
-// something software can invent — see docs/COMPLIANCE.md.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const CONTROLLER_NAME = '[[CONTROLLER LEGAL NAME]]'
-const CONTROLLER_ADDRESS = '[[CONTROLLER REGISTERED ADDRESS]]'
-// Defaulted to the address already published on /security so this page is never
-// left with no route to a human. A role address (privacy@easyacco.uk) reads
-// better to a reviewer than a personal mailbox — worth switching before filing.
+const CONTROLLER_NAME = 'Fiona Barad'
+
+// No postal address, deliberately.
+//
+// UK GDPR Art. 13(1)(a) requires "the identity and the contact details of the
+// controller". Contact details, not a street. A monitored email satisfies it,
+// and the ICO's guidance for sole traders is that a data subject must be able
+// to reach the controller — not that the controller must publish where they
+// live. EasyAcco is run by a sole trader from home, and this page is public,
+// indexed and archived permanently. Naming the controller and giving a route to
+// them meets the obligation without that consequence.
+//
+// If a registered business address exists later (a virtual office, or if the
+// business incorporates), add it here — an address strengthens the notice. Do
+// not add a home one.
 const CONTACT_EMAIL = 'baradfiona14@gmail.com'
 
 const LAST_UPDATED = '31 July 2026'
@@ -91,10 +98,12 @@ export default function PrivacyPage() {
         <Section title="Who is responsible for your data">
           <p style={{ margin: '0 0 0.75rem' }}>
             {CONTROLLER_NAME} (&ldquo;EasyAcco&rdquo;, &ldquo;we&rdquo;) is the data controller for
-            the personal data described here. Our registered address is {CONTROLLER_ADDRESS}.
+            the personal data described here. EasyAcco is independent software, operated by a sole
+            trader in the United Kingdom.
           </p>
           <p style={{ margin: 0 }}>
-            For any question about this notice, or to exercise the rights set out below, contact{' '}
+            For any question about this notice, to exercise the rights set out below, or to request
+            a postal address for correspondence, contact{' '}
             <span style={{ color: C.white }}>{CONTACT_EMAIL}</span>. We respond to rights requests
             within one month, as UK GDPR requires.
           </p>

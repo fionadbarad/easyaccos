@@ -19,14 +19,16 @@ import { fmtGBP } from '@/lib/formatters'
 import { C } from '@/styles/palette'
 import { T } from '@/styles/type'
 import { newId } from '@/lib/id'
-// HMRC 2026/27 approved mileage rates
-const RATE_CAR_FIRST = 0.55 // First 10,000 miles (AMAP raised 45p→55p from 6 Apr 2026)
-const RATE_CAR_EXCESS = 0.25 // Above 10,000 miles
-const RATE_BIKE = 0.2
-const RATE_MOTORCYCLE = 0.24
-const CAR_THRESHOLD = 10_000
-
-type VehicleType = 'car' | 'motorcycle' | 'bike'
+import {
+  AMAP_CAR_FIRST,
+  AMAP_CAR_EXCESS,
+  AMAP_MOTORCYCLE,
+  AMAP_BICYCLE,
+  AMAP_CAR_THRESHOLD,
+  RUK_BASIC_RATE,
+  RUK_HIGHER_RATE,
+} from '@/lib/tax/bands-2026'
+import { calcMileageClaim, taxYearOf, taxYearLabel, type VehicleType } from '@/lib/tax/mileage'
 
 interface MileageEntry {
   id: string
@@ -45,45 +47,23 @@ const VEHICLE_LABELS: Record<VehicleType, string> = {
   bike: 'Bicycle',
 }
 
-function calcRate(vehicle: VehicleType, milesBefore: number, miles: number): number {
-  if (vehicle === 'bike') return miles * RATE_BIKE
-  if (vehicle === 'motorcycle') return miles * RATE_MOTORCYCLE
-  // Car: split at 10,000 threshold
-  const firstBand = Math.max(0, Math.min(miles, Math.max(0, CAR_THRESHOLD - milesBefore)))
-  const excessBand = miles - firstBand
-  return firstBand * RATE_CAR_FIRST + excessBand * RATE_CAR_EXCESS
-}
-
-/**
- * The UK tax year a date falls in, identified by its starting calendar year.
- * 2026-04-05 → 2025 (the 2025/26 year); 2026-04-06 → 2026 (2026/27).
- *
- * The 10,000-mile AMAP threshold is a PER TAX YEAR allowance, and it is the
- * only thing standing between the 55p and 25p rates. Accumulating car miles
- * across every entry ever logged — which is what this page did — pushed anyone
- * with history into the 25p band on their first journey of a new year and
- * under-claimed the difference (£300 per 1,000 miles) for the rest of it. The
- * page's own rate panel says the threshold resets each 6 April; now it does.
- */
-function taxYearOf(dateStr: string): number {
-  const d = new Date(dateStr)
-  if (Number.isNaN(d.getTime())) return NaN
-  const year = d.getUTCFullYear()
-  const month = d.getUTCMonth() // 0-based; April = 3
-  const day = d.getUTCDate()
-  return month > 3 || (month === 3 && day >= 6) ? year : year - 1
-}
-
-function taxYearLabel(startYear: number): string {
-  return `${startYear}/${String((startYear + 1) % 100).padStart(2, '0')}`
-}
-
 function today(): string {
   return new Date().toISOString().slice(0, 10)
 }
 
 function formatMiles(m: number): string {
   return m.toLocaleString('en-GB', { maximumFractionDigits: 1 })
+}
+
+/** 0.55 → "55p". Every rate shown to the user is rendered through this, so the
+ *  copy cannot say 55p while the calculation uses something else. */
+function pence(rate: number): string {
+  return `${Math.round(rate * 100)}p`
+}
+
+/** 0.2 → "20%". Same reason. */
+function pct(rate: number): string {
+  return `${Math.round(rate * 100)}%`
 }
 
 // ── Stat card ─────────────────────────────────────────────────────────────────
@@ -180,7 +160,11 @@ function RatePanel({ open, onToggle }: { open: boolean; onToggle: () => void }) 
           >
             <thead>
               <tr>
-                {['Vehicle', 'First 10,000 mi', 'Above 10,000 mi'].map((h) => (
+                {[
+                  'Vehicle',
+                  `First ${AMAP_CAR_THRESHOLD.toLocaleString()} mi`,
+                  `Above ${AMAP_CAR_THRESHOLD.toLocaleString()} mi`,
+                ].map((h) => (
                   <th
                     key={h}
                     style={{
@@ -199,9 +183,17 @@ function RatePanel({ open, onToggle }: { open: boolean; onToggle: () => void }) 
             </thead>
             <tbody>
               {[
-                ['Car / Van', '55p per mile', '25p per mile'],
-                ['Motorcycle', '24p per mile', '24p per mile'],
-                ['Bicycle', '20p per mile', '20p per mile'],
+                [
+                  'Car / Van',
+                  `${pence(AMAP_CAR_FIRST)} per mile`,
+                  `${pence(AMAP_CAR_EXCESS)} per mile`,
+                ],
+                [
+                  'Motorcycle',
+                  `${pence(AMAP_MOTORCYCLE)} per mile`,
+                  `${pence(AMAP_MOTORCYCLE)} per mile`,
+                ],
+                ['Bicycle', `${pence(AMAP_BICYCLE)} per mile`, `${pence(AMAP_BICYCLE)} per mile`],
               ].map(([v, r1, r2]) => (
                 <tr key={v} style={{ borderTop: `1px solid ${C.border}` }}>
                   <td style={{ padding: '6px 8px 6px 0', color: C.white }}>{v}</td>
@@ -362,7 +354,7 @@ export default function MileagePage() {
     for (const entry of sorted) {
       const year = taxYearOf(entry.date)
       const milesBefore = entry.vehicle === 'car' ? (carMilesByYear.get(year) ?? 0) : 0
-      const claimAmount = calcRate(entry.vehicle, milesBefore, entry.miles)
+      const claimAmount = calcMileageClaim(entry.vehicle, milesBefore, entry.miles)
       // push, not [...acc, x] in a reduce — the spread rebuilt the whole array
       // on every entry, making the pass quadratic in the number of journeys.
       enriched.push({ entry, claimAmount })
@@ -392,7 +384,7 @@ export default function MileagePage() {
     enriched.filter(({ entry }) => taxYearOf(entry.date) === currentTaxYear).length
 
   // Progress toward 10k threshold (car only, this tax year)
-  const thresholdPct = Math.min(100, (carMiles / CAR_THRESHOLD) * 100)
+  const thresholdPct = Math.min(100, (carMiles / AMAP_CAR_THRESHOLD) * 100)
 
   // The preview must price the journey against the threshold of the tax year the
   // user picked in the date field, not against the current year's running total —
@@ -547,17 +539,17 @@ export default function MileagePage() {
         <Stat
           label="Car Miles"
           value={`${formatMiles(carMiles)} mi`}
-          sub={`of ${CAR_THRESHOLD.toLocaleString()} threshold`}
+          sub={`of ${AMAP_CAR_THRESHOLD.toLocaleString()} threshold`}
         />
         <Stat
           label="Rate"
-          value={carMiles >= CAR_THRESHOLD ? '25p/mi' : '55p/mi'}
+          value={`${pence(carMiles >= AMAP_CAR_THRESHOLD ? AMAP_CAR_EXCESS : AMAP_CAR_FIRST)}/mi`}
           sub={
-            carMiles >= CAR_THRESHOLD
+            carMiles >= AMAP_CAR_THRESHOLD
               ? 'excess rate active'
-              : `${formatMiles(CAR_THRESHOLD - carMiles)} mi until drop`
+              : `${formatMiles(AMAP_CAR_THRESHOLD - carMiles)} mi until drop`
           }
-          accent={carMiles >= CAR_THRESHOLD ? C.amber : C.white}
+          accent={carMiles >= AMAP_CAR_THRESHOLD ? C.amber : C.white}
         />
       </div>
 
@@ -584,7 +576,7 @@ export default function MileagePage() {
                 fontFamily: 'var(--font-geist-mono, monospace)',
               }}
             >
-              Car mileage threshold {yearLabel} (55p → 25p)
+              Car mileage threshold {yearLabel} ({pence(AMAP_CAR_FIRST)} → {pence(AMAP_CAR_EXCESS)})
             </span>
             <span
               style={{
@@ -593,7 +585,7 @@ export default function MileagePage() {
                 fontFamily: 'var(--font-geist-mono, monospace)',
               }}
             >
-              {formatMiles(carMiles)} / {CAR_THRESHOLD.toLocaleString()} mi
+              {formatMiles(carMiles)} / {AMAP_CAR_THRESHOLD.toLocaleString()} mi
             </span>
           </div>
           <div
@@ -611,7 +603,8 @@ export default function MileagePage() {
           </div>
           {thresholdPct >= 100 && (
             <p style={{ color: C.amber, fontSize: T.micro, marginTop: '6px' }}>
-              10,000 mile threshold reached — remaining car journeys claim at 25p/mile.
+              {AMAP_CAR_THRESHOLD.toLocaleString()} mile threshold reached — remaining car journeys
+              claim at {pence(AMAP_CAR_EXCESS)}/mile.
             </p>
           )}
         </div>
@@ -800,7 +793,7 @@ export default function MileagePage() {
                   fontWeight: 700,
                 }}
               >
-                {fmtGBP(calcRate(vehicle, previewMilesBefore, parseFloat(miles) || 0))}
+                {fmtGBP(calcMileageClaim(vehicle, previewMilesBefore, parseFloat(miles) || 0))}
               </span>
             </div>
           )}
@@ -955,12 +948,13 @@ export default function MileagePage() {
           <TrendingUp size={14} style={{ color: C.green, flexShrink: 0, marginTop: '2px' }} />
           <div>
             <p style={{ color: C.white, fontSize: T.caption, fontWeight: 500, margin: '0 0 3px' }}>
-              Tax saving: approx. {fmtGBP(totalClaim * 0.2)}–{fmtGBP(totalClaim * 0.4)}
+              Tax saving: approx. {fmtGBP(totalClaim * RUK_BASIC_RATE)}–
+              {fmtGBP(totalClaim * RUK_HIGHER_RATE)}
             </p>
             <p style={{ color: C.muted, fontSize: T.micro, margin: 0 }}>
-              Add {fmtGBP(totalClaim)} to your allowable expenses on your Self Assessment. At 20%
-              basic rate this saves {fmtGBP(totalClaim * 0.2)}, at 40% higher rate{' '}
-              {fmtGBP(totalClaim * 0.4)}.
+              Add {fmtGBP(totalClaim)} to your allowable expenses on your Self Assessment. At{' '}
+              {pct(RUK_BASIC_RATE)} basic rate this saves {fmtGBP(totalClaim * RUK_BASIC_RATE)}, at{' '}
+              {pct(RUK_HIGHER_RATE)} higher rate {fmtGBP(totalClaim * RUK_HIGHER_RATE)}.
             </p>
           </div>
         </div>

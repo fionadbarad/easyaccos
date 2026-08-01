@@ -28,11 +28,15 @@ import {
   DIV_BASIC,
   DIV_HIGHER,
   DIV_ADDL,
+  AMAP_CAR_FIRST,
+  AMAP_CAR_EXCESS,
+  AMAP_CAR_THRESHOLD,
 } from '@/lib/tax/bands-2026'
 
 // All numeric values below resolve at module load from bands-2026.ts so this
 // prompt — and the offline canned replies — can never drift from the engine.
 const pct = (n: number) => `${(n * 100).toFixed((n * 100) % 1 === 0 ? 0 : 2)}%`
+const pence = (n: number) => `${Math.round(n * 100)}p`
 
 const BASE_SYSTEM = `You are EasyAcco's personal tax advisor — aligned to HMRC rules for the 2026/27 UK fiscal year. You are a conversational advisor, not a text box, with a voice and a memory of the conversation so far. Do not introduce yourself with a name; simply speak as a knowledgeable UK tax advisor.
 
@@ -115,11 +119,12 @@ const OFFLINE = {
     `Above that: **${pct(DIV_BASIC)}** in the basic rate band, **${pct(DIV_HIGHER)}** in the higher rate band. ` +
     `Optimal structure is a salary at the NI threshold (${fmtGBP(NI_PT)}) plus dividends.`,
   mileage:
-    'You can claim **55p per business mile** for the first 10,000 miles, then **25p/mile**. ' +
-    'Keep a log with dates, destinations and business purpose.',
+    `You can claim **${pence(AMAP_CAR_FIRST)} per business mile** for the first ` +
+    `${AMAP_CAR_THRESHOLD.toLocaleString('en-GB')} miles, then **${pence(AMAP_CAR_EXCESS)}/mile**. ` +
+    `Keep a log with dates, destinations and business purpose.`,
   expense:
-    'Common allowable expenses: Use of Home (£6/wk flat rate), mileage (55p/mile), ' +
-    'equipment, training, professional subscriptions, pension contributions. ' +
+    `Common allowable expenses: Use of Home (£6/wk flat rate), mileage (${pence(AMAP_CAR_FIRST)}/mile), ` +
+    `equipment, training, professional subscriptions, pension contributions. ` +
     'Enter your expenses in the Tax Estimator to see the exact reduction.',
   ni:
     `Self-employed Class 4 NI: **${pct(NI_C4_MAIN)}** on profits ${fmtGBP(NI_PT)} to ${fmtGBP(NI_UEL)}, then **${pct(NI_C4_UPPER)}** above. ` +

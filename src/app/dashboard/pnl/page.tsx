@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import {
   AreaChart,
   Area,
@@ -14,48 +14,19 @@ import {
   Legend,
 } from 'recharts'
 import { Copy, CheckCheck, FileText, TrendingUp, TrendingDown } from 'lucide-react'
-import { calcScenario1 } from '@/lib/tax-engine'
 import { fmtGBP as fmt, fmtDecAbs as fmtDp } from '@/lib/formatters'
 import { useUserData } from '@/lib/use-user-data'
 import { TRANSACTIONS_SEED, type Transaction } from '@/lib/transactions/seed'
-import { isCostOfSales, isInferredCategory } from '@/lib/transactions/cost-category'
+import { isCostOfSales } from '@/lib/transactions/cost-category'
+import { buildMonthly, buildIncomeStatement, sa103Rows, toCsv } from '@/lib/pnl/statement'
 
 import { C } from '@/styles/palette'
 import { T } from '@/styles/type'
 import { newId } from '@/lib/id'
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
 // MTD ITSA mandation date for the >£50k turnover band. Rendered as a future
-// deadline, or as "now mandatory" once passed — no more stale hardcoded date (PL-5).
+// deadline, or as "now mandatory" once passed (PL-5).
 const MTD_ITSA_MANDATION = new Date('2026-04-06T00:00:00Z')
-
-function buildMonthly(txs: Transaction[]) {
-  // Bucket by YEAR + month so different years never collapse into one bar, and
-  // sort chronologically. The label carries a 2-digit year suffix only when the
-  // data spans more than one year, keeping single-year charts uncluttered (PL-3).
-  const map: Record<string, { income: number; expenses: number; year: number; monthIdx: number }> =
-    {}
-  for (const tx of txs) {
-    const d = new Date(tx.date)
-    if (Number.isNaN(d.getTime())) continue
-    const year = d.getFullYear()
-    const monthIdx = d.getMonth()
-    const key = `${year}-${String(monthIdx).padStart(2, '0')}`
-    const bucket = map[key] ?? { income: 0, expenses: 0, year, monthIdx }
-    if (tx.type === 'income') bucket.income += tx.amount
-    else bucket.expenses += tx.amount
-    map[key] = bucket
-  }
-  const rows = Object.values(map).sort((a, b) => a.year - b.year || a.monthIdx - b.monthIdx)
-  const multiYear = new Set(rows.map((r) => r.year)).size > 1
-  return rows.map((r) => ({
-    month: multiYear ? `${MONTHS[r.monthIdx]} ${String(r.year).slice(2)}` : MONTHS[r.monthIdx],
-    income: r.income,
-    expenses: r.expenses,
-    profit: r.income - r.expenses,
-  }))
-}
 
 function ISLine({
   label = '',
@@ -140,33 +111,21 @@ export default function PnLPage() {
   })
 
   const monthly = buildMonthly(txs)
-  const totalRevenue = txs.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
-  // Cost of sales comes from the transaction's own cost_category (PL-1).
-  // Rows saved before that field existed fall back to the old description
-  // heuristic inside costCategoryOf, so historical figures do not shift.
+  const stmt = buildIncomeStatement(txs)
+  const {
+    totalRevenue,
+    costOfSales,
+    grossProfit,
+    opEx,
+    profitBeforeTax,
+    netProfit,
+    inferredCount,
+    taxProvision,
+    profitAfterTax,
+    margin,
+  } = stmt
   const cogsItems = txs.filter(isCostOfSales)
   const opExItems = txs.filter((t) => t.type === 'expense' && !isCostOfSales(t))
-  const costOfSales = cogsItems.reduce((s, t) => s + t.amount, 0)
-  const grossProfit = totalRevenue - costOfSales
-  const inferredCount = txs.filter(isInferredCategory).length
-  const opEx =
-    txs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0) - costOfSales
-  const profitBeforeTax = grossProfit - opEx
-  const netProfit = profitBeforeTax
-
-  const taxCalc = useMemo(() => {
-    if (netProfit <= 0) return { incomeTax: 0, nationalInsurance: 0, totalDeductions: 0 }
-    return calcScenario1({
-      grossIncome: totalRevenue,
-      expenses: txs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0),
-      employmentType: 'self-employed',
-      pension: 0,
-    })
-  }, [totalRevenue, txs, netProfit])
-
-  const taxProvision = taxCalc.totalDeductions
-  const profitAfterTax = netProfit - taxProvision
-  const margin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0
 
   async function addCogsEntry(e: React.FormEvent) {
     e.preventDefault()
@@ -192,31 +151,7 @@ export default function PnLPage() {
   }
 
   function exportSA103CSV() {
-    const expensesTotal = txs.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
-    const rows: Array<[string, string]> = [
-      ['SA103 Self-Employment (Short) — 2026/27', ''],
-      ['Generated', new Date().toISOString()],
-      ['', ''],
-      ['Box 9  Turnover (Total Revenue)', totalRevenue.toFixed(2)],
-      ['Box 10 Other business income', '0.00'],
-      ['Box 11 Cost of goods bought (COGS)', costOfSales.toFixed(2)],
-      ['Box 17 Other allowable business expenses', opEx.toFixed(2)],
-      ['Box 20 Total allowable expenses', expensesTotal.toFixed(2)],
-      ['Box 21 Net profit / (loss)', netProfit.toFixed(2)],
-      ['', ''],
-      ['— Tax provision (indicative) —', ''],
-      ['Income Tax', taxCalc.incomeTax.toFixed(2)],
-      ['National Insurance (Class 4)', taxCalc.nationalInsurance.toFixed(2)],
-      ['Profit after tax', profitAfterTax.toFixed(2)],
-    ]
-    // CSV-injection safe: prefix cells that start with formula triggers (=, +, -, @, tab, CR)
-    // with a single quote so spreadsheet apps treat them as text, not formulas.
-    const safe = (c: string) => {
-      let s = String(c)
-      if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`
-      return `"${s.replace(/"/g, '""')}"`
-    }
-    const csv = rows.map((r) => r.map(safe).join(',')).join('\r\n')
+    const csv = toCsv(sa103Rows(stmt, new Date()))
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -781,10 +716,10 @@ export default function PnLPage() {
           <ISLine separator />
 
           <ISLine label="TAX PROVISION" bold />
-          <ISLine label="Income Tax (2026/27)" value={taxCalc.incomeTax} indent={1} negative />
+          <ISLine label="Income Tax (2026/27)" value={stmt.incomeTax} indent={1} negative />
           <ISLine
             label="National Insurance (Class 4)"
-            value={taxCalc.nationalInsurance}
+            value={stmt.nationalInsurance}
             indent={1}
             negative
           />

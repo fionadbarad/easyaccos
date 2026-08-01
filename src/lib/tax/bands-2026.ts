@@ -80,6 +80,24 @@ export const AA_TAPER_FLOOR = 10_000
 // been flexibly accessed. Flat £10,000; it does not itself taper.
 export const MPAA = 10_000
 
+// ── Approved Mileage Allowance Payments [AMAP] 2026/27 ──────────────────────
+// The statutory rates for claiming business travel in your own vehicle.
+//
+// These lived in src/app/dashboard/mileage/page.tsx — five tax constants inside
+// a 970-line React component, in a file this one claims to be the single source
+// of truth for. That is not a tidiness complaint. Rates change on 6 April, and
+// a figure nobody thinks to look for is a figure nobody updates: the car rate
+// already moved 45p → 55p once, and the next time it moves, whoever edits this
+// file will believe they are done.
+//
+// The 10,000-mile threshold is PER TAX YEAR, per person — not per vehicle and
+// not lifetime.
+export const AMAP_CAR_FIRST = 0.55 // first 10,000 business miles
+export const AMAP_CAR_EXCESS = 0.25 // every mile above that
+export const AMAP_MOTORCYCLE = 0.24 // flat, no threshold
+export const AMAP_BICYCLE = 0.2 // flat, no threshold
+export const AMAP_CAR_THRESHOLD = 10_000
+
 // ── Misc ────────────────────────────────────────────────────────────────────
 export const DIRECTOR_OPTIMAL_SALARY = 12_570
 export const NLW_RATE = 12.71 // National Living Wage, 1 Apr 2026

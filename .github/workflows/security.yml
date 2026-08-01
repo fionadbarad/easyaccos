@@ -59,15 +59,14 @@ jobs:
   #
   # Does not prove: that the code using those dependencies is safe.
   #
-  # --omit=dev is the honest scope. A vulnerability in eslint or vitest is not
+  # --prod is the honest scope. A vulnerability in eslint or vitest is not
   # shipped to a user; treating it as equal to one in the runtime tree trains
   # everyone to ignore the output, which is worse than not running it.
   #
   # When this goes red, the fix is usually an entry in package.json's
-  # `overrides` (and the matching `pnpm.overrides`), as done for postcss and
-  # sharp — both of which Next pins below their patched versions. `npm audit
-  # fix --force` is almost never the answer: on this repo it "resolves" the
-  # advisories by installing next@9.3.3.
+  # `pnpm.overrides`, as done for postcss and sharp — both of which Next pins
+  # below their patched versions. An automatic --force fix is almost never the
+  # answer: on this repo npm's was to install next@9.3.3.
   dependencies:
     name: Dependency advisories
     runs-on: ubuntu-latest
@@ -75,22 +74,25 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
+      - name: Enable corepack
+        run: corepack enable
+
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
 
       - name: Install
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Audit production dependencies
-        run: npm audit --omit=dev --audit-level=high
+        run: pnpm audit --prod --audit-level=high
 
       - name: Report full tree (advisory only)
         # Dev-dependency findings are worth seeing, just not worth blocking a
         # tax fix over. `|| true` keeps this informational on purpose.
         if: always()
-        run: npm audit || true
+        run: pnpm audit || true
 
   # ── Static analysis: CodeQL ───────────────────────────────────────────────
   #

@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { T } from '@/styles/type'
+import { reportError } from '@/lib/monitor'
 
 export default function DashboardError({
   error,
@@ -11,7 +12,7 @@ export default function DashboardError({
   reset: () => void
 }) {
   useEffect(() => {
-    console.error(error)
+    reportError('dashboard.errorBoundary', error, { digest: error.digest })
   }, [error])
 
   return (

@@ -24,7 +24,11 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'System Auditor — UK Compliance Operating System 2026/27',
+  // This read "System Auditor — UK Compliance Operating System 2026/27" on the
+  // live site: the browser tab, the bookmark, and the Google result for
+  // easyacco.uk all named a product that does not exist. The `appleWebApp`
+  // title below said EasyAcco, so the two disagreed on what this is called.
+  title: 'EasyAcco — UK Self Assessment & Making Tax Digital, 2026/27',
   description:
     'Tax engine, MTD ITSA tooling, and financial reporting for UK sole traders, landlords, and directors, using 2026/27 UK rates. Estimates only, not a substitute for professional advice.',
   manifest: '/manifest.webmanifest',

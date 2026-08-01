@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.33.0",
+  "//engines": "Pinned to match .nvmrc and the node-version in both workflows. A test suite verified on a different major than CI runs is not verified: jsdom 30 imports undici 8, which calls node:worker_threads.markAsUncloneable \u2014 added in Node 22 and undefined in Node 20. It passed locally and failed CI.",
+  "engines": {
+    "node": ">=20.18.0 <21"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build --webpack",
@@ -31,6 +35,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -40,6 +45,7 @@
     "eslint-config-next": "^16.2.3",
     "eslint-config-prettier": "^9.1.2",
     "eslint-plugin-prettier": "^5.4.0",
+    "happy-dom": "^20.11.1",
     "prettier": "^3.5.3",
     "tailwindcss": "^4.2.2",
     "typescript": "6.0.2",
@@ -49,10 +55,10 @@
     "Both entries force a patched version of a transitive dependency that Next",
     "pins below the fix. Neither is a direct dependency of this app, so there is",
     "no other way to clear them and `npm audit fix --force` 'resolves' them by",
-    "installing next@9.3.3 — a six-major-version downgrade, which is not a fix.",
+    "installing next@9.3.3 \u2014 a six-major-version downgrade, which is not a fix.",
     "",
     "postcss: Next pins 8.4.31 exactly (GHSA-qx2v-qp2m-jg93, GHSA-6g55-p6wh-862q,",
-    "GHSA-r28c-9q8g-f849 — sourceMappingURL path traversal and stringify XSS).",
+    "GHSA-r28c-9q8g-f849 \u2014 sourceMappingURL path traversal and stringify XSS).",
     "8.5.x is semver-compatible with 8.4.x. It runs at build time only.",
     "",
     "sharp: Next declares ^0.34.5 as an OPTIONAL dependency for next/image.",

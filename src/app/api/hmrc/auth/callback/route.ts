@@ -3,6 +3,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { STATE_COOKIE, TOKENS_COOKIE, readStateCookie, type StoredTokens } from '@/lib/hmrc/cookies'
 import { encrypt } from '@/lib/hmrc/crypto'
 import { exchangeCodeForTokens, readHmrcEnv } from '@/lib/hmrc/oauth'
+import { reportError } from '@/lib/monitor'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -81,7 +82,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     // SERVER-SIDE only — it must not travel back in the redirect URL, where it
     // would leak into the browser address bar and history (SEC-11).
     const diag = `code=${code ? 'present' : 'MISSING'} state=${state ? 'present' : 'MISSING'} cookie=${storedState ? 'present' : 'MISSING'} | host=${host} | cookies=[${cookieNames}] | query=[${queryKeys}] | referer=${referer}`
-    console.error('[hmrc/callback] missing_params', diag)
+    reportError('hmrc.callback.missingParams', new Error('missing_params'), { diag })
     return redirectDashboard(
       req,
       {

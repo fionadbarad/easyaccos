@@ -1,3 +1,4 @@
+import { reportError } from '@/lib/monitor'
 /**
  * Minimal, typed IndexedDB wrapper — no external deps.
  *
@@ -173,7 +174,7 @@ export async function idbSet(store: StoreName, key: IDBValidKey, value: unknown)
   try {
     await idbSetStrict(store, key, value)
   } catch (err) {
-    console.error(`IndexedDB set error [${store}]:`, err)
+    reportError('idb.set', err, { store })
   }
 }
 
@@ -182,7 +183,7 @@ export async function idbDelete(store: StoreName, key: IDBValidKey): Promise<voi
   try {
     await tx<undefined>(store, 'readwrite', (s) => s.delete(key) as IDBRequest<undefined>)
   } catch (err) {
-    console.error(`IndexedDB delete error [${store}]:`, err)
+    reportError('idb.delete', err, { store })
   }
 }
 
@@ -204,7 +205,7 @@ export async function idbClear(store: StoreName): Promise<void> {
   try {
     await tx<undefined>(store, 'readwrite', (s) => s.clear() as IDBRequest<undefined>)
   } catch (err) {
-    console.error(`IndexedDB clear error [${store}]:`, err)
+    reportError('idb.clear', err, { store })
   }
 }
 

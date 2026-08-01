@@ -28,6 +28,12 @@ const DRIFT_PRONE_FILES = [
   'src/lib/acco/context.ts',
   'src/lib/tax-scenarios.ts',
   'src/features/tax/useTaxScenario.ts',
+  // The mileage page held five AMAP rates of its own, plus a rate table and a
+  // tax-saving line written as "55p", "25p", "20%" and "40%" in prose. It is
+  // the file this guard existed for and was not watching: the car rate had
+  // already moved 45p → 55p once, and the copy and the calculation were two
+  // separate places to remember.
+  'src/app/dashboard/mileage/page.tsx',
 ] as const
 
 // Numeric literals that may NEVER appear in user-facing copy: they represent
@@ -53,6 +59,21 @@ const FORBIDDEN_LITERALS: Array<{ pattern: RegExp; reason: string; useInstead: s
     pattern: /\b13\.8\s*%/,
     reason: 'pre-2026 employer NI rate',
     useInstead: 'pct(EMPLOYER_NI_RATE) from bands-2026 (now 15%)',
+  },
+  {
+    pattern: /\b45p\b/,
+    reason: 'pre-Apr-2026 AMAP car rate',
+    useInstead: 'pence(AMAP_CAR_FIRST) from bands-2026 (now 55p)',
+  },
+  {
+    pattern: /['"`\s(]\d\dp\s*(per mile|\/mi)/,
+    reason: 'AMAP rate written into copy',
+    useInstead: 'pence(AMAP_CAR_FIRST | AMAP_CAR_EXCESS | AMAP_MOTORCYCLE | AMAP_BICYCLE)',
+  },
+  {
+    pattern: /\b10[,_]000\s*(mile|mi\b)/,
+    reason: 'AMAP car threshold literal',
+    useInstead: 'AMAP_CAR_THRESHOLD.toLocaleString() from bands-2026',
   },
   {
     pattern: /£\s*12[,_]?570\b/,

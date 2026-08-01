@@ -204,19 +204,29 @@ without making an outbound call, that a present `GEMINI_API_KEY` does not
 re-open them, and that the gate runs before body parsing. Verified failing when
 the gate is removed.
 
-### ⚠️ Manual step before re-submitting
+### Controller identity — ✅ filled in
 
-`src/app/privacy/page.tsx` contains two placeholders that software cannot invent:
+`src/app/privacy/page.tsx` named `[[CONTROLLER LEGAL NAME]]` and
+`[[CONTROLLER REGISTERED ADDRESS]]` to every visitor until this was done. It now
+names Fiona Barad as controller, with an email contact route.
 
-```ts
-const CONTROLLER_NAME = '[[CONTROLLER LEGAL NAME]]'
-const CONTROLLER_ADDRESS = '[[CONTROLLER REGISTERED ADDRESS]]'
-```
+**Deliberately no postal address.** Art. 13(1)(a) requires "the identity and the
+contact details of the controller" — contact details, not a street. A monitored
+email satisfies it, and the ICO's guidance for sole traders is that a data
+subject must be able to reach the controller, not that the controller must
+publish where they live. EasyAcco is run from home; `/privacy` is public,
+indexed and archived permanently. The notice invites anyone who needs a postal
+route to ask for one, which is the ordinary way this is handled.
 
-Fill in the legal entity acting as data controller and its registered address.
-The contact defaults to the address already published on `/security`; a role
-address (`privacy@easyacco.uk`) reads better to a reviewer than a personal
-mailbox.
+Add an address here if a business one ever exists — a virtual office, or a
+registered office on incorporation. It strengthens the notice. Do not add a home
+one.
+
+A role address (`privacy@easyacco.uk`) would still read better to a reviewer
+than a personal mailbox, and is worth setting up before filing.
+
+`src/lib/__tests__/privacy-notice.test.ts` guards both halves: it fails if a
+placeholder returns, and it fails if a UK postcode appears anywhere in the page.
 
 **Also confirm:** if you are a UK data controller processing personal data
 electronically you very likely need to be **registered with the ICO** and paying

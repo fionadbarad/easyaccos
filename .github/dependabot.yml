@@ -1,0 +1,63 @@
+# Dependency updates.
+#
+# The Security workflow tells us when a shipped dependency has a published
+# advisory. This is what closes it. Without something opening the PR, "we run
+# npm audit" means "we watch ourselves stay vulnerable" — a distinction a
+# penetration test report will draw, and the reason patch cadence is asked about
+# at all.
+#
+# Grouped rather than one PR per package: an ungrouped tree this size produces
+# enough weekly noise that the updates stop being read, which defeats the point.
+
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: '/'
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/London
+    open-pull-requests-limit: 5
+    # Wait a week before proposing a newly published version.
+    #
+    # The whole point of automating updates is to shorten the window in which a
+    # known vulnerability sits in the tree. Taken naively that argues for
+    # updating the instant a release lands — but the npm supply-chain attacks of
+    # recent years all worked the same way: publish a compromised version, and
+    # rely on automation to install it before anyone notices. Malicious releases
+    # are typically pulled within hours. Seven days puts this repo on the far
+    # side of that window without meaningfully lengthening the exposure it exists
+    # to close.
+    cooldown:
+      default-days: 7
+    groups:
+      # Patch and minor bumps are the routine case and safe to take together —
+      # CI typechecks, tests and builds every one of them.
+      routine:
+        update-types:
+          - patch
+          - minor
+    ignore:
+      # next, react and react-dom are pinned to exact versions on purpose, and a
+      # major on any of the three is a migration rather than an update. Security
+      # patches still arrive: those are patch-level and land in the group above.
+      - dependency-name: next
+        update-types: ['version-update:semver-major']
+      - dependency-name: react
+        update-types: ['version-update:semver-major']
+      - dependency-name: react-dom
+        update-types: ['version-update:semver-major']
+
+  # Actions are code too, and a compromised third-party action runs with the
+  # workflow's token — which for the CodeQL and Semgrep jobs includes
+  # `security-events: write`. Both workflows pin every `uses:` to a commit SHA
+  # rather than a tag; this is what keeps those pins from going stale.
+  - package-ecosystem: github-actions
+    directory: '/'
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    cooldown:
+      default-days: 7

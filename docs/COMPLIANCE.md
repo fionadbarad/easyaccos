@@ -9,33 +9,77 @@ than one who has to infer it.
 
 ---
 
-## 1. Penetration testing — MANDATORY — ❌ NOT DONE (cannot be done in code)
+## 1. Penetration testing — MANDATORY — 🟡 IN PROGRESS (tool route started)
 
-> _"Your application has not passed software penetration testing."_
+> _"Your application has not passed software penetration testing. **You can use
+> either penetration test tools or an independent third party supplier.** For
+> penetration testing methodologies read the National Cyber Security Centre
+> Penetration Guide."_
 
-**This requires an actual test.** No code change satisfies it. You need either a
-recognised tool-based assessment or an independent third-party supplier, run
-against the deployed application, producing a report you can show HMRC.
+**Read that middle sentence again.** HMRC gives two routes and treats them as
+alternatives. A third-party engagement is the stronger evidence, but a tool-based
+assessment is explicitly permitted, and for a solo developer the difference is
+roughly £2,000–£8,000 against roughly £0. This item was previously written up as
+though only the supplier route existed. It does not.
 
-What has been done here is **preparation**, so the test is more likely to come
-back clean and cheap:
+### The routes, honestly compared
 
-- A full Content-Security-Policy now ships (see item 4 below). Its absence is one
-  of the first things any scanner reports.
-- The security-relevant defects found in the July audit passes are fixed and
+|                  | Tools (Route A)                                                                                                                            | Third-party supplier (Route B)                                          |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| Indicative cost  | £0                                                                                                                                         | ~£2,000–£8,000 for an app this size; get three quotes, they vary wildly |
+| Time             | Days                                                                                                                                       | Weeks, mostly waiting for a slot                                        |
+| Finds            | Known-vulnerable dependencies, missing headers, TLS misconfiguration, injection patterns, common misconfigurations                         | All of that, plus **business-logic flaws**                              |
+| Misses           | **Authorisation logic.** No scanner knows that user A should not be able to read user B's ledger — it has no idea what "should" means here | Less, but nothing finds everything                                      |
+| Evidence quality | Adequate if the methodology and dates are stated                                                                                           | Strongest                                                               |
+
+**The recommendation: do Route A now, and re-apply on it.** If HMRC comes back
+still unsatisfied, you will have lost nothing and you will know Route B is
+actually required before spending on it. Do not spend £2,000 on a maybe.
+
+### The one thing tools cannot cover
+
+Cross-account access is the highest-severity risk in this application and the
+one no scanner will test. It is worth testing **by hand** before submitting, and
+it takes an afternoon:
+
+1. Create two accounts, A and B, in separate browser profiles.
+2. As A, note the record IDs the app uses.
+3. As B, try to read, update and delete A's records — through the UI, then by
+   replaying A's API requests with B's session cookie.
+4. Every one of those must fail. Screenshot the failures. That evidence is
+   directly relevant to HMRC's concern about customers' data, and it is the part
+   of your report a reviewer will actually care about.
+
+Supabase row-level security is the only control standing between these two
+accounts. Prove it holds rather than assuming it.
+
+### What is already in place
+
+- **`.github/workflows/security.yml`** runs the automated part continuously —
+  dependency advisories (blocking, at high severity, production tree only),
+  CodeQL with the extended security queries, and Semgrep against the OWASP Top
+  Ten, TypeScript, React and secrets rulesets. Each job documents what it proves
+  and what it does not.
+- **`.github/dependabot.yml`** opens the patch PRs, so "we scan" is backed by
+  something that actually closes what the scan finds.
+- **Production dependency tree is clean** — 0 advisories across 583 packages. Two
+  of them (postcss, sharp) needed version overrides because Next pins them below
+  their patched releases; npm's own `--force` remediation for those was to
+  install next@9.3.3.
+- A full Content-Security-Policy ships (item 4). Its absence is one of the first
+  things any scanner reports.
+- The security defects found in the July audit passes are fixed and
   regression-tested — token handling, session identity, input validation on the
   HMRC submission routes, and the storage layer. See `docs/AUDIT.md`.
-- `docs/PENTEST-SCOPE.md` describes the architecture, trust boundaries, test
-  accounts and out-of-scope systems that a tester will ask for on day one.
+- `docs/PENTEST-SCOPE.md` has the manual commands (OWASP ZAP baseline and full
+  scan, testssl.sh, header scoring, Supabase's own security advisors), the
+  evidence pack HMRC needs, and the scope a supplier would ask for on day one if
+  you do go that way.
 
-**Your next actions:**
-
-1. Choose a supplier (CREST or CHECK-accredited providers are the safe answer for
-   a government-facing review) or a recognised tool-based assessment. HMRC point
-   at the NCSC penetration testing guidance — follow the methodology it names.
-2. Give them `docs/PENTEST-SCOPE.md`.
-3. Fix whatever comes back, retest, and keep the report — HMRC will want evidence
-   the test happened and that findings were remediated.
+**Your next actions:** work through the checklist in `docs/PENTEST-SCOPE.md`
+under "Route A", then triage the first Semgrep baseline and turn that job
+blocking. Until the baseline is triaged, the workflow is evidence that scanning
+happens — not evidence that it came back clean. Do not describe it as the latter.
 
 > Note: Supabase and Vercel are third-party platforms. Both have their own rules
 > about testing against their infrastructure. Scope the test to **your
@@ -226,9 +270,9 @@ Lighthouse or WebPageTest instead.
 
 ## Summary
 
-| #   | Item                    | Status                                                             |
-| --- | ----------------------- | ------------------------------------------------------------------ |
-| 1   | Penetration testing     | ❌ **Requires an external test — your action**                     |
-| 2   | HMRC logos / branding   | ✅ Done — verify live marketing assets too                         |
-| 3   | Personal data & consent | ✅ Done — **fill controller placeholders**, check ICO registration |
-| 4   | WCAG AA                 | 🔶 Partial — needs a dedicated pass                                |
+| #   | Item                    | Status                                                                 |
+| --- | ----------------------- | ---------------------------------------------------------------------- |
+| 1   | Penetration testing     | 🟡 Tool route started (£0) — **run it and test cross-account by hand** |
+| 2   | HMRC logos / branding   | ✅ Done — verify live marketing assets too                             |
+| 3   | Personal data & consent | ✅ Done — **fill controller placeholders**, check ICO registration     |
+| 4   | WCAG AA                 | 🔶 Partial — needs a dedicated pass                                    |

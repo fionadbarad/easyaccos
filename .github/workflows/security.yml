@@ -1,0 +1,182 @@
+# Automated security testing.
+#
+# HMRC declined production credentials because the software "has not passed
+# software penetration testing", and their letter offers two routes:
+#
+#   "You can use either penetration test tools or an independent third party
+#    supplier."
+#
+# This workflow is the first route, run continuously rather than once. It is not
+# a substitute for a human tester's judgement — a scanner cannot reason about
+# whether one taxpayer can reach another's ledger — but it is the part of a test
+# that machines do better than people: exhaustive, repeatable, and re-run on
+# every change instead of once a year.
+#
+# What each job proves, and what it does not, is written above the job. Being
+# precise about that matters more than the badge: an HMRC reviewer reading a
+# report that claims a dependency scan is a penetration test will trust the rest
+# of it less, not more.
+#
+# The manual side of the route — OWASP ZAP against a running instance,
+# testssl.sh against the TLS endpoint — is deliberately NOT automated here,
+# because it sends traffic at a live deployment and that should be a decision a
+# human makes, not a cron. The commands are in docs/PENTEST-SCOPE.md.
+#
+# Every `uses:` below is pinned to a full commit SHA, not a tag. A tag is a
+# mutable pointer the action's owner can silently repoint, which is how the
+# trivy-action and kics-github-action compromises worked — and the CodeQL and
+# Semgrep jobs here hold `security-events: write`, so a swapped action would be
+# running with a token that can write to this repository's security findings.
+# The trailing `# v4` comments are what Dependabot reads to keep the pins
+# current; do not replace a SHA with a tag to make the file tidier.
+#
+# Found by this workflow's own Semgrep job on the pull request that added it,
+# along with the missing Dependabot cooldown. Worth recording: the first thing
+# the scanner caught was the scanner's own configuration.
+
+name: Security
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  schedule:
+    # Weekly, Monday 06:00 UTC. Most of what this catches is not a change we
+    # made — it is an advisory published against a dependency we already ship,
+    # which no push-triggered run would ever notice.
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # ── Known-vulnerable dependencies ─────────────────────────────────────────
+  #
+  # Proves: nothing in the production dependency tree has a published advisory
+  # at high severity or above, at the moment of the run.
+  #
+  # Does not prove: that the code using those dependencies is safe.
+  #
+  # --omit=dev is the honest scope. A vulnerability in eslint or vitest is not
+  # shipped to a user; treating it as equal to one in the runtime tree trains
+  # everyone to ignore the output, which is worse than not running it.
+  #
+  # When this goes red, the fix is usually an entry in package.json's
+  # `overrides` (and the matching `pnpm.overrides`), as done for postcss and
+  # sharp — both of which Next pins below their patched versions. `npm audit
+  # fix --force` is almost never the answer: on this repo it "resolves" the
+  # advisories by installing next@9.3.3.
+  dependencies:
+    name: Dependency advisories
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install
+        run: npm ci
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Report full tree (advisory only)
+        # Dev-dependency findings are worth seeing, just not worth blocking a
+        # tax fix over. `|| true` keeps this informational on purpose.
+        if: always()
+        run: npm audit || true
+
+  # ── Static analysis: CodeQL ───────────────────────────────────────────────
+  #
+  # Proves: dataflow from untrusted sources (request bodies, query strings) to
+  # dangerous sinks (SQL, `eval`, DOM injection, path joins) is absent on the
+  # paths CodeQL models.
+  #
+  # Does not prove: authorisation is correct. CodeQL cannot know that a route
+  # SHOULD have checked the session — only that a value flowed somewhere unsafe.
+  #
+  # security-extended over the default suite: the default pack is tuned to keep
+  # noise low on huge codebases. This one is small enough to afford the extra
+  # queries, and the point here is evidence, not triage cost.
+  codeql:
+    name: CodeQL
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Initialise CodeQL
+        uses: github/codeql-action/init@47be0dbd5113ab1b79fe2dd3f68bdf7e426cdc87 # v3
+        with:
+          languages: javascript-typescript
+          queries: security-extended
+
+      - name: Analyse
+        uses: github/codeql-action/analyze@47be0dbd5113ab1b79fe2dd3f68bdf7e426cdc87 # v3
+        with:
+          category: '/language:javascript-typescript'
+
+  # ── Static analysis: Semgrep ──────────────────────────────────────────────
+  #
+  # Proves: none of the patterns in the OWASP Top Ten, TypeScript, React and
+  # secrets rulesets match this source tree.
+  #
+  # Does not prove: anything about code the rulesets have no pattern for.
+  #
+  # BLOCKING. It was not, at first: a rule pack never triaged against a repo
+  # will fail its opening run, and failing every PR while someone triages under
+  # time pressure is how a security gate gets deleted. So it reported first. The
+  # baseline came to ten findings — seven mutable action tags, two missing
+  # Dependabot cooldowns, and a GCM auth tag whose length was not pinned in
+  # src/lib/hmrc/crypto.ts. All ten are fixed, the scan is clean, and the gate
+  # is now real.
+  #
+  # When a future ruleset update flags something you judge to be a false
+  # positive, annotate the line with `// nosemgrep: <rule-id>` and a comment
+  # saying why. Do not restore continue-on-error — that silences every rule to
+  # avoid arguing with one.
+  semgrep:
+    name: Semgrep
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
+    container:
+      image: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Scan
+        # --sarif-output writes the file for the Security tab while leaving the
+        # default text report on stdout. The first version used `--sarif
+        # --output`, which sends EVERYTHING to the file and prints nothing: the
+        # run said "1 finding" and gave no way to see what it was without
+        # leaving the logs and going to the Security tab. A security job whose
+        # output you cannot read in the place it failed is a job people learn to
+        # ignore.
+        run: |
+          semgrep scan \
+            --config p/owasp-top-ten \
+            --config p/typescript \
+            --config p/secrets \
+            --config p/react \
+            --sarif-output=semgrep.sarif \
+            --metrics=off
+
+      - name: Upload results
+        if: always()
+        uses: github/codeql-action/upload-sarif@47be0dbd5113ab1b79fe2dd3f68bdf7e426cdc87 # v3
+        with:
+          sarif_file: semgrep.sarif
+          category: semgrep

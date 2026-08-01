@@ -56,6 +56,39 @@ describe('hmrc/crypto · AES-256-GCM cookie payloads', () => {
     expect(decrypt(`${iv}.${tag}.${flippedCt}`)).toBeNull()
   })
 
+  test('decrypt rejects a truncated auth tag', () => {
+    // Node will happily verify a 4-byte GCM tag unless authTagLength is pinned.
+    // The tag comes out of a cookie, so an attacker chooses it: without this
+    // being rejected, forging a token drops from 2^128 work to 2^32.
+    const enc = encrypt('top-secret')
+    const [iv, tag, ct] = enc.split('.') as [string, string, string]
+    const short = Buffer.from(tag.replace(/-/g, '+').replace(/_/g, '/'), 'base64').subarray(0, 4)
+    const shortTag = short
+      .toString('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '')
+    expect(decrypt(`${iv}.${shortTag}.${ct}`)).toBeNull()
+  })
+
+  test('decrypt rejects every tag length Node would otherwise accept', () => {
+    // 16 is the only legitimate one. The rest are the sizes GCM permits and
+    // which setAuthTag would take without complaint.
+    const enc = encrypt('top-secret')
+    const [iv, tag, ct] = enc.split('.') as [string, string, string]
+    const full = Buffer.from(tag.replace(/-/g, '+').replace(/_/g, '/'), 'base64')
+    for (const len of [4, 8, 12, 13, 14, 15]) {
+      const t = full
+        .subarray(0, len)
+        .toString('base64')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '')
+      expect(decrypt(`${iv}.${t}.${ct}`)).toBeNull()
+    }
+    expect(decrypt(enc)).toBe('top-secret')
+  })
+
   test('decrypt returns null on malformed payload (wrong number of parts)', () => {
     expect(decrypt('not-a-cookie')).toBeNull()
     expect(decrypt('a.b')).toBeNull()

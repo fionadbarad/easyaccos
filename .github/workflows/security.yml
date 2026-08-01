@@ -128,22 +128,23 @@ jobs:
 
   # ── Static analysis: Semgrep ──────────────────────────────────────────────
   #
-  # Proves: none of the patterns in the OWASP Top Ten, TypeScript and secrets
-  # rulesets match this source tree.
+  # Proves: none of the patterns in the OWASP Top Ten, TypeScript, React and
+  # secrets rulesets match this source tree.
   #
   # Does not prove: anything about code the rulesets have no pattern for.
   #
-  # DELIBERATELY NON-BLOCKING, and this is not laziness. A rule pack that has
-  # never been triaged against this repo will produce findings on the first run,
-  # and the honest options are (a) let it fail every PR until someone triages
-  # them under time pressure, or (b) let it report, triage the baseline once,
-  # then turn it into a gate. This takes (b). Findings land in the Security tab
-  # rather than scrolling past in a log.
+  # BLOCKING. It was not, at first: a rule pack never triaged against a repo
+  # will fail its opening run, and failing every PR while someone triages under
+  # time pressure is how a security gate gets deleted. So it reported first. The
+  # baseline came to ten findings — seven mutable action tags, two missing
+  # Dependabot cooldowns, and a GCM auth tag whose length was not pinned in
+  # src/lib/hmrc/crypto.ts. All ten are fixed, the scan is clean, and the gate
+  # is now real.
   #
-  # TO FINISH THE JOB: read the first Security-tab results, fix or justify each
-  # one, then delete `continue-on-error` below. Until that happens this job is
-  # evidence of scanning, not evidence of a clean scan, and it should not be
-  # described as the latter in anything sent to HMRC.
+  # When a future ruleset update flags something you judge to be a false
+  # positive, annotate the line with `// nosemgrep: <rule-id>` and a comment
+  # saying why. Do not restore continue-on-error — that silences every rule to
+  # avoid arguing with one.
   semgrep:
     name: Semgrep
     runs-on: ubuntu-latest
@@ -157,7 +158,6 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Scan
-        continue-on-error: true
         # --sarif-output writes the file for the Security tab while leaving the
         # default text report on stdout. The first version used `--sarif
         # --output`, which sends EVERYTHING to the file and prints nothing: the

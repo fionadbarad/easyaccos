@@ -24,53 +24,43 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
+      # corepack ships with Node and reads the exact pnpm build from
+      # package.json's "packageManager" field — the same one Vercel reads at
+      # deploy time. Enabling it before setup-node lets `cache: 'pnpm'` find the
+      # store. Deliberately NOT pnpm/action-setup: that is a third-party action
+      # which would need SHA-pinning and Dependabot watching, to do something
+      # Node already does.
+      - name: Enable corepack
+        run: corepack enable
+
       - name: Setup Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version-file: '.nvmrc'
-          cache: 'npm'
+          cache: 'pnpm'
 
+      # --frozen-lockfile fails rather than silently repairing a lockfile that
+      # disagrees with package.json. This is exactly what Vercel runs, so CI now
+      # resolves the same dependency tree that gets deployed.
+      #
+      # This replaced `npm ci` plus a separate step that re-checked the pnpm
+      # lockfile, which existed only because the repo carried BOTH lockfiles and
+      # they could drift apart — CI green, deploy broken, as happened on #59.
+      # One lockfile makes the whole class of problem unrepresentable, so the
+      # guard step is gone rather than kept as decoration.
       - name: Install dependencies
-        run: npm ci
-
-      # This repo carries BOTH package-lock.json and pnpm-lock.yaml, and the two
-      # are consumed by different systems: CI installs with `npm ci` above,
-      # while Vercel detects pnpm-lock.yaml and installs with pnpm
-      # --frozen-lockfile. So a dependency change made with only one package
-      # manager leaves the other lockfile stale — CI goes green and the deploy
-      # fails. That is not hypothetical; it happened on PR #59, where packages
-      # removed via npm stayed listed in pnpm-lock.yaml.
-      #
-      # This step reproduces Vercel's check cheaply: --lockfile-only resolves
-      # without downloading anything, and --frozen-lockfile makes it FAIL rather
-      # than silently repair a lockfile that disagrees with package.json.
-      #
-      # Better still would be to keep one package manager. Until that decision
-      # is made, this stops the gap being invisible.
-      - name: Verify pnpm lockfile matches package.json (Vercel installs with pnpm)
-        run: |
-          # `corepack enable` alone downloads the LATEST pnpm, which broke this
-          # job the first time it ran: pnpm 11 requires Node >= 22.13 and imports
-          # node:sqlite, so on the Node 20 pinned above it died with
-          # ERR_UNKNOWN_BUILTIN_MODULE. The version has to be pinned.
-          #
-          # It is pinned once, in package.json's "packageManager" field, which
-          # corepack reads here and Vercel reads at deploy time — so CI and the
-          # deploy now agree on the exact pnpm build, and it is the same one
-          # that wrote pnpm-lock.yaml (lockfileVersion 9.0).
-          corepack enable
-          corepack pnpm install --frozen-lockfile --lockfile-only
+        run: pnpm install --frozen-lockfile
 
       - name: Typecheck
         # `next build` typechecks too, but only after everything else has run.
         # Failing here turns a 20-minute red build into a 30-second one.
-        run: npx tsc --noEmit
+        run: pnpm exec tsc --noEmit
 
       - name: Lint
-        run: npm run lint
+        run: pnpm run lint
 
       - name: Test
-        run: npm test
+        run: pnpm test
 
       - name: Build
-        run: npm run build
+        run: pnpm run build

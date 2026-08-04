@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { reportError } from '@/lib/monitor'
+import { rateLimit } from '@/lib/rate-limit'
+import { createClient } from '@/lib/supabase-server'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -15,13 +17,45 @@ type SuccessBody = {
 
 type FailureBody = {
   ok: false
-  stage: 'env' | 'token' | 'hello'
+  stage: 'auth' | 'env' | 'token' | 'hello'
   message?: string
   status?: number
   body?: unknown
 }
 
 export async function GET(): Promise<NextResponse<SuccessBody | FailureBody>> {
+  // This route is a diagnostic, but not a harmless one: every call spends a
+  // client_credentials grant against our HMRC application's own credentials and
+  // then makes a second call to HMRC. Ungated, an anonymous caller could sit on
+  // it and drain the application's rate allowance — and learn from the `env`
+  // branch below whether our HMRC credentials are configured at all.
+  //
+  // The only caller is the HMRC page inside /dashboard, which is already behind
+  // a session, so requiring one here costs nothing. Auth runs BEFORE the env
+  // check so a signed-out caller learns nothing about our configuration, and
+  // before any fetch so it costs nothing to refuse. getUser() validates against
+  // Supabase's auth server rather than trusting the cookie (docs/AUDIT.md SEC-8).
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) {
+    return NextResponse.json<FailureBody>(
+      { ok: false, stage: 'auth', message: 'You must be signed in to run this check.' },
+      { status: 401 },
+    )
+  }
+
+  // 10/min per user. This is a button a human clicks, so a real user never
+  // reaches it; a script in a loop does immediately (docs/AUDIT.md SEC-6).
+  const limit = rateLimit(`hmrc:hello:${user.id}`, 10, 60_000)
+  if (!limit.ok) {
+    return NextResponse.json<FailureBody>(
+      { ok: false, stage: 'auth', message: 'Too many requests. Please slow down.' },
+      { status: 429, headers: { 'Retry-After': String(limit.retryAfterSec) } },
+    )
+  }
+
   const id = process.env.HMRC_CLIENT_ID
   const secret = process.env.HMRC_CLIENT_SECRET
   const base = process.env.HMRC_API_BASE

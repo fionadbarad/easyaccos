@@ -14,6 +14,20 @@ const eslintConfig = defineConfig([
     'out/**',
     'build/**',
     'next-env.d.ts',
+    // `npm run lint` is deliberately unscoped so that root-level config
+    // (next.config.ts, middleware.ts, vitest.config.ts) is linted too. The cost
+    // of that is eslint walking whatever else sits in the working tree, and a
+    // Windows/OneDrive checkout accumulates `.next - Copy`, `.next - Copy (2)`
+    // … — hundreds of MB of build output each. Flat config does not read
+    // .gitignore, so these have to be named here or a local lint takes ~8
+    // minutes instead of seconds. CI never sees them; the developer does.
+    '.next*/**',
+    'coverage/**',
+    // Orphan source copies left by agent worktrees. Linting a second, stale
+    // copy of src/ reports errors against files nobody is editing.
+    '.clone/**',
+    '.claire/**',
+    'scratch/**',
   ]),
   {
     rules: {

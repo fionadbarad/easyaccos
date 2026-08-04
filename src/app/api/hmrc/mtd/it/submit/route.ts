@@ -9,6 +9,7 @@ import { resolveSubmissionUserId } from '@/lib/hmrc/identity'
 import { mapHmrcError } from '@/lib/hmrc/mtd-errors'
 import { getValidAccessToken, readHmrcEnv } from '@/lib/hmrc/oauth'
 import { carryCookies } from '@/lib/hmrc/cookies'
+import { rateLimit } from '@/lib/rate-limit'
 import { reportError } from '@/lib/monitor'
 
 export const dynamic = 'force-dynamic'
@@ -147,6 +148,24 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | Su
     return NextResponse.json<SubmitFail>(
       { ok: false, stage: 'auth', message: identity.message },
       { status: identity.status },
+    )
+  }
+
+  // Same reasoning as the VAT route: a Self Assessment submission is a rare,
+  // deliberate act, so five attempts in ten minutes cannot inconvenience a
+  // person but does stop a loop hammering HMRC under a real taxpayer's
+  // credentials (SEC-6). After validation so retrying a corrected figure is
+  // free; before getValidAccessToken so a blocked call triggers no token
+  // refresh against HMRC.
+  const limit = rateLimit(`hmrc:mtd:it:${identity.userId}`, 5, 10 * 60_000)
+  if (!limit.ok) {
+    return NextResponse.json<SubmitFail>(
+      {
+        ok: false,
+        stage: 'submit',
+        message: 'Too many submission attempts. Please wait a few minutes and try again.',
+      },
+      { status: 429, headers: { 'Retry-After': String(limit.retryAfterSec) } },
     )
   }
 

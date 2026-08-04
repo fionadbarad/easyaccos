@@ -4,6 +4,7 @@ import { resolveSubmissionUserId } from '@/lib/hmrc/identity'
 import { mapHmrcError } from '@/lib/hmrc/mtd-errors'
 import { getValidAccessToken, readHmrcEnv } from '@/lib/hmrc/oauth'
 import { carryCookies } from '@/lib/hmrc/cookies'
+import { rateLimit } from '@/lib/rate-limit'
 import {
   arithmeticErrors,
   missingVatFields,
@@ -105,6 +106,24 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | Su
     return NextResponse.json<SubmitFail>(
       { ok: false, stage: 'auth', message: identity.message },
       { status: identity.status },
+    )
+  }
+
+  // Filing a VAT return is a rare, deliberate act — five attempts in ten
+  // minutes is far more than a person needs and still stops a loop hammering
+  // HMRC's submission endpoint under a real taxpayer's credentials (SEC-6).
+  // Placed after validation, so correcting an arithmetic error and resubmitting
+  // costs nothing, and before getValidAccessToken, so a blocked call does not
+  // even trigger a token refresh against HMRC.
+  const limit = rateLimit(`hmrc:mtd:vat:${identity.userId}`, 5, 10 * 60_000)
+  if (!limit.ok) {
+    return NextResponse.json<SubmitFail>(
+      {
+        ok: false,
+        stage: 'submit',
+        message: 'Too many submission attempts. Please wait a few minutes and try again.',
+      },
+      { status: 429, headers: { 'Retry-After': String(limit.retryAfterSec) } },
     )
   }
 

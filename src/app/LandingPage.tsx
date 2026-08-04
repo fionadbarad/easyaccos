@@ -38,7 +38,7 @@ const MODULES = [
   {
     icon: FileText,
     label: 'Invoice Generator',
-    desc: 'Create professional invoices with auto-incrementing numbers, VAT support, and PDF export. Track Draft, Sent, Paid, and Overdue.',
+    desc: 'Create professional invoices with auto-incrementing numbers and VAT treatment per invoice. Track Draft, Sent, Paid, and Overdue, with a payment-reminder draft for anything late.',
   },
   {
     icon: BookOpen,

@@ -12,11 +12,6 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['lucide-react', 'framer-motion', 'recharts'],
   },
 
-  // Use Turbopack for build (faster + better tree-shaking)
-  turbopack: {
-    rules: {},
-  },
-
   images: {
     // Enable modern image formats
     formats: ['image/avif', 'image/webp'],
@@ -123,11 +118,6 @@ const nextConfig: NextConfig = {
         ],
       },
     ]
-  },
-
-  // Reduce unused CSS and optimize for production
-  compiler: {
-    // Enable styled-components and emotion optimization if used
   },
 }
 

@@ -7,6 +7,8 @@
   "engines": {
     "node": ">=20.18.0 <21"
   },
+  "//build": "Builds with webpack, not Turbopack. next.config.ts used to carry an empty `turbopack` block and a comment claiming the opposite; the block did nothing and the comment was wrong, so both are gone. Moving the production build to Turbopack is a real change that needs its own verification pass — it is not a config tweak.",
+  "//scripts.lint": "Deliberately unscoped so root-level config files are linted too. The directories that makes eslint walk are named in eslint.config.mjs's globalIgnores, because flat config does not read .gitignore.",
   "scripts": {
     "dev": "next dev",
     "build": "next build --webpack",
@@ -25,7 +27,6 @@
     "@supabase/supabase-js": "^2.110.8",
     "@tailwindcss/postcss": "^4.2.2",
     "framer-motion": "^12.38.0",
-    "jspdf": "^4.2.1",
     "lucide-react": "^1.25.0",
     "next": "16.2.12",
     "react": "19.2.4",

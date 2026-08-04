@@ -2,6 +2,13 @@
 
 # dependencies
 /node_modules
+# pnpm is the package manager (see package.json "packageManager"); CI and Vercel
+# both install with it. This repo previously carried package-lock.json AND
+# pnpm-lock.yaml, which drifted apart — CI green against one, deploy broken
+# against the other (#59). #72 removed the npm lockfile; this stops an absent-
+# minded `npm install` from quietly reintroducing it.
+package-lock.json
+yarn.lock
 /.pnp
 .pnp.*
 .yarn/*

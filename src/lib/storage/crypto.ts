@@ -20,6 +20,14 @@
  */
 
 const KDF_ITERATIONS = 310_000
+// Bounds for the iteration count read back out of a backup FILE. Restore has to
+// honour the count the file was written with rather than assume KDF_ITERATIONS —
+// an export from an older build may legitimately differ — but that number is
+// attacker-controlled input, so it is bounded at both ends: below the minimum
+// the derivation is cheap enough to brute-force, above the maximum a hostile or
+// corrupt file would lock the tab up in PBKDF2 for minutes.
+const KDF_ITERATIONS_MIN = 100_000
+const KDF_ITERATIONS_MAX = 1_000_000
 const KDF_HASH = 'SHA-256'
 const KDF_SALT_BYTES = 16
 const IV_BYTES = 12
@@ -141,6 +149,16 @@ export async function decryptWithPassphrase(
 ): Promise<string> {
   if (env.v !== 1 || env.kdf !== 'PBKDF2' || env.cipher !== 'AES-GCM') {
     throw new Error('Unsupported backup format')
+  }
+  if (
+    !Number.isInteger(env.iterations) ||
+    env.iterations < KDF_ITERATIONS_MIN ||
+    env.iterations > KDF_ITERATIONS_MAX
+  ) {
+    throw new Error(
+      `Unsupported backup format: KDF iteration count must be a whole number ` +
+        `between ${KDF_ITERATIONS_MIN} and ${KDF_ITERATIONS_MAX}`,
+    )
   }
   const salt = b64ToBytes(env.salt)
   const iv = b64ToBytes(env.iv)

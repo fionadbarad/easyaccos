@@ -5,6 +5,7 @@ import {
   decryptWithKey,
   encryptWithPassphrase,
   decryptWithPassphrase,
+  type PassphraseEnvelope,
 } from '@/lib/storage/crypto'
 
 describe('crypto — device key', () => {
@@ -53,5 +54,47 @@ describe('crypto — passphrase (backup)', () => {
 
   it('rejects an empty passphrase on encrypt', async () => {
     await expect(encryptWithPassphrase('', 'x')).rejects.toThrow(/passphrase/i)
+  })
+
+  // The iteration count comes out of a file the user was handed, so it is
+  // untrusted input. An absurd count must be refused BEFORE deriveKey runs —
+  // 10 billion rounds would otherwise freeze the tab. These cases are fast
+  // precisely because nothing derives.
+  describe('iteration-count bounds', () => {
+    const envelope = (iterations: number): PassphraseEnvelope => ({
+      v: 1,
+      kdf: 'PBKDF2',
+      hash: 'SHA-256',
+      iterations,
+      salt: 'AAAAAAAAAAAAAAAAAAAAAA==',
+      cipher: 'AES-GCM',
+      iv: 'AAAAAAAAAAAAAAAA',
+      ct: 'AAAAAAAAAAAAAAAAAAAAAA==',
+    })
+
+    it('rejects a count high enough to hang the tab', async () => {
+      const start = Date.now()
+      await expect(decryptWithPassphrase('pw', envelope(10_000_000_000))).rejects.toThrow(
+        /iteration count/i,
+      )
+      expect(Date.now() - start).toBeLessThan(1_000)
+    })
+
+    it('rejects a brute-forceable count', async () => {
+      await expect(decryptWithPassphrase('pw', envelope(1))).rejects.toThrow(/iteration count/i)
+    })
+
+    it('rejects a non-integer count', async () => {
+      await expect(decryptWithPassphrase('pw', envelope(310_000.5))).rejects.toThrow(
+        /iteration count/i,
+      )
+      await expect(decryptWithPassphrase('pw', envelope(NaN))).rejects.toThrow(/iteration count/i)
+    })
+
+    it('still accepts the count our own exports write', async () => {
+      const env = await encryptWithPassphrase('pw', 'ledger')
+      expect(env.iterations).toBe(310_000)
+      expect(await decryptWithPassphrase('pw', env)).toBe('ledger')
+    }, 15_000)
   })
 })

@@ -17,6 +17,18 @@ Nothing is "done" until all four pass. Run them in this order:
 npx tsc --noEmit && npx vitest run && npm run lint && npm run build
 ```
 
+**The shell here is Windows PowerShell 5.1, which has no `&&`.** That line works
+in Git Bash; in the PowerShell terminal it fails with
+`The token '&&' is not a valid statement separator in this version`. Use:
+
+```powershell
+npx tsc --noEmit; if ($?) { npx vitest run }; if ($?) { npm run lint }; if ($?) { npm run build }
+```
+
+Same trap for multi-line strings: PowerShell 5.1 mangles a here-string that
+contains double quotes, so `git commit -m @'…'@` can break apart into pathspec
+errors. Write the message to a file and use `git commit -F <file>`.
+
 - `npm run lint` runs ESLint with no arguments — it is configured in
   `eslint.config.mjs`, so do not pass paths. One pre-existing warning in
   `postcss.config.mjs` is expected; **errors** are not.

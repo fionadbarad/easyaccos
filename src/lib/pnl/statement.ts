@@ -25,6 +25,7 @@
 import type { Transaction } from '@/lib/transactions/seed'
 import { isCostOfSales, isInferredCategory } from '@/lib/transactions/cost-category'
 import { calcScenario1 } from '@/lib/tax-scenarios'
+import { ymOf } from '@/lib/dates'
 
 const MONTHS = [
   'Jan',
@@ -61,10 +62,12 @@ export function buildMonthly(txs: Transaction[]): MonthlyRow[] {
   const map: Record<string, { income: number; expenses: number; year: number; monthIdx: number }> =
     {}
   for (const tx of txs) {
-    const d = new Date(tx.date)
-    if (Number.isNaN(d.getTime())) continue
-    const year = d.getFullYear()
-    const monthIdx = d.getMonth()
+    // Read from the stored string, not a parsed Date: 'YYYY-MM-DD' parses as
+    // UTC midnight and local getters then shift it, which put the first of a
+    // month in the month before. See lib/dates.ts.
+    const ym = ymOf(tx.date)
+    if (!ym) continue
+    const { year, monthIdx } = ym
     const key = `${year}-${String(monthIdx).padStart(2, '0')}`
     const bucket = map[key] ?? { income: 0, expenses: 0, year, monthIdx }
     if (tx.type === 'income') bucket.income += tx.amount

@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import { useUserData } from '@/lib/use-user-data'
+import { todayISO } from '@/lib/dates'
 import type { ReceiptExtract } from '@/components/ReceiptScanner'
 import {
   emptyFilter,
@@ -40,7 +41,7 @@ export interface ExpenseFormState {
 const SEED: Expense[] = []
 
 function toISODate(d: Date) {
-  return d.toISOString().slice(0, 10)
+  return todayISO(d)
 }
 
 export function useExpenses() {

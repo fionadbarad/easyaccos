@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Calendar, ChevronDown, Search, X } from 'lucide-react'
 
+import { todayISO, currentMonthKey } from '@/lib/dates'
 import { C } from '@/styles/palette'
 import { T } from '@/styles/type'
 export type DateRange =
@@ -83,11 +84,9 @@ export function FilterBar({
   function setRangeKind(kind: DateRange['kind']) {
     if (kind === 'all') onChange({ ...value, range: { kind: 'all' } })
     else if (kind === 'month') {
-      const now = new Date()
-      const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
-      onChange({ ...value, range: { kind: 'month', ym } })
+      onChange({ ...value, range: { kind: 'month', ym: currentMonthKey() } })
     } else {
-      const iso = new Date().toISOString().slice(0, 10)
+      const iso = todayISO()
       onChange({ ...value, range: { kind: 'custom', from: iso, to: iso } })
     }
   }

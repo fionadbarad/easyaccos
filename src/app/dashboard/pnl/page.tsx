@@ -15,6 +15,7 @@ import {
 } from 'recharts'
 import { Copy, CheckCheck, FileText, TrendingUp, TrendingDown } from 'lucide-react'
 import { fmtGBP as fmt, fmtDecAbs as fmtDp } from '@/lib/formatters'
+import { todayISO } from '@/lib/dates'
 import { useUserData } from '@/lib/use-user-data'
 import { TRANSACTIONS_SEED, type Transaction } from '@/lib/transactions/seed'
 import { isCostOfSales } from '@/lib/transactions/cost-category'
@@ -105,7 +106,7 @@ export default function PnLPage() {
   const [copied, setCopied] = useState(false)
   const [view, setView] = useState<View>('overview')
   const [cogsForm, setCogsForm] = useState({
-    date: new Date().toISOString().slice(0, 10),
+    date: todayISO(),
     description: '',
     amount: '',
   })
@@ -147,7 +148,7 @@ export default function PnLPage() {
       ...txs,
     ]
     await persist(next)
-    setCogsForm({ date: new Date().toISOString().slice(0, 10), description: '', amount: '' })
+    setCogsForm({ date: todayISO(), description: '', amount: '' })
   }
 
   function exportSA103CSV() {
@@ -156,7 +157,7 @@ export default function PnLPage() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `SA103-easyacco-${new Date().toISOString().slice(0, 10)}.csv`
+    a.download = `SA103-easyacco-${todayISO()}.csv`
     a.click()
     URL.revokeObjectURL(url)
   }

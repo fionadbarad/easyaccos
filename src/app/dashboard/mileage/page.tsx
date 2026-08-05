@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { useUserData } from '@/lib/use-user-data'
 import { fmtGBP } from '@/lib/formatters'
+import { todayISO } from '@/lib/dates'
 
 import { C } from '@/styles/palette'
 import { T } from '@/styles/type'
@@ -48,7 +49,7 @@ const VEHICLE_LABELS: Record<VehicleType, string> = {
 }
 
 function today(): string {
-  return new Date().toISOString().slice(0, 10)
+  return todayISO()
 }
 
 function formatMiles(m: number): string {

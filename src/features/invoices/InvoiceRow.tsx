@@ -14,6 +14,7 @@ import {
   Undo2,
 } from 'lucide-react'
 import type { Invoice, InvoiceStatus } from '@/lib/validators'
+import { todayISO } from '@/lib/dates'
 import {
   vatTotal,
   vatAmount,
@@ -27,7 +28,7 @@ import {
 } from '@/lib/hooks/useInvoices'
 
 function today() {
-  return new Date().toISOString().slice(0, 10)
+  return todayISO()
 }
 
 const STATUS_CLASSES: Record<

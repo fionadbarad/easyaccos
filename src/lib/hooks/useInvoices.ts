@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import { useUserData } from '@/lib/use-user-data'
+import { todayISO } from '@/lib/dates'
 import type { Invoice, InvoiceStatus, VatTreatment } from '@/lib/validators'
 
 export type { Invoice, InvoiceStatus, VatTreatment }
@@ -17,12 +18,12 @@ export interface InvoiceFormState {
 }
 
 function today() {
-  return new Date().toISOString().slice(0, 10)
+  return todayISO()
 }
 function in30() {
   const d = new Date()
   d.setDate(d.getDate() + 30)
-  return d.toISOString().slice(0, 10)
+  return todayISO(d)
 }
 
 /** UK VAT rate applied to each treatment, as a fraction of the net amount. */

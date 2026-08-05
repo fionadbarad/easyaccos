@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { useUserData } from '@/lib/use-user-data'
 import { fmtDecAbs as fmt } from '@/lib/formatters'
+import { todayISO, isInCurrentMonth } from '@/lib/dates'
 import {
   TRANSACTIONS_SEED,
   type Transaction,
@@ -49,16 +50,14 @@ const labelStyle: React.CSSProperties = {
 }
 
 function toISODate(d: Date) {
-  return d.toISOString().slice(0, 10)
+  return todayISO(d)
 }
 
 function isToday(dateStr: string) {
   return dateStr === toISODate(new Date())
 }
 function isThisMonth(dateStr: string) {
-  const now = new Date(),
-    d = new Date(dateStr)
-  return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
+  return isInCurrentMonth(dateStr)
 }
 
 const DATE_LABELS: Record<DateFilter, string> = {

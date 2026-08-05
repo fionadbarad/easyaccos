@@ -24,7 +24,10 @@ const ROOT = resolve(__dirname, '../../..')
 // Files where user-facing tax copy lives. If any of these mention an HMRC
 // threshold or rate, it MUST trace back to bands-2026.
 const DRIFT_PRONE_FILES = [
-  'src/app/api/ai/chat/route.ts',
+  // src/app/api/ai/chat/route.ts used to head this list — it built a system
+  // prompt full of rates from bands-2026 and was the file this guard was
+  // written for. The route is gone (docs/COMPLIANCE.md); restoring it means
+  // putting it back here in the same change.
   'src/lib/acco/context.ts',
   'src/lib/tax-scenarios.ts',
   'src/features/tax/useTaxScenario.ts',

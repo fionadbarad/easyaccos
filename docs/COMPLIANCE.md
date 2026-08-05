@@ -181,11 +181,19 @@ Two reasons this was worth doing rather than merely disclosing:
 **How it is switched off** — `src/lib/ai-enabled.ts`, driven by
 `NEXT_PUBLIC_EA_AI` (default off):
 
-- Both API routes (`/api/ai/chat`, `/api/ai/categorise`) return **404** before
-  reading the body and before any outbound call. This is the part that matters:
-  hiding buttons would leave the routes deployed and directly callable — and
-  `/api/ai/categorise` needs no session — so the privacy notice would have been
-  true of the interface and false of the service.
+- `/api/ai/chat` — the Tax Advisory assistant — has been **deleted**, not merely
+  gated. It was the route that sent a banded summary of a user's financial
+  position to Google, so the strongest available answer to the data-sharing
+  question is that the code path no longer exists in the deployed bundle.
+  `src/lib/__tests__/ai-disabled.test.ts` asserts the file's absence, so the
+  claim cannot quietly stop being true.
+- `/api/ai/categorise` remains deployed and returns **404** before reading the
+  body and before any outbound call. This is the part that matters for a route
+  that still exists: hiding buttons would leave it directly callable — and it
+  needs no session — so the privacy notice would have been true of the interface
+  and false of the service. Note the honest scope of the claim: with
+  `NEXT_PUBLIC_EA_AI` set, this route would resume sending expense descriptions
+  to Google. "Switched off", not "removed".
 - The sidebar nav entry, sidebar call-to-action, dashboard tile, both ✨ suggest
   buttons, the landing-page feature card, the sign-up pitch and the SEO
   description are all removed.

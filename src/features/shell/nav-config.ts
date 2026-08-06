@@ -31,7 +31,6 @@ export const NAV: NavEntry[] = [
   { href: '/dashboard/invoices', label: 'Invoices', icon: Send, group: 'reports' },
   { href: '/dashboard/transactions', label: 'Ledger', icon: BookOpen, group: 'reports' },
   { href: '/dashboard/pnl', label: 'Reports', icon: FileText, group: 'reports' },
-  { href: '/dashboard/payslip', label: 'Payslip Reader', icon: FileText, group: 'tools' },
   { href: '/dashboard/mileage', label: 'Mileage', icon: Car, group: 'tools' },
   { href: '/dashboard/currency', label: 'Currency', icon: TrendingUp, group: 'tools' },
   { href: '/dashboard/learn', label: 'Learn', icon: GraduationCap, group: 'tools' },

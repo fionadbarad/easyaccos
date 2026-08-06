@@ -64,17 +64,23 @@
     "This app imports next/image nowhere, so the optimiser is unexercised and the",
     "override cannot regress a rendering path we use.",
     "",
+    "brace-expansion@1: eslint>minimatch pins the 1.x line below the fix for",
+    "GHSA-mh99-v99m-4gvg / GHSA-rgw5-rvv9-x895 (DoS via unbounded expansion).",
+    "Dev-only (lint tooling), scoped to @1 so nothing on the 2.x line moves.",
+    "",
     "Duplicated under `pnpm.overrides` because Vercel and CI install with pnpm,",
     "which ignores the npm-format `overrides` block. Keep the two in step."
   ],
   "overrides": {
     "postcss": "^8.5.25",
-    "sharp": "^0.35.3"
+    "sharp": "^0.35.3",
+    "brace-expansion@1": "^1.1.18"
   },
   "pnpm": {
     "overrides": {
       "postcss": "^8.5.25",
-      "sharp": "^0.35.3"
+      "sharp": "^0.35.3",
+      "brace-expansion@1": "^1.1.18"
     }
   }
 }

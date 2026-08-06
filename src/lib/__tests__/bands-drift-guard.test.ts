@@ -36,7 +36,17 @@ const DRIFT_PRONE_FILES = [
   // the file this guard existed for and was not watching: the car rate had
   // already moved 45p → 55p once, and the copy and the calculation were two
   // separate places to remember.
+  //
+  // That page is now a three-line wrapper and the tax copy lives in the four
+  // files below. Splitting a watched file WITHOUT re-listing the pieces would
+  // have silently switched this guard off for the surface it was written for,
+  // so the whole mileage feature is listed rather than just the parts that
+  // currently mention a rate.
   'src/app/dashboard/mileage/page.tsx',
+  'src/features/mileage/mileage-model.ts',
+  'src/features/mileage/components/MileageDashboard.tsx',
+  'src/features/mileage/components/AmapRatePanel.tsx',
+  'src/features/mileage/components/JourneyForm.tsx',
 ] as const
 
 // Numeric literals that may NEVER appear in user-facing copy: they represent

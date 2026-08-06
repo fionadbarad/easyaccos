@@ -6,6 +6,7 @@
  * tests need to reach has to sit in a module like this one.
  */
 
+import { isMoneyAmount } from './amounts'
 import { invalidBrowserFields, type BrowserFraudData } from './fraud-headers'
 
 export type VatReturnBody = {
@@ -60,6 +61,11 @@ export function missingVatFields(body: Partial<VatReturnBody>): string[] {
     // both into `null` — HMRC would receive a nine-box return with null money
     // fields that we had declared valid. Require a real finite number.
     if (!Number.isFinite(body[k])) missing.push(k)
+    // HMRC's nine boxes are two-decimal money. A third place — easily produced
+    // by a currency conversion or a three-way split — was accepted here and
+    // then either rejected by HMRC with an opaque code or silently rounded to
+    // a figure that no longer matches the user's own records.
+    else if (!isMoneyAmount(body[k])) missing.push(`${k} (at most 2 decimal places)`)
   }
   if (typeof body.finalised !== 'boolean') missing.push('finalised')
   // Not just `!body.browser`: buildFraudHeaders indexes into browser.screens and

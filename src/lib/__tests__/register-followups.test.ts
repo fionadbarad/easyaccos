@@ -140,7 +140,9 @@ describe('MTD-6: identifier formats are checked before the round-trip', () => {
       screens: [{ width: 1920, height: 1080, scalingFactor: 1, colourDepth: 24 }],
       windowSize: { width: 1280, height: 720 },
       timezone: 'UTC+00:00',
-      deviceId: 'd',
+      // A real deviceId is crypto.randomUUID(); invalidBrowserFields now
+      // enforces that shape, so the placeholder 'd' no longer stands in.
+      deviceId: '9f8e7d6c-5b4a-4392-8180-706f5e4d3c2b',
     },
   }
 

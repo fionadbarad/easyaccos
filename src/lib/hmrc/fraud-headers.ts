@@ -100,6 +100,12 @@ export function observeClient(req: NextRequest): ClientObservation {
  *
  * Returns the list of unusable field paths — empty when the payload is safe.
  */
+/** Gov-Client-Device-ID is a UUID; ours comes from crypto.randomUUID(). */
+const DEVICE_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+/** Gov-Client-Timezone is 'UTC' plus a signed offset, e.g. UTC+01:00, UTC-05:30. */
+const TIMEZONE_PATTERN = /^UTC[+-](?:0\d|1[0-4]):[0-5]\d$/
+
 export function invalidBrowserFields(browser: unknown): string[] {
   const bad: string[] = []
   if (!browser || typeof browser !== 'object') return ['browser']
@@ -109,8 +115,22 @@ export function invalidBrowserFields(browser: unknown): string[] {
     typeof v === 'string' && v.length > 0 && !/[\r\n]/.test(v)
 
   if (!headerSafe(b.userAgent)) bad.push('browser.userAgent')
+
+  // deviceId and timezone are not free text: HMRC specifies a format for each,
+  // and a value that merely contains no newlines still gets the submission
+  // rejected on the fraud-prevention headers rather than on its contents —
+  // which is the slowest possible way to learn about a typo.
+  //
+  // Both are ours to get right rather than the user's: deviceId comes from
+  // crypto.randomUUID() and timezone is formatted by the client, so a value
+  // failing here means our own code sent something malformed.
   if (!headerSafe(b.deviceId)) bad.push('browser.deviceId')
+  else if (!DEVICE_ID_PATTERN.test(b.deviceId)) bad.push('browser.deviceId (must be a UUID)')
+
   if (!headerSafe(b.timezone)) bad.push('browser.timezone')
+  else if (!TIMEZONE_PATTERN.test(b.timezone)) {
+    bad.push('browser.timezone (must be UTC±hh:mm)')
+  }
 
   if (!Array.isArray(b.screens) || b.screens.length === 0) {
     bad.push('browser.screens')

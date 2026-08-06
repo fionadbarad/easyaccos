@@ -1,10 +1,11 @@
 import { type NextRequest, NextResponse } from 'next/server'
+import { buildFraudHeaders, observeClient } from '@/lib/hmrc/fraud-headers'
 import {
-  buildFraudHeaders,
-  invalidBrowserFields,
-  observeClient,
-  type BrowserFraudData,
-} from '@/lib/hmrc/fraud-headers'
+  itPeriodErrors,
+  missingItFields,
+  IT_EXPENSE_KEYS,
+  type ItReturnBody as RequestBody,
+} from '@/lib/hmrc/it-return'
 import { resolveSubmissionUserId } from '@/lib/hmrc/identity'
 import { mapHmrcError } from '@/lib/hmrc/mtd-errors'
 import { getValidAccessToken, readHmrcEnv } from '@/lib/hmrc/oauth'
@@ -19,37 +20,6 @@ export const runtime = 'nodejs'
 // Endpoint: POST /individuals/business/self-employment/{nino}/{businessId}/period
 // Spec:     https://developer.service.hmrc.gov.uk/api-documentation/docs/api/service/self-employment-business-api/5.0
 // Scope:    write:self-assessment
-
-type RequestBody = {
-  nino: string
-  businessId: string
-  periodStartDate: string // YYYY-MM-DD
-  periodEndDate: string // YYYY-MM-DD
-  income: {
-    turnover: number
-    other?: number
-  }
-  expenses?: {
-    costOfGoods?: number
-    paymentsToSubcontractors?: number
-    wagesAndStaffCosts?: number
-    carVanTravelExpenses?: number
-    premisesRunningCosts?: number
-    maintenanceCosts?: number
-    adminCosts?: number
-    businessEntertainmentCosts?: number
-    advertisingCosts?: number
-    interestOnBankOtherLoans?: number
-    financeCharges?: number
-    irrecoverableDebts?: number
-    professionalFees?: number
-    depreciation?: number
-    otherExpenses?: number
-  }
-  consolidatedExpenses?: number // alternative to detailed expenses
-  browser: BrowserFraudData
-  govTestScenario?: string
-}
 
 type SubmitOk = {
   ok: true
@@ -67,23 +37,6 @@ type SubmitFail = {
   status?: number
   body?: unknown
   needsReauth?: boolean
-}
-
-function missingFields(body: Partial<RequestBody>): string[] {
-  const missing: string[] = []
-  if (!body.nino) missing.push('nino')
-  if (!body.businessId) missing.push('businessId')
-  if (!body.periodStartDate) missing.push('periodStartDate')
-  if (!body.periodEndDate) missing.push('periodEndDate')
-  // Number.isFinite, not typeof: NaN and ±Infinity are both `'number'` and both
-  // serialise to `null`, which would reach HMRC as a period summary with no
-  // turnover after we had called the body valid.
-  if (!body.income || !Number.isFinite(body.income.turnover)) missing.push('income.turnover')
-  // Not just `!body.browser`: buildFraudHeaders indexes into browser.screens and
-  // browser.windowSize outside any try/catch, so `{}` passed this check and then
-  // crashed the route with an untyped 500.
-  missing.push(...invalidBrowserFields(body.browser))
-  return missing
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | SubmitFail>> {
@@ -108,7 +61,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | Su
     )
   }
 
-  const missing = missingFields(body)
+  const missing = missingItFields(body)
   if (missing.length > 0) {
     return NextResponse.json<SubmitFail>(
       {
@@ -120,21 +73,20 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | Su
     )
   }
 
-  // Reject if BOTH consolidated and detailed expenses provided — HMRC will
-  // reject anyway with RULE_BOTH_EXPENSES_SUPPLIED, but failing fast saves a
-  // round-trip and gives a clearer message.
-  const hasDetailedExpenses = body.expenses && Object.keys(body.expenses).length > 0
-  const hasConsolidated = Number.isFinite(body.consolidatedExpenses)
-  if (hasDetailedExpenses && hasConsolidated) {
+  // Cross-field rules: the period must not end before it starts, and HMRC
+  // rejects a return carrying both consolidated and detailed expenses
+  // (RULE_BOTH_EXPENSES_SUPPLIED). Failing fast saves a round-trip and says
+  // which fields clashed. Extracted to lib/hmrc/it-return.ts so it is testable.
+  const periodErrors = itPeriodErrors(body)
+  if (periodErrors.length > 0) {
     return NextResponse.json<SubmitFail>(
-      {
-        ok: false,
-        stage: 'validation',
-        message: 'Submit either consolidated expenses or detailed expenses, not both.',
-      },
+      { ok: false, stage: 'validation', message: periodErrors.join('; ') },
       { status: 400 },
     )
   }
+
+  const hasDetailedExpenses = IT_EXPENSE_KEYS.some((k) => body.expenses?.[k] !== undefined)
+  const hasConsolidated = Number.isFinite(body.consolidatedExpenses)
 
   // Placeholder response so getValidAccessToken can write the refresh cookie.
   const resPlaceholder = NextResponse.json<SubmitOk | SubmitFail>(

@@ -3,13 +3,25 @@
 import { useMemo, useState } from 'react'
 import { Bell } from 'lucide-react'
 import NoticeBanner from './NoticeBanner'
+import { taxYearLabel } from '@/lib/tax/mileage'
 
 const DISMISS_KEY = 'easyacco.sa-deadline.dismissed'
 
-function taxYearLabel(date: Date) {
+/**
+ * The tax year a filing deadline relates to, as its starting calendar year.
+ *
+ * NOT the tax year the deadline falls in — you file 2025/26 by 31 January
+ * 2027. A deadline in April–December belongs to the year that started the
+ * previous 6 April; one in January–March belongs to the year before that.
+ *
+ * This used to carry its own copy of the "2025/26" formatting, which is the
+ * only part that was genuinely duplicated. The label now comes from the one
+ * tested implementation, so a change to how a tax year is written reaches
+ * this banner too.
+ */
+function deadlineTaxYear(date: Date): number {
   const y = date.getFullYear()
-  const startYear = date.getMonth() >= 3 ? y - 1 : y - 2
-  return `${startYear}/${String(startYear + 1).slice(-2)}`
+  return date.getMonth() >= 3 ? y - 1 : y - 2
 }
 
 const DEADLINES: Array<{
@@ -49,7 +61,7 @@ function getNextDeadline(now: Date) {
   const candidates = DEADLINES.flatMap(({ month, day, label, detail }) => {
     return [year, year + 1].map((y) => {
       const date = new Date(y, month - 1, day)
-      return { date, label, detail: detail(taxYearLabel(date)) }
+      return { date, label, detail: detail(taxYearLabel(deadlineTaxYear(date))) }
     })
   })
   return (
@@ -99,12 +111,12 @@ export default function SADeadlineBanner() {
 
   return (
     <NoticeBanner variant={urgent ? 'urgent' : 'info'} icon={Bell} onDismiss={handleDismiss}>
-      <strong style={{ fontWeight: 600 }}>
+      <strong className="font-semibold">
         HMRC deadline in {days} day{days !== 1 ? 's' : ''}
       </strong>
       {' — '}
       {next.label} · {dateStr}
-      <span style={{ opacity: 0.65 }}> · {next.detail}</span>
+      <span className="opacity-65"> · {next.detail}</span>
     </NoticeBanner>
   )
 }

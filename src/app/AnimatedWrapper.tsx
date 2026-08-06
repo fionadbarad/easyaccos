@@ -45,12 +45,15 @@ export default function AnimatedWrapper({ children, delay = 0 }: AnimatedWrapper
       ref={ref}
       // w-full so the wrapper fills its flex/grid parent — without it the
       // `mx-auto` on the content inside has no room to centre in.
-      className="w-full"
-      style={{
-        opacity: isVisible ? 1 : 0,
-        transform: isVisible ? 'translateY(0)' : 'translateY(28px)',
-        transition: `opacity 0.6s ease ${delay * 0.3}s, transform 0.6s ease ${delay * 0.3}s`,
-      }}
+      //
+      // The stagger delay is the only thing left inline. It is derived from a
+      // caller-supplied number, and Tailwind emits classes by scanning source
+      // text — a `delay-[${x}ms]` built at runtime is a class that never gets
+      // generated.
+      className={`w-full transition-[opacity,transform] duration-[600ms] ease-[ease] ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[28px]'
+      }`}
+      style={{ transitionDelay: `${delay * 0.3}s` }}
     >
       {children}
     </div>

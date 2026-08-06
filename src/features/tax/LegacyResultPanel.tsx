@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react'
 import { C } from '@/styles/palette'
 import { round2, type ScenarioResult } from '@/lib/tax-scenarios'
-import { cardStyle, fmt, pct } from './tokens'
+import { CARD_CLASS, fmt, pct } from './tokens'
 import { T } from '@/styles/type'
 
 export default function LegacyResultPanel({ result }: { result: ScenarioResult }) {
@@ -101,7 +101,7 @@ export default function LegacyResultPanel({ result }: { result: ScenarioResult }
         ))}
       </div>
 
-      <div style={cardStyle}>
+      <div className={CARD_CLASS}>
         <button
           onClick={() => setExpanded((v) => !v)}
           style={{

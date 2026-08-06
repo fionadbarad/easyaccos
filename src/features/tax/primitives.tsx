@@ -4,9 +4,7 @@
 // here too — only the slider uses it today, but it's a utility.
 
 import { useState, useEffect, useId, createContext, useContext } from 'react'
-import { C } from '@/styles/palette'
-import { labelStyle, inp } from './tokens'
-import { T } from '@/styles/type'
+import { LABEL_CLASS, INPUT_CLASS } from './tokens'
 
 /**
  * Carries the id `Field` generated down to whichever control it wraps, so the
@@ -48,7 +46,7 @@ export function Field({
   return (
     <FieldIdContext.Provider value={id}>
       <div>
-        <label htmlFor={id} style={labelStyle}>
+        <label htmlFor={id} className={LABEL_CLASS}>
           {label}
         </label>
         {children}
@@ -56,7 +54,7 @@ export function Field({
           // Described-by rather than a bare div: the hint carries real guidance
           // ("Gross, incl. 20% top-up"), which a screen-reader user needs at the
           // point of entry, not as unattached text somewhere after the input.
-          <div id={hintId} style={{ marginTop: '4px' }}>
+          <div id={hintId} className="mt-1">
             {hint}
           </div>
         )}
@@ -88,7 +86,7 @@ export function NumInput({
       step={100}
       value={value || ''}
       onChange={(e) => onChange(Math.max(min, Math.min(max, Number(e.target.value) || 0)))}
-      style={inp}
+      className={INPUT_CLASS}
     />
   )
 }
@@ -105,38 +103,21 @@ export function Toggle({
   return (
     <button
       onClick={() => onChange(!active)}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        padding: '8px 14px',
-        borderRadius: '6px',
-        cursor: 'pointer',
-        background: active ? 'rgba(74,222,128,0.08)' : 'transparent',
-        border: `1px solid ${active ? C.green : C.border}`,
-        color: active ? C.green : C.muted,
-        fontSize: T.meta,
-        fontWeight: 500,
-        transition: 'all 0.15s',
-        minHeight: '40px',
-        width: '100%',
-        textAlign: 'left',
-      }}
+      // A checkbox in behaviour, so it says so — otherwise the checked state is
+      // conveyed by colour alone and never reaches assistive technology.
+      role="checkbox"
+      aria-checked={active}
+      className={`flex items-center gap-2 px-[14px] py-2 rounded-[6px] cursor-pointer text-meta font-medium transition-all duration-150 min-h-[40px] w-full text-left border ${
+        active
+          ? 'bg-[rgba(74,222,128,0.08)] border-sa-green text-sa-green'
+          : 'bg-transparent border-sa-border text-sa-muted'
+      }`}
     >
       <span
-        style={{
-          width: '16px',
-          height: '16px',
-          borderRadius: '3px',
-          flexShrink: 0,
-          background: active ? C.green : 'transparent',
-          border: `1.5px solid ${active ? C.green : C.muted}`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: T.micro,
-          color: '#181818',
-        }}
+        aria-hidden
+        className={`w-4 h-4 rounded-[3px] shrink-0 flex items-center justify-center text-micro text-sa-black border-[1.5px] ${
+          active ? 'bg-sa-green border-sa-green' : 'bg-transparent border-sa-muted'
+        }`}
       >
         {active ? '✓' : ''}
       </span>

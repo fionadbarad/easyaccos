@@ -5,7 +5,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { C } from '@/styles/palette'
-import { cardStyle, fmt } from './tokens'
+import { CARD_CLASS, fmt } from './tokens'
 import { useDebounce } from './primitives'
 import { T } from '@/styles/type'
 
@@ -31,7 +31,7 @@ export default function WhatIfSlider({
   const sliderValue = isInteracting ? local : income
 
   return (
-    <div style={{ ...cardStyle, marginBottom: '1.5rem' }}>
+    <div className={`${CARD_CLASS} mb-6`}>
       <div
         style={{
           display: 'flex',

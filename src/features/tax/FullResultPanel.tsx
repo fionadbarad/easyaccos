@@ -10,7 +10,7 @@ import { ChevronDown, ChevronUp, AlertTriangle, Info, Lightbulb, TrendingDown } 
 import { C } from '@/styles/palette'
 import type { TaxResult } from '@/lib/tax-logic'
 import { round2 } from '@/lib/tax-scenarios'
-import { cardStyle, toggleStyle, fmt, pct } from './tokens'
+import { CARD_CLASS, toggleClass, fmt, pct } from './tokens'
 import { T } from '@/styles/type'
 
 export default function FullResultPanel({
@@ -118,10 +118,10 @@ export default function FullResultPanel({
           gap: '0.35rem',
         }}
       >
-        <button onClick={() => setShowMonthly(false)} style={toggleStyle(!showMonthly)}>
+        <button onClick={() => setShowMonthly(false)} className={toggleClass(!showMonthly)}>
           Annual
         </button>
-        <button onClick={() => setShowMonthly(true)} style={toggleStyle(showMonthly)}>
+        <button onClick={() => setShowMonthly(true)} className={toggleClass(showMonthly)}>
           Monthly
         </button>
       </div>
@@ -177,7 +177,7 @@ export default function FullResultPanel({
         ))}
       </div>
 
-      <div style={cardStyle}>
+      <div className={CARD_CLASS}>
         <button
           onClick={() => setExpanded((v) => !v)}
           style={{
@@ -411,7 +411,7 @@ export default function FullResultPanel({
       </div>
 
       {result.optimizationTips.length > 0 && (
-        <div style={{ ...cardStyle, marginTop: '1rem' }}>
+        <div className={`${CARD_CLASS} mt-4`}>
           <button
             onClick={() => setTipsOpen((v) => !v)}
             style={{

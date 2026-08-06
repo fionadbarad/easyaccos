@@ -14,7 +14,7 @@ import {
   type MarriageAllowanceRole,
 } from '@/lib/tax-logic'
 import type { S3Input, S4Input } from '@/lib/tax-scenarios'
-import { cardStyle, selectStyle, fmt } from './tokens'
+import { CARD_CLASS, SELECT_CLASS, fmt } from './tokens'
 import { Field, NumInput, Toggle } from './primitives'
 import { SCENARIOS, type ScenarioKey, isFullEngineScenario } from './scenarios'
 import { T } from '@/styles/type'
@@ -74,7 +74,7 @@ export default function ScenarioForm(p: ScenarioFormProps) {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -10 }}
           transition={{ duration: 0.2 }}
-          style={{ ...cardStyle, marginBottom: '1.5rem' }}
+          className={`${CARD_CLASS} mb-6`}
         >
           <h3
             style={{ color: C.text, fontSize: T.title, fontWeight: 700, marginBottom: '1.25rem' }}
@@ -246,7 +246,7 @@ export default function ScenarioForm(p: ScenarioFormProps) {
       </AnimatePresence>
 
       {fullEngine && (
-        <div style={{ ...cardStyle, marginBottom: '1.5rem' }}>
+        <div className={`${CARD_CLASS} mb-6`}>
           <h3 style={{ color: C.text, fontSize: T.lead, fontWeight: 700, marginBottom: '1rem' }}>
             Additional Options
           </h3>
@@ -261,7 +261,7 @@ export default function ScenarioForm(p: ScenarioFormProps) {
               <select
                 value={p.studentLoanPlan}
                 onChange={(e) => p.setStudentLoanPlan(e.target.value as StudentLoanPlan)}
-                style={selectStyle}
+                className={SELECT_CLASS}
               >
                 {Object.entries(STUDENT_LOAN_LABELS).map(([key, label]) => (
                   <option key={key} value={key} style={{ background: C.deep, color: C.text }}>
@@ -284,7 +284,7 @@ export default function ScenarioForm(p: ScenarioFormProps) {
                   onChange={(e) =>
                     p.setMarriageAllowanceRole(e.target.value as MarriageAllowanceRole)
                   }
-                  style={selectStyle}
+                  className={SELECT_CLASS}
                 >
                   <option value="recipient" style={{ background: C.deep, color: C.text }}>
                     I receive it (−£252 tax, basic-rate only)

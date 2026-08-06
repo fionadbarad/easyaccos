@@ -3,11 +3,18 @@
 // Jurisdiction toggle (rUK / Scotland) + 5-scenario selector. Purely
 // presentational — parent owns state.
 
-import { C } from '@/styles/palette'
 import type { TaxRegion } from '@/lib/tax-logic'
-import { cardStyle, toggleStyle } from './tokens'
+import { CARD_CLASS, toggleClass } from './tokens'
 import { SCENARIOS, type ScenarioKey } from './scenarios'
-import { T } from '@/styles/type'
+
+/** Both branches spelled out in full so Tailwind can see every class. */
+function scenarioButtonClass(selected: boolean): string {
+  return `px-2 py-3 rounded-[8px] cursor-pointer text-center transition-all duration-150 min-h-[44px] border ${
+    selected
+      ? 'bg-[rgba(244,245,248,0.08)] border-sa-white text-sa-white'
+      : 'bg-transparent border-sa-border text-sa-muted'
+  }`
+}
 
 export default function ScenarioPicker({
   scenario,
@@ -22,74 +29,41 @@ export default function ScenarioPicker({
 }) {
   return (
     <>
-      <div
-        style={{
-          ...cardStyle,
-          marginBottom: '1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '0.75rem',
-        }}
-      >
+      <div className={`${CARD_CLASS} mb-6 flex items-center justify-between flex-wrap gap-3`}>
         <div>
-          <span
-            style={{
-              color: C.muted,
-              fontSize: T.caption,
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-            }}
-          >
+          <span className="text-sa-muted text-caption uppercase tracking-[0.08em]">
             Tax Jurisdiction
           </span>
-          <div style={{ color: C.muted, fontSize: T.micro, marginTop: '2px' }}>
+          <div className="text-sa-muted text-micro mt-[2px]">
             {taxRegion === 'scotland'
               ? 'Scottish rates: 19%–48% (6 bands)'
               : 'Rest of UK rates: 20% / 40% / 45%'}
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button onClick={() => setTaxRegion('ruk')} style={toggleStyle(taxRegion === 'ruk')}>
+        <div className="flex gap-2">
+          <button onClick={() => setTaxRegion('ruk')} className={toggleClass(taxRegion === 'ruk')}>
             Rest of UK
           </button>
           <button
             onClick={() => setTaxRegion('scotland')}
-            style={toggleStyle(taxRegion === 'scotland')}
+            className={toggleClass(taxRegion === 'scotland')}
           >
             Scotland
           </button>
         </div>
       </div>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit,minmax(130px,1fr))',
-          gap: '0.5rem',
-          marginBottom: '1.5rem',
-        }}
-      >
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-2 mb-6">
         {SCENARIOS.map((s) => (
           <button
             key={s.key}
             onClick={() => setScenario(s.key)}
-            style={{
-              padding: '0.75rem 0.5rem',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              background: scenario === s.key ? 'rgba(244,245,248,0.08)' : 'transparent',
-              border: `1px solid ${scenario === s.key ? C.white : C.border}`,
-              color: scenario === s.key ? C.white : C.muted,
-              textAlign: 'center',
-              transition: 'all 0.15s',
-              minHeight: '44px',
-            }}
+            aria-pressed={scenario === s.key}
+            className={scenarioButtonClass(scenario === s.key)}
           >
-            <div style={{ fontSize: T.title, marginBottom: '2px' }}>{s.icon}</div>
-            <div style={{ fontSize: T.caption, fontWeight: 600 }}>{s.label}</div>
-            <div style={{ fontSize: T.micro, opacity: 0.7, marginTop: '1px' }}>{s.desc}</div>
+            <div className="text-title mb-[2px]">{s.icon}</div>
+            <div className="text-caption font-semibold">{s.label}</div>
+            <div className="text-micro opacity-70 mt-px">{s.desc}</div>
           </button>
         ))}
       </div>

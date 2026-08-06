@@ -272,6 +272,49 @@ pre,
   color: var(--sa-muted);
 }
 
+/* ── Select chevron ──────────────────────────────────────────────────
+   The inline caret lived in a `backgroundImage` data URI inside a shared
+   CSSProperties object. It stays in CSS rather than becoming a Tailwind
+   arbitrary value: the URI contains literal spaces and quotes, which
+   `bg-[url(…)]` cannot carry intact. Pair with the field utilities. */
+.ui-select-chevron {
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' stroke='%23F4F5F8' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+/* ── Skeleton shimmer ────────────────────────────────────────────────
+   These keyframes used to be injected at runtime: Skeleton.tsx built a
+   <style> element on first mount and appended it to <head>. That is exactly
+   the injection a strict `style-src 'self'` is meant to stop, so the loading
+   placeholders would have gone flat the moment CSP tightened. Declared here
+   instead — same animation, nothing created at runtime. */
+@keyframes easyacco-shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+.ea-skeleton {
+  display: inline-block;
+  /* 4px, not var(--radius) — the component's own default was 4 and these are
+     small bars, not cards. */
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    rgba(244, 245, 248, 0.04) 0%,
+    rgba(244, 245, 248, 0.1) 50%,
+    rgba(244, 245, 248, 0.04) 100%
+  );
+  background-size: 800px 100%;
+  animation: easyacco-shimmer 1.4s ease-in-out infinite;
+}
+
 /* ── Dashboard layout utilities ─────────────────────────────────────── */
 /* Every dashboard page is one centred content column. Before this there were
    seven different max-widths (680/760/800/820/900/920/960px) and some pages

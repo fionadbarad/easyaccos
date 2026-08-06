@@ -1,61 +1,33 @@
-// Style tokens + formatters shared across the tax calculator feature.
-// Kept framework-free so logic modules can import without pulling in React.
+// Shared class names + formatters for the tax calculator feature.
+//
+// These were `React.CSSProperties` objects spread into `style={{}}` across six
+// components. They are Tailwind class strings now, so the whole feature styles
+// the same way as the rest of the app and emits no inline style attributes.
+//
+// Written as complete literal strings, never composed from fragments at
+// runtime: Tailwind generates utilities by scanning source text, so a class
+// assembled by concatenation is a class that never reaches the stylesheet.
 
 import { fmtGBP, pct1 } from '@/lib/formatters'
-import { C } from '@/styles/palette'
-import { T } from '@/styles/type'
 
 export const fmt = fmtGBP
 export const pct = pct1
 
-export const labelStyle: React.CSSProperties = {
-  display: 'block',
-  color: C.muted,
-  fontSize: T.caption,
-  letterSpacing: '0.08em',
-  textTransform: 'uppercase',
-  marginBottom: '0.4rem',
-}
+export const LABEL_CLASS =
+  'block text-sa-muted text-caption tracking-[0.08em] uppercase mb-[0.4rem]'
 
-export const inp: React.CSSProperties = {
-  width: '100%',
-  background: C.deep,
-  border: `1px solid ${C.border}`,
-  borderRadius: '6px',
-  padding: '10px 13px',
-  color: C.text,
-  fontSize: T.body,
-  outline: 'none',
-  boxSizing: 'border-box',
-  minHeight: '44px',
-}
+export const INPUT_CLASS =
+  'w-full bg-sa-gray border border-sa-border rounded-[6px] px-[13px] py-[10px] text-sa-white text-body outline-none box-border min-h-[44px]'
 
-export const cardStyle: React.CSSProperties = {
-  background: C.card,
-  border: `1px solid ${C.border}`,
-  borderRadius: '10px',
-  padding: '1.5rem',
-}
+/** `.ui-select-chevron` carries the caret data URI — see globals.css. */
+export const SELECT_CLASS = `${INPUT_CLASS} ui-select-chevron`
 
-export const selectStyle: React.CSSProperties = {
-  ...inp,
-  appearance: 'none' as const,
-  cursor: 'pointer',
-  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' stroke='%23F4F5F8' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")`,
-  backgroundRepeat: 'no-repeat',
-  backgroundPosition: 'right 12px center',
-  paddingRight: '32px',
-}
+export const CARD_CLASS = 'bg-sa-surface border border-sa-border rounded-[10px] p-6'
 
-export const toggleStyle = (active: boolean): React.CSSProperties => ({
-  padding: '6px 14px',
-  borderRadius: '6px',
-  cursor: 'pointer',
-  fontSize: T.caption,
-  fontWeight: 600,
-  minHeight: '36px',
-  background: active ? 'rgba(244,245,248,0.1)' : 'transparent',
-  border: `1px solid ${active ? C.white : C.border}`,
-  color: active ? C.white : C.muted,
-  transition: 'all 0.15s',
-})
+export function toggleClass(active: boolean): string {
+  return `px-[14px] py-[6px] rounded-[6px] cursor-pointer text-caption font-semibold min-h-[36px] transition-all duration-150 border ${
+    active
+      ? 'bg-[rgba(244,245,248,0.1)] border-sa-white text-sa-white'
+      : 'bg-transparent border-sa-border text-sa-muted'
+  }`
+}

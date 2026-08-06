@@ -14,30 +14,24 @@ const VAT_TREATMENT_HINTS: Record<VatTreatment, string> = {
   none: 'You are not charging VAT on this invoice.',
 }
 
-import { C } from '@/styles/palette'
-import { T } from '@/styles/type'
-const inputS: React.CSSProperties = {
-  width: '100%',
-  background: C.gray,
-  border: `1px solid ${C.border}`,
-  borderRadius: '4px',
-  padding: '9px 11px',
-  color: C.white,
-  fontSize: T.meta,
-  outline: 'none',
-  boxSizing: 'border-box',
-}
+/**
+ * Shared field styling, hoisted rather than repeated on nine elements.
+ *
+ * These reproduce the exact values the inline `style={{}}` objects used, down
+ * to the 9px/11px padding — deliberately NOT the global `.ui-input`, which
+ * pads 0.65rem/0.85rem and sizes at text-body. Snapping to it would be a visual
+ * change wearing a refactor's clothes; that is a separate decision.
+ */
+const FIELD =
+  'w-full bg-sa-gray border border-sa-border rounded-[4px] px-[11px] py-[9px] text-sa-white text-meta outline-none box-border'
 
-const labelS: React.CSSProperties = {
-  display: 'block',
-  color: C.dim,
-  fontSize: T.micro,
-  textTransform: 'uppercase',
-  letterSpacing: '0.09em',
-  marginBottom: '4px',
-  fontWeight: 600,
-  fontFamily: 'var(--font-geist-mono), monospace',
-}
+/** Text fields that should use the page font rather than the browser default. */
+const FIELD_INHERIT = `${FIELD} font-[inherit]`
+
+const LABEL =
+  'block text-sa-dim text-micro uppercase tracking-[0.09em] mb-1 font-semibold font-mono'
+
+const BTN_BASE = 'rounded-[4px] text-meta min-h-[40px] cursor-pointer'
 
 export function InvoiceForm({
   form,
@@ -57,88 +51,109 @@ export function InvoiceForm({
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
-      style={{ marginBottom: '1.25rem' }}
+      className="mb-5"
     >
       <form
         onSubmit={onSubmit}
-        style={{
-          background: C.surface,
-          border: `1px solid ${C.border}`,
-          borderRadius: '6px',
-          padding: '1.25rem',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-          gap: '0.85rem',
-          alignItems: 'end',
-        }}
+        className="bg-sa-surface border border-sa-border rounded-[6px] p-5 grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-[0.85rem] items-end"
       >
         <div>
-          <label style={labelS}>Client name</label>
+          {/* Labels are wired to their inputs by id. They were bare <label>
+              elements with no htmlFor, so clicking one did nothing and a screen
+              reader announced the field unnamed (WCAG 1.3.1 / 4.1.2). */}
+          <label className={LABEL} htmlFor="invoice-client">
+            Client name
+          </label>
           <input
+            id="invoice-client"
             value={form.client}
             onChange={(e) => setForm((f) => ({ ...f, client: e.target.value }))}
             placeholder="Acme Ltd"
-            style={{ ...inputS, fontFamily: 'inherit' }}
+            className={FIELD_INHERIT}
             required
           />
         </div>
+
         <div>
-          <label style={labelS}>Invoice #</label>
+          <label className={LABEL} htmlFor="invoice-number">
+            Invoice #
+          </label>
           <input
+            id="invoice-number"
             value={form.number}
             onChange={(e) => setForm((f) => ({ ...f, number: e.target.value }))}
             placeholder={nextNumber}
-            style={inputS}
+            className={FIELD}
           />
         </div>
-        <div style={{ gridColumn: 'span 2' }}>
-          <label style={labelS}>Description / services</label>
+
+        <div className="col-span-2">
+          <label className={LABEL} htmlFor="invoice-description">
+            Description / services
+          </label>
           <input
+            id="invoice-description"
             value={form.description}
             onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
             placeholder="Web development — April 2026"
-            style={{ ...inputS, fontFamily: 'inherit' }}
+            className={FIELD_INHERIT}
           />
         </div>
+
         <div>
-          <label style={labelS}>Invoice date</label>
+          <label className={LABEL} htmlFor="invoice-date">
+            Invoice date
+          </label>
           <input
+            id="invoice-date"
             type="date"
             value={form.date}
             onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
-            style={inputS}
+            className={FIELD}
           />
         </div>
+
         <div>
-          <label style={labelS}>Due date</label>
+          <label className={LABEL} htmlFor="invoice-due-date">
+            Due date
+          </label>
           <input
+            id="invoice-due-date"
             type="date"
             value={form.dueDate}
             onChange={(e) => setForm((f) => ({ ...f, dueDate: e.target.value }))}
-            style={inputS}
+            className={FIELD}
           />
         </div>
+
         <div>
-          <label style={labelS}>Net amount (£)</label>
+          <label className={LABEL} htmlFor="invoice-amount">
+            Net amount (£)
+          </label>
           <input
+            id="invoice-amount"
             type="number"
             min={0}
             step={0.01}
             value={form.amount}
             onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))}
             placeholder="0.00"
-            style={inputS}
+            className={FIELD}
             required
           />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <label style={labelS}>VAT treatment</label>
+
+        <div className="flex flex-col gap-[6px]">
+          <label className={LABEL} htmlFor="invoice-vat-treatment">
+            VAT treatment
+          </label>
           <select
+            id="invoice-vat-treatment"
             value={form.vatTreatment}
             onChange={(e) =>
               setForm((f) => ({ ...f, vatTreatment: e.target.value as VatTreatment }))
             }
-            style={{ ...inputS, cursor: 'pointer' }}
+            className={`${FIELD} cursor-pointer`}
           >
             {(Object.keys(VAT_TREATMENT_LABELS) as VatTreatment[]).map((t) => (
               <option key={t} value={t}>
@@ -146,42 +161,22 @@ export function InvoiceForm({
               </option>
             ))}
           </select>
-          <span style={{ color: C.muted, fontSize: T.micro, lineHeight: 1.4 }}>
+          <span className="text-sa-muted text-micro leading-[1.4]">
             {VAT_TREATMENT_HINTS[form.vatTreatment]}
           </span>
         </div>
-        <div style={{ display: 'flex', gap: '0.4rem' }}>
+
+        <div className="flex gap-[0.4rem]">
           <button
             type="submit"
-            style={{
-              flex: 1,
-              background: C.white,
-              color: '#181818',
-              border: 'none',
-              borderRadius: '4px',
-              padding: '9px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              fontSize: T.meta,
-              minHeight: '40px',
-              letterSpacing: '-0.01em',
-            }}
+            className={`${BTN_BASE} flex-1 bg-sa-white text-sa-black border-none p-[9px] font-semibold tracking-[-0.01em]`}
           >
             Create
           </button>
           <button
             type="button"
             onClick={onCancel}
-            style={{
-              background: 'transparent',
-              color: C.muted,
-              border: `1px solid ${C.border}`,
-              borderRadius: '4px',
-              padding: '9px 12px',
-              cursor: 'pointer',
-              fontSize: T.meta,
-              minHeight: '40px',
-            }}
+            className={`${BTN_BASE} bg-transparent text-sa-muted border border-sa-border px-3 py-[9px]`}
           >
             Cancel
           </button>

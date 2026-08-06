@@ -1,5 +1,11 @@
 // Data boundary types and runtime guards for the two primary entities
 
+// The status values live with the state machine that governs them, so the
+// lifecycle table and this boundary check can never disagree about which
+// statuses exist. Type-only in the other direction, so there is no runtime
+// import cycle.
+import { INVOICE_STATUSES } from '@/lib/invoices/status-machine'
+
 export interface Expense {
   id: string
   date: string
@@ -9,7 +15,7 @@ export interface Expense {
   ocrScanned?: boolean
 }
 
-export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue'
+export type InvoiceStatus = (typeof INVOICE_STATUSES)[number]
 
 /**
  * How VAT is treated on the supply this invoice covers (TAX-4).
@@ -71,7 +77,7 @@ export function isValidInvoice(i: unknown): i is Invoice {
     typeof o.dueDate === 'string' &&
     typeof o.amount === 'number' &&
     (o.amount as number) >= 0 &&
-    ['draft', 'sent', 'paid', 'overdue'].includes(o.status as string) &&
+    (INVOICE_STATUSES as readonly string[]).includes(o.status as string) &&
     (o.vatTreatment === undefined ||
       ['standard', 'reduced', 'zero', 'exempt', 'reverse_charge', 'none'].includes(
         o.vatTreatment as string,

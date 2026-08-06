@@ -15,6 +15,11 @@ import {
 } from 'lucide-react'
 import type { Invoice, InvoiceStatus } from '@/lib/validators'
 import { todayISO } from '@/lib/dates'
+import type { InvoiceAction } from '@/lib/invoices/status-machine'
+import {
+  useInvoiceTransitions,
+  type InvoiceActionDescriptor,
+} from '@/lib/hooks/useInvoiceTransitions'
 import {
   vatTotal,
   vatAmount,
@@ -27,8 +32,31 @@ import {
   chaseEmail,
 } from '@/lib/hooks/useInvoices'
 
-function today() {
-  return todayISO()
+/**
+ * How each action is drawn. Split from the machine on purpose: the machine
+ * decides WHETHER a button exists, this decides what it looks like. Adding a
+ * status-changing button now means adding it to the machine — a styling entry
+ * on its own renders nothing.
+ */
+const ACTION_STYLES: Record<InvoiceAction, { className: string; Icon?: React.ElementType }> = {
+  send: {
+    className:
+      'bg-sa-white text-sa-black border-none rounded-[4px] px-[14px] py-[7px] text-caption font-semibold cursor-pointer tracking-[-0.01em]',
+  },
+  markPaid: {
+    className:
+      'bg-sa-green text-sa-black border-none rounded-[4px] px-[14px] py-[7px] text-caption font-semibold cursor-pointer tracking-[-0.01em]',
+  },
+  markOverdue: {
+    className:
+      'bg-transparent text-sa-red border border-sa-red-line rounded-[4px] px-3 py-[6px] text-caption cursor-pointer inline-flex items-center gap-[5px]',
+    Icon: AlertTriangle,
+  },
+  revertToSent: {
+    className:
+      'bg-transparent text-sa-muted border border-sa-border rounded-[4px] px-3 py-[6px] text-caption cursor-pointer inline-flex items-center gap-[5px]',
+    Icon: Undo2,
+  },
 }
 
 const STATUS_CLASSES: Record<
@@ -83,6 +111,21 @@ function CopyBtn({ text }: { text: string }) {
   )
 }
 
+function ActionButton({
+  descriptor,
+  onClick,
+}: {
+  descriptor: InvoiceActionDescriptor
+  onClick: () => void
+}) {
+  const { className, Icon } = ACTION_STYLES[descriptor.action]
+  return (
+    <button onClick={onClick} className={className}>
+      {Icon && <Icon size={12} />} {descriptor.label}
+    </button>
+  )
+}
+
 export function InvoiceRow({
   inv,
   onUpdate,
@@ -97,6 +140,10 @@ export function InvoiceRow({
   const treatment = vatTreatmentOf(inv)
   const total = vatTotal(inv)
   const daysLeft = daysToDue(inv)
+
+  // Every action button, and the chase email, come from here. The row no
+  // longer decides what a status permits — it only draws what it is given.
+  const { actions, canChase, isSettled } = useInvoiceTransitions(inv.status, todayISO())
 
   return (
     <div className="border-b border-sa-border">
@@ -193,44 +240,19 @@ export function InvoiceRow({
               </div>
 
               <div className="flex gap-2 flex-wrap items-center">
-                {inv.status === 'draft' && (
-                  <button
-                    onClick={() => onUpdate(inv.id, { status: 'sent', sentDate: today() })}
-                    className="bg-sa-white text-sa-black border-none rounded-[4px] px-[14px] py-[7px] text-caption font-semibold cursor-pointer tracking-[-0.01em]"
-                  >
-                    Mark as Sent
-                  </button>
-                )}
-                {(inv.status === 'sent' || overdue) && (
-                  <button
-                    onClick={() => onUpdate(inv.id, { status: 'paid', paidDate: today() })}
-                    className="bg-sa-green text-sa-black border-none rounded-[4px] px-[14px] py-[7px] text-caption font-semibold cursor-pointer tracking-[-0.01em]"
-                  >
-                    Mark as Paid
-                  </button>
-                )}
-                {inv.status === 'sent' && (
-                  <button
-                    onClick={() => onUpdate(inv.id, { status: 'overdue' })}
-                    className="bg-transparent text-sa-red border border-sa-red-line rounded-[4px] px-3 py-[6px] text-caption cursor-pointer inline-flex items-center gap-[5px]"
-                  >
-                    <AlertTriangle size={12} /> Mark Overdue
-                  </button>
-                )}
-                {overdue && (
-                  <button
-                    onClick={() => onUpdate(inv.id, { status: 'sent' })}
-                    className="bg-transparent text-sa-muted border border-sa-border rounded-[4px] px-3 py-[6px] text-caption cursor-pointer inline-flex items-center gap-[5px]"
-                  >
-                    <Undo2 size={12} /> Revert to Sent
-                  </button>
-                )}
-                {inv.status === 'paid' && (
+                {actions.map((descriptor) => (
+                  <ActionButton
+                    key={descriptor.action}
+                    descriptor={descriptor}
+                    onClick={() => onUpdate(inv.id, descriptor.patch)}
+                  />
+                ))}
+                {isSettled && (
                   <span className="text-sa-green text-caption font-mono">
                     ✓ Paid {inv.paidDate ?? ''}
                   </span>
                 )}
-                {overdue && <CopyBtn text={chaseEmail(inv)} />}
+                {canChase && <CopyBtn text={chaseEmail(inv)} />}
                 <button
                   onClick={() => onDelete(inv.id)}
                   className="ml-auto bg-transparent border border-sa-border rounded-[4px] px-[10px] py-[6px] text-sa-red/60 text-caption cursor-pointer flex items-center gap-1 transition-all duration-150 hover:text-sa-red hover:border-sa-red-line"

@@ -6,54 +6,35 @@ import { useInvoices, fmt, type InvoiceStatus } from '@/lib/hooks/useInvoices'
 import { InvoiceRow } from '@/features/invoices/InvoiceRow'
 import { InvoiceForm } from '@/features/invoices/InvoiceForm'
 
-import { C } from '@/styles/palette'
-import { T } from '@/styles/type'
+/**
+ * Accent colours arrive as Tailwind classes rather than palette strings.
+ *
+ * The card used to take `color?: string` and drop it into an inline style, so
+ * every caller reached into `C` to pass a hex. A class keeps the value in the
+ * theme where the contrast ratios are documented.
+ */
 function StatCard({
   label,
   value,
-  color = C.white,
+  accentClass = 'text-sa-white',
   sub,
 }: {
   label: string
   value: string
-  color?: string
+  accentClass?: string
   sub?: string
 }) {
   return (
-    <div
-      style={{
-        background: C.surface,
-        border: `1px solid ${C.border}`,
-        borderRadius: '6px',
-        padding: '1rem 1.1rem',
-      }}
-    >
-      <div
-        style={{
-          color: C.dim,
-          fontSize: T.micro,
-          textTransform: 'uppercase',
-          letterSpacing: '0.09em',
-          fontWeight: 600,
-          fontFamily: 'var(--font-geist-mono), monospace',
-          marginBottom: '6px',
-        }}
-      >
+    <div className="bg-sa-surface border border-sa-border rounded-[6px] px-[1.1rem] py-4">
+      <div className="text-sa-dim text-micro uppercase tracking-[0.09em] font-semibold font-mono mb-[6px]">
         {label}
       </div>
       <div
-        style={{
-          color,
-          fontSize: T.heading,
-          fontWeight: 600,
-          letterSpacing: '-0.03em',
-          fontVariantNumeric: 'tabular-nums',
-          lineHeight: 1,
-        }}
+        className={`${accentClass} text-heading font-semibold tracking-[-0.03em] tabular-nums leading-none`}
       >
         {value}
       </div>
-      {sub && <div style={{ color: C.dim, fontSize: T.micro, marginTop: '4px' }}>{sub}</div>}
+      {sub && <div className="text-sa-dim text-micro mt-1">{sub}</div>}
     </div>
   )
 }
@@ -65,6 +46,9 @@ const FILTERS: { key: InvoiceStatus | 'all'; label: string }[] = [
   { key: 'overdue', label: 'Overdue' },
   { key: 'paid', label: 'Paid' },
 ]
+
+/** Panel chrome shared by the loading, empty and populated states. */
+const PANEL = 'bg-sa-surface border border-sa-border rounded-[6px]'
 
 export default function InvoicesPage() {
   const {
@@ -87,69 +71,24 @@ export default function InvoicesPage() {
 
   return (
     <div className="page-shell is-wide">
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '1rem',
-          marginBottom: '1.75rem',
-        }}
-      >
+      <div className="flex items-start justify-between flex-wrap gap-4 mb-7">
         <div>
-          <div
-            style={{
-              color: C.dim,
-              fontSize: T.micro,
-              textTransform: 'uppercase',
-              letterSpacing: '0.12em',
-              marginBottom: '5px',
-              fontFamily: 'var(--font-geist-mono), monospace',
-            }}
-          >
+          <div className="text-sa-dim text-micro uppercase tracking-[0.12em] mb-[5px] font-mono">
             billing
           </div>
-          <h1
-            style={{
-              color: C.white,
-              fontSize: T.h2,
-              fontWeight: 600,
-              letterSpacing: '-0.03em',
-              margin: '0 0 4px',
-            }}
-          >
+          <h1 className="text-sa-white text-h2 font-semibold tracking-[-0.03em] mt-0 mb-1">
             Invoices
           </h1>
-          <p
-            style={{
-              color: C.muted,
-              fontSize: T.caption,
-              margin: 0,
-              maxWidth: '40ch',
-              lineHeight: 1.5,
-            }}
-          >
+          <p className="text-sa-muted text-caption m-0 max-w-[40ch] leading-[1.5]">
             Track sent, paid, and overdue invoices. Generate chase emails in one click.
           </p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              color: C.muted,
-              fontSize: T.micro,
-              fontFamily: 'var(--font-geist-mono), monospace',
-              padding: '6px 10px',
-              border: `1px solid ${C.border}`,
-              borderRadius: '4px',
-            }}
-          >
+
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-[5px] text-sa-muted text-micro font-mono px-[10px] py-[6px] border border-sa-border rounded-[4px]">
             {isAuthenticated ? (
               <>
-                <Cloud size={12} style={{ color: C.green }} /> synced
+                <Cloud size={12} className="text-sa-green" /> synced
               </>
             ) : (
               <>
@@ -159,56 +98,36 @@ export default function InvoicesPage() {
           </div>
           <button
             onClick={() => setShowForm((o) => !o)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              background: C.white,
-              color: C.bg,
-              border: 'none',
-              borderRadius: '4px',
-              padding: '8px 16px',
-              fontSize: T.meta,
-              fontWeight: 600,
-              cursor: 'pointer',
-              letterSpacing: '-0.01em',
-            }}
+            className="flex items-center gap-[6px] bg-sa-white text-sa-black border-none rounded-[4px] px-4 py-2 text-meta font-semibold cursor-pointer tracking-[-0.01em]"
           >
             <Plus size={14} strokeWidth={2.5} /> New Invoice
           </button>
         </div>
       </div>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-          gap: '0.75rem',
-          marginBottom: '1.5rem',
-        }}
-      >
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3 mb-6">
         <StatCard
           label="Outstanding"
           value={fmt(stats.outstanding)}
-          color={stats.outstanding > 0 ? C.blue : C.muted}
+          accentClass={stats.outstanding > 0 ? 'text-sa-blue' : 'text-sa-muted'}
           sub="awaiting payment"
         />
         <StatCard
           label="Overdue"
           value={fmt(stats.overdue)}
-          color={stats.overdue > 0 ? C.red : C.muted}
+          accentClass={stats.overdue > 0 ? 'text-sa-red' : 'text-sa-muted'}
           sub={`${stats.overdueCount} invoice${stats.overdueCount !== 1 ? 's' : ''}`}
         />
         <StatCard
           label="Paid this year"
           value={fmt(stats.paid)}
-          color={stats.paid > 0 ? C.green : C.muted}
+          accentClass={stats.paid > 0 ? 'text-sa-green' : 'text-sa-muted'}
           sub="collected"
         />
         <StatCard
           label="Drafts"
           value={String(stats.draftCount)}
-          color={C.muted}
+          accentClass="text-sa-muted"
           sub="not yet sent"
         />
       </div>
@@ -219,22 +138,15 @@ export default function InvoicesPage() {
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            style={{
-              marginBottom: '1.25rem',
-              padding: '10px 14px',
-              background: 'rgba(248,113,113,0.06)',
-              border: '1px solid rgba(248,113,113,0.2)',
-              borderRadius: '4px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '0.75rem',
-              flexWrap: 'wrap',
-            }}
+            // The one-off rgba(248,113,113,0.06)/0.2 pair is now the shared
+            // red wash. The @theme block exists so callouts stop inventing
+            // their own alphas; this is a hair more visible and consistent
+            // with every other red callout in the app.
+            className="mb-5 px-[14px] py-[10px] bg-sa-red-tint border border-sa-red-line rounded-[4px] flex items-center justify-between gap-3 flex-wrap"
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <AlertTriangle size={12} style={{ color: C.red, flexShrink: 0 }} />
-              <span style={{ color: C.red, fontSize: T.caption }}>
+            <div className="flex items-center gap-2">
+              <AlertTriangle size={12} className="text-sa-red shrink-0" />
+              <span className="text-sa-red text-caption">
                 <strong>{stats.overdueCount}</strong> overdue invoice
                 {stats.overdueCount !== 1 ? 's' : ''} · {fmt(stats.overdue)} outstanding. Click an
                 invoice to copy a chase email.
@@ -256,22 +168,17 @@ export default function InvoicesPage() {
         )}
       </AnimatePresence>
 
-      <div style={{ display: 'flex', gap: '0.35rem', marginBottom: '0.85rem', flexWrap: 'wrap' }}>
+      <div className="flex gap-[0.35rem] mb-[0.85rem] flex-wrap">
         {FILTERS.map(({ key, label }) => (
           <button
             key={key}
             onClick={() => setFilter(key)}
-            style={{
-              padding: '5px 12px',
-              borderRadius: '3px',
-              border: `1px solid ${filter === key ? 'rgba(244,245,248,0.2)' : C.border}`,
-              background: filter === key ? 'rgba(244,245,248,0.07)' : 'transparent',
-              color: filter === key ? C.white : C.muted,
-              fontSize: T.caption,
-              cursor: 'pointer',
-              fontWeight: filter === key ? 500 : 400,
-              transition: 'all 0.1s',
-            }}
+            aria-pressed={filter === key}
+            className={`px-3 py-[5px] rounded-[3px] border text-caption cursor-pointer transition-all duration-100 ${
+              filter === key
+                ? 'border-sa-line bg-sa-selected text-sa-white font-medium'
+                : 'border-sa-border bg-transparent text-sa-muted'
+            }`}
           >
             {label}
           </button>
@@ -279,53 +186,18 @@ export default function InvoicesPage() {
       </div>
 
       {loading ? (
-        <div
-          style={{
-            background: C.surface,
-            border: `1px solid ${C.border}`,
-            borderRadius: '6px',
-            padding: '3rem',
-            textAlign: 'center',
-            color: C.muted,
-            fontSize: T.meta,
-          }}
-        >
-          Loading…
-        </div>
+        <div className={`${PANEL} p-12 text-center text-sa-muted text-meta`}>Loading…</div>
       ) : displayed.length === 0 ? (
-        <div
-          style={{
-            background: C.surface,
-            border: `1px solid ${C.border}`,
-            borderRadius: '6px',
-            padding: '3.5rem',
-            textAlign: 'center',
-          }}
-        >
-          <div style={{ color: C.muted, fontSize: T.meta, marginBottom: '6px' }}>
+        <div className={`${PANEL} p-14 text-center`}>
+          <div className="text-sa-muted text-meta mb-[6px]">
             {invoices.length === 0 ? 'No invoices yet.' : 'No invoices match this filter.'}
           </div>
           {invoices.length === 0 && (
-            <div
-              style={{
-                color: C.dim,
-                fontSize: T.caption,
-                fontFamily: 'var(--font-geist-mono), monospace',
-              }}
-            >
-              Create your first one above.
-            </div>
+            <div className="text-sa-dim text-caption font-mono">Create your first one above.</div>
           )}
         </div>
       ) : (
-        <div
-          style={{
-            background: C.surface,
-            border: `1px solid ${C.border}`,
-            borderRadius: '6px',
-            overflow: 'hidden',
-          }}
-        >
+        <div className={`${PANEL} overflow-hidden`}>
           {displayed.map((inv) => (
             <InvoiceRow key={inv.id} inv={inv} onUpdate={update} onDelete={remove} />
           ))}

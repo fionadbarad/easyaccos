@@ -49,6 +49,19 @@ updates:
         update-types: ['version-update:semver-major']
       - dependency-name: react-dom
         update-types: ['version-update:semver-major']
+      # @types/node must track the Node the app RUNS on, not the newest release.
+      # .nvmrc pins 20 and package.json engines pins >=20.18.0 <21, so taking
+      # @types/node 26 would typecheck this code against APIs its runtime does
+      # not have — green locally, broken in production, with tsc actively
+      # vouching for it. package.json already records one incident of exactly
+      # this shape (a suite verified on a different major than CI ran).
+      #
+      # This is deliberately a major-only ignore: patch and minor releases of
+      # the 20.x line still arrive through the routine group. When the runtime
+      # moves to a new Node major, bump .nvmrc, engines and this pin together —
+      # that is a migration, and it should look like one.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
 
   # Actions are code too, and a compromised third-party action runs with the
   # workflow's token — which for the CodeQL and Semgrep jobs includes

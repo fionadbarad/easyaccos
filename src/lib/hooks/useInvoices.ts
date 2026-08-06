@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useUserData } from '@/lib/use-user-data'
 import { todayISO } from '@/lib/dates'
+import { canAutoFlipToOverdue, transitionPatch } from '@/lib/invoices/status-machine'
 import type { Invoice, InvoiceStatus, VatTreatment } from '@/lib/validators'
 
 export type { Invoice, InvoiceStatus, VatTreatment }
@@ -17,9 +18,6 @@ export interface InvoiceFormState {
   vatTreatment: VatTreatment
 }
 
-function today() {
-  return todayISO()
-}
 function in30() {
   const d = new Date()
   d.setDate(d.getDate() + 30)
@@ -86,7 +84,8 @@ export function vatTotal(inv: Invoice) {
 
 export function isPastDue(inv: Invoice) {
   return (
-    (inv.status === 'sent' || inv.status === 'overdue') && new Date(inv.dueDate) < new Date(today())
+    (inv.status === 'sent' || inv.status === 'overdue') &&
+    new Date(inv.dueDate) < new Date(todayISO())
   )
 }
 
@@ -132,7 +131,7 @@ export function makeBlankForm(): InvoiceFormState {
     client: '',
     number: '',
     description: '',
-    date: today(),
+    date: todayISO(),
     dueDate: in30(),
     amount: '',
     vatTreatment: 'none',
@@ -156,13 +155,19 @@ export function useInvoices() {
   }, [invoices])
 
   // Auto-flip overdue invoices on every render — no ref, no stale state.
+  //
+  // The clock is a second actor driving the same state machine as the buttons
+  // in InvoiceRow, so it asks the same table whether the move is legal instead
+  // of re-deriving "which statuses can go overdue" here. A paid invoice whose
+  // due date has passed must not be dragged back to overdue, and that rule now
+  // lives in exactly one place.
   useEffect(() => {
     if (loading) return
-    const needsFlip = invoices.some((i) => i.status === 'sent' && isPastDue(i))
-    if (!needsFlip) return
+    const shouldFlip = (i: Invoice) => canAutoFlipToOverdue(i.status) && isPastDue(i)
+    if (!invoices.some(shouldFlip)) return
     void persist(
       invoices.map((i) =>
-        i.status === 'sent' && isPastDue(i) ? { ...i, status: 'overdue' as InvoiceStatus } : i,
+        shouldFlip(i) ? { ...i, ...transitionPatch('markOverdue', todayISO()) } : i,
       ),
     )
   }, [loading, invoices, persist])

@@ -12,8 +12,8 @@ vi.mock('@/lib/feature-flags', () => ({
   isFlagEnabled: () => flag.on,
 }))
 
-const idbSet = vi.fn(async () => {})
-const idbAuditRange = vi.fn(async () => [{ id: 'a1' }])
+const idbSet = vi.fn(async (..._a: unknown[]) => {})
+const idbAuditRange = vi.fn(async (..._a: unknown[]) => [{ id: 'a1' }])
 vi.mock('@/lib/storage/idb', () => ({
   STORE_AUDIT: 'audit_log',
   isIDBAvailable: () => true,

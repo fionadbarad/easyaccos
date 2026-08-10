@@ -11,6 +11,7 @@
  * them.
  */
 
+import { useEffect } from 'react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, act, waitFor } from '@testing-library/react'
 
@@ -22,7 +23,9 @@ interface Row {
   updated_at?: string
 }
 
-type SessionResolver = (value: { data: { session: { user: { id: string; email?: string } } | null } }) => void
+type SessionResolver = (value: {
+  data: { session: { user: { id: string; email?: string } } | null }
+}) => void
 type QueryResult = { data: unknown; error: { message: string } | null }
 
 let resolveSession: SessionResolver
@@ -131,7 +134,7 @@ vi.mock('@/lib/storage/secure-store', () => ({
   },
 }))
 
-const appendAuditLog = vi.fn(async () => {})
+const appendAuditLog = vi.fn(async (..._a: unknown[]) => {})
 vi.mock('@/lib/audit', () => ({
   appendAuditLog: (...a: unknown[]) => appendAuditLog(...(a as [])),
 }))
@@ -149,7 +152,11 @@ function Probe() {
     'easyacco_expenses',
     STABLE_SEED,
   )
-  persistFn = persist
+  // Assigned from an effect, not during render: the React Compiler forbids
+  // reassigning outer variables inside the component body.
+  useEffect(() => {
+    persistFn = persist
+  })
   return (
     <div>
       <span data-testid="loading">{String(loading)}</span>

@@ -85,8 +85,7 @@ export default function FullResultPanel({
             </div>
             <div style={{ color: C.text, fontSize: T.meta, marginTop: '2px', lineHeight: 1.5 }}>
               Income between {fmt(PA_TAPER_START)}–{fmt(PA_TAPER_END)}. Each £2 earned = £1 of PA
-              lost. Pension contributions
-              are the escape route.
+              lost. Pension contributions are the escape route.
             </div>
           </div>
         </div>

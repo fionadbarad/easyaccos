@@ -18,7 +18,12 @@ describe('calcScenario3 — Welfare & Support (TAX-7)', () => {
     // If this fails, NI is overstated for the lowest-income users in the
     // product — the exact TAX-7 regression.
     const other = PA_BASE + 10_000 // part-time earnings, clearly above the NI PT
-    const r = calcScenario3({ universalCredit: 5_000, jsaAmount: 4_000, carersAllowance: 4_000, otherIncome: other })
+    const r = calcScenario3({
+      universalCredit: 5_000,
+      jsaAmount: 4_000,
+      carersAllowance: 4_000,
+      otherIncome: other,
+    })
 
     expect(r.nationalInsurance).toBe(calcClass1NI(other))
     expect(r.nationalInsurance).toBeGreaterThan(0)
@@ -43,7 +48,12 @@ describe('calcScenario3 — Welfare & Support (TAX-7)', () => {
     // If this fails, either taxable benefits above the allowance escape tax or
     // a claimant with no earnings is charged NI on benefits.
     const jsa = PA_BASE + 2_000
-    const r = calcScenario3({ universalCredit: 0, jsaAmount: jsa, carersAllowance: 0, otherIncome: 0 })
+    const r = calcScenario3({
+      universalCredit: 0,
+      jsaAmount: jsa,
+      carersAllowance: 0,
+      otherIncome: 0,
+    })
 
     expect(r.incomeTax).toBe(rukTax(2_000))
     expect(r.incomeTax).toBeGreaterThan(0)

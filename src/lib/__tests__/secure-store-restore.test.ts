@@ -23,8 +23,7 @@ vi.mock('@/lib/storage/idb', () => ({
   isIDBAvailable: () => true,
   idbGet: async (store: string, key: IDBValidKey) => mem[store]!.get(key),
   idbSet: async (store: string, key: IDBValidKey, v: unknown) => void mem[store]!.set(key, v),
-  idbSetStrict: async (store: string, key: IDBValidKey, v: unknown) =>
-    void mem[store]!.set(key, v),
+  idbSetStrict: async (store: string, key: IDBValidKey, v: unknown) => void mem[store]!.set(key, v),
   idbDelete: async (store: string, key: IDBValidKey) => {
     deleted.push(String(key))
     mem[store]!.delete(key)
@@ -34,7 +33,12 @@ vi.mock('@/lib/storage/idb', () => ({
 
 vi.mock('@/lib/monitor', () => ({ reportError: vi.fn(), reportWarn: vi.fn() }))
 
-import { secureWrite, secureRead, secureDumpAll, secureRestoreAll } from '@/lib/storage/secure-store'
+import {
+  secureWrite,
+  secureRead,
+  secureDumpAll,
+  secureRestoreAll,
+} from '@/lib/storage/secure-store'
 import { createBackup, restoreBackup, type BackupFile } from '@/lib/storage/backup'
 import { encryptWithPassphrase } from '@/lib/storage/crypto'
 

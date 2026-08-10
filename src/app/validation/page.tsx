@@ -560,9 +560,8 @@ export default function ValidationPage() {
           Tax calculations executed on the server using the production engine exported from
           <code className="font-mono text-sa-muted px-1">@/lib/tax-engine</code>. 2026/27 HMRC
           rates. Class 2 NI is deemed paid above the Small Profits Threshold of{' '}
-          {fmtGBP(NI_CLASS2_SPT)}. Scotland
-          band ranges use the Holyrood-set thresholds for non-savings, non-dividend income. HMRC
-          error messages mapped by{' '}
+          {fmtGBP(NI_CLASS2_SPT)}. Scotland band ranges use the Holyrood-set thresholds for
+          non-savings, non-dividend income. HMRC error messages mapped by{' '}
           <code className="font-mono text-sa-muted px-1">@/lib/hmrc/mtd-errors</code>; codes sourced
           from HMRC&rsquo;s published OpenAPI specs.
         </p>

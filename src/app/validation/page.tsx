@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { calculateTax, type TaxInput, type TaxResult } from '@/lib/tax-engine'
 import { fmtGBP } from '@/lib/formatters'
+import { PA_BASE, PA_TAPER_START, PA_TAPER_END, NI_PT, NI_CLASS2_SPT } from '@/lib/tax/bands-2026'
 import { HMRC_ERROR_MESSAGES, mapHmrcError } from '@/lib/hmrc/mtd-errors'
 import { ShieldCheck, AlertCircle, CheckCircle2, Network } from 'lucide-react'
 
@@ -44,7 +45,7 @@ const SCENARIOS: Scenario[] = [
     id: 'sixty-percent-trap',
     title: '60% Tax Trap — self-employed at £110,000',
     why:
-      'Between £100,000 and £125,140, the Personal Allowance tapers by £1 for every £2 of income above £100,000. ' +
+      `Between ${fmtGBP(PA_TAPER_START)} and ${fmtGBP(PA_TAPER_END)}, the Personal Allowance tapers by £1 for every £2 of income above ${fmtGBP(PA_TAPER_START)}. ` +
       'The lost PA sits inside the 40% higher rate band, creating an effective 60% marginal rate on that slice. ' +
       'This is the single most expensive tax cliff in the UK code and the one most often mis-calculated by DIY tools.',
     input: baseInput({ grossRevenue: 110_000 }),
@@ -65,9 +66,9 @@ const SCENARIOS: Scenario[] = [
   },
   {
     id: 'pa-fully-tapered',
-    title: 'Personal Allowance fully tapered — £125,140',
+    title: `Personal Allowance fully tapered — ${fmtGBP(PA_TAPER_END)}`,
     why:
-      'At exactly £125,140 the entire £12,570 Personal Allowance has been withdrawn. ' +
+      `At exactly ${fmtGBP(PA_TAPER_END)} the entire ${fmtGBP(PA_BASE)} Personal Allowance has been withdrawn. ` +
       'The taxable amount equals gross income. This is the ceiling of the 60% trap and the floor of the 45% additional rate band for taxable income.',
     input: baseInput({ grossRevenue: 125_140 }),
     manual: [
@@ -81,7 +82,7 @@ const SCENARIOS: Scenario[] = [
     assertions: [
       { path: 'personalAllowance', expected: 0 },
       { path: 'incomeTax', expected: 42_516 },
-      { path: 'sixtyPercentTrap', expected: false, note: 'Trap ends at £125,140' },
+      { path: 'sixtyPercentTrap', expected: false, note: `Trap ends at ${fmtGBP(PA_TAPER_END)}` },
     ],
   },
   {
@@ -89,7 +90,7 @@ const SCENARIOS: Scenario[] = [
     title: 'Scottish starter rate — £15,000',
     why:
       'Scotland has six income-tax bands (starter 19%, basic 20%, intermediate 21%, higher 42%, advanced 45%, top 48%). ' +
-      'At £15,000, income above the shared £12,570 PA falls entirely in the 19% starter band — a subtlety most UK-only calculators miss.',
+      `At £15,000, income above the shared ${fmtGBP(PA_BASE)} PA falls entirely in the 19% starter band — a subtlety most UK-only calculators miss.`,
     input: baseInput({ grossRevenue: 15_000, taxRegion: 'scotland' }),
     manual: [
       { label: 'Gross profit', value: 15_000 },
@@ -105,7 +106,7 @@ const SCENARIOS: Scenario[] = [
   },
   {
     id: 'director-optimal',
-    title: 'Director optimal mix — £12,570 salary + £50,000 dividends',
+    title: `Director optimal mix — ${fmtGBP(NI_PT)} salary + £50,000 dividends`,
     why:
       'The canonical limited-company structure: salary set at the Primary Threshold (no Class 1 NI) and the rest as dividends. ' +
       'Dividend allowance is £500 (2026/27, down from £1,000) — a 0% band that still uses up £500 of the basic-rate band. ' +
@@ -134,12 +135,12 @@ const SCENARIOS: Scenario[] = [
     id: 'additional-rate-dividends',
     title: 'Additional rate + dividends — £160,000 SE + £10,000 divs',
     why:
-      'Three-layer complexity: PA is fully gone (income > £125,140), income tax spans all three bands including 45% additional, ' +
+      `Three-layer complexity: PA is fully gone (income > ${fmtGBP(PA_TAPER_END)}), income tax spans all three bands including 45% additional, ` +
       'and dividends tax at the additional dividend rate (39.35%). Class 4 NI applies across the full profit range. ' +
       'Any one of these three can mask an error in another.',
     input: baseInput({ grossRevenue: 160_000, dividendIncome: 10_000 }),
     manual: [
-      { label: 'PA (income ≥ £125,140)', value: 0 },
+      { label: `PA (income ≥ ${fmtGBP(PA_TAPER_END)})`, value: 0 },
       { label: 'Basic rate: 37,700 × 20%', value: 7_540 },
       { label: 'Higher rate: 87,440 × 40%', value: 34_976 },
       { label: 'Additional rate: (160,000 − 125,140) × 45%', value: 15_687 },
@@ -558,7 +559,8 @@ export default function ValidationPage() {
         <p className="text-sa-muted text-caption leading-[1.6] mt-12">
           Tax calculations executed on the server using the production engine exported from
           <code className="font-mono text-sa-muted px-1">@/lib/tax-engine</code>. 2026/27 HMRC
-          rates. Class 2 NI is deemed paid above the Small Profits Threshold of £7,105. Scotland
+          rates. Class 2 NI is deemed paid above the Small Profits Threshold of{' '}
+          {fmtGBP(NI_CLASS2_SPT)}. Scotland
           band ranges use the Holyrood-set thresholds for non-savings, non-dividend income. HMRC
           error messages mapped by{' '}
           <code className="font-mono text-sa-muted px-1">@/lib/hmrc/mtd-errors</code>; codes sourced

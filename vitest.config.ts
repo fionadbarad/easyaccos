@@ -27,6 +27,24 @@ export default defineConfig({
       '**/.clone/**',
       '**/scratch/**',
     ],
+    // Coverage is a ratchet on the logic core, not a target for the whole
+    // tree: thresholds apply to src/lib/** only, where CLAUDE.md asks new work
+    // to match the strongest part of the codebase. A global threshold would
+    // push toward testing presentational .tsx for the number's sake — the
+    // habit this repo has deliberately chosen against (TST-10). Values sit
+    // just under the measured baseline (79.7/76.8/73.7/83.0 at introduction);
+    // raise them as the real numbers rise, never lower them to merge.
+    coverage: {
+      provider: 'v8',
+      include: ['src/lib/**'],
+      reporter: ['text-summary', 'text'],
+      thresholds: {
+        statements: 75,
+        branches: 72,
+        functions: 70,
+        lines: 78,
+      },
+    },
   },
   resolve: {
     alias: {

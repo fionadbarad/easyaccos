@@ -96,7 +96,7 @@ describe('/api/hmrc/auth/callback code exchange', () => {
     expect(body).toContain('code=auth-code')
 
     const setCookies = res.headers.getSetCookie()
-    const tokenCookie = setCookies.find((c) => c.startsWith(`${TOKENS_COOKIE}=`))
+    const tokenCookie = setCookies.find((c: string) => c.startsWith(`${TOKENS_COOKIE}=`))
     expect(tokenCookie).toMatch(/HttpOnly/)
     // Encrypted at rest: the raw token must not appear in the cookie value.
     expect(tokenCookie).not.toContain('access-1')
@@ -111,7 +111,7 @@ describe('/api/hmrc/auth/callback code exchange', () => {
     )
     expect(reread?.accessToken).toBe('access-1')
     // The single-use state cookie is retired in the same response.
-    expect(setCookies.some((c) => c.startsWith(`${STATE_COOKIE}=;`))).toBe(true)
+    expect(setCookies.some((c: string) => c.startsWith(`${STATE_COOKIE}=;`))).toBe(true)
   })
 
   it('reports a failed exchange without setting a token cookie', async () => {

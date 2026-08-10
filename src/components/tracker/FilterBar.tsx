@@ -6,6 +6,7 @@ import { Calendar, ChevronDown, Search, X } from 'lucide-react'
 import { todayISO, currentMonthKey } from '@/lib/dates'
 import { C } from '@/styles/palette'
 import { T } from '@/styles/type'
+import { emptyFilter } from './filter'
 import type { DateRange, FilterState } from './filter'
 
 // The filter logic lives in ./filter (a plain module, testable without React);

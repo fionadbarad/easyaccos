@@ -47,6 +47,13 @@ const DRIFT_PRONE_FILES = [
   'src/features/mileage/components/MileageDashboard.tsx',
   'src/features/mileage/components/AmapRatePanel.tsx',
   'src/features/mileage/components/JourneyForm.tsx',
+  // The public evidence page: five HMRC scenarios worked by hand. If a band
+  // moves in bands-2026 and this page keeps the old arithmetic, it presents
+  // stale sums as proof the engine is right.
+  'src/app/validation/page.tsx',
+  'src/features/tracker/TaxPotCalculator.tsx',
+  'src/features/tax/FullResultPanel.tsx',
+  'src/components/TaxEstimator2026.tsx',
 ] as const
 
 // Numeric literals that may NEVER appear in user-facing copy: they represent

@@ -8,6 +8,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, ChevronUp, AlertTriangle, Info, Lightbulb, TrendingDown } from 'lucide-react'
 import { C } from '@/styles/palette'
+import { PA_TAPER_START, PA_TAPER_END } from '@/lib/tax/bands-2026'
 import type { TaxResult } from '@/lib/tax-logic'
 import { round2 } from '@/lib/tax-scenarios'
 import { CARD_CLASS, toggleClass, fmt, pct } from './tokens'
@@ -83,7 +84,8 @@ export default function FullResultPanel({
               60% Tax Trap Active
             </div>
             <div style={{ color: C.text, fontSize: T.meta, marginTop: '2px', lineHeight: 1.5 }}>
-              Income between £100k–£125,140. Each £2 earned = £1 of PA lost. Pension contributions
+              Income between {fmt(PA_TAPER_START)}–{fmt(PA_TAPER_END)}. Each £2 earned = £1 of PA
+              lost. Pension contributions
               are the escape route.
             </div>
           </div>

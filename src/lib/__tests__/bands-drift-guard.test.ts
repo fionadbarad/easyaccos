@@ -130,6 +130,46 @@ const FORBIDDEN_LITERALS: Array<{ pattern: RegExp; reason: string; useInstead: s
     reason: 'NI Class 2 SPT literal',
     useInstead: 'fmtGBP(NI_CLASS2_SPT)',
   },
+  // Student loan repayment thresholds. Four files were added to
+  // DRIFT_PRONE_FILES without these patterns, so the plan pickers in
+  // TaxPotCalculator and TaxEstimator2026 sat inside a *watched* file with
+  // every threshold still typed by hand — listed as guarded while being
+  // guarded against nothing, which is worse than not listing them at all.
+  // Plan 4 and Plan 5 move most often; Plan 5's threshold has already been
+  // revised once since it was introduced.
+  {
+    pattern: /£\s*26[,_]?900\b/,
+    reason: 'student loan Plan 1 threshold literal',
+    useInstead: 'fmtGBP(SL_PLAN1_THRESH)',
+  },
+  {
+    pattern: /£\s*29[,_]?385\b/,
+    reason: 'student loan Plan 2 threshold literal',
+    useInstead: 'fmtGBP(SL_PLAN2_THRESH)',
+  },
+  {
+    pattern: /£\s*33[,_]?795\b/,
+    reason: 'student loan Plan 4 (Scotland) threshold literal',
+    useInstead: 'fmtGBP(SL_PLAN4_THRESH)',
+  },
+  {
+    pattern: /£\s*25[,_]?000\b/,
+    reason: 'student loan Plan 5 threshold literal',
+    useInstead: 'fmtGBP(SL_PLAN5_THRESH)',
+  },
+  {
+    pattern: /£\s*21[,_]?000\b/,
+    reason: 'postgraduate loan threshold literal',
+    useInstead: 'fmtGBP(SL_POSTGRAD_THRESH)',
+  },
+  // The pension annual allowance. Deliberately NOT paired with a rate pattern:
+  // the repayment rates (9% / 6%) collide with NI Class 4's 6% and would fire
+  // on correct copy, so the thresholds carry the guard here.
+  {
+    pattern: /£\s*60[,_]?000\b/,
+    reason: 'pension annual allowance literal',
+    useInstead: 'fmtGBP(ANNUAL_ALLOWANCE)',
+  },
 ]
 
 // Sanity: these are the actual current values. If someone changes
@@ -157,6 +197,22 @@ describe('bands drift guard: user-facing copy must derive from bands-2026', () =
     expect(`${CURRENT_BANDS_SANITY.DIV_BASIC_PCT}%`).not.toMatch(/^8\.75%$/)
     expect(`${CURRENT_BANDS_SANITY.DIV_HIGHER_PCT}%`).not.toMatch(/^33\.75%$/)
     expect(`${CURRENT_BANDS_SANITY.EMPLOYER_NI_RATE_PCT}%`).not.toMatch(/^13\.8%$/)
+  })
+
+  // The other direction, and the one that actually rots. A threshold pattern
+  // above is written against today's figure; move the band without moving the
+  // pattern and the guard keeps passing while watching a number nobody uses
+  // any more. Asserting that each pattern still matches its own band's
+  // formatted value means the two can only ever be changed together.
+  it.each([
+    ['SL_PLAN1_THRESH', B.SL_PLAN1_THRESH, /£\s*26[,_]?900\b/],
+    ['SL_PLAN2_THRESH', B.SL_PLAN2_THRESH, /£\s*29[,_]?385\b/],
+    ['SL_PLAN4_THRESH', B.SL_PLAN4_THRESH, /£\s*33[,_]?795\b/],
+    ['SL_PLAN5_THRESH', B.SL_PLAN5_THRESH, /£\s*25[,_]?000\b/],
+    ['SL_POSTGRAD_THRESH', B.SL_POSTGRAD_THRESH, /£\s*21[,_]?000\b/],
+    ['ANNUAL_ALLOWANCE', B.ANNUAL_ALLOWANCE, /£\s*60[,_]?000\b/],
+  ])('the %s guard pattern still matches the value it guards', (_name, value, pattern) => {
+    expect(`£${value.toLocaleString('en-GB')}`).toMatch(pattern)
   })
 
   for (const file of DRIFT_PRONE_FILES) {

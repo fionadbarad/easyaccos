@@ -11,6 +11,14 @@ import { C } from '@/styles/palette'
 import { calculateTax } from '@/lib/tax-engine'
 import type { EmploymentType, StudentLoanPlan, TaxRegion } from '@/lib/tax-engine'
 import { fmt } from './shared'
+import {
+  SL_PLAN1_THRESH,
+  SL_PLAN2_THRESH,
+  SL_PLAN4_THRESH,
+  SL_PLAN5_THRESH,
+  SL_POSTGRAD_THRESH,
+  SL_POSTGRAD_RATE,
+} from '@/lib/tax/bands-2026'
 import { Label, Select, Row, inputStyle } from './controls'
 import { T } from '@/styles/type'
 
@@ -192,11 +200,16 @@ export default function TaxPotCalculator() {
                     onChange={(v) => setSlPlan(v as StudentLoanPlan)}
                     options={[
                       { value: 'none', label: 'None' },
-                      { value: 'plan1', label: 'Plan 1 — £26,900 threshold' },
-                      { value: 'plan2', label: 'Plan 2 — £29,385 threshold' },
-                      { value: 'plan4', label: 'Plan 4 — £33,795 (Scotland)' },
-                      { value: 'plan5', label: 'Plan 5 — £25,000 threshold' },
-                      { value: 'postgraduate', label: 'Postgraduate — £21,000 (6%)' },
+                      { value: 'plan1', label: `Plan 1 — ${fmt(SL_PLAN1_THRESH)} threshold` },
+                      { value: 'plan2', label: `Plan 2 — ${fmt(SL_PLAN2_THRESH)} threshold` },
+                      { value: 'plan4', label: `Plan 4 — ${fmt(SL_PLAN4_THRESH)} (Scotland)` },
+                      { value: 'plan5', label: `Plan 5 — ${fmt(SL_PLAN5_THRESH)} threshold` },
+                      {
+                        value: 'postgraduate',
+                        // `${rate * 100}%` rather than pct1(): pct1 renders
+                        // "6.0%" and this label has always read "6%".
+                        label: `Postgraduate — ${fmt(SL_POSTGRAD_THRESH)} (${SL_POSTGRAD_RATE * 100}%)`,
+                      },
                     ]}
                   />
                 </div>

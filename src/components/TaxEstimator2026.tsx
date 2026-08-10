@@ -4,6 +4,15 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { calculateTax } from '@/lib/tax-engine'
 import type { TaxRegion, StudentLoanPlan } from '@/lib/tax-engine'
+import { fmtGBP } from '@/lib/formatters'
+import {
+  SL_PLAN1_THRESH,
+  SL_PLAN2_THRESH,
+  SL_PLAN4_THRESH,
+  SL_PLAN5_THRESH,
+  SL_POSTGRAD_THRESH,
+  SL_POSTGRAD_RATE,
+} from '@/lib/tax/bands-2026'
 import { T } from '@/styles/type'
 
 const REGION_OPTIONS: Record<TaxRegion, string> = {
@@ -13,11 +22,11 @@ const REGION_OPTIONS: Record<TaxRegion, string> = {
 
 const LOAN_OPTIONS: Record<StudentLoanPlan, string> = {
   none: 'None',
-  plan1: 'Plan 1 — £26,900',
-  plan2: 'Plan 2 — £29,385',
-  plan4: 'Plan 4 (Scotland) — £33,795',
-  plan5: 'Plan 5 — £25,000',
-  postgraduate: 'Postgraduate — £21,000 (6%)',
+  plan1: `Plan 1 — ${fmtGBP(SL_PLAN1_THRESH)}`,
+  plan2: `Plan 2 — ${fmtGBP(SL_PLAN2_THRESH)}`,
+  plan4: `Plan 4 (Scotland) — ${fmtGBP(SL_PLAN4_THRESH)}`,
+  plan5: `Plan 5 — ${fmtGBP(SL_PLAN5_THRESH)}`,
+  postgraduate: `Postgraduate — ${fmtGBP(SL_POSTGRAD_THRESH)} (${SL_POSTGRAD_RATE * 100}%)`,
 }
 
 const gbp = new Intl.NumberFormat('en-GB', {

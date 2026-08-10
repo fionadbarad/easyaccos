@@ -8,7 +8,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, ChevronUp, AlertTriangle, Info, Lightbulb, TrendingDown } from 'lucide-react'
 import { C } from '@/styles/palette'
-import { PA_TAPER_START, PA_TAPER_END } from '@/lib/tax/bands-2026'
+import { PA_TAPER_START, PA_TAPER_END, ANNUAL_ALLOWANCE } from '@/lib/tax/bands-2026'
 import type { TaxResult } from '@/lib/tax-logic'
 import { round2 } from '@/lib/tax-scenarios'
 import { CARD_CLASS, toggleClass, fmt, pct } from './tokens'
@@ -55,8 +55,8 @@ export default function FullResultPanel({
             </div>
             <div style={{ color: C.text, fontSize: T.meta, marginTop: '2px', lineHeight: 1.5 }}>
               Your annual allowance for this year is {fmt(result.annualAllowance)}
-              {result.annualAllowance < 60_000
-                ? ' — reduced from £60,000 by the taper on high incomes, or by the Money Purchase Annual Allowance if you have flexibly accessed a pot'
+              {result.annualAllowance < ANNUAL_ALLOWANCE
+                ? ` — reduced from ${fmt(ANNUAL_ALLOWANCE)} by the taper on high incomes, or by the Money Purchase Annual Allowance if you have flexibly accessed a pot`
                 : ''}
               , so relief below is calculated on that figure rather than the full amount you
               entered. Carry-forward of unused allowance from the previous three tax years is not

@@ -9,8 +9,8 @@ import {
   matchesRange,
   matchesCategories,
   matchesQuery,
-} from '@/components/tracker/FilterBar'
-import type { FilterState } from '@/components/tracker/FilterBar'
+} from '@/components/tracker/filter'
+import type { FilterState } from '@/components/tracker/filter'
 import type { Expense } from '@/lib/validators'
 import { newId } from '@/lib/id'
 

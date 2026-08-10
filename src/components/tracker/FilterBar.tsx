@@ -6,37 +6,12 @@ import { Calendar, ChevronDown, Search, X } from 'lucide-react'
 import { todayISO, currentMonthKey } from '@/lib/dates'
 import { C } from '@/styles/palette'
 import { T } from '@/styles/type'
-export type DateRange =
-  | { kind: 'all' }
-  | { kind: 'month'; ym: string } // "2026-04"
-  | { kind: 'custom'; from: string; to: string }
+import type { DateRange, FilterState } from './filter'
 
-export type FilterState = {
-  range: DateRange
-  categories: string[] // empty = all
-  query: string
-}
-
-export function emptyFilter(): FilterState {
-  return { range: { kind: 'all' }, categories: [], query: '' }
-}
-
-/** Inclusive date-range test against an ISO "YYYY-MM-DD" string. */
-export function matchesRange(dateStr: string, range: DateRange): boolean {
-  if (range.kind === 'all') return true
-  if (range.kind === 'month') return dateStr.startsWith(range.ym)
-  return dateStr >= range.from && dateStr <= range.to
-}
-
-export function matchesCategories(cat: string, selected: string[]): boolean {
-  return selected.length === 0 || selected.includes(cat)
-}
-
-export function matchesQuery(haystack: string, query: string): boolean {
-  const q = query.trim().toLowerCase()
-  if (!q) return true
-  return haystack.toLowerCase().includes(q)
-}
+// The filter logic lives in ./filter (a plain module, testable without React);
+// re-exported here so existing importers keep working.
+export { emptyFilter, matchesRange, matchesCategories, matchesQuery } from './filter'
+export type { DateRange, FilterState } from './filter'
 
 const inputS: React.CSSProperties = {
   background: C.gray,

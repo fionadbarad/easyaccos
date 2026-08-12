@@ -1,7 +1,11 @@
 # EasyAcco — Test Coverage Analysis
 
-_Snapshot taken 2026-08-10 against `270b510`. 870 tests across 43 files, all green
-(one `describe.skipIf` block that needs real HMRC sandbox credentials)._
+_Round 2 snapshot taken 2026-08-12 against `c6671a5`. 928 tests across 53 files, all
+green (one `describe.skipIf` block that needs real HMRC sandbox credentials)._
+
+_Round 1 was taken 2026-08-10 against `270b510` — 870 tests across 43 files. Its
+findings are kept below with a status marker rather than deleted, so a closed one
+stays traceable to the commit that closed it._
 
 This is an analysis document, not a compliance record: nothing here is asserted by
 a test. Findings carry a `TST-` id so they can be picked up individually.
@@ -10,39 +14,69 @@ a test. Findings carry a `TST-` id so they can be picked up individually.
 
 ## How the numbers were produced
 
-The repo has **no coverage provider installed and no coverage step in CI**, so the
-figures below came from a throwaway install that was reverted afterwards:
+TST-10 landed, so the provider is now a dev dependency and the figures come from the
+repo's own script rather than a throwaway install:
 
 ```bash
-pnpm add -D @vitest/coverage-v8
-npx vitest run --coverage.enabled --coverage.provider=v8 \
-  --coverage.reporter=text --coverage.include='src/**' --coverage.all
+pnpm test:coverage                                   # src/lib/** — the ratcheted scope
+npx vitest run --coverage --coverage.include='src/**' # whole tree, for this document
 ```
 
-| Metric     | Coverage             |
-| ---------- | -------------------- |
-| Statements | 37.59 % (1407/3743)  |
-| Branches   | 30.79 % (828/2689)   |
-| Functions  | 26.14 % (257/983)    |
-| Lines      | 38.37 % (1269/3307)  |
+`vitest.config.ts` scopes `coverage.include` to `src/lib/**` deliberately (see
+TST-10). The whole-tree figures below are a one-off widening for analysis; they are
+not what the thresholds are measured against.
+
+| Metric     | Whole tree (`src/**`)         | Ratcheted scope (`src/lib/**`) |
+| ---------- | ----------------------------- | ------------------------------ |
+| Statements | 45.15 % (1690/3743) ← 37.59 % | 79.68 % (1271/1595)            |
+| Branches   | 37.15 % (999/2689) ← 30.79 %  | 76.84 % (750/976)              |
+| Functions  | 30.92 % (304/983) ← 26.14 %   | 73.68 % (224/304)              |
+| Lines      | 46.17 % (1527/3307) ← 38.37 % | 83.02 % (1140/1373)            |
+
+The denominators are unchanged from round 1, so the comparison is like-for-like:
+1,407 → 1,690 covered statements, with no dilution from added source.
 
 **Do not read the headline number as a grade.** Roughly half of `src/` is
 presentational `.tsx` that this project has deliberately chosen not to test, and
-`CLAUDE.md` is explicit that the suite is evidence rather than coverage. The useful
-signal is the split: 24 files sit at 100 %, and they are almost all the pure-logic
-modules the codebase leans on — `tax-engine.ts`, `bands-2026.ts`, `tax/mileage.ts`,
-`pnl/statement.ts`, `invoices/status-machine.ts`, `acco/context.ts`,
-`transactions/cost-category.ts`, `tracker/aggregates.ts`, `dates.ts`,
-`hmrc/crypto.ts`. `tax-logic.ts` is at 97.7 % across 951 lines.
+`CLAUDE.md` is explicit that the suite is evidence rather than coverage.
 
-The gaps are not in the calculators. They are in the code that **moves the numbers
-around**: persistence, token lifecycle, route handlers, and the audit trail.
+Round 1's closing line was that the gaps were not in the calculators but in the code
+that **moves the numbers around**: persistence, token lifecycle, route handlers, and
+the audit trail. Three of those four are now largely closed. What is left is
+narrower and more specific: the browser-side storage floor, the hooks layer between
+storage and the UI, and a handful of server routes and guards that were never reached
+at all.
 
 ---
 
-## Findings
+## Where round 1 landed
 
-### 🔴 TST-1 — `use-user-data.ts`: the entire write path is untested
+| Finding                             | Status                           | Now                                                                                                          |
+| ----------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| TST-1 `use-user-data.ts` write path | ✅ closed (`386b626`)            | 54.5 % → **85.3 %** st, 33.6 % → **77.0 %** br                                                               |
+| TST-2 `getValidAccessToken`         | ✅ closed (`259b934`)            | `hmrc/oauth.ts` 75 % → **95.2 %** st                                                                         |
+| TST-3 six API routes at 0 %         | 🟠 partial (`2bd2a68`)           | callback **95.6 %**, status/disconnect **100 %**; `auth/start`, `me`, `payslip/parse` still **0 %** → TST-14 |
+| TST-4 drift-prone files             | ✅ closed (`a907847`, `c6671a5`) | four surfaces added, plus student-loan and annual-allowance figures                                          |
+| TST-5 encrypted local storage       | 🟠 partial (`4c12269`)           | `secure-store` 64.2 % → **90.1 %**, `backup` 53.2 % → **72.3 %**; **`idb.ts` unmoved at 44.3 %** → TST-13    |
+| TST-6 compliance claims             | ✅ closed (`1e70150`)            | `audit.ts` 0 % → **90.5 %**, `feature-flags.ts` 18 % → **90.9 %**                                            |
+| TST-7 `calcScenario3` / `4`         | ✅ closed (`d11142b`)            | `tax-scenarios.ts` 68.4 % → **100 %**                                                                        |
+| TST-8 logic in the wrong place      | 🟠 partial (`f607bb4`)           | `FilterBar` predicates extracted to `tracker/filter.ts`, **100 %**; the four hooks untouched → TST-15        |
+| TST-9 component tests               | 🟠 partial (`207649b`)           | one `.tsx` test → two (`SADeadlineBanner` at **95 %**)                                                       |
+| TST-10 coverage tooling             | 🟠 partial (`fc33608`)           | provider, script and thresholds added — **but CI does not run them** → TST-11                                |
+
+Six findings closed outright. The four that are partial are carried forward below as
+new findings rather than left open, because in each case the remainder is a different
+piece of work from the part that landed.
+
+---
+
+## Round 1 findings
+
+### ✅ TST-1 — `use-user-data.ts`: the entire write path is untested
+
+_Closed by `386b626`. Now 85.3 % st / 77.0 % br. The remaining uncovered block is the
+remote-load-failure → local-snapshot fallback (lines 148–175), which is picked up by
+TST-17._
 
 `src/lib/use-user-data.ts` — 54.45 % statements, **33.62 % branches**.
 
@@ -52,13 +86,13 @@ delete server rows). Neither touches `persist()`.
 
 Uncovered, by line:
 
-| Lines     | What is not exercised                                                                                     |
-| --------- | --------------------------------------------------------------------------------------------------------- |
-| 220–285   | **`persist()` in full**, including the DAT-5 fix — awaiting `sessionReadyRef` so a write fired during session resolution is attributed to the real account rather than to `guest`. The bug the comment describes (guest rows upserted into a signed-in user's account) has no regression test. |
-| 255–271   | The 3-attempt retry with exponential backoff, and every `syncStatus` transition (`syncing` → `synced` / `error`). |
-| 332–362   | `emitAuditDiff` — the create/update/delete diffing that feeds the audit trail. 0 %.                        |
-| 415–449   | The server-newer conflict branch in `syncSupabaseRows`, including the functional-`setItems` fix the comment calls "the whole fix". |
-| 148–183, 307–330 | The remote-load-failure → local-snapshot fallback, and the snapshot loader's own catch. |
+| Lines            | What is not exercised                                                                                                                                                                                                                                                                          |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 220–285          | **`persist()` in full**, including the DAT-5 fix — awaiting `sessionReadyRef` so a write fired during session resolution is attributed to the real account rather than to `guest`. The bug the comment describes (guest rows upserted into a signed-in user's account) has no regression test. |
+| 255–271          | The 3-attempt retry with exponential backoff, and every `syncStatus` transition (`syncing` → `synced` / `error`).                                                                                                                                                                              |
+| 332–362          | `emitAuditDiff` — the create/update/delete diffing that feeds the audit trail. 0 %.                                                                                                                                                                                                            |
+| 415–449          | The server-newer conflict branch in `syncSupabaseRows`, including the functional-`setItems` fix the comment calls "the whole fix".                                                                                                                                                             |
+| 148–183, 307–330 | The remote-load-failure → local-snapshot fallback, and the snapshot loader's own catch.                                                                                                                                                                                                        |
 
 These are the paths whose comments cite real incidents. The comments are the only
 thing holding them.
@@ -71,7 +105,9 @@ one entry per changed row and none for unchanged ones.
 
 ---
 
-### 🔴 TST-2 — `getValidAccessToken` is 0 % and every MTD route depends on it
+### ✅ TST-2 — `getValidAccessToken` is 0 % and every MTD route depends on it
+
+_Closed by `259b934`. `hmrc/oauth.ts` now 95.2 % st / 86.2 % br._
 
 `src/lib/hmrc/oauth.ts` — 75 % statements, 65.5 % branches.
 
@@ -95,22 +131,25 @@ written by the refresh branch.
 
 ### 🟠 TST-3 — Six API routes at 0 %, including the OAuth callback
 
-| Route                                | Statements |
-| ------------------------------------ | ---------- |
-| `api/hmrc/auth/callback/route.ts`    | 0 %        |
-| `api/hmrc/auth/start/route.ts`       | 0 %        |
-| `api/hmrc/auth/disconnect/route.ts`  | 0 %        |
-| `api/hmrc/me/route.ts`               | 0 %        |
-| `api/hmrc/status/route.ts`           | 0 %        |
-| `api/payslip/parse/route.ts`         | 0 %        |
-| `api/ai/categorise/route.ts`         | 31 %       |
-| `api/hmrc/mtd/it/submit/route.ts`    | 73 %       |
-| `api/hmrc/mtd/vat/submit/route.ts`   | 76 %       |
-| `api/hmrc/hello/route.ts`            | 78 %       |
+_Partially closed by `2bd2a68` — the callback, status and disconnect routes. Three
+routes are still at 0 %; carried forward as **TST-14**._
+
+| Route                               | Statements |
+| ----------------------------------- | ---------- |
+| `api/hmrc/auth/callback/route.ts`   | 0 %        |
+| `api/hmrc/auth/start/route.ts`      | 0 %        |
+| `api/hmrc/auth/disconnect/route.ts` | 0 %        |
+| `api/hmrc/me/route.ts`              | 0 %        |
+| `api/hmrc/status/route.ts`          | 0 %        |
+| `api/payslip/parse/route.ts`        | 0 %        |
+| `api/ai/categorise/route.ts`        | 31 %       |
+| `api/hmrc/mtd/it/submit/route.ts`   | 73 %       |
+| `api/hmrc/mtd/vat/submit/route.ts`  | 76 %       |
+| `api/hmrc/hello/route.ts`           | 78 %       |
 
 `CLAUDE.md` already names this weak spot ("no happy-path tests for API routes — only
 their guards"), and the measurement agrees: the three partially-covered routes are
-covered by their *guard* tests only.
+covered by their _guard_ tests only.
 
 The callback route is the one to do first. It is the security boundary of the whole
 HMRC integration — CSRF `state` verification, code exchange, token cookie write — and
@@ -123,18 +162,20 @@ almost unchanged.
 
 ---
 
-### 🟠 TST-4 — Four files print HMRC figures and are not in `DRIFT_PRONE_FILES`
+### ✅ TST-4 — Four files print HMRC figures and are not in `DRIFT_PRONE_FILES`
+
+_Closed by `a907847`, extended by `c6671a5`._
 
 Hard rule #1 in `CLAUDE.md`: any file that shows tax figures to users belongs in
 `DRIFT_PRONE_FILES` in `bands-drift-guard.test.ts`. These four are not in the list and
 carry hard-coded thresholds and rates:
 
-| File                                       | Literals found                                                              |
-| ------------------------------------------ | --------------------------------------------------------------------------- |
-| `src/app/validation/page.tsx`              | `12,570`, `37,700`, `125,140`, `5,000`, `20%`, `40%`, `60%` — worked examples |
-| `src/features/tracker/TaxPotCalculator.tsx`| `£26,900`, `£29,385`, `£33,795`, `£25,000`, `£21,000`, `6%`, "60% trap"       |
-| `src/features/tax/FullResultPanel.tsx`     | `£60,000` annual allowance, `£100k–£125,140`, NI `8%` / `6%`                 |
-| `src/components/TaxEstimator2026.tsx`      | the same five student-loan thresholds, NI `6%/2%`                            |
+| File                                        | Literals found                                                                |
+| ------------------------------------------- | ----------------------------------------------------------------------------- |
+| `src/app/validation/page.tsx`               | `12,570`, `37,700`, `125,140`, `5,000`, `20%`, `40%`, `60%` — worked examples |
+| `src/features/tracker/TaxPotCalculator.tsx` | `£26,900`, `£29,385`, `£33,795`, `£25,000`, `£21,000`, `6%`, "60% trap"       |
+| `src/features/tax/FullResultPanel.tsx`      | `£60,000` annual allowance, `£100k–£125,140`, NI `8%` / `6%`                  |
+| `src/components/TaxEstimator2026.tsx`       | the same five student-loan thresholds, NI `6%/2%`                             |
 
 `validation/page.tsx` is the worst of the four: it is the **public evidence page**,
 five HMRC scenarios worked by hand. If a band moves in `bands-2026.ts`, that page keeps
@@ -147,11 +188,14 @@ four silent drift surfaces into build failures.
 
 ### 🟠 TST-5 — Encrypted local storage: the restore path is untested
 
-| File                         | Statements | Branches |
-| ---------------------------- | ---------- | -------- |
-| `src/lib/storage/idb.ts`     | 44.33 %    | 24.44 %  |
-| `src/lib/storage/backup.ts`  | 53.19 %    | 78.94 %  |
-| `src/lib/storage/secure-store.ts` | 64.19 % | 64.70 % |
+_Partially closed by `4c12269` — `secureRestoreAll`, `secureDumpAll` and the encrypted
+backup branch. `idb.ts` did not move at all; carried forward as **TST-13**._
+
+| File                              | Statements | Branches |
+| --------------------------------- | ---------- | -------- |
+| `src/lib/storage/idb.ts`          | 44.33 %    | 24.44 %  |
+| `src/lib/storage/backup.ts`       | 53.19 %    | 78.94 %  |
+| `src/lib/storage/secure-store.ts` | 64.19 %    | 64.70 %  |
 
 Specifically uncovered:
 
@@ -170,7 +214,9 @@ records with no server copy to fall back on.
 
 ---
 
-### 🟡 TST-6 — Compliance claims with no test behind them
+### ✅ TST-6 — Compliance claims with no test behind them
+
+_Closed by `1e70150`._
 
 The repo's convention (hard rule #3) is that a doc claim gets a test. Two do not:
 
@@ -186,14 +232,16 @@ The repo's convention (hard rule #3) is that a doc claim gets a test. Two do not
 
 ---
 
-### 🟡 TST-7 — `calcScenario3` and `calcScenario4` are uncovered
+### ✅ TST-7 — `calcScenario3` and `calcScenario4` are uncovered
+
+_Closed by `d11142b`. `tax-scenarios.ts` now 100 % st._
 
 `src/lib/tax-scenarios.ts` — 68.42 %. `engine-parity.test.ts` checks scenarios 1, 2 and
 5 against `calculateTax`; 3 and 4 (lines 229–297+) have no test at all. Both encode
 HMRC rules the comments tie to specific findings:
 
 - **Scenario 3 (Welfare & Support):** TAX-7 — JSA and Carer's Allowance are taxable but
-  are *not earnings*, so only `otherIncome` forms the NI base. A regression here
+  are _not earnings_, so only `otherIncome` forms the NI base. A regression here
   overstates NI for the lowest-income users in the product.
 - **Scenario 4 (Job Loss & Redundancy):** the £30,000 redundancy exemption, part-year
   earnings, and the PAYE refund calculation.
@@ -202,16 +250,20 @@ Cheap to close and directly financial.
 
 ---
 
-### 🟡 TST-8 — Logic that is untestable because of where it lives
+### 🟠 TST-8 — Logic that is untestable because of where it lives
+
+_Partially closed by `f607bb4` — the `FilterBar` predicates moved to
+`src/components/tracker/filter.ts` and are at 100 %. The four hooks are untouched;
+carried forward as **TST-15**._
 
 `CLAUDE.md` says new logic belongs in a testable module, not inside a page component.
 Four places drifted from that:
 
-| Location                                         | Lines | Coverage |
-| ------------------------------------------------ | ----- | -------- |
-| `src/components/tracker/FilterBar.tsx`            | 342   | 0 %      |
-| `src/features/tax/useTaxScenario.ts`              | 197   | 0 %      |
-| `src/features/mileage/use-mileage-logic.ts`       | 128   | 0 %      |
+| Location                                          | Lines     | Coverage     |
+| ------------------------------------------------- | --------- | ------------ |
+| `src/components/tracker/FilterBar.tsx`            | 342       | 0 %          |
+| `src/features/tax/useTaxScenario.ts`              | 197       | 0 %          |
+| `src/features/mileage/use-mileage-logic.ts`       | 128       | 0 %          |
 | `src/lib/hooks/useExpenses.ts` / `useInvoices.ts` | 129 / 242 | 0 % / 21.5 % |
 
 `FilterBar.tsx` is the clearest case: `matchesRange`, `matchesCategories` and
@@ -225,7 +277,10 @@ list, with nothing testing them. Moving them to `src/lib/` (or a sibling
 
 ---
 
-### ⚪ TST-9 — Component tests: still one file
+### 🟠 TST-9 — Component tests: still one file
+
+_Partially closed by `207649b` — `SADeadlineBanner.test.tsx`, now 95 % st. Two `.tsx`
+test files out of 53._
 
 `InvoiceRow.test.tsx` remains the only `.tsx` test, and it is a good template —
 `// @vitest-environment happy-dom`, `fireEvent` rather than adding `user-event`,
@@ -238,7 +293,11 @@ date decisions are the ones worth it: `FullResultPanel.tsx`, `TaxPotCalculator.t
 
 ---
 
-### ⚪ TST-10 — No coverage tooling in the repo
+### 🟠 TST-10 — No coverage tooling in the repo
+
+_Partially closed by `fc33608` — provider, `test:coverage` script and `src/lib/**`
+thresholds. **CI still runs `pnpm test`, so the thresholds never execute**; carried
+forward as **TST-11**._
 
 There is no `@vitest/coverage-v8` dependency, no `test:coverage` script, and no
 coverage step in `.github/workflows/ci.yml`. Every number in this document required
@@ -253,13 +312,314 @@ core, not a target for the whole tree.
 
 ---
 
+## Round 2 findings
+
+### 🔴 TST-11 — The coverage ratchet is not wired into CI
+
+`fc33608` added `@vitest/coverage-v8`, a `test:coverage` script and thresholds on
+`src/lib/**`. `.github/workflows/ci.yml` runs:
+
+```yaml
+- name: Test
+  run: pnpm test # → vitest run, no --coverage
+```
+
+`pnpm test` never evaluates `coverage.thresholds`, so the ratchet added in round 1
+cannot fail a build. It is currently documentation.
+
+There is also slack to take up. The thresholds were set just under the measured
+baseline at introduction; the measured numbers have not moved since, so they still
+sit 3–5 points low:
+
+| Metric     | Threshold | Measured | Slack |
+| ---------- | --------- | -------- | ----- |
+| Statements | 75        | 79.68    | 4.68  |
+| Branches   | 72        | 76.84    | 4.84  |
+| Functions  | 70        | 73.68    | 3.68  |
+| Lines      | 78        | 83.02    | 5.02  |
+
+A ratchet with five points of slack permits a meaningful regression silently.
+
+**Proposed:** change the CI step to `pnpm test:coverage`, and raise the thresholds to
+just under the current measured values (77 / 74 / 72 / 81). Both are one-line changes
+and together they are what makes every other finding in this document stay closed
+once it is closed. Do this first — not because it adds a test, but because without it
+nothing below is defended.
+
+---
+
+### 🔴 TST-12 — `hmrc/identity.ts` is at 0 % — a SEC-7 access control with no test
+
+`src/lib/hmrc/identity.ts` — **0 % statements, 0 % branches**, 12 statements.
+
+`resolveSubmissionUserId()` derives the `Gov-Client-User-IDs` fraud-prevention header
+from the Supabase session server-side. Its own docblock records why:
+
+> Previously the submit routes took it from the request body, where the browser had
+> generated a random UUID into localStorage — so it identified nothing, and any caller
+> could send any value they liked in a header whose entire purpose is to be
+> trustworthy. (SEC-7)
+
+and flags a deliberate behaviour change:
+
+> ACCESS-CONTROL NOTE: this makes an authenticated Supabase session a requirement for
+> submitting to HMRC. Previously the submit routes were gated only by the HMRC OAuth
+> cookie, so a signed-out visitor who had completed the HMRC consent flow could file.
+
+Four outcomes, none exercised: `getUser()` error → 401, thrown exception → 503 with
+`reportError`, null user → 401, success → `{ ok: true, userId }`. This is the function
+that decides whether a signed-out visitor can file a tax return, and hard rule #3 says
+a claim like the one in that docblock gets a test.
+
+`src/lib/auth-shared.ts` is in the same position — **0 %**, 8 statements — and it is
+where hard rule #4 lives. `getCachedUser` is memoized with React `cache()` precisely
+because a cross-request cache leaked one user's identity to everyone (SEC-1). Nothing
+tests that the memo is per-request, nor that `error || !user` and the `catch` both
+yield `null` rather than throwing into a route.
+
+**Proposed:** module-mock `@/lib/supabase-server` exactly as `hello-auth.test.ts`
+already does, and assert the discriminated union for all four `resolveSubmissionUserId`
+outcomes plus the two `getCachedUser` failure modes. Roughly one small file; it
+converts two written security claims into asserted ones.
+
+---
+
+### 🟠 TST-13 — `storage/idb.ts`: unmoved at 44.3 % / 24.4 %, and every comment in it is an incident report
+
+Carried forward from TST-5. The rest of the storage stack moved; this file did not.
+
+| File                              | Round 1 | Now         |
+| --------------------------------- | ------- | ----------- |
+| `src/lib/storage/secure-store.ts` | 64.19 % | **90.12 %** |
+| `src/lib/storage/backup.ts`       | 53.19 % | **72.34 %** |
+| `src/lib/storage/idb.ts`          | 44.33 % | **44.33 %** |
+
+It is the lowest-branch file in `src/lib` (24.44 %) and the floor the whole offline
+path stands on. Only `putRecord` is tested — and only because it was deliberately
+extracted behind a `PutTarget` interface so it could be. Everything that needs a real
+`IDBDatabase` is untouched: `openDB` (28, 37–58, 64), the `tx` helper's error paths
+(86–87, 98, 101), `idbGet`'s catch (107, 115), `idbSetStrict`'s unavailable branch
+(156), `idbDelete` / `idbKeys` / `idbClear` (173–208), and `idbAuditRange` in full
+(214–233).
+
+Each of those carries a comment describing a bug that was found and fixed in
+production, and the comment is the only thing holding the fix:
+
+- **`onblocked` never settles.** A version upgrade blocked by another open tab fires
+  neither `onsuccess` nor `onerror`; every caller awaits `openDB`, so the local store
+  stalled silently with `loading` stuck on.
+- **A request can succeed while the transaction fails at commit** — `QuotaExceededError`
+  being the common one. Resolving on `req.onsuccess` "reported a write as durable
+  before it was, and left the promise pending forever when the commit then failed."
+- **`indexedDB.open()` throws synchronously** in a Firefox private window and under
+  some enterprise storage policies, even though `window.indexedDB` exists.
+- **A rejection must never be cached** in `dbPromise`, or one transient failure poisons
+  every later call for the life of the page.
+- **`idbSetStrict` vs `idbSet`** — the whole point of the split is that `secureWrite`'s
+  localStorage fallback is unreachable if failures are swallowed. Nothing asserts that
+  `idbSetStrict` actually rejects.
+
+`idbAuditRange` deserves its own case: it resolves with whatever it has collected on
+`req.onerror`, so a read failure returns a **partial audit log indistinguishable from a
+complete one** — on the store `docs/AUDIT.md` AUD-2 calls authoritative.
+
+**Proposed:** a fake IndexedDB harness in the style of `idb-put.test.ts` — a hand-rolled
+fake is enough and avoids a new dependency, since every path settles through
+`onsuccess` / `onerror` / `onblocked` / `oncomplete` / `onabort` handlers the test can
+fire directly. Drive: blocked-upgrade rejection, commit-time abort after request
+success, synchronous throw from `open()`, `dbPromise` cleared after a rejection, and
+`idbAuditRange` returning partial data on cursor error. Reset the module between
+cases (`vi.resetModules()`) — `dbPromise` is module-level state.
+
+---
+
+### 🟠 TST-14 — Three routes still at 0 %, including the only one that accepts a file
+
+Carried forward from TST-3.
+
+| Route                          | Statements | Branches |
+| ------------------------------ | ---------- | -------- |
+| `api/payslip/parse/route.ts`   | **0 %**    | 0 %      |
+| `api/hmrc/me/route.ts`         | **0 %**    | 0 %      |
+| `api/hmrc/auth/start/route.ts` | **0 %**    | 0 %      |
+| `api/ai/categorise/route.ts`   | 30.55 %    | 12.5 %   |
+
+`payslip/parse` is the one to do. It is the only route in the app that accepts an
+upload, it handles "the most personal document in the app" by its own description, and
+it has four layered guards in sequence — none of them exercised:
+
+1. `getUser()` → 401 for an anonymous caller (SEC-8);
+2. `rateLimit(\`payslip:parse:${user.id}\`, 10, 60_000)`→ 429 with`Retry-After`
+   (SEC-6 — the route's own comment calls it "the most expensive endpoint in the app
+   per request");
+3. `content-type` must be `multipart/form-data`;
+4. `MAX_UPLOAD_BYTES` (8 MB) and the `ACCEPTED` MIME allow-list.
+
+Guards 3 and 4 are the interesting ones because they are the reject-before-OCR path:
+the module lazily imports `tesseract.js` so that a rejected request never pulls a
+~15 MB WASM model into the container. A regression that reorders a guard past the
+import is invisible to every existing test and expensive in production.
+
+`auth/start` is small but is the other half of the OAuth boundary whose callback
+`2bd2a68` just covered — it writes the CSRF `state` cookie that the callback verifies.
+Covering one side and not the other leaves the pair unpinned.
+
+**Proposed:** the `hello-auth.test.ts` pattern transfers directly — module-mock
+`@/lib/supabase-server`, `vi.stubEnv` for HMRC config, and assert that the lazy
+`tesseract.js` import is never reached on a rejected request (spy on the dynamic
+import, or assert on elapsed work). For `auth/start`, assert the `state` cookie it
+sets round-trips through the callback test's verification.
+
+---
+
+### 🟠 TST-15 — The hooks layer: the seam between storage and UI, 0–21 %
+
+Carried forward from TST-8. `f607bb4` extracted the `FilterBar` predicates and they are
+at 100 %. The hooks that consume them were not touched.
+
+| File                                        | Statements | Branches |
+| ------------------------------------------- | ---------- | -------- |
+| `src/lib/hooks/useExpenses.ts`              | **0 %**    | 0 %      |
+| `src/features/tax/useTaxScenario.ts`        | **0 %**    | 0 %      |
+| `src/features/mileage/use-mileage-logic.ts` | **0 %**    | 0 %      |
+| `src/lib/hooks/useInvoices.ts`              | 21.53 %    | 22.58 %  |
+
+This is where money is turned into stored records, and it holds rules that live
+nowhere else. `useExpenses.addExpense` is eleven lines and has two of them:
+
+```ts
+const amount = parseFloat(form.amount)
+if (!amount || !form.description.trim()) return
+await persist([{ id: newId(), ...form, amount }, ...expenses])
+```
+
+- `!amount` is falsy for `0`, so **a legitimate £0.00 expense is silently dropped** —
+  no error, no form feedback, the row just never appears.
+- `parseFloat('-5')` is truthy, so **a negative amount is persisted** — while
+  `isValidExpense` in `validators.ts` requires `amount >= 0`. The writer and the
+  boundary guard disagree about what a valid expense is, and nothing tests either
+  (see TST-16).
+
+`useTaxScenario.ts` is additionally already listed in `DRIFT_PRONE_FILES`, so the
+project has decided its tax content matters — but the guard only scans it for
+hard-coded literals; nothing runs it.
+
+**Proposed:** `renderHook` from `@testing-library/react` (already a dependency) under
+`// @vitest-environment happy-dom`, with `@/lib/use-user-data` module-mocked so
+`persist` is a spy. Assert what `persist` is called with rather than what renders —
+that keeps these as logic tests, not component tests, and sidesteps TST-9's scope.
+Start with `useExpenses`: the two boundary cases above are three assertions and pin a
+live inconsistency.
+
+---
+
+### 🟡 TST-16 — `validators.ts`: boundary guards with no call sites
+
+`src/lib/validators.ts` — 37.5 % statements, 50 % branches.
+
+The file header calls these "Data boundary types and runtime guards for the two
+primary entities". They guard nothing:
+
+- **`isValidExpense` has zero call sites and zero tests.** Nothing in `src/` calls it.
+- **`isValidInvoice` has zero production call sites.** Its only caller anywhere is
+  `status-machine.test.ts`, which uses it to check the status enum and the guard stay
+  in step — a test of `INVOICE_STATUSES`, not of the guard's own contract.
+
+Every other importer of `validators.ts` (`useExpenses`, `useInvoices`,
+`useInvoiceTransitions`, `status-machine`, `InvoiceRow`, `types/index.ts`,
+`dashboard/expenses/page.tsx`) takes **types only**. So the runtime half of the module
+is unreachable code, and the low coverage number is a symptom rather than the problem.
+
+That matters because there genuinely is an untrusted boundary: `use-user-data` reads
+rows back out of Supabase and out of the encrypted local snapshot, and neither path
+validates the shape it gets. The `vatTreatment` check in `isValidInvoice` is exactly
+the kind of thing that should run there — TAX-4 is explicit that `zero`, `exempt` and
+`reverse_charge` all add £0 of VAT but must not be collapsed, because two of them
+belong in the VAT return's turnover boxes and one does not.
+
+**Proposed:** decide, then test the decision. Either wire the guards into the load path
+in `use-user-data` / `secureRead` and test them there against real malformed input
+(missing field, wrong type, negative amount, unknown status, unknown `vatTreatment`),
+or delete them and drop the "runtime guards" claim from the header. Leaving them is
+the one option that should not survive — it is documentation the code does not honour.
+
+---
+
+### 🟡 TST-17 — The default test environment is `node`, so the browser branches never run
+
+`vitest.config.ts` sets `environment: 'node'` globally. Exactly **5 of 53 test files**
+opt into a DOM via `// @vitest-environment happy-dom`. That is a reasonable default for
+a repo whose strength is pure logic, but it silently inverts which branch gets tested
+in any module that forks on environment.
+
+`src/lib/storage/crypto.ts` is the clean example. Lines 70–80 are uncovered:
+
+```ts
+function bytesToB64(bytes: Uint8Array): string {
+  if (typeof Buffer !== 'undefined') return Buffer.from(bytes).toString('base64')
+  let s = ''
+  for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]!)
+  return btoa(s) // ← never executed by any test
+}
+```
+
+`Buffer` always exists under Node, so the tests take the `Buffer` branch every time and
+the `btoa` / `atob` fallback has never executed in CI.
+
+Which branch runs in the browser is genuinely unsettled, and that is the point. Next's
+webpack config installs a `ProvidePlugin` that "makes sure `Buffer` and `process` are
+polyfilled in client and flight bundles", so `Buffer` may well be defined in the
+bundle — but `ProvidePlugin` substitutes free-variable _references_, and this guard is
+a `typeof` test, which it does not necessarily rewrite. So one of two things is true
+and nobody has checked which:
+
+- the fallback is the live browser path, and the encryption helpers for a user's local
+  books are tested exclusively on a path production never takes; or
+- the fallback is dead code that has never run anywhere, presenting itself as a
+  browser fallback.
+
+A round-trip test is cheap and is correct under either reading — and if the answer
+matters beyond that, it is one `npm run build` plus a grep of the client chunk to
+settle permanently.
+
+The same shape explains TST-13's branch number: `hasIDB()` is false under `node`, so
+`idbGet`, `idbSet`, `idbDelete`, `idbKeys`, `idbClear` and `idbAuditRange` all return
+their early "unavailable" value and the real bodies never execute. And it explains the
+one block still uncovered in `use-user-data.ts` (148–175) — the remote-load-failure →
+local-snapshot fallback, which needs a working local store to fall back to.
+
+**Proposed:** two cheap things, in order.
+
+1. Add a `bytesToB64` / `b64ToBytes` round-trip test that stubs `Buffer` to
+   `undefined` (`vi.stubGlobal('Buffer', undefined)`) and asserts the `btoa` path
+   agrees with the `Buffer` path byte-for-byte. Three assertions, closes the highest
+   risk in this finding on its own.
+2. When TST-13's fake IndexedDB harness lands, it unblocks the `hasIDB()`-guarded
+   bodies and the `use-user-data` fallback together — worth sequencing after it rather
+   than duplicating the harness.
+
+Not proposed: flipping the global default to `happy-dom`. That would slow the whole
+suite for the sake of a handful of modules, and the per-file docblock is already the
+established pattern here.
+
+---
+
 ## Suggested order
 
-1. **TST-4** — four lines, closes four silent tax-drift surfaces. Do this first.
-2. **TST-1** — the `persist()` write path; highest data-loss risk in the codebase.
-3. **TST-2** — `getValidAccessToken`; every MTD submission goes through it.
-4. **TST-3** — the OAuth callback route, then the remaining zero-coverage routes.
-5. **TST-5** — `secureRestoreAll` in `replace` mode before the rest of storage.
-6. **TST-7**, **TST-6** — cheap, directly financial / directly compliance-facing.
-7. **TST-8**, **TST-10** — structural; they make the rest easier rather than paying off alone.
-8. **TST-9** — last, and only where a component renders money or decides a date.
+1. **TST-11** — two one-line changes. Wire CI to `pnpm test:coverage` and take up the
+   threshold slack. Nothing else in this document stays closed without it.
+2. **TST-12** — `identity.ts` and `auth-shared.ts`. Small, and converts two written
+   security claims (SEC-7, SEC-1) into asserted ones under hard rule #3.
+3. **TST-13** — the `idb.ts` harness. The largest single piece of work here, and the
+   one that unblocks TST-17 (2) and the last of TST-1.
+4. **TST-14** — `payslip/parse` first, then `auth/start` to close the OAuth pair.
+5. **TST-16** — decide what the validators are for. Cheap, and it resolves the
+   inconsistency TST-15 trips over.
+6. **TST-15** — start with `useExpenses`; the £0.00 and negative-amount cases are three
+   assertions against live behaviour.
+7. **TST-17** (1) — the `btoa` round-trip. Standalone and small; can be done at any
+   point.
+
+TST-9 remains open and unchanged in priority: last, and only where a component renders
+money or decides a date. `ErrorBoundary.tsx` is still at 0 % and is still the component
+whose entire job is behaviour under failure.

@@ -60,7 +60,12 @@ jobs:
         run: pnpm run lint
 
       - name: Test
-        run: pnpm test
+        # `test:coverage`, not `test`. They run the same suite, but only the
+        # coverage variant evaluates the thresholds in vitest.config.ts — so
+        # `pnpm test` here left the src/lib ratchet unenforced, and it could
+        # never have failed a build (TST-11). The extra cost is a few seconds
+        # of v8 instrumentation on a suite that runs in under fifteen.
+        run: pnpm run test:coverage
 
       - name: Build
         run: pnpm run build

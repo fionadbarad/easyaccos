@@ -61,7 +61,7 @@ at all.
 | TST-6 compliance claims             | ✅ closed (`1e70150`)            | `audit.ts` 0 % → **90.5 %**, `feature-flags.ts` 18 % → **90.9 %**                                            |
 | TST-7 `calcScenario3` / `4`         | ✅ closed (`d11142b`)            | `tax-scenarios.ts` 68.4 % → **100 %**                                                                        |
 | TST-8 logic in the wrong place      | 🟠 partial (`f607bb4`)           | `FilterBar` predicates extracted to `tracker/filter.ts`, **100 %**; the four hooks untouched → TST-15        |
-| TST-9 component tests               | 🟠 partial (`207649b`)           | one `.tsx` test → two (`SADeadlineBanner` at **95 %**)                                                       |
+| TST-9 component tests               | 🟠 partial (`207649b`)           | one component test → two (`SADeadlineBanner` at **95 %**)                                                    |
 | TST-10 coverage tooling             | 🟠 partial (`fc33608`)           | provider, script and thresholds added — **but CI does not run them** → TST-11                                |
 
 Six findings closed outright. The four that are partial are carried forward below as
@@ -279,8 +279,9 @@ list, with nothing testing them. Moving them to `src/lib/` (or a sibling
 
 ### 🟠 TST-9 — Component tests: still one file
 
-_Partially closed by `207649b` — `SADeadlineBanner.test.tsx`, now 95 % st. Two `.tsx`
-test files out of 53._
+_Partially closed by `207649b` — `SADeadlineBanner.test.tsx`, now 95 % st. Two
+component tests now (`InvoiceRow`, `SADeadlineBanner`); the suite has four `.tsx` test
+files in total, the other two being the `use-user-data` hook tests._
 
 `InvoiceRow.test.tsx` remains the only `.tsx` test, and it is a good template —
 `// @vitest-environment happy-dom`, `fireEvent` rather than adding `user-event`,
@@ -371,6 +372,21 @@ Four outcomes, none exercised: `getUser()` error → 401, thrown exception → 5
 that decides whether a signed-out visitor can file a tax return, and hard rule #3 says
 a claim like the one in that docblock gets a test.
 
+It is worse than merely uncovered. The one test file that names the module,
+`mtd-submit-rate-limit.test.ts`, mocks it wholesale:
+
+```ts
+vi.mock('@/lib/hmrc/identity', () => ({
+  resolveSubmissionUserId: async () => ({ ok: true, userId: session.userId }),
+}))
+```
+
+So every test that exercises an MTD submit route runs with the access-control gate
+**stubbed permanently open**. That is a reasonable thing for a rate-limit test to do —
+it is not testing identity — but it means the real function has never returned a
+failure in any test, and the routes' behaviour when it does (401 vs 503, and whether
+the submission is abandoned before HMRC is reached) is unverified from both directions.
+
 `src/lib/auth-shared.ts` is in the same position — **0 %**, 8 statements — and it is
 where hard rule #4 lives. `getCachedUser` is memoized with React `cache()` precisely
 because a cross-request cache leaked one user's identity to everyone (SEC-1). Nothing
@@ -395,41 +411,58 @@ Carried forward from TST-5. The rest of the storage stack moved; this file did n
 | `src/lib/storage/idb.ts`          | 44.33 % | **44.33 %** |
 
 It is the lowest-branch file in `src/lib` (24.44 %) and the floor the whole offline
-path stands on. Only `putRecord` is tested — and only because it was deliberately
-extracted behind a `PutTarget` interface so it could be. Everything that needs a real
-`IDBDatabase` is untouched: `openDB` (28, 37–58, 64), the `tx` helper's error paths
-(86–87, 98, 101), `idbGet`'s catch (107, 115), `idbSetStrict`'s unavailable branch
-(156), `idbDelete` / `idbKeys` / `idbClear` (173–208), and `idbAuditRange` in full
-(214–233).
+path stands on.
 
-Each of those carries a comment describing a bug that was found and fixed in
-production, and the comment is the only thing holding the fix:
+**What already covers it, and why that matters to the proposal.** The whole 44.33 %
+comes from a single file: running `secure-store-write-failure.test.ts` on its own
+reproduces 44.33 % / 24.44 % / 51.51 % / 50.58 % exactly. That test carries a
+hand-rolled `installFakeIDB({ failWrites })` harness which drives real `openDB`, `tx`,
+`idbSetStrict` and `idbSet` — so the write path, including **commit-time abort after
+request success**, is genuinely tested, and there is a case named "idbSetStrict rejects
+when the transaction aborts". `idb-put.test.ts` covers `putRecord` separately. The
+other two files that name `@/lib/storage/idb` (`secure-store-restore.test.ts`,
+`audit.test.ts`) `vi.mock` it wholesale and contribute nothing.
 
-- **`onblocked` never settles.** A version upgrade blocked by another open tab fires
-  neither `onsuccess` nor `onerror`; every caller awaits `openDB`, so the local store
-  stalled silently with `loading` stuck on.
-- **A request can succeed while the transaction fails at commit** — `QuotaExceededError`
-  being the common one. Resolving on `req.onsuccess` "reported a write as durable
-  before it was, and left the promise pending forever when the commit then failed."
-- **`indexedDB.open()` throws synchronously** in a Firefox private window and under
-  some enterprise storage policies, even though `window.indexedDB` exists.
-- **A rejection must never be cached** in `dbPromise`, or one transient failure poisons
-  every later call for the life of the page.
-- **`idbSetStrict` vs `idbSet`** — the whole point of the split is that `secureWrite`'s
-  localStorage fallback is unreachable if failures are swallowed. Nothing asserts that
-  `idbSetStrict` actually rejects.
+So this is not an untested module. It is a module with a good harness pointed at one
+function, and five read/delete entry points the harness has never been aimed at:
+
+| Uncovered          | Lines         | Called by any test?             |
+| ------------------ | ------------- | ------------------------------- |
+| `idbGet`           | 107, 115      | no                              |
+| `idbDelete`        | 182–188       | no                              |
+| `idbKeys`          | 190–201       | no                              |
+| `idbClear`         | 203–210       | no                              |
+| `idbAuditRange`    | 213–235       | no                              |
+| `!hasIDB()` guards | 107, 156, 173 | no (harness makes it available) |
+
+Three of `openDB`'s four failure modes are also unreached, and each has a comment
+describing a bug fixed in production — the comment being the only thing holding it:
+
+- **`onblocked` never settles** (58). A version upgrade blocked by another open tab
+  fires neither `onsuccess` nor `onerror`; every caller awaits `openDB`, so the local
+  store stalled silently with `loading` stuck on.
+- **`indexedDB.open()` throws synchronously** (37–38) in a Firefox private window and
+  under some enterprise storage policies, even though `window.indexedDB` exists.
+- **A rejection must never be cached** in `dbPromise` (64), or one transient failure
+  poisons every later call for the life of the page.
+
+Plus `tx`'s synchronous-throw catch (86–87) and its `req.onerror` / `t.onerror` paths
+(98, 101) — `t.onabort` is the one the existing harness reaches.
 
 `idbAuditRange` deserves its own case: it resolves with whatever it has collected on
 `req.onerror`, so a read failure returns a **partial audit log indistinguishable from a
 complete one** — on the store `docs/AUDIT.md` AUD-2 calls authoritative.
 
-**Proposed:** a fake IndexedDB harness in the style of `idb-put.test.ts` — a hand-rolled
-fake is enough and avoids a new dependency, since every path settles through
-`onsuccess` / `onerror` / `onblocked` / `oncomplete` / `onabort` handlers the test can
-fire directly. Drive: blocked-upgrade rejection, commit-time abort after request
-success, synchronous throw from `open()`, `dbPromise` cleared after a rejection, and
-`idbAuditRange` returning partial data on cursor error. Reset the module between
-cases (`vi.resetModules()`) — `dbPromise` is module-level state.
+**Proposed:** do not build a new harness — lift `installFakeIDB` out of
+`secure-store-write-failure.test.ts` into a shared test helper and widen it. It already
+settles through `onsuccess` / `onerror` / `oncomplete` / `onabort`; it needs
+`onblocked`, a synchronous throw from `open()`, and cursor support for the `ts` index.
+Then point it at the five uncovered entry points, plus the three `openDB` failure modes
+and `dbPromise` being cleared after a rejection. Keep `vi.resetModules()` between
+cases — `dbPromise` is module-level state, which is why that file already resets.
+
+This is a smaller job than it first looked, and the harness is the reusable part: it is
+also what TST-17 (2) needs.
 
 ---
 
@@ -494,11 +527,22 @@ await persist([{ id: newId(), ...form, amount }, ...expenses])
 ```
 
 - `!amount` is falsy for `0`, so **a legitimate £0.00 expense is silently dropped** —
-  no error, no form feedback, the row just never appears.
-- `parseFloat('-5')` is truthy, so **a negative amount is persisted** — while
-  `isValidExpense` in `validators.ts` requires `amount >= 0`. The writer and the
-  boundary guard disagree about what a valid expense is, and nothing tests either
-  (see TST-16).
+  no error, no form feedback, the row just never appears. `'0'` and `'0.00'` both hit
+  it; so does any unparseable string, via `NaN`.
+- `parseFloat('-5')` is truthy, so **a negative amount is persisted**.
+
+The writer and the boundary guard disagree in _both_ directions, which is the part
+worth pinning (measured, not inferred):
+
+| `form.amount`    | `addExpense` writes it? | `isValidExpense` accepts it? |
+| ---------------- | ----------------------- | ---------------------------- |
+| `'0'` / `'0.00'` | no                      | **yes**                      |
+| `'-5'`           | **yes**                 | no                           |
+| `'12.50'`        | yes                     | yes                          |
+
+Nothing tests either side (see TST-16). Today the disagreement is inert because the
+guard has no call sites; wiring it in without first pinning this behaviour would turn
+the second row into a row that saves and then vanishes on reload.
 
 `useTaxScenario.ts` is additionally already listed in `DRIFT_PRONE_FILES`, so the
 project has decided its tax content matters — but the guard only scans it for
@@ -594,9 +638,9 @@ local-snapshot fallback, which needs a working local store to fall back to.
    `undefined` (`vi.stubGlobal('Buffer', undefined)`) and asserts the `btoa` path
    agrees with the `Buffer` path byte-for-byte. Three assertions, closes the highest
    risk in this finding on its own.
-2. When TST-13's fake IndexedDB harness lands, it unblocks the `hasIDB()`-guarded
-   bodies and the `use-user-data` fallback together — worth sequencing after it rather
-   than duplicating the harness.
+2. When TST-13's widened `installFakeIDB` helper lands, it unblocks the
+   `hasIDB()`-guarded bodies and the `use-user-data` fallback together — worth
+   sequencing after it rather than standing up a second harness.
 
 Not proposed: flipping the global default to `happy-dom`. That would slow the whole
 suite for the sake of a handful of modules, and the per-file docblock is already the
@@ -610,8 +654,9 @@ established pattern here.
    threshold slack. Nothing else in this document stays closed without it.
 2. **TST-12** — `identity.ts` and `auth-shared.ts`. Small, and converts two written
    security claims (SEC-7, SEC-1) into asserted ones under hard rule #3.
-3. **TST-13** — the `idb.ts` harness. The largest single piece of work here, and the
-   one that unblocks TST-17 (2) and the last of TST-1.
+3. **TST-13** — widen `installFakeIDB` and point it at the five uncovered entry
+   points. Smaller than it first appears, since the harness already exists, and it is
+   what unblocks TST-17 (2) and the last of TST-1.
 4. **TST-14** — `payslip/parse` first, then `auth/start` to close the OAuth pair.
 5. **TST-16** — decide what the validators are for. Cheap, and it resolves the
    inconsistency TST-15 trips over.

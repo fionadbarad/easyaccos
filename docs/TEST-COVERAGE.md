@@ -62,7 +62,7 @@ at all.
 | TST-7 `calcScenario3` / `4`         | ✅ closed (`d11142b`)            | `tax-scenarios.ts` 68.4 % → **100 %**                                                                        |
 | TST-8 logic in the wrong place      | 🟠 partial (`f607bb4`)           | `FilterBar` predicates extracted to `tracker/filter.ts`, **100 %**; the four hooks untouched → TST-15        |
 | TST-9 component tests               | 🟠 partial (`207649b`)           | one component test → two (`SADeadlineBanner` at **95 %**)                                                    |
-| TST-10 coverage tooling             | 🟠 partial (`fc33608`)           | provider, script and thresholds added — **but CI does not run them** → TST-11                                |
+| TST-10 coverage tooling             | ✅ closed (`fc33608`, + TST-11)  | provider, script and thresholds added; CI wired to `test:coverage` and thresholds raised                     |
 
 Six findings closed outright. The four that are partial are carried forward below as
 new findings rather than left open, because in each case the remainder is a different
@@ -294,11 +294,11 @@ date decisions are the ones worth it: `FullResultPanel.tsx`, `TaxPotCalculator.t
 
 ---
 
-### 🟠 TST-10 — No coverage tooling in the repo
+### ✅ TST-10 — No coverage tooling in the repo
 
-_Partially closed by `fc33608` — provider, `test:coverage` script and `src/lib/**`
-thresholds. **CI still runs `pnpm test`, so the thresholds never execute**; carried
-forward as **TST-11**._
+_Closed in two steps. `fc33608` added the provider, the `test:coverage` script and the
+`src/lib/**` thresholds; TST-11 then wired CI to run them and took up the slack the
+initial values left. The ratchet is live._
 
 There is no `@vitest/coverage-v8` dependency, no `test:coverage` script, and no
 coverage step in `.github/workflows/ci.yml`. Every number in this document required
@@ -315,7 +315,12 @@ core, not a target for the whole tree.
 
 ## Round 2 findings
 
-### 🔴 TST-11 — The coverage ratchet is not wired into CI
+### ✅ TST-11 — The coverage ratchet is not wired into CI
+
+_Closed. CI now runs `pnpm run test:coverage`, and the thresholds are raised to
+77 / 74 / 72 / 81. Verified both directions: a threshold set above the measured value
+fails the run with exit 1, and the same run without `--coverage` reports no threshold
+error at all — which is the original diagnosis, confirmed._
 
 `fc33608` added `@vitest/coverage-v8`, a `test:coverage` script and thresholds on
 `src/lib/**`. `.github/workflows/ci.yml` runs:
@@ -650,8 +655,9 @@ established pattern here.
 
 ## Suggested order
 
-1. **TST-11** — two one-line changes. Wire CI to `pnpm test:coverage` and take up the
-   threshold slack. Nothing else in this document stays closed without it.
+1. ~~**TST-11**~~ — **done.** CI runs `pnpm run test:coverage`; thresholds raised to
+   77 / 74 / 72 / 81. Everything below is now defended by a gate that can actually
+   fail.
 2. **TST-12** — `identity.ts` and `auth-shared.ts`. Small, and converts two written
    security claims (SEC-7, SEC-1) into asserted ones under hard rule #3.
 3. **TST-13** — widen `installFakeIDB` and point it at the five uncovered entry

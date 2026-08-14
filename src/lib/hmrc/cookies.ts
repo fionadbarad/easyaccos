@@ -9,6 +9,7 @@ export type StoredTokens = {
   refreshToken: string
   scope: string
   expiresAt: number // ms epoch when access token expires
+  userId: string // Supabase user the connection belongs to
 }
 
 const SECURE = process.env.NODE_ENV === 'production'
@@ -44,7 +45,8 @@ export function readTokensCookie(req: NextRequest): StoredTokens | null {
       typeof parsed.accessToken !== 'string' ||
       typeof parsed.refreshToken !== 'string' ||
       typeof parsed.scope !== 'string' ||
-      typeof parsed.expiresAt !== 'number'
+      typeof parsed.expiresAt !== 'number' ||
+      typeof parsed.userId !== 'string'
     ) {
       return null
     }

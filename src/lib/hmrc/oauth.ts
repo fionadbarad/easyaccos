@@ -47,10 +47,14 @@ type TokenResponse = {
   error_description?: string
 }
 
-export type TokenExchangeResult =
-  { ok: true; tokens: StoredTokens } | { ok: false; status: number; body: unknown; message: string }
+// What HMRC's token endpoint yields. The Supabase `userId` binding is ours,
+// not HMRC's — it is attached where the cookie is written, never here.
+export type OAuthTokens = Omit<StoredTokens, 'userId'>
 
-function tokensFromResponse(json: TokenResponse): StoredTokens | null {
+export type TokenExchangeResult =
+  { ok: true; tokens: OAuthTokens } | { ok: false; status: number; body: unknown; message: string }
+
+function tokensFromResponse(json: TokenResponse): OAuthTokens | null {
   if (!json.access_token || !json.refresh_token || typeof json.expires_in !== 'number') {
     return null
   }
@@ -240,10 +244,21 @@ export async function getValidAccessToken(
   env: HmrcEnv,
   req: NextRequest,
   res: NextResponse,
+  expectedUserId: string,
 ): Promise<AccessTokenResult> {
   const stored = readTokensCookie(req)
   if (!stored) {
     return { ok: false, status: 401, message: 'Not connected to HMRC', needsReauth: true }
+  }
+  // The cookie is bound to the Supabase account that ran the connect flow.
+  // A different account on the same browser must never file with these tokens.
+  if (stored.userId !== expectedUserId) {
+    return {
+      ok: false,
+      status: 401,
+      message: 'This HMRC connection belongs to a different easyacco account. Please reconnect.',
+      needsReauth: true,
+    }
   }
   if (stored.expiresAt - Date.now() > REFRESH_SKEW_MS) {
     return { ok: true, accessToken: stored.accessToken, tokens: stored, refreshed: false }
@@ -259,11 +274,12 @@ export async function getValidAccessToken(
       needsReauth: refreshed.status === 400 || refreshed.status === 401,
     }
   }
-  setTokensCookie(res, refreshed.tokens)
+  const rotated: StoredTokens = { ...refreshed.tokens, userId: stored.userId }
+  setTokensCookie(res, rotated)
   return {
     ok: true,
-    accessToken: refreshed.tokens.accessToken,
-    tokens: refreshed.tokens,
+    accessToken: rotated.accessToken,
+    tokens: rotated,
     refreshed: true,
   }
 }

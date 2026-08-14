@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server'
+import { getCachedUser } from '@/lib/auth-shared'
 import { getValidAccessToken, readHmrcEnv } from '@/lib/hmrc/oauth'
 import { reportError } from '@/lib/monitor'
 
@@ -39,7 +40,17 @@ export async function GET(req: NextRequest): Promise<NextResponse<Ok | Fail>> {
     { status: 500 },
   )
 
-  const auth = await getValidAccessToken(env, req, res)
+  // The token cookie is bound to a Supabase account; the probe must prove the
+  // caller is that account before spending the stored credentials.
+  const user = await getCachedUser()
+  if (!user) {
+    return NextResponse.json<Fail>(
+      { ok: false, stage: 'auth', message: 'Not signed in' },
+      { status: 401 },
+    )
+  }
+
+  const auth = await getValidAccessToken(env, req, res, user.id)
   if (!auth.ok) {
     const body: Fail = {
       ok: false,

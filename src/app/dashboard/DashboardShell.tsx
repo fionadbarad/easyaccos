@@ -49,6 +49,11 @@ export default function DashboardShell({
   async function handleSignOut() {
     const supabase = getSupabaseBrowserClient()
     if (supabase) {
+      // Defence in depth: the HMRC token cookie is bound to the Supabase user
+      // and unusable by the next account, but it should not outlive the
+      // session on a shared device either. Best-effort — sign-out proceeds
+      // even if the disconnect call fails.
+      await fetch('/api/hmrc/auth/disconnect', { method: 'POST' }).catch(() => {})
       await supabase.auth.signOut()
       // Purge the service worker's caches before leaving. The worker never
       // stores private routes, but on a shared device nothing cached during

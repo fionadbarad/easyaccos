@@ -13,10 +13,22 @@ const ROUTE = '@/app/api/hmrc/auth/callback/route'
 
 vi.mock('@/lib/monitor', () => ({ reportError: vi.fn(), reportWarn: vi.fn() }))
 
+// The callback binds the tokens to the signed-in Supabase account; the mock is
+// signed in by default and individual cases sign out. Same shape as
+// hello-auth.test.ts.
+const session = vi.hoisted(() => ({ user: { id: 'user-1' } as { id: string } | null }))
+
+vi.mock('@/lib/supabase-server', () => ({
+  createClient: async () => ({
+    auth: { getUser: async () => ({ data: { user: session.user }, error: null }) },
+  }),
+}))
+
 let fetchSpy: ReturnType<typeof vi.fn>
 
 beforeEach(() => {
   vi.resetModules()
+  session.user = { id: 'user-1' }
   fetchSpy = vi.fn()
   vi.stubGlobal('fetch', fetchSpy)
   vi.stubEnv('HMRC_CLIENT_ID', 'test-client-id')
@@ -110,8 +122,32 @@ describe('/api/hmrc/auth/callback code exchange', () => {
       }),
     )
     expect(reread?.accessToken).toBe('access-1')
+    // Bound to the Supabase account that ran the flow — the reader rejects
+    // anything unbound, and getValidAccessToken rejects anyone else.
+    expect(reread?.userId).toBe('user-1')
     // The single-use state cookie is retired in the same response.
     expect(setCookies.some((c: string) => c.startsWith(`${STATE_COOKIE}=;`))).toBe(true)
+  })
+
+  it('refuses to store tokens for a signed-out caller', async () => {
+    // If this fails, tokens minted by the connect flow get written with nobody
+    // to bind them to — the exact cookie the userId binding exists to prevent.
+    session.user = null
+    fetchSpy.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        access_token: 'access-1',
+        refresh_token: 'refresh-1',
+        scope: 'read:self-assessment',
+        expires_in: 14400,
+      }),
+    })
+    const { GET } = await import(ROUTE)
+    const res = await GET(makeReq({ code: 'auth-code', state: 's1' }, 's1'))
+
+    expect(location(res).searchParams.get('hmrc_error')).toBe('not_signed_in')
+    expect(res.headers.getSetCookie().join('\n')).not.toContain(`${TOKENS_COOKIE}=`)
   })
 
   it('reports a failed exchange without setting a token cookie', async () => {

@@ -1,5 +1,6 @@
 import { timingSafeEqual } from 'node:crypto'
 import { type NextRequest, NextResponse } from 'next/server'
+import { getCachedUser } from '@/lib/auth-shared'
 import { STATE_COOKIE, TOKENS_COOKIE, readStateCookie, type StoredTokens } from '@/lib/hmrc/cookies'
 import { encrypt } from '@/lib/hmrc/crypto'
 import { exchangeCodeForTokens, readHmrcEnv } from '@/lib/hmrc/oauth'
@@ -108,8 +109,20 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     ])
   }
 
+  // Bind the HMRC tokens to the Supabase account that ran the connect flow.
+  // Without this the cookie survives sign-out, and the next account to sign in
+  // on the same browser would file against the previous user's HMRC account.
+  const user = await getCachedUser()
+  if (!user) {
+    return redirectDashboard(
+      req,
+      { hmrc_error: 'not_signed_in', detail: 'Sign in to easyacco before connecting to HMRC.' },
+      [stateClearCookie()],
+    )
+  }
+
   return redirectDashboard(req, { hmrc_connected: '1' }, [
     stateClearCookie(),
-    tokensSetCookie(result.tokens),
+    tokensSetCookie({ ...result.tokens, userId: user.id }),
   ])
 }

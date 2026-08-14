@@ -10,8 +10,20 @@ import { NextRequest } from 'next/server'
 import { TOKENS_COOKIE, type StoredTokens } from '@/lib/hmrc/cookies'
 import { encrypt } from '@/lib/hmrc/crypto'
 
+// Status only reports "connected" to the Supabase account the cookie is bound
+// to. Signed in as user-1 by default; cases flip it. Same shape as
+// hello-auth.test.ts.
+const session = vi.hoisted(() => ({ user: { id: 'user-1' } as { id: string } | null }))
+
+vi.mock('@/lib/supabase-server', () => ({
+  createClient: async () => ({
+    auth: { getUser: async () => ({ data: { user: session.user }, error: null }) },
+  }),
+}))
+
 beforeEach(() => {
   vi.resetModules()
+  session.user = { id: 'user-1' }
   vi.stubEnv('HMRC_COOKIE_SECRET', Buffer.alloc(32).toString('base64'))
 })
 
@@ -28,6 +40,7 @@ describe('/api/hmrc/status', () => {
       refreshToken: 'r',
       scope: 'read:self-assessment',
       expiresAt: Date.now() + 60_000,
+      userId: 'user-1',
     }
     const { GET } = await import('@/app/api/hmrc/status/route')
     const res = await GET(
@@ -55,6 +68,28 @@ describe('/api/hmrc/status', () => {
       }),
     )
     expect((await garbage.json()).connected).toBe(false)
+  })
+
+  it('reports not connected when the cookie is bound to a different account, or nobody is signed in', async () => {
+    // If this fails, the dashboard shows the previous account's HMRC
+    // connection as live to whoever signs in next on the same browser.
+    const tokens: StoredTokens = {
+      accessToken: 'a',
+      refreshToken: 'r',
+      scope: 'read:self-assessment',
+      expiresAt: Date.now() + 60_000,
+      userId: 'someone-else',
+    }
+    const req = () =>
+      new NextRequest('http://localhost:3000/api/hmrc/status', {
+        headers: { cookie: `${TOKENS_COOKIE}=${encrypt(JSON.stringify(tokens))}` },
+      })
+    const { GET } = await import('@/app/api/hmrc/status/route')
+
+    expect((await (await GET(req())).json()).connected).toBe(false)
+
+    session.user = null
+    expect((await (await GET(req())).json()).connected).toBe(false)
   })
 })
 

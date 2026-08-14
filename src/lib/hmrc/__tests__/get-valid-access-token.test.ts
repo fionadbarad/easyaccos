@@ -39,6 +39,7 @@ function storedTokens(over: Partial<StoredTokens> = {}): StoredTokens {
     refreshToken: 'old-refresh',
     scope: 'read:self-assessment',
     expiresAt: Date.now() + 60 * 60 * 1000, // fresh: an hour left
+    userId: 'user-1',
     ...over,
   }
 }
@@ -78,7 +79,7 @@ describe('getValidAccessToken', () => {
   it('401s with needsReauth when no token cookie is present', async () => {
     // If this fails, a disconnected user gets an opaque HMRC error instead of
     // being sent back through the connect flow.
-    const result = await getValidAccessToken(ENV, makeReq(), NextResponse.next())
+    const result = await getValidAccessToken(ENV, makeReq(), NextResponse.next(), 'user-1')
 
     expect(result).toEqual({
       ok: false,
@@ -93,7 +94,7 @@ describe('getValidAccessToken', () => {
     // If this fails, every MTD call redeems the single-use refresh token,
     // burning through HMRC's grant chain on requests that needed nothing.
     const res = NextResponse.next()
-    const result = await getValidAccessToken(ENV, makeReq(storedTokens()), res)
+    const result = await getValidAccessToken(ENV, makeReq(storedTokens()), res, 'user-1')
 
     expect(result.ok).toBe(true)
     if (result.ok) {
@@ -111,7 +112,7 @@ describe('getValidAccessToken', () => {
     fetchSpy.mockResolvedValueOnce(refreshOkBody())
     const res = NextResponse.next()
 
-    const result = await getValidAccessToken(ENV, makeReq(EXPIRING()), res)
+    const result = await getValidAccessToken(ENV, makeReq(EXPIRING()), res, 'user-1')
 
     expect(result.ok).toBe(true)
     if (result.ok) {
@@ -134,6 +135,41 @@ describe('getValidAccessToken', () => {
     expect(reread?.refreshToken).toBe('new-refresh')
   })
 
+  it('401s when the cookie belongs to a different account, without touching HMRC', async () => {
+    // If this fails, whoever signs in next on a shared browser inherits the
+    // previous account's HMRC connection and files against their tax account.
+    const res = NextResponse.next()
+    const result = await getValidAccessToken(ENV, makeReq(storedTokens()), res, 'user-2')
+
+    expect(result).toEqual({
+      ok: false,
+      status: 401,
+      message: 'This HMRC connection belongs to a different easyacco account. Please reconnect.',
+      needsReauth: true,
+    })
+    expect(fetchSpy).not.toHaveBeenCalled()
+    expect(res.cookies.get(TOKENS_COOKIE)).toBeUndefined()
+  })
+
+  it('keeps the rotated cookie bound to the same account after a refresh', async () => {
+    // If this fails, one refresh silently launders the cookie into an unbound
+    // (or wrongly bound) token set and the mismatch check above stops holding.
+    fetchSpy.mockResolvedValueOnce(refreshOkBody())
+    const res = NextResponse.next()
+
+    const result = await getValidAccessToken(ENV, makeReq(EXPIRING()), res, 'user-1')
+
+    expect(result.ok).toBe(true)
+    if (result.ok) expect(result.tokens.userId).toBe('user-1')
+    const written = res.cookies.get(TOKENS_COOKIE)?.value
+    const reread = readTokensCookie(
+      new NextRequest('http://localhost:3000/x', {
+        headers: { cookie: `${TOKENS_COOKIE}=${written}` },
+      }),
+    )
+    expect(reread?.userId).toBe('user-1')
+  })
+
   it('maps refresh 400/401 to needsReauth and other statuses to a retryable failure', async () => {
     // If this fails, a revoked grant loops the user through doomed retries, or
     // a transient HMRC 503 wrongly forces a full reconnect.
@@ -142,7 +178,12 @@ describe('getValidAccessToken', () => {
       status: 401,
       json: async () => ({ error: 'invalid_grant' }),
     })
-    const revoked = await getValidAccessToken(ENV, makeReq(EXPIRING()), NextResponse.next())
+    const revoked = await getValidAccessToken(
+      ENV,
+      makeReq(EXPIRING()),
+      NextResponse.next(),
+      'user-1',
+    )
     expect(revoked.ok).toBe(false)
     if (!revoked.ok) expect(revoked.needsReauth).toBe(true)
 
@@ -156,6 +197,7 @@ describe('getValidAccessToken', () => {
       ENV,
       makeReq(storedTokens({ expiresAt: Date.now() + 30 * 1000, refreshToken: 'other-refresh' })),
       NextResponse.next(),
+      'user-1',
     )
     expect(outage.ok).toBe(false)
     if (!outage.ok) {
@@ -173,7 +215,12 @@ describe('getValidAccessToken', () => {
       json: async () => ({ access_token: 'new-access' }), // no refresh_token / expires_in
     })
 
-    const result = await getValidAccessToken(ENV, makeReq(EXPIRING()), NextResponse.next())
+    const result = await getValidAccessToken(
+      ENV,
+      makeReq(EXPIRING()),
+      NextResponse.next(),
+      'user-1',
+    )
 
     expect(result.ok).toBe(false)
     if (!result.ok) {

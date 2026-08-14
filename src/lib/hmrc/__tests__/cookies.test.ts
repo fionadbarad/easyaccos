@@ -54,6 +54,7 @@ const tokens: StoredTokens = {
   refreshToken: 'refresh-token-value',
   scope: 'read:vat write:vat',
   expiresAt: 1_800_000_000_000,
+  userId: 'user-1',
 }
 
 beforeEach(() => {
@@ -166,6 +167,14 @@ describe('reading the cookie back', () => {
         JSON.stringify({ accessToken: 'a', refreshToken: 'r', scope: '', expiresAt: 'soon' }),
       )
       expect(read(fakeReq({ [NAME]: wrongType }))).toBeNull()
+
+      // A pre-binding cookie: valid tokens but no Supabase userId. It cannot
+      // be attributed to an account, so it must read as "never connected" and
+      // force a reconnect rather than let anyone file with it.
+      const unbound = encrypt(
+        JSON.stringify({ accessToken: 'a', refreshToken: 'r', scope: '', expiresAt: 1 }),
+      )
+      expect(read(fakeReq({ [NAME]: unbound }))).toBeNull()
     })
   })
 })

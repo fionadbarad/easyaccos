@@ -127,7 +127,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | Su
     )
   }
 
-  const auth = await getValidAccessToken(env, req, resPlaceholder)
+  const auth = await getValidAccessToken(env, req, resPlaceholder, identity.userId)
   if (!auth.ok) {
     return NextResponse.json<SubmitFail>(
       { ok: false, stage: 'auth', message: auth.message, needsReauth: auth.needsReauth },

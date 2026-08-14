@@ -19,7 +19,13 @@ import { todayISO } from '@/lib/dates'
 import { useUserData } from '@/lib/use-user-data'
 import { TRANSACTIONS_SEED, type Transaction } from '@/lib/transactions/seed'
 import { isCostOfSales } from '@/lib/transactions/cost-category'
-import { buildMonthly, buildIncomeStatement, sa103Rows, toCsv } from '@/lib/pnl/statement'
+import {
+  buildMonthly,
+  buildIncomeStatement,
+  buildExportPayload,
+  sa103Rows,
+  toCsv,
+} from '@/lib/pnl/statement'
 
 import { C } from '@/styles/palette'
 import { T } from '@/styles/type'
@@ -163,21 +169,7 @@ export default function PnLPage() {
   }
 
   function exportJSON() {
-    const payload = {
-      generated: new Date().toISOString(),
-      fiscalYear: '2026/27',
-      summary: {
-        totalRevenue: Math.round(totalRevenue),
-        costOfSales,
-        grossProfit,
-        opEx,
-        profitBeforeTax,
-        taxProvision: Math.round(taxProvision),
-        profitAfterTax: Math.round(profitAfterTax),
-      },
-      monthlyBreakdown: monthly,
-      transactions: txs,
-    }
+    const payload = buildExportPayload(stmt, monthly, txs, new Date())
     navigator.clipboard
       .writeText(JSON.stringify(payload, null, 2))
       .then(() => {

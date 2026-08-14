@@ -8,7 +8,14 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { buildMonthly, buildIncomeStatement, sa103Rows, csvCell, toCsv } from '../pnl/statement'
+import {
+  buildMonthly,
+  buildIncomeStatement,
+  buildExportPayload,
+  sa103Rows,
+  csvCell,
+  toCsv,
+} from '../pnl/statement'
 import type { Transaction } from '../transactions/seed'
 
 let seq = 0
@@ -187,5 +194,59 @@ describe('CSV escaping', () => {
         ['c', 'd'],
       ]),
     ).toBe('"a","b"\r\n"c","d"')
+  })
+})
+
+describe('buildExportPayload', () => {
+  const txs = [income(10_000.4), cogs(2_000.25), expense(1_000.35)]
+  const stmt = buildIncomeStatement(txs)
+  const monthly = buildMonthly(txs)
+  const at = new Date('2026-08-14T12:00:00.000Z')
+
+  it('stamps the injected time, not the clock', () => {
+    // Same reason sa103Rows takes a date: an export nobody can reproduce is an
+    // export nobody can check.
+    expect(buildExportPayload(stmt, monthly, txs, at).generated).toBe('2026-08-14T12:00:00.000Z')
+  })
+
+  it('labels the same fiscal year the SA103 header does', () => {
+    const payload = buildExportPayload(stmt, monthly, txs, at)
+    const header = sa103Rows(stmt, at)[0]![0]
+    expect(header).toContain(payload.fiscalYear)
+  })
+
+  it('rounds the headline figures and keeps pence on the cost lines', () => {
+    // Preserved from the page deliberately: revenue and the tax figures are
+    // summary headlines, but the cost lines keep their pence so the summary
+    // still reconciles against the transactions array shipped beside it.
+    const { summary } = buildExportPayload(stmt, monthly, txs, at)
+
+    expect(Number.isInteger(summary.totalRevenue)).toBe(true)
+    expect(Number.isInteger(summary.taxProvision)).toBe(true)
+    expect(Number.isInteger(summary.profitAfterTax)).toBe(true)
+    expect(summary.costOfSales).toBe(2_000.25)
+    expect(summary.grossProfit).toBe(stmt.grossProfit)
+    expect(summary.opEx).toBe(stmt.opEx)
+    expect(summary.profitBeforeTax).toBe(stmt.profitBeforeTax)
+  })
+
+  it('carries the monthly breakdown and every transaction through untouched', () => {
+    const payload = buildExportPayload(stmt, monthly, txs, at)
+    expect(payload.monthlyBreakdown).toEqual(monthly)
+    expect(payload.transactions).toEqual(txs)
+  })
+
+  it('survives an empty ledger', () => {
+    const empty = buildIncomeStatement([])
+    const payload = buildExportPayload(empty, buildMonthly([]), [], at)
+
+    expect(payload.summary.totalRevenue).toBe(0)
+    expect(payload.summary.taxProvision).toBe(0)
+    expect(payload.transactions).toEqual([])
+  })
+
+  it('serialises to JSON without throwing', () => {
+    // The page hands this straight to JSON.stringify for the clipboard.
+    expect(() => JSON.stringify(buildExportPayload(stmt, monthly, txs, at))).not.toThrow()
   })
 })

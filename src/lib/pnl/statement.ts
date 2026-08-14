@@ -150,6 +150,13 @@ export function buildIncomeStatement(txs: Transaction[]): IncomeStatement {
 }
 
 /**
+ * The tax year both exports are labelled with. One constant rather than two
+ * literals: the CSV header and the JSON payload must never disagree about
+ * which year a user is copying figures onto a return for.
+ */
+const FISCAL_YEAR = '2026/27'
+
+/**
  * SA103 (Self-Employment, short) box mapping.
  *
  * The box numbers are HMRC's, not ours, and a user may copy these straight onto
@@ -158,7 +165,7 @@ export function buildIncomeStatement(txs: Transaction[]): IncomeStatement {
  */
 export function sa103Rows(s: IncomeStatement, generatedAt: Date): Array<[string, string]> {
   return [
-    ['SA103 Self-Employment (Short) — 2026/27', ''],
+    [`SA103 Self-Employment (Short) — ${FISCAL_YEAR}`, ''],
     ['Generated', generatedAt.toISOString()],
     ['', ''],
     ['Box 9  Turnover (Total Revenue)', s.totalRevenue.toFixed(2)],
@@ -173,6 +180,64 @@ export function sa103Rows(s: IncomeStatement, generatedAt: Date): Array<[string,
     ['National Insurance (Class 4)', s.nationalInsurance.toFixed(2)],
     ['Profit after tax', s.profitAfterTax.toFixed(2)],
   ]
+}
+
+export type ExportPayload = {
+  generated: string
+  fiscalYear: string
+  summary: {
+    totalRevenue: number
+    costOfSales: number
+    grossProfit: number
+    opEx: number
+    profitBeforeTax: number
+    taxProvision: number
+    profitAfterTax: number
+  }
+  monthlyBreakdown: MonthlyRow[]
+  transactions: Transaction[]
+}
+
+/**
+ * The JSON export payload — the whole statement in a shape an accountant's
+ * tooling can read.
+ *
+ * Sits beside sa103Rows because it is the same kind of thing: a pure mapping
+ * from a statement to an export format. It lived inside the page's
+ * exportJSON() with the clipboard write, which meant the rounding decisions
+ * below could only be checked by clicking the button.
+ *
+ * `generatedAt` is injected rather than read from the clock, for the same
+ * reason it is on sa103Rows: an export is worth being able to reproduce in a
+ * test.
+ *
+ * Note which fields round and which do not — this mirrors what the page did
+ * and is deliberately preserved rather than tidied. Revenue and the two tax
+ * figures round to whole pounds because they are summary headline numbers;
+ * the cost lines keep their pence so the summary still reconciles against the
+ * transactions array shipped alongside it.
+ */
+export function buildExportPayload(
+  s: IncomeStatement,
+  monthly: MonthlyRow[],
+  txs: Transaction[],
+  generatedAt: Date,
+): ExportPayload {
+  return {
+    generated: generatedAt.toISOString(),
+    fiscalYear: FISCAL_YEAR,
+    summary: {
+      totalRevenue: Math.round(s.totalRevenue),
+      costOfSales: s.costOfSales,
+      grossProfit: s.grossProfit,
+      opEx: s.opEx,
+      profitBeforeTax: s.profitBeforeTax,
+      taxProvision: Math.round(s.taxProvision),
+      profitAfterTax: Math.round(s.profitAfterTax),
+    },
+    monthlyBreakdown: monthly,
+    transactions: txs,
+  }
 }
 
 /**

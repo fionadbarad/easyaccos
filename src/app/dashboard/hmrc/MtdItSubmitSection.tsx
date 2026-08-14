@@ -1,107 +1,22 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Section, SectionHeader, Field, Input, Button, ResultPane } from './HmrcComponents'
+import {
+  Section,
+  SectionHeader,
+  Field,
+  Input,
+  Button,
+  ResultPane,
+  FraudHeaderList,
+} from './HmrcComponents'
 import {
   HMRC_DEFAULT_PERIOD_START,
   HMRC_DEFAULT_PERIOD_END,
   HMRC_DEFAULT_TURNOVER,
   HMRC_DEFAULT_ADMIN_COSTS,
 } from '@/lib/hmrc/constants'
-import { monoFont, C } from './theme'
-import { T } from '@/styles/type'
-
-// NOTE: there is deliberately no getOrCreateUserId() here any more. The value
-// for HMRC's Gov-Client-User-IDs is derived from the Supabase session on the
-// server (src/lib/hmrc/identity.ts) and is not accepted from the client — a
-// browser-generated UUID identified nobody, and letting the client set a
-// fraud-prevention header defeats the point of it. (SEC-7)
-//
-// Gov-Client-Device-ID below is different: HMRC specifies it as a client-
-// generated identifier stable per *device*, so localStorage is the right home.
-function getOrCreateDeviceId(): string {
-  const KEY = 'hmrc_device_id'
-  try {
-    let id = window.localStorage.getItem(KEY)
-    if (!id) {
-      id = window.crypto.randomUUID()
-      window.localStorage.setItem(KEY, id)
-    }
-    return id
-  } catch {
-    return window.crypto.randomUUID()
-  }
-}
-
-function browserTimezone(): string {
-  const offsetMin = -new Date().getTimezoneOffset()
-  const sign = offsetMin >= 0 ? '+' : '-'
-  const abs = Math.abs(offsetMin)
-  const h = String(Math.floor(abs / 60)).padStart(2, '0')
-  const m = String(abs % 60).padStart(2, '0')
-  return `UTC${sign}${h}:${m}`
-}
-
-function collectBrowserFraudData() {
-  return {
-    userAgent: window.navigator.userAgent,
-    screens: [
-      {
-        width: window.screen.width,
-        height: window.screen.height,
-        scalingFactor: window.devicePixelRatio || 1,
-        colourDepth: window.screen.colorDepth,
-      },
-    ],
-    windowSize: { width: window.innerWidth, height: window.innerHeight },
-    timezone: browserTimezone(),
-    deviceId: getOrCreateDeviceId(),
-  }
-}
-
-function FraudHeaderList({ headers }: { headers: Record<string, string> }) {
-  const keys = Object.keys(headers).sort()
-  return (
-    <details
-      style={{
-        marginTop: '0.75rem',
-        background: 'rgba(0,0,0,0.18)',
-        border: `1px solid ${C.border}`,
-        borderRadius: '4px',
-        padding: '0.6rem 0.75rem',
-      }}
-    >
-      <summary
-        style={{
-          color: C.muted,
-          fontSize: T.caption,
-          fontFamily: monoFont,
-          cursor: 'pointer',
-          letterSpacing: '0.06em',
-        }}
-      >
-        fraud prevention headers sent ({keys.length})
-      </summary>
-      <div style={{ marginTop: '0.5rem' }}>
-        {keys.map((k) => (
-          <div
-            key={k}
-            style={{
-              color: C.white,
-              fontSize: T.micro,
-              fontFamily: monoFont,
-              padding: '2px 0',
-              wordBreak: 'break-all',
-              lineHeight: 1.45,
-            }}
-          >
-            <span style={{ color: C.green }}>{k}</span>: {headers[k]}
-          </div>
-        ))}
-      </div>
-    </details>
-  )
-}
+import { collectBrowserFraudData } from './browser-fraud-data'
 
 export function MtdItSubmitSection() {
   const [nino, setNino] = useState('')

@@ -164,11 +164,13 @@ export function Input({
   onChange,
   placeholder,
   type = 'text',
+  readOnly = false,
 }: {
   value: string
   onChange: (v: string) => void
   placeholder?: string
   type?: 'text' | 'number' | 'date'
+  readOnly?: boolean
 }) {
   return (
     <input
@@ -176,17 +178,103 @@ export function Input({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
+      // `readOnly` rather than `disabled`: a derived field must still be
+      // readable by a screen reader and copyable by the user — it is part of
+      // the return they are declaring, not a switched-off control.
+      readOnly={readOnly}
+      aria-readonly={readOnly || undefined}
       style={{
         width: '100%',
-        background: 'rgba(0,0,0,0.18)',
+        background: readOnly ? 'rgba(0,0,0,0.32)' : 'rgba(0,0,0,0.18)',
         border: `1px solid ${C.border}`,
         borderRadius: '4px',
         padding: '0.45rem 0.6rem',
-        color: C.white,
+        color: readOnly ? C.muted : C.white,
         fontSize: T.caption,
         fontFamily: monoFont,
         boxSizing: 'border-box',
+        cursor: readOnly ? 'not-allowed' : 'auto',
       }}
     />
+  )
+}
+
+export function Checkbox({
+  checked,
+  onChange,
+  children,
+}: {
+  checked: boolean
+  onChange: (v: boolean) => void
+  children: React.ReactNode
+}) {
+  return (
+    <label
+      style={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: '0.55rem',
+        marginBottom: '0.6rem',
+        cursor: 'pointer',
+      }}
+    >
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        style={{ marginTop: '3px', flexShrink: 0, cursor: 'pointer' }}
+      />
+      <span style={{ color: C.muted, fontSize: T.caption, lineHeight: 1.55 }}>{children}</span>
+    </label>
+  )
+}
+
+/**
+ * The fraud-prevention headers we actually sent, as returned by the submission
+ * route. Shown collapsed: HMRC requires all 13 for WEB_APP_VIA_SERVER, and
+ * being able to read back what was transmitted is the difference between
+ * "HMRC rejected it" and knowing which header was wrong.
+ */
+export function FraudHeaderList({ headers }: { headers: Record<string, string> }) {
+  const keys = Object.keys(headers).sort()
+  return (
+    <details
+      style={{
+        marginTop: '0.75rem',
+        background: 'rgba(0,0,0,0.18)',
+        border: `1px solid ${C.border}`,
+        borderRadius: '4px',
+        padding: '0.6rem 0.75rem',
+      }}
+    >
+      <summary
+        style={{
+          color: C.muted,
+          fontSize: T.caption,
+          fontFamily: monoFont,
+          cursor: 'pointer',
+          letterSpacing: '0.06em',
+        }}
+      >
+        fraud prevention headers sent ({keys.length})
+      </summary>
+      <div style={{ marginTop: '0.5rem' }}>
+        {keys.map((k) => (
+          <div
+            key={k}
+            style={{
+              color: C.white,
+              fontSize: T.micro,
+              fontFamily: monoFont,
+              padding: '2px 0',
+              wordBreak: 'break-all',
+              lineHeight: 1.45,
+            }}
+          >
+            <span style={{ color: C.green }}>{k}</span>: {headers[k]}
+          </div>
+        ))}
+      </div>
+    </details>
   )
 }

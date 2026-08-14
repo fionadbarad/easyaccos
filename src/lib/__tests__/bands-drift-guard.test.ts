@@ -62,7 +62,12 @@ const DRIFT_PRONE_FILES = [
   // The public evidence page: five HMRC scenarios worked by hand. If a band
   // moves in bands-2026 and this page keeps the old arithmetic, it presents
   // stale sums as proof the engine is right.
+  //
+  // The scenarios themselves now live in the feature module below, so both are
+  // listed — watching only the page would leave the actual figures unguarded,
+  // which is the same mistake the mileage split above records.
   'src/app/validation/page.tsx',
+  'src/features/tax/validation-scenarios.ts',
   'src/features/tracker/TaxPotCalculator.tsx',
   'src/features/tax/FullResultPanel.tsx',
   'src/components/TaxEstimator2026.tsx',

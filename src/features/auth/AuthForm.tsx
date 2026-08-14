@@ -18,6 +18,17 @@ type Sent = 'link' | 'reset' | 'confirm' | null
 
 interface AuthFormProps {
   mode: Mode
+  /**
+   * Where to land once authentication succeeds — both for the in-page redirect
+   * and for the link mailed out by the email-link and sign-up flows.
+   *
+   * Defaults to '/dashboard', which is what /auth/login and /auth/signup want,
+   * so those two pages are unaffected. It exists for the form embedded in
+   * /dashboard/hmrc: a user who signs in to connect HMRC should come back to
+   * the connect screen, not be dropped on the dashboard to find their way
+   * there again.
+   */
+  nextPath?: string
 }
 
 const MIN_PASSWORD_LENGTH = 8
@@ -138,7 +149,7 @@ function SubmitButton({
   )
 }
 
-export default function AuthForm({ mode }: AuthFormProps) {
+export default function AuthForm({ mode, nextPath = '/dashboard' }: AuthFormProps) {
   const copy = COPY[mode]
   const router = useRouter()
 
@@ -153,7 +164,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const [error, setError] = useState('')
 
   const redirectTo = () =>
-    typeof window === 'undefined' ? undefined : `${window.location.origin}/dashboard`
+    typeof window === 'undefined' ? undefined : `${window.location.origin}${nextPath}`
 
   /** Runs an auth call with shared loading/error plumbing. */
   async function run(fn: () => Promise<{ error: { message: string } | null }>) {
@@ -199,7 +210,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
       setSent('confirm')
       return
     }
-    router.replace('/dashboard')
+    router.replace(nextPath)
     router.refresh()
   }
 

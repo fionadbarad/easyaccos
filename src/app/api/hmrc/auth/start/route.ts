@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { getCachedUser } from '@/lib/auth-shared'
 import { STATE_COOKIE } from '@/lib/hmrc/cookies'
 import { randomToken } from '@/lib/hmrc/crypto'
 import { readHmrcEnv } from '@/lib/hmrc/oauth'
@@ -14,6 +15,29 @@ export const runtime = 'nodejs'
 // the wire. Cache-Control: private, no-store also ensures Vercel's CDN does
 // not cache the redirect (which would cause cookie leakage between users).
 export async function GET(): Promise<NextResponse> {
+  // A signed-out visitor must never be sent to HMRC's consent screen.
+  //
+  // /dashboard has no auth redirect — guest mode is deliberate — so someone
+  // with no easyacco account can reach the Connect button, grant authority at
+  // HMRC, come back, and be refused here, because the token cookie is bound to
+  // the Supabase account that connected it (src/lib/hmrc/oauth.ts). The grant
+  // they just made stays live on their HMRC account with nothing on our side
+  // able to use it, and HMRC publishes no revocation endpoint — only the user,
+  // through "Manage authorised applications", can withdraw it (SEC-10).
+  //
+  // So this check comes first, before readHmrcEnv and before any token is
+  // minted: the cheapest place to stop the flow is before HMRC hears about it.
+  const user = await getCachedUser()
+  if (!user) {
+    return new NextResponse(null, {
+      status: 302,
+      headers: {
+        Location: '/dashboard/hmrc?hmrc_error=not_signed_in',
+        'Cache-Control': 'private, no-store',
+      },
+    })
+  }
+
   const env = readHmrcEnv()
   if ('error' in env) {
     return NextResponse.json({ ok: false, stage: 'env', message: env.error }, { status: 500 })

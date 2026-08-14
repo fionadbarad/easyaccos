@@ -3,25 +3,10 @@
 import React, { Suspense } from 'react'
 import { UserAuthSection } from './UserAuthSection'
 import { MtdItSubmitSection } from './MtdItSubmitSection'
+import { MtdVatSubmitSection } from './MtdVatSubmitSection'
 import { Section, SectionHeader, Button, ResultPane } from './HmrcComponents'
 import { monoFont, C } from './theme'
 import { T } from '@/styles/type'
-
-function MtdVatSubmitSection() {
-  // VAT section logic would go here, similar to MtdItSubmitSection
-  return (
-    <Section>
-      <SectionHeader
-        kicker="phase 3b · mtd-vat submission"
-        title="POST VAT return for period"
-        sub="VAT submission logic simplified for brevity in this refactor."
-      />
-      <div style={{ color: C.muted, fontSize: T.meta }}>
-        VAT submission module pending final extraction.
-      </div>
-    </Section>
-  )
-}
 
 type ProbeResult = { ok: boolean; stage?: string; message?: string; [key: string]: unknown }
 

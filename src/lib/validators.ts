@@ -84,3 +84,29 @@ export function isValidInvoice(i: unknown): i is Invoice {
       ))
   )
 }
+
+/**
+ * Split rows into the ones a guard accepts and the ones it rejects.
+ *
+ * The guards above are the data boundary, but a boundary only holds if
+ * something crosses it. Rows arrive from a Supabase `select('*')` and from a
+ * decrypted IndexedDB snapshot — neither is typed at runtime, and a row that
+ * predates a schema change, or arrives with a null column, is `Expense` only
+ * because TypeScript was told so. Dropping the bad row keeps the rest of the
+ * page working; the caller reports what was dropped so it is visible rather
+ * than silent.
+ *
+ * Returns the ORIGINAL array reference when nothing is invalid, so callers can
+ * memoize on identity and a clean load costs no new allocation.
+ */
+export function partitionValid<T>(
+  rows: readonly unknown[],
+  guard: (v: unknown) => v is T,
+): { valid: readonly T[]; invalid: readonly unknown[] } {
+  const invalid: unknown[] = []
+  for (const row of rows) {
+    if (!guard(row)) invalid.push(row)
+  }
+  if (invalid.length === 0) return { valid: rows as readonly T[], invalid }
+  return { valid: rows.filter(guard), invalid }
+}

@@ -28,7 +28,12 @@ const DRIFT_PRONE_FILES = [
   // prompt full of rates from bands-2026 and was the file this guard was
   // written for. The route is gone (docs/COMPLIANCE.md); restoring it means
   // putting it back here in the same change.
-  'src/lib/acco/context.ts',
+  //
+  // src/lib/acco/context.ts sat here for the same reason: it assembled that
+  // route's prompt. It went with the route — deleted, not disabled — so there
+  // is no longer a file to watch. Restoring the adviser means restoring both
+  // entries alongside the disclosures in /privacy and /security.
+  //
   // The engine itself. It carried its own literal copy of all five student loan
   // thresholds and both rates while the plan pickers read bands-2026 — two
   // sources of truth for the same figures, split along the display/calculation

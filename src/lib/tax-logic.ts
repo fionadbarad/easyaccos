@@ -4,7 +4,8 @@
 //
 // Correctness notes:
 //   - Money rounded to 2dp via round2() throughout.
-//   - Student loan uses grossProfit (HMRC repays on profit before pension relief).
+//   - Student loan uses trading profit before pension relief, plus dividends
+//     once they cross the £2,000 disregard — a cliff edge, not an allowance.
 //   - Class 4 NIC uses grossProfit — a personal SIPP does not reduce it (TAX-2).
 //   - Unused Personal Allowance shelters dividends before the £500 band (TAX-1).
 //   - Plan 2 student loan threshold £29,385/yr (2026/27, HMRC).
@@ -106,8 +107,8 @@ export interface TaxResult {
 
   // ── Other deductions ─────────────────────────────────────────────────
   dividendTax: number
-  studentLoanRepayment: number // based on grossProfit (before pension)
-  studentLoanBase: number // the base used for SL calculation (grossProfit)
+  studentLoanRepayment: number // based on studentLoanBase (before pension)
+  studentLoanBase: number // trading profit + dividends once past the disregard
 
   // ── Totals ────────────────────────────────────────────────────────────
   totalDeductions: number
@@ -161,20 +162,49 @@ import {
   DIV_BASIC,
   DIV_HIGHER,
   DIV_ADDL,
+  SL_PLAN1_THRESH,
+  SL_PLAN2_THRESH,
+  SL_PLAN4_THRESH,
+  SL_PLAN5_THRESH,
+  SL_POSTGRAD_THRESH,
+  SL_PLAN_RATE,
+  SL_POSTGRAD_RATE,
+  SL_UNEARNED_DISREGARD,
 } from './tax/bands-2026'
 
 // Student Loan 2026/27
+// Every figure comes from bands-2026 \u2014 including the ones inside the labels,
+// which are user-facing copy. This table previously carried its own literal
+// copy of all five thresholds and both rates while the plan pickers in
+// TaxPotCalculator and TaxEstimator2026 read bands-2026, so a threshold change
+// would have moved the dropdowns and left the arithmetic behind.
 const STUDENT_LOAN: Record<StudentLoanPlan, { threshold: number; rate: number; label: string }> = {
   none: { threshold: 0, rate: 0, label: 'None' },
   plan1: {
-    threshold: 26_900,
-    rate: 0.09,
-    label: 'Plan 1 \u2014 \u00a326,900 (pre-2012 England/Wales)',
+    threshold: SL_PLAN1_THRESH,
+    rate: SL_PLAN_RATE,
+    label: `Plan 1 \u2014 ${fmtGBP(SL_PLAN1_THRESH)} (pre-2012 England/Wales)`,
   },
-  plan2: { threshold: 29_385, rate: 0.09, label: 'Plan 2 \u2014 \u00a329,385 (2012\u20132023)' },
-  plan4: { threshold: 33_795, rate: 0.09, label: 'Plan 4 \u2014 \u00a333,795 (Scotland)' },
-  plan5: { threshold: 25_000, rate: 0.09, label: 'Plan 5 \u2014 \u00a325,000 (post-Aug 2023)' },
-  postgraduate: { threshold: 21_000, rate: 0.06, label: 'Postgraduate \u2014 \u00a321,000 (6%)' },
+  plan2: {
+    threshold: SL_PLAN2_THRESH,
+    rate: SL_PLAN_RATE,
+    label: `Plan 2 \u2014 ${fmtGBP(SL_PLAN2_THRESH)} (2012\u20132023)`,
+  },
+  plan4: {
+    threshold: SL_PLAN4_THRESH,
+    rate: SL_PLAN_RATE,
+    label: `Plan 4 \u2014 ${fmtGBP(SL_PLAN4_THRESH)} (Scotland)`,
+  },
+  plan5: {
+    threshold: SL_PLAN5_THRESH,
+    rate: SL_PLAN_RATE,
+    label: `Plan 5 \u2014 ${fmtGBP(SL_PLAN5_THRESH)} (post-Aug 2023)`,
+  },
+  postgraduate: {
+    threshold: SL_POSTGRAD_THRESH,
+    rate: SL_POSTGRAD_RATE,
+    label: `Postgraduate \u2014 ${fmtGBP(SL_POSTGRAD_THRESH)} (${SL_POSTGRAD_RATE * 100}%)`,
+  },
 }
 
 export const STUDENT_LOAN_LABELS = Object.fromEntries(
@@ -449,16 +479,48 @@ export function calcDividendTax(
 }
 
 // ─── Student Loan ─────────────────────────────────────────────────────────────
-// IMPORTANT: HMRC computes student loan repayments on GROSS PROFIT (profit
-// after allowable expenses, BEFORE pension deductions and BEFORE income tax).
-// The base used here is grossProfit, NOT taxableIncome.
-export function calcStudentLoan(grossProfit: number, plan: StudentLoanPlan): number {
+// IMPORTANT: HMRC computes student loan repayments on TRADING PROFIT (profit
+// after allowable expenses, BEFORE pension deductions and BEFORE income tax),
+// PLUS unearned income once that crosses the disregard. Not taxableIncome.
+//
+// THE £2,000 RULE IS A CLIFF EDGE, NOT AN ALLOWANCE (TAX-12). Under Self
+// Assessment, unearned income — dividends, savings interest, property — is
+// ignored entirely at or below SL_UNEARNED_DISREGARD, and brought in IN FULL
+// above it. £2,000 of dividends adds nothing to the base; £2,001 adds the whole
+// £2,001, not the £1 of excess. Writing this as `unearned - DISREGARD` is the
+// obvious mistake and it under-collects on every affected return.
+//
+// This engine models dividends as the only unearned income. A user with savings
+// or property income sits below the real base and this function cannot know it;
+// that is a limit of the input model, not of the rule above.
+//
+// LOSS YEARS: the trading component is floored at zero before the unearned
+// income is added, so a loss does not reduce the dividend part of the base.
+// Setting a trading loss against other income for student loan purposes is a
+// relief this engine does not model — the floor is the conservative reading and
+// it matches how every other base in this file treats a loss.
+export function calcStudentLoan(
+  tradingProfit: number,
+  plan: StudentLoanPlan,
+  unearnedIncome: number = 0,
+): number {
   if (plan === 'none') return 0
   const { threshold, rate } = STUDENT_LOAN[plan]
-  const repayable = Math.max(0, grossProfit - threshold)
+  const repayable = Math.max(0, studentLoanBaseFor(tradingProfit, unearnedIncome) - threshold)
   // HMRC floors student-loan repayments to whole pounds — the pence are never
   // collected (SL3 guidance). round2 over-collected by up to 99p (TAX-6).
   return Math.floor(repayable * rate)
+}
+
+/**
+ * The income the student loan rate is charged on, before the plan threshold.
+ * Exported through `TaxResult.studentLoanBase` so the breakdown can show the
+ * figure rather than leaving the user to guess why the dividends counted.
+ */
+export function studentLoanBaseFor(tradingProfit: number, unearnedIncome: number = 0): number {
+  const unearned = Math.max(0, unearnedIncome)
+  const counted = unearned > SL_UNEARNED_DISREGARD ? unearned : 0
+  return Math.max(0, tradingProfit) + counted
 }
 
 // ─── Pension Annual Allowance (taper + MPAA) ─────────────────────────────────
@@ -711,10 +773,11 @@ export function calculateTax(input: TaxInput): TaxResult {
       : 0
 
   // ── 8. Student loan ────────────────────────────────────────────────────────
-  // Base = grossProfit (after expenses, BEFORE pension deduction)
-  // HMRC repayment threshold applies to gross trading income
-  const studentLoanBase = grossProfit
-  const studentLoanRepayment = calcStudentLoan(grossProfit, studentLoanPlan)
+  // Base = trading profit (after expenses, BEFORE pension deduction) plus
+  // dividends, but ONLY once the dividends exceed the disregard — at which
+  // point the whole amount counts, not the excess. See calcStudentLoan.
+  const studentLoanBase = studentLoanBaseFor(grossProfit, dividendIncome)
+  const studentLoanRepayment = calcStudentLoan(grossProfit, studentLoanPlan, dividendIncome)
 
   // ── 9. Totals ──────────────────────────────────────────────────────────────
   const totalDeductions = round2(

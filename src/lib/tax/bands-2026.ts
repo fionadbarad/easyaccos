@@ -62,6 +62,11 @@ export const SL_PLAN5_THRESH = 25_000 // post-Aug 2023
 export const SL_POSTGRAD_THRESH = 21_000
 export const SL_PLAN_RATE = 0.09 // plans 1–5
 export const SL_POSTGRAD_RATE = 0.06
+// Unearned income (dividends, savings, property) is DISREGARDED for student
+// loan purposes at or below this figure, and brought in IN FULL above it. It is
+// a cliff edge, not an allowance: £2,000 of dividends adds nothing to the
+// repayment base, £2,001 adds the whole £2,001.
+export const SL_UNEARNED_DISREGARD = 2_000
 
 // ── Pension: Annual Allowance, taper & relief (2026/27) ─────────────────────
 // SIPP relief works at source: the saver pays 80% of the gross contribution and

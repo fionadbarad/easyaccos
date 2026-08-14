@@ -303,6 +303,75 @@ describe('Student loan repayment', () => {
   })
 })
 
+// ── Student loan: the £2,000 unearned income cliff edge (TAX-12) ──────────────
+// Under Self Assessment, dividends are DISREGARDED at or below £2,000 and
+// counted IN FULL above it. The engine used to ignore dividendIncome entirely
+// for this calculation, under-collecting on every return that carried any.
+//
+// The boundary cases are the point of this block. `unearned - 2_000` is the
+// intuitive-but-wrong reading and it passes a test written only at £10,000, so
+// £2,000 / £2,001 are asserted explicitly.
+describe('Student loan: unearned income disregard', () => {
+  const plan2 = (grossRevenue: number, dividendIncome: number) =>
+    calculateTax({ ...seInput(grossRevenue), dividendIncome, studentLoanPlan: 'plan2' })
+
+  it('ignores dividends at exactly the £2,000 disregard', () => {
+    const r = plan2(30_000, 2_000)
+    expect(r.studentLoanBase).toBe(30_000)
+    expect(r.studentLoanRepayment).toBe(Math.floor((30_000 - 29_385) * 0.09))
+  })
+
+  it('ignores dividends below the disregard', () => {
+    const r = plan2(30_000, 1_999)
+    expect(r.studentLoanBase).toBe(30_000)
+  })
+
+  it('counts the WHOLE dividend at £2,001, not the £1 of excess', () => {
+    const r = plan2(30_000, 2_001)
+    expect(r.studentLoanBase).toBe(32_001)
+    expect(r.studentLoanRepayment).toBe(Math.floor((32_001 - 29_385) * 0.09))
+  })
+
+  it('adds the full dividend once past the disregard', () => {
+    const r = plan2(30_000, 15_000)
+    expect(r.studentLoanBase).toBe(45_000)
+    expect(r.studentLoanRepayment).toBe(Math.floor((45_000 - 29_385) * 0.09))
+  })
+
+  it('dividends alone can carry the base over the threshold', () => {
+    const r = plan2(25_000, 10_000)
+    expect(r.studentLoanBase).toBe(35_000)
+    expect(r.studentLoanRepayment).toBe(Math.floor((35_000 - 29_385) * 0.09))
+  })
+
+  it('a trading loss does not reduce the dividend part of the base', () => {
+    // Revenue 10k, expenses 20k → a £10,000 loss. The trading component floors
+    // at zero rather than netting off the dividends.
+    const r = calculateTax({
+      ...seInput(10_000, 20_000),
+      dividendIncome: 40_000,
+      studentLoanPlan: 'plan2',
+    })
+    expect(r.studentLoanBase).toBe(40_000)
+    expect(r.studentLoanRepayment).toBe(Math.floor((40_000 - 29_385) * 0.09))
+  })
+
+  it('pension relief still does not reduce the base', () => {
+    const r = calculateTax({
+      ...seInput(50_000),
+      dividendIncome: 5_000,
+      studentLoanPlan: 'plan2',
+      pensionContribution: 10_000,
+    })
+    expect(r.studentLoanBase).toBe(55_000)
+  })
+
+  it('plan "none" pays nothing however large the dividends', () => {
+    const r = calculateTax({ ...seInput(80_000), dividendIncome: 50_000 })
+    expect(r.studentLoanRepayment).toBe(0)
+  })
+})
+
 // ── Pension contribution ──────────────────────────────────────────────────────
 describe('Pension contribution', () => {
   it('reduces adjustedProfit and taxable income', () => {

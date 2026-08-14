@@ -29,6 +29,13 @@ const DRIFT_PRONE_FILES = [
   // written for. The route is gone (docs/COMPLIANCE.md); restoring it means
   // putting it back here in the same change.
   'src/lib/acco/context.ts',
+  // The engine itself. It carried its own literal copy of all five student loan
+  // thresholds and both rates while the plan pickers read bands-2026 — two
+  // sources of truth for the same figures, split along the display/calculation
+  // line, so the next threshold change would have moved every dropdown and left
+  // the arithmetic on the old number. The definitions now import from
+  // bands-2026 and the file is watched so they cannot drift back.
+  'src/lib/tax-logic.ts',
   'src/lib/tax-scenarios.ts',
   'src/features/tax/useTaxScenario.ts',
   // The mileage page held five AMAP rates of its own, plus a rate table and a

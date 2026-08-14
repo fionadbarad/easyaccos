@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { FileText, Upload, AlertCircle, CheckCircle2, Loader2, LogIn } from 'lucide-react'
 import { fmtGBP } from '@/lib/formatters'
-import { createClient, isSupabaseConfigured } from '@/lib/supabase-browser'
+import { isSupabaseConfigured } from '@/lib/supabase-browser'
+import { getSupabaseBrowserClient } from '@/lib/supabase-client-singleton'
 import type { Payslip } from '@/features/ocr/payslipParser'
 
 /**
@@ -63,9 +64,14 @@ export default function PayslipPage() {
   // to be known here rather than discovered as a 401 after the upload.
   useEffect(() => {
     if (!isSupabaseConfigured) return
+    // The singleton, not a fresh createClient(): a second GoTrueClient on the
+    // same storage key is unsafe. It only returns null when Supabase is
+    // unconfigured, which the guard above already rules out — but check anyway.
+    const supabase = getSupabaseBrowserClient()
+    if (!supabase) return
     let mounted = true
-    void createClient()
-      .auth.getUser()
+    void supabase.auth
+      .getUser()
       .then(({ data }) => {
         if (mounted) setSignedIn(Boolean(data.user))
       })

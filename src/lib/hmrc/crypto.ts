@@ -56,8 +56,11 @@ export function decrypt(payload: string): string | null {
   const parts = payload.split('.')
   if (parts.length !== 3) return null
   const [ivPart, tagPart, encPart] = parts as [string, string, string]
+  // Outside the try: a missing or malformed HMRC_COOKIE_SECRET is a server
+  // configuration fault and must fail loudly. Swallowed into the catch it
+  // makes every user silently read as "never connected".
+  const key = readKey()
   try {
-    const key = readKey()
     const iv = fromB64Url(ivPart)
     const tag = fromB64Url(tagPart)
     const enc = fromB64Url(encPart)

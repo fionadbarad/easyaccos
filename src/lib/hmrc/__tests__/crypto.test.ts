@@ -106,6 +106,14 @@ describe('hmrc/crypto · AES-256-GCM cookie payloads', () => {
     expect(() => encrypt('x')).toThrow(/HMRC_COOKIE_SECRET/)
   })
 
+  test('decrypt throws when HMRC_COOKIE_SECRET is missing, rather than reading as null', () => {
+    // A missing secret is a server misconfiguration. Swallowed into a null it
+    // shows every user as "never connected to HMRC" with nothing in the logs.
+    const enc = encrypt('payload')
+    delete process.env.HMRC_COOKIE_SECRET
+    expect(() => decrypt(enc)).toThrow(/HMRC_COOKIE_SECRET/)
+  })
+
   test('encrypt throws when HMRC_COOKIE_SECRET is the wrong length', () => {
     process.env.HMRC_COOKIE_SECRET = Buffer.from('too-short').toString('base64')
     expect(() => encrypt('x')).toThrow(/32 bytes/)

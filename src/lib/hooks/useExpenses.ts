@@ -11,7 +11,8 @@ import {
   matchesQuery,
 } from '@/components/tracker/filter'
 import type { FilterState } from '@/components/tracker/filter'
-import type { Expense } from '@/lib/validators'
+import { isValidExpense, partitionValid, type Expense } from '@/lib/validators'
+import { reportWarn } from '@/lib/monitor'
 import { newId } from '@/lib/id'
 
 export const CATEGORIES = [
@@ -46,11 +47,37 @@ function toISODate(d: Date) {
 
 export function useExpenses() {
   const {
-    items: expenses,
+    items: storedExpenses,
     persist,
     loading,
     isAuthenticated,
   } = useUserData<Expense>('user_expenses', 'easyacco_expenses', SEED)
+
+  // The trust boundary. `storedExpenses` is whatever the Supabase select or the
+  // decrypted local snapshot returned — typed as Expense[] because useUserData
+  // was told so, not because anything checked. A row with a null amount reaches
+  // `total` and turns the whole figure into NaN; one with a missing category
+  // silently drops out of byCategory while still counting in the total. Dropping
+  // it here keeps the page arithmetic sound.
+  const { valid: expenses, invalid } = useMemo(
+    () => partitionValid(storedExpenses, isValidExpense),
+    [storedExpenses],
+  )
+
+  // Reported from an effect, not from the memo above: a render must stay free
+  // of side effects, or StrictMode's double invoke reports every bad row twice.
+  useEffect(() => {
+    for (const row of invalid) {
+      reportWarn('useExpenses.invalidRow', 'dropped an expense row that failed validation', {
+        id:
+          row && typeof row === 'object' && typeof (row as { id?: unknown }).id === 'string'
+            ? (row as { id: string }).id
+            : undefined,
+        keys: row && typeof row === 'object' ? Object.keys(row) : typeof row,
+      })
+    }
+  }, [invalid])
+
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState<ExpenseFormState>({
     date: toISODate(new Date()),

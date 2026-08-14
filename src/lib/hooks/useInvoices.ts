@@ -4,6 +4,8 @@ import { useState, useMemo, useEffect } from 'react'
 import { useUserData } from '@/lib/use-user-data'
 import { todayISO } from '@/lib/dates'
 import { canAutoFlipToOverdue, transitionPatch } from '@/lib/invoices/status-machine'
+import { isValidInvoice, partitionValid } from '@/lib/validators'
+import { reportWarn } from '@/lib/monitor'
 import type { Invoice, InvoiceStatus, VatTreatment } from '@/lib/validators'
 
 export type { Invoice, InvoiceStatus, VatTreatment }
@@ -140,11 +142,33 @@ export function makeBlankForm(): InvoiceFormState {
 
 export function useInvoices() {
   const {
-    items: invoices,
+    items: storedInvoices,
     persist,
     loading,
     isAuthenticated,
   } = useUserData<Invoice>('user_invoices', 'ea_invoices', [])
+
+  // The trust boundary — see the equivalent note in useExpenses. It matters
+  // more here: an unrecognised `status` would be fed straight to the status
+  // machine by the auto-overdue effect below, and a bad `amount` lands in the
+  // outstanding/overdue/paid figures the dashboard reports as money owed.
+  const { valid: invoices, invalid } = useMemo(
+    () => partitionValid(storedInvoices, isValidInvoice),
+    [storedInvoices],
+  )
+
+  useEffect(() => {
+    for (const row of invalid) {
+      reportWarn('useInvoices.invalidRow', 'dropped an invoice row that failed validation', {
+        id:
+          row && typeof row === 'object' && typeof (row as { id?: unknown }).id === 'string'
+            ? (row as { id: string }).id
+            : undefined,
+        keys: row && typeof row === 'object' ? Object.keys(row) : typeof row,
+      })
+    }
+  }, [invalid])
+
   const [showForm, setShowForm] = useState(false)
   const [filter, setFilter] = useState<InvoiceStatus | 'all'>('all')
   const [form, setForm] = useState<InvoiceFormState>(makeBlankForm)

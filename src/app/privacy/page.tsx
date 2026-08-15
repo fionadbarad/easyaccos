@@ -132,6 +132,14 @@ export default function PrivacyPage() {
               timezone and browser user-agent string. This is a legal requirement of using their
               API; we cannot file without it.
             </li>
+            <li style={{ marginBottom: '0.5rem' }}>
+              <strong style={{ color: C.white }}>Payslip images you upload</strong> — where you use
+              the Payslip Reader, the photo or scan you choose to upload, which typically shows your
+              employer, gross pay, tax and National Insurance deducted, and your tax code. It is
+              sent to our server, read once to pull those figures out, and discarded. We do not
+              store the image, and the figures it produces are shown to you rather than saved
+              anywhere.
+            </li>
             <li style={{ marginBottom: 0 }}>
               <strong style={{ color: C.white }}>Change history</strong> — an audit log of creates,
               updates and deletions against your records, so that changes to accounting data are
@@ -205,7 +213,7 @@ export default function PrivacyPage() {
                 />
                 <Row
                   who="Vercel"
-                  what="Standard server request logs, including IP address"
+                  what="Standard server request logs, including IP address; and, for the seconds it takes to read, any payslip image you upload"
                   why="Application hosting and delivery"
                   where="Global edge network"
                 />
@@ -213,9 +221,17 @@ export default function PrivacyPage() {
             </table>
           </div>
           <p style={{ margin: '1rem 0 0' }}>
-            EasyAcco has no AI features enabled and sends nothing to any AI provider. Receipt
-            scanning reads the image entirely inside your browser — the photo never reaches a server
-            of ours or anyone else&rsquo;s.
+            EasyAcco has no AI features enabled and sends nothing to any AI provider.
+          </p>
+          <p style={{ margin: '0.75rem 0 0' }}>
+            The two features that read images work differently, and it matters which is which.{' '}
+            <strong style={{ color: C.white }}>Receipt scanning</strong> reads the photo entirely
+            inside your browser — it never reaches a server of ours or anyone else&rsquo;s. The{' '}
+            <strong style={{ color: C.white }}>Payslip Reader</strong> does upload: the image is
+            sent to our server, where it is read once to extract the figures and then discarded. It
+            is not written to a database, kept on disk, or recorded in a log, and it is not passed
+            to anyone else. Our servers run on Vercel, so the image passes through their
+            infrastructure for the few seconds it is being read.
           </p>
           <p style={{ margin: '0.75rem 0 0' }}>
             The currency converter calls an external exchange-rate service. That request asks only

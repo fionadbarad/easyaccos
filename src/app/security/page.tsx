@@ -237,9 +237,13 @@ export default function SecurityPage() {
             EasyAcco has <strong style={{ color: C.text }}>no AI features enabled</strong> and sends
             your data to no AI provider. Receipt OCR runs{' '}
             <strong style={{ color: C.text }}>entirely in your browser</strong> via Tesseract — the
-            photo never leaves your device, and there is no upload step to opt out of. Your
-            transactions, invoices and ledger are never transmitted to any third party other than
-            HMRC, and then only for a return you actively choose to file.
+            photo never leaves your device. The{' '}
+            <strong style={{ color: C.text }}>Payslip Reader</strong> is the one feature that does
+            upload: the image is sent to our own server, read once and discarded — never stored,
+            never logged, never passed to a third party — and using it is optional, since every
+            figure on a payslip can be typed in by hand. Your transactions, invoices and ledger are
+            never transmitted to any third party other than HMRC, and then only for a return you
+            actively choose to file.
           </p>
         </div>
 

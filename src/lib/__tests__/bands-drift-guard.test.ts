@@ -68,6 +68,7 @@ const DRIFT_PRONE_FILES = [
   // which is the same mistake the mileage split above records.
   'src/app/validation/page.tsx',
   'src/features/tax/validation-scenarios.ts',
+  'src/app/dashboard/tax/page.tsx',
   'src/features/tracker/TaxPotCalculator.tsx',
   'src/features/tax/FullResultPanel.tsx',
   'src/components/TaxEstimator2026.tsx',

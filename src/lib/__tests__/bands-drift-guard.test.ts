@@ -63,6 +63,13 @@ const DRIFT_PRONE_FILES = [
   // moves in bands-2026 and this page keeps the old arithmetic, it presents
   // stale sums as proof the engine is right.
   'src/app/validation/page.tsx',
+  // The scenarios themselves, moved out of that page so CI could assert them.
+  // Splitting a watched file without re-listing the pieces silently switches
+  // this guard off for the surface it was written for — the same mistake the
+  // mileage note above records. The hand-worked `manual` and `expected` figures
+  // in it are deliberate evidence and must stay literal; the guard's patterns
+  // target user-facing copy, which here interpolates from bands-2026.
+  'src/features/tax/validation-scenarios.ts',
   'src/features/tracker/TaxPotCalculator.tsx',
   'src/features/tax/FullResultPanel.tsx',
   'src/components/TaxEstimator2026.tsx',

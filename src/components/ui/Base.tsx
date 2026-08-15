@@ -1,11 +1,13 @@
 import React from 'react'
-import { C } from '@/styles/palette'
-import { T } from '@/styles/type'
 
 export const StatCard = ({
   label,
   value,
-  color = C.white,
+  // Stays an inline style rather than a class: callers pass a runtime colour
+  // (a status green or red picked from data), which no static utility can
+  // express. The default reads the same CSS variable text-sa-white compiles
+  // to, so the token is still the single source.
+  color = 'var(--color-sa-white)',
   sub,
 }: {
   label: string
@@ -13,27 +15,12 @@ export const StatCard = ({
   color?: string
   sub?: string
 }) => (
-  <div
-    style={{
-      background: C.surface,
-      border: `1px solid ${C.border}`,
-      borderRadius: '6px',
-      padding: '1.25rem',
-    }}
-  >
-    <div
-      style={{
-        color: C.muted,
-        fontSize: T.caption,
-        textTransform: 'uppercase',
-        letterSpacing: '0.08em',
-        marginBottom: '0.5rem',
-      }}
-    >
-      {label}
+  <div className="bg-sa-surface border border-sa-border rounded-md p-5">
+    <div className="text-sa-muted text-caption uppercase tracking-[0.08em] mb-2">{label}</div>
+    <div className="text-heading font-bold" style={{ color }}>
+      {value}
     </div>
-    <div style={{ fontSize: T.heading, fontWeight: 700, color }}>{value}</div>
-    {sub && <div style={{ fontSize: T.caption, color: C.muted, marginTop: '4px' }}>{sub}</div>}
+    {sub && <div className="text-caption text-sa-muted mt-1">{sub}</div>}
   </div>
 )
 
@@ -45,32 +32,18 @@ export const Badge = ({
   active?: boolean
 }) => (
   <div
-    style={{
-      padding: '5px 12px',
-      borderRadius: '3px',
-      border: `1px solid ${active ? C.white : C.border}`,
-      background: active ? C.white : 'transparent',
-      color: active ? C.bg : C.muted,
-      fontSize: T.caption,
-      fontFamily: 'var(--font-geist-mono), monospace',
-    }}
+    className={`px-3 py-[5px] rounded-[3px] border text-caption font-mono ${
+      active
+        ? 'border-sa-white bg-sa-white text-sa-black'
+        : 'border-sa-border bg-transparent text-sa-muted'
+    }`}
   >
     {children}
   </div>
 )
 
 export const LoadingSpinner = () => (
-  <div
-    style={{
-      background: C.surface,
-      border: `1px solid ${C.border}`,
-      borderRadius: '6px',
-      padding: '3rem',
-      textAlign: 'center',
-      color: C.muted,
-      fontSize: T.meta,
-    }}
-  >
+  <div className="bg-sa-surface border border-sa-border rounded-md p-12 text-center text-sa-muted text-meta">
     <div className="animate-pulse">Loading…</div>
   </div>
 )
@@ -85,11 +58,7 @@ export const Card = ({
   style?: React.CSSProperties
 }) => (
   <div className="ui-card" style={{ ...style }}>
-    {title && (
-      <h2 className="ui-card-title" style={{ fontSize: T.lead, marginBottom: '1rem' }}>
-        {title}
-      </h2>
-    )}
+    {title && <h2 className="ui-card-title text-lead mb-4">{title}</h2>}
     {children}
   </div>
 )

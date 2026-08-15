@@ -7,7 +7,6 @@ import { getSupabaseBrowserClient } from '@/lib/supabase-client-singleton'
 import { clearServiceWorkerCaches } from '@/lib/sw-cache'
 import type { User } from '@supabase/supabase-js'
 import { Menu, AlertTriangle } from 'lucide-react'
-import { C } from '@/styles/palette'
 import Sidebar from '@/features/shell/Sidebar'
 import MobileTopBar from '@/features/shell/MobileTopBar'
 import OfflineChip from '@/features/shell/OfflineChip'
@@ -69,24 +68,14 @@ export default function DashboardShell({
   const sidebarProps = { user, pathname, onSignOut: handleSignOut }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: C.bg }}>
+    <div className="flex min-h-screen bg-sa-black">
       <button
-        className="hidden md:flex hover:text-white transition-colors duration-100"
+        className={`hidden md:flex hover:text-white transition-colors duration-100 fixed top-4 left-3 z-[51] bg-sa-surface border border-sa-border rounded cursor-pointer px-2 py-1.5 items-center justify-center ${
+          desktopOpen ? 'text-transparent' : 'text-sa-muted'
+        }`}
         onClick={() => setDesktopOpen(true)}
         title="Open sidebar"
         style={{
-          position: 'fixed',
-          top: '1rem',
-          left: '0.75rem',
-          zIndex: 51,
-          background: C.surface,
-          border: `1px solid ${C.border}`,
-          borderRadius: '4px',
-          color: desktopOpen ? 'transparent' : C.muted,
-          cursor: 'pointer',
-          padding: '6px 8px',
-          alignItems: 'center',
-          justifyContent: 'center',
           opacity: desktopOpen ? 0 : 1,
           pointerEvents: desktopOpen ? 'none' : 'auto',
         }}
@@ -109,18 +98,9 @@ export default function DashboardShell({
       />
 
       <aside
-        className="hidden md:flex"
+        className="hidden md:flex shrink-0 flex-col bg-sa-black border-r border-sa-border fixed top-0 left-0 bottom-0 z-50"
         style={{
           width: `${SIDEBAR_W}px`,
-          flexShrink: 0,
-          flexDirection: 'column',
-          background: C.bg,
-          borderRight: `1px solid ${C.border}`,
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          bottom: 0,
-          zIndex: 50,
           transform: desktopOpen ? 'translateX(0)' : `translateX(-${SIDEBAR_W}px)`,
           transition: 'transform 0.25s cubic-bezier(0.4,0,0.2,1)',
         }}
@@ -145,7 +125,7 @@ export default function DashboardShell({
       />
 
       <aside
-        className="md:hidden"
+        className="md:hidden bg-sa-black border-r border-sa-border"
         style={{
           position: 'fixed',
           top: 0,
@@ -153,8 +133,6 @@ export default function DashboardShell({
           bottom: 0,
           width: `${SIDEBAR_W}px`,
           zIndex: 50,
-          background: C.bg,
-          borderRight: `1px solid ${C.border}`,
           transform: mobileOpen ? 'translateX(0)' : `translateX(-${SIDEBAR_W}px)`,
           transition: 'transform 0.25s cubic-bezier(0.4,0,0.2,1)',
           overflowY: 'auto',
@@ -163,10 +141,7 @@ export default function DashboardShell({
         <Sidebar {...sidebarProps} onNavClick={closeMobile} />
       </aside>
 
-      <main
-        className="mt-[52px] md:mt-0"
-        style={{ flex: 1, minHeight: '100vh', background: C.bg, overflow: 'auto' }}
-      >
+      <main className="mt-[52px] md:mt-0 flex-1 min-h-screen bg-sa-black overflow-auto">
         <SADeadlineBanner />
         {!user && (
           <NoticeBanner variant="warning" icon={AlertTriangle}>

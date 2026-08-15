@@ -12,7 +12,8 @@ import {
 } from 'lucide-react'
 import { useUserData } from '@/lib/use-user-data'
 import { fmtDecAbs as fmt } from '@/lib/formatters'
-import { todayISO, isInCurrentMonth } from '@/lib/dates'
+import { todayISO } from '@/lib/dates'
+import { visibleTransactions, txTotals } from '@/features/tracker/aggregates'
 import {
   TRANSACTIONS_SEED,
   type Transaction,
@@ -51,13 +52,6 @@ const labelStyle: React.CSSProperties = {
 
 function toISODate(d: Date) {
   return todayISO(d)
-}
-
-function isToday(dateStr: string) {
-  return dateStr === toISODate(new Date())
-}
-function isThisMonth(dateStr: string) {
-  return isInCurrentMonth(dateStr)
 }
 
 const DATE_LABELS: Record<DateFilter, string> = {
@@ -110,22 +104,17 @@ export default function TransactionsPage() {
 
   const visible = useMemo(
     () =>
-      txs
-        .filter((t) => typeFilter === 'all' || t.type === typeFilter)
-        .filter((t) => {
-          if (dateFilter === 'today') return isToday(t.date)
-          if (dateFilter === 'month') return isThisMonth(t.date)
-          if (dateFilter === 'custom' && customFrom && customTo)
-            return t.date >= customFrom && t.date <= customTo
-          return true
-        })
-        .sort((a, b) => b.date.localeCompare(a.date)),
+      visibleTransactions(
+        txs,
+        { type: typeFilter, date: dateFilter, from: customFrom, to: customTo },
+        toISODate(new Date()),
+      ),
     [txs, typeFilter, dateFilter, customFrom, customTo],
   )
 
-  const totalIn = visible.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
-  const totalOut = visible.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
-  const net = totalIn - totalOut
+  // Computed from the filtered list, not the whole ledger — these are the
+  // figures for what is on screen.
+  const { totalIn, totalOut, net } = txTotals(visible)
 
   const chipStyle = (active: boolean): React.CSSProperties => ({
     padding: '5px 11px',

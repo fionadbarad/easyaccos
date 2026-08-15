@@ -13,7 +13,6 @@ import {
   SL_POSTGRAD_THRESH,
   SL_POSTGRAD_RATE,
 } from '@/lib/tax/bands-2026'
-import { T } from '@/styles/type'
 
 const REGION_OPTIONS: Record<TaxRegion, string> = {
   ruk: 'England, Wales & Northern Ireland',
@@ -35,14 +34,10 @@ const gbp = new Intl.NumberFormat('en-GB', {
   maximumFractionDigits: 0,
 })
 
-const labelStyle: React.CSSProperties = {
-  display: 'block',
-  color: 'var(--sa-muted)',
-  fontSize: T.caption,
-  textTransform: 'uppercase',
-  letterSpacing: '0.08em',
-  marginBottom: '0.3rem',
-}
+// --sa-muted and --sa-white are the legacy aliases of the same values
+// text-sa-muted and text-sa-white compile to, so this is a rename, not a
+// recolour.
+const LABEL_CLASS = 'block text-sa-muted text-caption uppercase tracking-[0.08em] mb-[0.3rem]'
 
 interface ResultRowProps {
   label: string
@@ -62,16 +57,8 @@ function ResultRow({ label, value, indent, bold }: ResultRowProps) {
         paddingLeft: indent ? 16 : 0,
       }}
     >
-      <span style={{ color: bold ? 'var(--sa-white)' : 'var(--sa-muted)', fontSize: T.body }}>
-        {label}
-      </span>
-      <span
-        style={{
-          color: 'var(--sa-white)',
-          fontSize: bold ? T.lead : T.body,
-          fontWeight: bold ? 700 : 500,
-        }}
-      >
+      <span className={`text-body ${bold ? 'text-sa-white' : 'text-sa-muted'}`}>{label}</span>
+      <span className={`text-sa-white ${bold ? 'text-lead font-bold' : 'text-body font-medium'}`}>
         {gbp.format(value)}
       </span>
     </div>
@@ -99,11 +86,9 @@ export default function TaxEstimator2026() {
 
   return (
     <div className="ui-card" style={{ maxWidth: 540, margin: '0 auto' }}>
-      <h2 className="ui-card-title" style={{ fontSize: T.title, marginBottom: '1.25rem' }}>
-        Tax Estimator 2026/27
-      </h2>
+      <h2 className="ui-card-title text-title mb-5">Tax Estimator 2026/27</h2>
 
-      <label style={labelStyle}>Region</label>
+      <label className={LABEL_CLASS}>Region</label>
       <select
         className="ui-input"
         value={region}
@@ -117,7 +102,7 @@ export default function TaxEstimator2026() {
         ))}
       </select>
 
-      <label style={labelStyle}>
+      <label className={LABEL_CLASS}>
         Annual Income —{' '}
         <strong style={{ color: 'var(--sa-white)', fontWeight: 600 }}>{gbp.format(income)}</strong>
       </label>
@@ -141,7 +126,7 @@ export default function TaxEstimator2026() {
         style={{ marginBottom: '1rem' }}
       />
 
-      <label style={labelStyle}>Student Loan</label>
+      <label className={LABEL_CLASS}>Student Loan</label>
       <select
         className="ui-input"
         value={loan}

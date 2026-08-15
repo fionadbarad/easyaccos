@@ -2,54 +2,22 @@
 
 import TaxCalculator from '@/features/tax/TaxCalculator'
 
-import { C } from '@/styles/palette'
-import { T } from '@/styles/type'
 export default function TaxPage() {
   return (
     <div className="page-shell">
-      <div style={{ maxWidth: '820px', marginBottom: '1.75rem' }}>
-        <div
-          style={{
-            color: C.muted,
-            fontSize: T.micro,
-            textTransform: 'uppercase',
-            letterSpacing: '0.12em',
-            marginBottom: '6px',
-            fontFamily: 'var(--font-geist-mono), monospace',
-          }}
-        >
+      <div className="max-w-[820px] mb-7">
+        <div className="text-sa-muted text-micro uppercase tracking-[0.12em] mb-1.5 font-mono">
           tax engine · 2026/27
         </div>
-        <h1
-          style={{
-            color: C.white,
-            fontSize: T.h2,
-            fontWeight: 600,
-            letterSpacing: '-0.03em',
-            marginBottom: '0.4rem',
-          }}
-        >
+        <h1 className="text-sa-white text-h2 font-semibold tracking-[-0.03em] mb-[0.4rem]">
           Tax Calculator
         </h1>
-        <p style={{ color: C.muted, fontSize: T.meta, lineHeight: 1.65, maxWidth: '560px' }}>
+        <p className="text-sa-muted text-meta leading-[1.65] max-w-[560px]">
           Five scenarios using 2026/27 rates — hard-coded, no API latency. Estimates only. Use the{' '}
-          <strong style={{ color: C.white, fontWeight: 500 }}>What-If slider</strong> for real-time
+          <strong className="text-sa-white font-medium">What-If slider</strong> for real-time
           sensitivity analysis.
         </p>
-        <div
-          style={{
-            marginTop: '0.75rem',
-            padding: '0.65rem 0.9rem',
-            background: 'rgba(244,245,248,0.04)',
-            border: `1px solid ${C.border}`,
-            borderRadius: '4px',
-            fontSize: T.caption,
-            color: C.muted,
-            fontFamily: 'var(--font-geist-mono), monospace',
-            display: 'inline-flex',
-            gap: '1.5rem',
-          }}
-        >
+        <div className="mt-3 px-[0.9rem] py-[0.65rem] bg-sa-hover border border-sa-border rounded text-caption text-sa-muted font-mono inline-flex gap-6">
           <span>PA: £12,570</span>
           <span>Basic: 20%</span>
           <span>Higher: 40%</span>

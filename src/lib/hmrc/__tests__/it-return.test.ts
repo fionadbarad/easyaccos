@@ -15,6 +15,7 @@ import {
   missingItFields,
   itPeriodErrors,
   isCalendarDate,
+  pickItExpenses,
   NINO_PATTERN,
   type ItReturnBody,
 } from '@/lib/hmrc/it-return'
@@ -183,5 +184,51 @@ describe("HMRC's either/or rule on expenses", () => {
     expect(
       itPeriodErrors(body({ expenses: { adminCosts: undefined }, consolidatedExpenses: 500 })),
     ).toEqual([])
+  })
+})
+
+describe("expense categories are HMRC's, not the caller's", () => {
+  // The route built `periodExpenses` with
+  // `Object.fromEntries(Object.entries(body.expenses).filter(finite))`, while
+  // validation only ever walked IT_EXPENSE_KEYS. Anything else the caller sent
+  // was therefore forwarded to HMRC having been checked by nothing at all.
+  it('rejects a category HMRC does not publish', () => {
+    expect(missingItFields(body({ expenses: { sneaky: 999 } as never }))).toContain(
+      'expenses.sneaky (not an expense category HMRC accepts)',
+    )
+  })
+
+  it('rejects an unknown key carrying the very value isMoneyAmount exists to stop', () => {
+    // 1.234 under `adminCosts` was caught. Under a key nobody looked at it went
+    // to HMRC — the check was on the name, so renaming the field evaded it.
+    const errors = missingItFields(body({ expenses: { madeUpCost: 1.234 } as never }))
+    expect(errors).toContain('expenses.madeUpCost (not an expense category HMRC accepts)')
+  })
+
+  it('still accepts every category HMRC does publish', () => {
+    expect(
+      missingItFields(body({ expenses: { adminCosts: 10, depreciation: 20, otherExpenses: 30 } })),
+    ).toEqual([])
+  })
+})
+
+describe('pickItExpenses projects the outbound payload', () => {
+  // Independent of the validator above by design: the point of a projection is
+  // that it cannot forward a key it does not know, whatever reached it.
+  it('keeps the known categories and drops everything else', () => {
+    expect(pickItExpenses({ adminCosts: 10, depreciation: 2.5, sneaky: 999 } as never)).toEqual({
+      adminCosts: 10,
+      depreciation: 2.5,
+    })
+  })
+
+  it('omits categories with no figure rather than sending a null to HMRC', () => {
+    expect(
+      pickItExpenses({ adminCosts: 10, otherExpenses: undefined, depreciation: NaN } as never),
+    ).toEqual({ adminCosts: 10 })
+  })
+
+  it('returns an empty object when there are no expenses at all', () => {
+    expect(pickItExpenses(undefined)).toEqual({})
   })
 })

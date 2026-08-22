@@ -3,6 +3,7 @@ import { buildFraudHeaders, observeClient } from '@/lib/hmrc/fraud-headers'
 import {
   itPeriodErrors,
   missingItFields,
+  pickItExpenses,
   IT_EXPENSE_KEYS,
   type ItReturnBody as RequestBody,
 } from '@/lib/hmrc/it-return'
@@ -145,9 +146,10 @@ export async function POST(req: NextRequest): Promise<NextResponse<SubmitOk | Su
   if (hasConsolidated) {
     hmrcRequestBody.periodExpenses = { consolidatedExpenses: body.consolidatedExpenses }
   } else if (hasDetailedExpenses) {
-    hmrcRequestBody.periodExpenses = Object.fromEntries(
-      Object.entries(body.expenses!).filter(([, v]) => Number.isFinite(v)),
-    )
+    // Projected through pickItExpenses, never spread: Object.entries(body.expenses)
+    // forwarded whatever keys the caller invented straight into the return HMRC
+    // receives, and validation only ever inspected IT_EXPENSE_KEYS.
+    hmrcRequestBody.periodExpenses = pickItExpenses(body.expenses)
   }
 
   const url = `${env.apiBase}/individuals/business/self-employment/${encodeURIComponent(body.nino)}/${encodeURIComponent(body.businessId)}/period`

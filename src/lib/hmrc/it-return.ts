@@ -135,11 +135,43 @@ export function missingItFields(body: Partial<ItReturnBody>): string[] {
     missing.push('consolidatedExpenses (at most 2 decimal places)')
   }
 
+  // Every key the caller sent is checked, not only the ones HMRC names. The
+  // route built `periodExpenses` by spreading `body.expenses` wholesale, so a
+  // key absent from this list was forwarded to HMRC having passed through no
+  // validation at all — including a value with a third decimal place, which is
+  // the exact thing `isMoneyAmount` exists to stop, just under a key nobody
+  // looked at. Rejecting beats silently dropping: an expense category lost to a
+  // typo understates expenses and overstates the profit the user is taxed on.
+  for (const key of Object.keys(body.expenses ?? {})) {
+    if (!(IT_EXPENSE_KEYS as readonly string[]).includes(key)) {
+      missing.push(`expenses.${key} (not an expense category HMRC accepts)`)
+    }
+  }
+
   // Not just `!body.browser`: buildFraudHeaders indexes into browser.screens and
   // browser.windowSize outside any try/catch, so `{}` passed this check and then
   // crashed the route with an untyped 500.
   missing.push(...invalidBrowserFields(body.browser))
   return missing
+}
+
+/**
+ * The detailed-expenses object as HMRC should receive it: the categories HMRC
+ * publishes, each carrying a real number, and nothing else.
+ *
+ * The route must not spread the caller's object into the outbound payload. This
+ * is deliberately independent of `missingItFields` rather than trusting that it
+ * ran first — the value of a projection is that it cannot forward a key it does
+ * not know, whatever reached it.
+ */
+export function pickItExpenses(expenses: ItExpenses | undefined): Record<string, number> {
+  const picked: Record<string, number> = {}
+  if (!expenses) return picked
+  for (const key of IT_EXPENSE_KEYS) {
+    const value = expenses[key]
+    if (typeof value === 'number' && Number.isFinite(value)) picked[key] = value
+  }
+  return picked
 }
 
 /**

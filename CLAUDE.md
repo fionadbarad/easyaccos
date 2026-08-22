@@ -119,10 +119,16 @@ only reads the cookie. See `docs/AUDIT.md` SEC-8.
 ## Testing conventions
 
 Tests sit in `__tests__/` beside the code, except `src/features/ocr/`. The suite
-is ~755 tests and is used as **evidence**, not coverage: several files exist to
-hold a compliance claim true rather than to test a function. Keep that habit.
+is ~1,085 tests and is used as **evidence**, not coverage: several files exist
+to hold a compliance claim true rather than to test a function. Keep that habit.
 
 Weak spot to be aware of: almost no component tests (one `.tsx` file in the
-whole suite) and no happy-path tests for API routes — only their guards. New
-logic belongs in a testable module under `src/lib/` or `src/features/`, not
-inside a page component.
+whole suite). New logic belongs in a testable module under `src/lib/` or
+`src/features/`, not inside a page component.
+
+The API routes were the other weak spot and are no longer — `src/app/api/**` is
+at ~92 % statements. When you touch one, test **the request that leaves the
+building**, not only the status code that comes back: the outbound URL, body
+shape and headers, and the cookies carried from the auth placeholder onto the
+real response. Both defects found in that work (`docs/AUDIT.md` §10) lived in
+exactly that gap, and every guard test walked straight past them.

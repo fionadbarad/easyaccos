@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { getCachedUser } from '@/lib/auth-shared'
 import { getValidAccessToken, readHmrcEnv } from '@/lib/hmrc/oauth'
+import { carryCookies } from '@/lib/hmrc/cookies'
 import { reportError } from '@/lib/monitor'
 
 export const dynamic = 'force-dynamic'
@@ -74,9 +75,12 @@ export async function GET(req: NextRequest): Promise<NextResponse<Ok | Fail>> {
     helloRaw = await helloRes.text()
   } catch (err) {
     reportError('hmrc.me.network', err)
-    return NextResponse.json<Fail>(
-      { ok: false, stage: 'hello', message: 'Network error calling /hello/user' },
-      { status: 502 },
+    return carryCookies(
+      res,
+      NextResponse.json<Fail>(
+        { ok: false, stage: 'hello', message: 'Network error calling /hello/user' },
+        { status: 502 },
+      ),
     )
   }
 
@@ -88,15 +92,18 @@ export async function GET(req: NextRequest): Promise<NextResponse<Ok | Fail>> {
   }
 
   if (!helloRes.ok) {
-    return NextResponse.json<Fail>(
-      {
-        ok: false,
-        stage: 'hello',
-        status: helloRes.status,
-        body: helloBody,
-        message: `HMRC returned ${helloRes.status}`,
-      },
-      { status: 502 },
+    return carryCookies(
+      res,
+      NextResponse.json<Fail>(
+        {
+          ok: false,
+          stage: 'hello',
+          status: helloRes.status,
+          body: helloBody,
+          message: `HMRC returned ${helloRes.status}`,
+        },
+        { status: 502 },
+      ),
     )
   }
 
@@ -108,10 +115,15 @@ export async function GET(req: NextRequest): Promise<NextResponse<Ok | Fail>> {
     helloStatus: helloRes.status,
     helloBody,
   }
-  // Preserve any Set-Cookie headers written by getValidAccessToken's refresh
-  const finalRes = NextResponse.json<Ok>(ok)
-  for (const cookie of res.cookies.getAll()) {
-    finalRes.cookies.set(cookie)
-  }
-  return finalRes
+  // Preserve any Set-Cookie headers written by getValidAccessToken's refresh.
+  //
+  // Every exit below the refresh has to do this, not just this one. HMRC's
+  // refresh tokens are single-use: once getValidAccessToken redeems one, the
+  // old token is spent at HMRC and only the rotated cookie can file again. The
+  // two failure paths above returned a plain response, so a refresh followed by
+  // a failing /hello/user threw the replacement away and left the browser
+  // holding a token HMRC had already retired — the connection then looked fine
+  // and failed on the next call, with a reconnect the only way out. The submit
+  // routes fixed exactly this with carryCookies; this route was missed.
+  return carryCookies(res, NextResponse.json<Ok>(ok))
 }

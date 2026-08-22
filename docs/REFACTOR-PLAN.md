@@ -111,19 +111,35 @@ ratios — if it fails, the mapping was wrong, not the test.
 
 ---
 
-## Step 5 — Happy-path tests for the API routes
+## Step 5 — Happy-path tests for the API routes ✅ DONE
 
-**Why:** every route currently tests only its guards (401, 404, 429). What the
-routes actually _do_ is unverified. `src/app/api/payslip/parse/route.ts` has no
-test at all.
+**Why:** every route tested only its guards (401, 404, 429). What the routes
+actually _do_ was unverified.
 
-**Do:** for `payslip/parse`, then the HMRC routes:
+`payslip/parse` was covered first. The HMRC side was finished on 2026-08-22:
+`mtd-vat-submit.test.ts`, `mtd-it-submit.test.ts` and `me-route.test.ts` (that
+route had no test of any kind). `src/app/api/**` now measures **92.4 %
+statements / 82.7 % branches**.
 
-1. Mock `@/lib/supabase-server` so `auth.getUser()` returns a user.
-2. For `payslip/parse`, mock the dynamic `tesseract.js` import to return fixed
-   OCR text, and assert the 200 body shape, plus 400 with `issues` and `partial`
-   for unreadable text, 413 for oversize, 415 for a PDF.
-3. Follow the existing style in `src/app/api/hmrc/__tests__/`.
+Doing it found two real defects, both recorded as section 10 of
+`docs/AUDIT.md` and fixed in the same change:
+
+- **MTD-7** — the SA route forwarded expense keys HMRC does not publish, having
+  validated only the ones it does, so a renamed field skipped `isMoneyAmount`
+  entirely.
+- **MTD-8** — `/api/hmrc/me` discarded a rotated single-use refresh token when
+  the probe failed, silently disconnecting a working HMRC connection.
+
+Both were confirmed by reverting the fix and watching the new test fail.
+
+**The lesson worth carrying to the next route:** the gap these tests found was
+not in the handlers' branches, which the guard tests already walked. It was in
+the translation step — the flat body becoming HMRC's nested payload, and the
+cookies written to a placeholder response making it onto the real one. Test the
+request that _leaves the building_, not just the status code that comes back.
+
+**Remaining, if wanted:** `api/hmrc/hello` is the lowest at 78.1 %, and
+`auth/start` has the weakest branch coverage at 66.7 %.
 
 ---
 

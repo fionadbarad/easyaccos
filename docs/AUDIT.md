@@ -16,8 +16,17 @@ the fix direction. Work top-down: 🔴 blockers first._
 > **RLS policies** (which several findings depend on) could not be inspected from the code and
 > **must be verified in the Supabase dashboard**.
 
-> **Status reconciled against code 2026-07-31.** Snapshot: **55 ✅ · 0 🔴 · 0 🟠 ·
-> 1 🟡 · 4 ⚪ · 2 🔶** of 62.
+> **Status reconciled against code 2026-08-22.** Snapshot: **57 ✅ · 0 🔴 · 0 🟠 ·
+> 1 🟡 · 4 ⚪ · 2 🔶** of 64.
+>
+> Section 10 adds two rows, both found by writing the route tests Step 5 of the
+> refactor plan asks for and both fixed here: MTD-7 (client-invented expense
+> keys forwarded to HMRC unvalidated) and MTD-8 (`/api/hmrc/me` discarding a
+> rotated single-use refresh token when the probe failed). MTD-8 is the
+> propagation pattern this register keeps flagging — the submit routes had
+> already fixed that exact failure and nobody checked the third call site.
+>
+> _Previous reconciliation 2026-07-31: 55 ✅ · 0 🔴 · 0 🟠 · 1 🟡 · 4 ⚪ · 2 🔶 of 62._
 >
 > A fresh full-tree pass added **section 9**: nine defects found and fixed
 > (24 new tests), five more recorded with the reason they are deferred. The
@@ -168,6 +177,36 @@ new tests. Five open rows below are recorded, not fixed — each says why._
 | ------- | --- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | SEC-15b | ⚪  | `src/lib/hmrc/oauth.ts` | The SEC-15 single-flight guard is **per-instance**. Two requests handled by different serverless instances can still redeem the same single-use refresh token concurrently, and the loser is still left holding a retired token.                                                                                                 | Same shape as SEC-6: a real guarantee needs the token state in a shared store (Redis/Upstash) with a lock, which is an infrastructure decision, not a code change. The in-process guard removes the common case (one instance, concurrent handlers) and is honest about the rest.             |
 | TAX-15b | ⚪  | `src/features/tax/*`    | Carry-forward is now **permitted** (the form accepts a contribution above the annual allowance and the result explains the cap) but not **modelled**. A user with unused allowance from the previous three tax years still sees relief calculated on this year's allowance alone, so their real relief may be higher than shown. | Modelling it needs a new input — "unused allowance carried forward" — plus the three-year lookback rules, which is a form-design change and a materially larger piece of tax logic. The result notice states the limitation in as many words rather than implying a figure it cannot produce. |
+
+---
+
+## 10. 2026-08-22 pass — what the MTD routes actually send
+
+_`docs/REFACTOR-PLAN.md` Step 5: every API route was tested through its guards
+only, so what the routes **do** was unverified. Writing those tests found two
+defects, both in the gap between "the body validated" and "the request left" —
+the one stretch of these routes no existing test could see._
+
+| ID    | Sev | Location                                                               | Problem                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Fix direction                                                                                                                                                                                                                                                                                                                                                                                          |
+| ----- | --- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| MTD-7 | 🟠  | `src/app/api/hmrc/mtd/it/submit/route.ts`, `src/lib/hmrc/it-return.ts` | **Expense keys the caller invented were forwarded to HMRC unvalidated.** The route built `periodExpenses` as `Object.fromEntries(Object.entries(body.expenses).filter(finite))` — every key it was given — while `missingItFields` only ever walked `IT_EXPENSE_KEYS`. So `{"madeUpCost": 1.234}` passed validation untouched and went into a real return: a third decimal place is exactly what `isMoneyAmount` exists to reject, and renaming the field evaded it, because the check was on the name. The VAT route names its eleven fields explicitly and was never exposed — the same one-side-only asymmetry as SEC-14 vs MTD-2. | Done, in two independent places. `missingItFields` now rejects any key HMRC does not publish (rejecting beats silently dropping: a category lost to a typo understates expenses and overstates the profit the user is taxed on), and the payload goes through a new `pickItExpenses()` projection that cannot forward a key it does not know — deliberately not trusting that the validator ran first. |
+| MTD-8 | 🟠  | `src/app/api/hmrc/me/route.ts`                                         | **A failed probe threw away a freshly rotated refresh token.** `getValidAccessToken` writes rotated tokens onto a placeholder response; this route copied them onto the reply on the **success path only**. HMRC's refresh tokens are single-use, so a refresh followed by a non-2xx or a network failure from `/hello/user` discarded the replacement and left the browser holding a token HMRC had already retired. The connection then looked healthy and failed on the next call, with a full reconnect the only way out — from a probe whose whole job is to tell the user their connection is fine.                             | Done. All three exits below the refresh now go through `carryCookies`, replacing the hand-rolled cookie loop. The submit routes had already fixed this exact failure; this route was missed — the propagation gap this register keeps warning about. Now guarded by a test on all three routes, so the next one cannot regress quietly.                                                                |
+
+**Tests added:** 30 across four files — `mtd-vat-submit.test.ts` (10),
+`mtd-it-submit.test.ts` (9), `me-route.test.ts` (5, the route had none at all)
+and six in `it-return.test.ts`. Each of the two defects above was confirmed by
+reverting the fix and watching the new test fail, so these are regressions in
+the real sense rather than descriptions of the code as it now stands.
+
+Beyond the two defects, the new tests pin contract facts nothing else held: the
+exact set of fields in the outbound VAT return and the nested shape of the SA
+period summary, `Gov-Client-User-IDs` coming from the session and not the body
+(SEC-7), `Gov-Client-Public-IP` being read from our own proxy hop rather than
+the caller's claim, `Gov-Client-Public-IP-Timestamp` recording when the IP was
+seen rather than when the headers were built (MTD-2 — verified by moving the
+clock across the token refresh), the receipt headers the filer relies on as
+proof of submission, and an HMRC 5xx becoming a 502 instead of being echoed as
+our own failure.
 
 ---
 

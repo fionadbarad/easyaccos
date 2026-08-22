@@ -55,7 +55,7 @@ at all.
 | ----------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | TST-1 `use-user-data.ts` write path | ✅ closed (`386b626`)            | 54.5 % → **85.3 %** st, 33.6 % → **77.0 %** br                                                               |
 | TST-2 `getValidAccessToken`         | ✅ closed (`259b934`)            | `hmrc/oauth.ts` 75 % → **95.2 %** st                                                                         |
-| TST-3 six API routes at 0 %         | 🟠 partial (`2bd2a68`)           | callback **95.6 %**, status/disconnect **100 %**; `auth/start`, `me`, `payslip/parse` still **0 %** → TST-14 |
+| TST-3 six API routes at 0 %         | ✅ closed (2026-08-22)           | no route at 0 %; `src/app/api/**` at **92.35 %** stmts / **82.68 %** branches. TST-14 closed with it            |
 | TST-4 drift-prone files             | ✅ closed (`a907847`, `c6671a5`) | four surfaces added, plus student-loan and annual-allowance figures                                          |
 | TST-5 encrypted local storage       | 🟠 partial (`4c12269`)           | `secure-store` 64.2 % → **90.1 %**, `backup` 53.2 % → **72.3 %**; **`idb.ts` unmoved at 44.3 %** → TST-13    |
 | TST-6 compliance claims             | ✅ closed (`1e70150`)            | `audit.ts` 0 % → **90.5 %**, `feature-flags.ts` 18 % → **90.9 %**                                            |
@@ -129,27 +129,34 @@ written by the refresh branch.
 
 ---
 
-### 🟠 TST-3 — Six API routes at 0 %, including the OAuth callback
+### ✅ TST-3 — Six API routes at 0 %, including the OAuth callback
 
-_Partially closed by `2bd2a68` — the callback, status and disconnect routes. Three
-routes are still at 0 %; carried forward as **TST-14**._
+_**Closed 2026-08-22.** `2bd2a68` covered the callback, status and disconnect
+routes; the rest landed with REFACTOR-PLAN Step 5. No route is at 0 %, and the
+`src/app/api/**` tree measures **92.35 % statements / 82.68 % branches**._
 
-| Route                               | Statements |
-| ----------------------------------- | ---------- |
-| `api/hmrc/auth/callback/route.ts`   | 0 %        |
-| `api/hmrc/auth/start/route.ts`      | 0 %        |
-| `api/hmrc/auth/disconnect/route.ts` | 0 %        |
-| `api/hmrc/me/route.ts`              | 0 %        |
-| `api/hmrc/status/route.ts`          | 0 %        |
-| `api/payslip/parse/route.ts`        | 0 %        |
-| `api/ai/categorise/route.ts`        | 31 %       |
-| `api/hmrc/mtd/it/submit/route.ts`   | 73 %       |
-| `api/hmrc/mtd/vat/submit/route.ts`  | 76 %       |
-| `api/hmrc/hello/route.ts`           | 78 %       |
+| Route                               | Was  | Now (stmts) | Branches |
+| ----------------------------------- | ---- | ----------- | -------- |
+| `api/hmrc/auth/callback/route.ts`   | 0 %  | 95.83 %     | 83.33 %  |
+| `api/hmrc/auth/start/route.ts`      | 0 %  | 94.44 %     | 66.66 %  |
+| `api/hmrc/auth/disconnect/route.ts` | 0 %  | 100 %       | 100 %    |
+| `api/hmrc/me/route.ts`              | 0 %  | 96 %        | 87.5 %   |
+| `api/hmrc/status/route.ts`          | 0 %  | 100 %       | 100 %    |
+| `api/payslip/parse/route.ts`        | 0 %  | 97.61 %     | 95 %     |
+| `api/ai/categorise/route.ts`        | 31 % | 100 %       | 83.33 %  |
+| `api/hmrc/mtd/it/submit/route.ts`   | 73 % | 88.23 %     | 78.57 %  |
+| `api/hmrc/mtd/vat/submit/route.ts`  | 76 % | 86.95 %     | 80 %     |
+| `api/hmrc/hello/route.ts`           | 78 % | 78.12 %     | 73.68 %  |
 
-`CLAUDE.md` already names this weak spot ("no happy-path tests for API routes — only
-their guards"), and the measurement agrees: the three partially-covered routes are
-covered by their _guard_ tests only.
+The percentage was never the point, and the last pass proves it: the two MTD
+submit routes sat at 73–76 % on their guard tests alone, and the uncovered
+quarter was where both defects in `docs/AUDIT.md` §10 were hiding — the
+translation from our request body into HMRC's, and the cookies carried off the
+auth placeholder. Coverage counted the lines; nothing asserted what was in the
+request that left the building.
+
+`api/hmrc/hello` is now the lowest at 78.12 %, and `auth/start` has the weakest
+branch coverage at 66.66 %.
 
 The callback route is the one to do first. It is the security boundary of the whole
 HMRC integration — CSRF `state` verification, code exchange, token cookie write — and
@@ -471,16 +478,20 @@ also what TST-17 (2) needs.
 
 ---
 
-### 🟠 TST-14 — Three routes still at 0 %, including the only one that accepts a file
+### ✅ TST-14 — Three routes still at 0 %, including the only one that accepts a file
 
-Carried forward from TST-3.
+Carried forward from TST-3. **Closed 2026-08-22** — all four are now covered.
 
-| Route                          | Statements | Branches |
-| ------------------------------ | ---------- | -------- |
-| `api/payslip/parse/route.ts`   | **0 %**    | 0 %      |
-| `api/hmrc/me/route.ts`         | **0 %**    | 0 %      |
-| `api/hmrc/auth/start/route.ts` | **0 %**    | 0 %      |
-| `api/ai/categorise/route.ts`   | 30.55 %    | 12.5 %   |
+| Route                          | Was        | Now (stmts) | Branches |
+| ------------------------------ | ---------- | ----------- | -------- |
+| `api/payslip/parse/route.ts`   | **0 %**    | 97.61 %     | 95 %     |
+| `api/hmrc/me/route.ts`         | **0 %**    | 96 %        | 87.5 %   |
+| `api/hmrc/auth/start/route.ts` | **0 %**    | 94.44 %     | 66.66 %  |
+| `api/ai/categorise/route.ts`   | 30.55 %    | 100 %       | 83.33 %  |
+
+`api/hmrc/me` was the last of the four and turned out to be carrying a real
+defect (MTD-8): it discarded a rotated single-use refresh token whenever the
+probe it exists to perform failed. A route at 0 % is not merely unmeasured.
 
 `payslip/parse` is the one to do. It is the only route in the app that accepts an
 upload, it handles "the most personal document in the app" by its own description, and
@@ -663,7 +674,9 @@ established pattern here.
 3. **TST-13** — widen `installFakeIDB` and point it at the five uncovered entry
    points. Smaller than it first appears, since the harness already exists, and it is
    what unblocks TST-17 (2) and the last of TST-1.
-4. **TST-14** — `payslip/parse` first, then `auth/start` to close the OAuth pair.
+4. ~~**TST-14** — `payslip/parse` first, then `auth/start` to close the OAuth pair.~~
+   **Done 2026-08-22**, along with `me` and the two MTD submit routes. It paid for
+   itself twice over: see `docs/AUDIT.md` §10 for the two defects it surfaced.
 5. **TST-16** — decide what the validators are for. Cheap, and it resolves the
    inconsistency TST-15 trips over.
 6. **TST-15** — start with `useExpenses`; the £0.00 and negative-amount cases are three

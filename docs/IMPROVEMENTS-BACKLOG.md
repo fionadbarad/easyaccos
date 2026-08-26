@@ -42,7 +42,7 @@ mostly gaps rather than mess.
 The pattern that produced MTD-7 and MTD-8 (`docs/AUDIT.md` §10) was **a written
 security claim with no assertion behind it**. These are the remaining ones.
 
-### 1.1 🔴 `hmrc/identity.ts` is at 0 % — the SEC-7 access control has no test
+### 1.1 ✅ DONE (PR #107) — `hmrc/identity.ts` was at 0 %, the SEC-7 access control had no test
 
 - **Where:** `src/lib/hmrc/identity.ts` (12 statements, lines 25–54 uncovered)
 - **Why it matters:** `resolveSubmissionUserId()` is the function that decides
@@ -63,8 +63,12 @@ security claim with no assertion behind it**. These are the remaining ones.
      anyone gets that auth infrastructure is down).
 - **Check:** `npx vitest run src/lib/hmrc/__tests__/identity.test.ts` and
   confirm `identity.ts` is no longer 0 % (Appendix A).
-- **Tracked as:** TST-12 in `docs/TEST-COVERAGE.md` (already marked 🔴 there).
+- **Tracked as:** TST-12 in `docs/TEST-COVERAGE.md`.
 - **Effort:** small — 12 statements, four branches.
+- **Outcome:** `src/lib/hmrc/__tests__/identity.test.ts` added, all four branches
+  asserted. `identity.ts` **0 % → 100 %** on all four metrics; `lib/hmrc` as a
+  directory **91.74 % → 95.28 %** statements. No production code changed.
+  **TST-12 is not fully closed** — its `auth-shared.ts` half remains, see 1.4.
 
 ### 1.2 🔴 The client half of the fraud headers is untested
 
@@ -102,6 +106,27 @@ security claim with no assertion behind it**. These are the remaining ones.
   `version` at build time so it cannot drift.
 - **Check:** `grep NEXT_PUBLIC_APP_VERSION .env.example`.
 - **Effort:** trivial. **Do it with 2.3** (same file).
+
+---
+
+### 1.4 🟠 `auth-shared.ts` — the `catch` that holds hard rule #4 is unexecuted
+
+- **Where:** `src/lib/auth-shared.ts` line 25 (the `catch { return null }`)
+- **Current:** 87.5 % statements, 100 % branches, 85.71 % lines — one statement
+  short. The backlog and `docs/TEST-COVERAGE.md` both previously said this file
+  was at **0 %, 8 statements**; that was measured before the API-route work and
+  is stale. Only the `catch` body is uncovered now.
+- **Why it matters:** `getCachedUser` is the other half of TST-12, and where
+  hard rule #4 lives. It is memoized with React `cache()` precisely because a
+  cross-request cache leaked one user's identity to everyone (SEC-1). The
+  `catch` is what stops a Supabase outage throwing into a route and turning a
+  degraded auth backend into a 500 on every page.
+- **Fix:** extend the existing `identity.test.ts` mocking pattern — module-mock
+  `@/lib/supabase-server` so `createClient()` rejects, and assert
+  `getCachedUser()` resolves to `null` rather than throwing.
+- **Check:** `identity.ts` and `auth-shared.ts` both absent from the uncovered
+  list in Appendix A's per-file report.
+- **Effort:** very small — one test, one branch. Closes TST-12.
 
 ---
 
@@ -412,7 +437,8 @@ rediscovered as if they were bugs.
 1. **Batch 2** — 2.1 and 2.2 are already done in this commit (both were
    self-inflicted errors from the previous change, so they were fixed rather
    than billed to a later session). **2.3 remains** and takes minutes.
-2. **1.1** then **1.2** — the two security claims with no assertion behind them.
+2. ~~**1.1**~~ — **done, PR #107.** Then **1.4** (very small, closes TST-12) and
+   **1.2** — the remaining security claims with no assertion behind them.
    1.3 rides along with 2.3.
 3. **Batch 4** — deletions are the cheapest permanent wins here.
 4. **6.1**, **6.2** — environment determinism.

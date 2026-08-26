@@ -122,9 +122,9 @@ Tests sit in `__tests__/` beside the code, except `src/features/ocr/`. The suite
 is ~1,085 tests and is used as **evidence**, not coverage: several files exist
 to hold a compliance claim true rather than to test a function. Keep that habit.
 
-Weak spot to be aware of: almost no component tests (one `.tsx` file in the
-whole suite). New logic belongs in a testable module under `src/lib/` or
-`src/features/`, not inside a page component.
+Weak spot to be aware of: almost no component tests — two of them, plus two
+hook tests, in the whole suite. New logic belongs in a testable module under
+`src/lib/` or `src/features/`, not inside a page component.
 
 The API routes were the other weak spot and are no longer — `src/app/api/**` is
 at ~92 % statements. When you touch one, test **the request that leaves the

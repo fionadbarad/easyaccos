@@ -361,9 +361,13 @@ nothing below is defended.
 
 ---
 
-### 🔴 TST-12 — `hmrc/identity.ts` is at 0 % — a SEC-7 access control with no test
+### 🟠 TST-12 — the SEC-7 access control had no test (`identity.ts` half done, PR #107)
 
-`src/lib/hmrc/identity.ts` — **0 % statements, 0 % branches**, 12 statements.
+`src/lib/hmrc/identity.ts` — was **0 % statements, 0 % branches**, 12 statements.
+**Closed 2026-08-26 (PR #107):** `src/lib/hmrc/__tests__/identity.test.ts` asserts all
+four outcomes below; the file is now **100 %** on all four metrics and `lib/hmrc` moved
+91.74 % → 95.28 % statements. The `auth-shared.ts` half of this finding is still open —
+see the correction at the end of this section.
 
 `resolveSubmissionUserId()` derives the `Gov-Client-User-IDs` fraud-prevention header
 from the Supabase session server-side. Its own docblock records why:
@@ -399,8 +403,10 @@ it is not testing identity — but it means the real function has never returned
 failure in any test, and the routes' behaviour when it does (401 vs 503, and whether
 the submission is abandoned before HMRC is reached) is unverified from both directions.
 
-`src/lib/auth-shared.ts` is in the same position — **0 %**, 8 statements — and it is
-where hard rule #4 lives. `getCachedUser` is memoized with React `cache()` precisely
+`src/lib/auth-shared.ts` was in the same position — **0 %**, 8 statements. That figure is
+now stale: the API-route work of 2026-08-22 exercised it incidentally and it stands at
+**87.5 % statements, 100 % branches**, with only the `catch` body on line 25 uncovered.
+It remains the open half of this finding, and it is where hard rule #4 lives. `getCachedUser` is memoized with React `cache()` precisely
 because a cross-request cache leaked one user's identity to everyone (SEC-1). Nothing
 tests that the memo is per-request, nor that `error || !user` and the `catch` both
 yield `null` rather than throwing into a route.
@@ -409,6 +415,11 @@ yield `null` rather than throwing into a route.
 already does, and assert the discriminated union for all four `resolveSubmissionUserId`
 outcomes plus the two `getCachedUser` failure modes. Roughly one small file; it
 converts two written security claims into asserted ones.
+
+**Status:** the `resolveSubmissionUserId` half is done (PR #107). What remains is one
+test making `createClient()` reject and asserting `getCachedUser()` resolves to `null`
+rather than throwing into a route — tracked as item 1.4 in
+`docs/IMPROVEMENTS-BACKLOG.md`.
 
 ---
 
@@ -669,8 +680,9 @@ established pattern here.
 1. ~~**TST-11**~~ — **done.** CI runs `pnpm run test:coverage`; thresholds raised to
    77 / 74 / 72 / 81. Everything below is now defended by a gate that can actually
    fail.
-2. **TST-12** — `identity.ts` and `auth-shared.ts`. Small, and converts two written
-   security claims (SEC-7, SEC-1) into asserted ones under hard rule #3.
+2. **TST-12** — `identity.ts` **done 2026-08-26** (PR #107); `auth-shared.ts`'s `catch`
+   remains. Small, and converts two written security claims (SEC-7, SEC-1) into
+   asserted ones under hard rule #3.
 3. **TST-13** — widen `installFakeIDB` and point it at the five uncovered entry
    points. Smaller than it first appears, since the harness already exists, and it is
    what unblocks TST-17 (2) and the last of TST-1.
